@@ -43,7 +43,8 @@
     "oauth_full_drive_evidence": "verification/implementation/EP-04/full-drive-oauth-transition.json",
     "live_existing_installation_evidence": "verification/implementation/EP-04/live-existing-installation-canary.json",
     "ep05_live_gate_evidence": "verification/implementation/EP-05/live-gate-readonly.json",
-    "ep05_resume_evidence": "verification/implementation/EP-05/resume-adoption-summary.json"
+    "ep05_resume_evidence": "verification/implementation/EP-05/resume-adoption-summary.json",
+    "ep05_reconcile_evidence": "verification/implementation/EP-05/reconcile-provider-ports-summary.json"
   },
   "implementation_source_repository": {
     "local_git": "COMMITTED",

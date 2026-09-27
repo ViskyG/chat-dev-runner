@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "kind": "ep05-read-only-provider-port-evidence",
+  "recorded_at_utc": "2026-09-27T21:15:08.602826+00:00",
+  "environment": {
+    "host": "k8s-master",
+    "system": "Linux",
+    "release": "6.8.0-138-generic",
+    "python": "3.10.12"
+  },
+  "checks": [
+    {
+      "command": ".venv/bin/python -m pytest -q tests/test_reconcile_workflow.py tests/test_reconcile_github.py tests/test_reconcile_drive.py --junitxml=verification/implementation/EP-05/reconcile-provider-ports-tests.xml",
+      "exit_code": 0,
+      "counts": {
+        "tests": 22,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit_sha256": "4a722586383feaf13a6305415ea5f33276fe8b32e0d57739db83e8752a18c0fb"
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app tests scripts/bootstrap_drive.py",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/mypy runner_app",
+      "exit_code": 0,
+      "source_files": 74
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/python -m build --wheel --no-isolation --outdir /tmp/cdr-ep05-port-dist; inspect wheel module names",
+      "exit_code": 0,
+      "wheel_sha256": "098918cc45f492b88cd5fbd49e621c4380031f15cb7aef3cdfb4ff8d317603bc",
+      "verified": [
+        "runner_app/workflows/reconcile_github.py",
+        "runner_app/workflows/reconcile_drive.py"
+      ]
+    }
+  ],
+  "scope": "Real disposable local Git and fake GitHub REST/Drive API; no live provider calls or writes.",
+  "resolved_attempts": [
+    "Initial synthetic port fixtures used nonpartial target states, so two tests failed; changed them to accurately model terminal partial operations and all pass.",
+    "Static type/lint findings in new ports/tests were corrected before final checks."
+  ],
+  "limitations": [
+    "Ports are not registered in the production Runtime; owner configuration and existing installation attachment are required.",
+    "Local workspace effects remain unresolved until managed Git identity and worktree proof are implemented."
+  ]
+}
