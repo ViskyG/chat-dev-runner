@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -12,7 +13,7 @@ from threading import Event
 
 import pytest
 
-from runner_app.domain.commands import LocalPolicy, Provenance
+from runner_app.domain.commands import DomainError, LocalPolicy, Provenance
 from runner_app.engine.service import Engine, OperationResult
 from runner_app.engine.singleton import AlreadyRunning, Singleton
 from runner_app.storage import Database
@@ -307,3 +308,72 @@ def test_delivery_progress_is_durable_and_cannot_revert_after_confirmed(running)
     assert error.value.code == "INVALID_TRANSITION"
     release.set()
     assert wait_terminal(engine.ledger, request_id)["delivery_status"] == "DELIVERED"
+
+
+@pytest.mark.parametrize("commit_before_error", [False, True])
+def test_ambiguous_terminal_database_write_stops_new_admissions(
+    running, monkeypatch: pytest.MonkeyPatch, commit_before_error: bool,
+) -> None:
+    engine, entered, release, calls = running
+    command = make_command(engine.ledger)
+    assert submit(engine, command).execute
+    assert entered.wait(1)
+    original_finish = engine.ledger.finish
+
+    def uncertain_finish(*args, **kwargs):
+        if commit_before_error:
+            original_finish(*args, **kwargs)
+        raise sqlite3.OperationalError("synthetic ambiguous SQLite commit")
+
+    monkeypatch.setattr(engine.ledger, "finish", uncertain_finish)
+    release.set()
+    deadline = time.monotonic() + 5
+    while not engine.storage_faulted and time.monotonic() < deadline:
+        time.sleep(.005)
+    assert engine.storage_faulted
+    while engine.ledger.state()["armed"] and time.monotonic() < deadline:
+        time.sleep(.005)
+    assert not engine.ledger.state()["armed"]
+    assert len(calls) == 1
+    other = make_command(engine.ledger, workspace="b")
+    with pytest.raises(DomainError) as error:
+        submit(engine, other)
+    assert error.value.code == "STORAGE_UNAVAILABLE"
+    assert engine.ledger.get(other["request_id"]) is None
+    operation = engine.ledger.get(command["request_id"])
+    assert operation is not None
+    if commit_before_error:
+        assert operation["status"] == "COMPLETED"
+    else:
+        assert operation["status"] == "RUNNING"
+        assert operation["receipt"]["status"] == "RUNNING"
+        engine.ledger.startup()
+        assert engine.ledger.get(command["request_id"])["status"] == "INTERRUPTED"
+
+
+@pytest.mark.parametrize("commit_before_error", [False, True])
+def test_ambiguous_admission_database_write_never_dispatches(
+    running, monkeypatch: pytest.MonkeyPatch, commit_before_error: bool,
+) -> None:
+    engine, entered, _, calls = running
+    command = make_command(engine.ledger)
+    original_admit = engine.ledger.admit
+
+    def uncertain_admit(*args, **kwargs):
+        if commit_before_error:
+            original_admit(*args, **kwargs)
+        raise sqlite3.OperationalError("synthetic ambiguous admission commit")
+
+    monkeypatch.setattr(engine.ledger, "admit", uncertain_admit)
+    with pytest.raises(DomainError) as error:
+        submit(engine, command)
+    assert error.value.code == "STORAGE_UNAVAILABLE"
+    assert engine.storage_faulted
+    assert not engine.ledger.state()["armed"]
+    assert not entered.is_set() and calls == []
+    operation = engine.ledger.get(command["request_id"])
+    assert (operation is not None) is commit_before_error
+    if operation is not None:
+        assert operation["status"] == "RUNNING"
+        engine.ledger.startup()
+        assert engine.ledger.get(command["request_id"])["status"] == "INTERRUPTED"

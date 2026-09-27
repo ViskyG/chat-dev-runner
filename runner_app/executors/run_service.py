@@ -11,7 +11,6 @@ import hashlib
 import json
 import math
 import os
-import sqlite3
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -39,7 +38,16 @@ from runner_app.storage.paths import (
 )
 from runner_app.storage.run_evidence import RunEvidenceStore
 
-from .broker import BrokerResult, ContainerIntent, SnapshotInput, _sha256_argv
+from .broker import (
+    BrokerResult,
+    ContainerIntent,
+    ContainerReconciliation,
+    SnapshotInput,
+    _sha256_argv,
+)
+from .preparation_coordinator import PreparedHandoff, TrustedPreparationCoordinator
+from .preparation_handoff import BuildManifest
+from .preparation_plan import PreparationGrant, PreparationPlan, plan_preparation
 from .profiles import ApprovedProfile, ProfileRegistry
 
 _CAPTURE_NAMES = {
@@ -69,10 +77,21 @@ class RunCompletion:
     parse_summaries: dict[str, dict[str, Any]]
     operation_status: str
     operation_code: str | None
+    preparation: dict[str, str] | None = None
 
     @property
     def run_id(self) -> str:
         return str(self.manifest["run_id"])
+
+
+@dataclass(frozen=True)
+class TrustedPreparation:
+    """Owner-local capability; remote commands can only choose their approved test profile."""
+
+    coordinator: TrustedPreparationCoordinator
+    grant: PreparationGrant
+    preparation_volume: Path
+    preparation_run_root: Path
 
 
 def _uuid(value: str | None) -> str:
@@ -247,7 +266,10 @@ class ContainedRunBroker(Protocol):
     def run(self, profile: ApprovedProfile, snapshot: SnapshotInput, run_root: Path,
             *, run_id: str, writable_volume: Path | None = None,
             cancel: Event | None = None,
-            record_intent: Callable[[ContainerIntent], None]) -> BrokerResult: ...
+            record_intent: Callable[[ContainerIntent], None],
+            record_cleanup: Callable[[ContainerReconciliation], None],
+            preparation_plan: PreparationPlan | None = None,
+            staged_build: BuildManifest | None = None) -> BrokerResult: ...
 
 
 class RunService:
@@ -321,41 +343,17 @@ class RunService:
         return command, snapshot, Path(project["repo_path"])
 
     def _reserve_attempt(self, request_id: str, snapshot_id: str, run_id: str) -> None:
-        """Persist one execution attempt before touching source or starting a container.
-
-        A crashed or failed attempt is never retried under the same command ID. The
-        owner must submit a new command after reconciling any uncertain effects.
-        """
-        connection = self.registry.database.connect()
+        """Reserve the one-shot TEST phase before its broker can create anything."""
         try:
-            connection.execute("BEGIN IMMEDIATE")
-            operation = connection.execute(
-                "SELECT status FROM operations WHERE request_id=?", (request_id,),
-            ).fetchone()
-            if operation is None or operation[0] != "RUNNING":
-                raise RunServiceError("OPERATION_NOT_RUNNING", "Run operation is no longer active")
-            if connection.execute(
-                "SELECT 1 FROM runs WHERE request_id=?", (request_id,),
-            ).fetchone() is not None:
-                raise RunServiceError("RUN_ALREADY_ATTEMPTED", "Run command already has evidence")
-            connection.execute(
-                "INSERT INTO run_attempts(request_id,run_id,snapshot_id,created_at) "
-                "VALUES(?,?,?,?)",
-                (request_id, run_id, snapshot_id, datetime.now(timezone.utc).isoformat()),
-            )
-            connection.execute("COMMIT")
-        except sqlite3.IntegrityError:
-            connection.execute("ROLLBACK")
-            raise RunServiceError("RUN_ALREADY_ATTEMPTED", "Run command already has an attempt") from None
-        except BaseException:
-            connection.execute("ROLLBACK")
-            raise
-        finally:
-            connection.close()
+            self.ledger.reserve_phase_attempt(request_id, "TEST", run_id, snapshot_id)
+        except LedgerError as error:
+            raise RunServiceError(error.code,
+                                  "Contained test phase could not be reserved") from None
 
     def execute(self, request_id: str, snapshot_id: str, *,
                 run_id: str | None = None, writable_volume: Path | None = None,
-                cancel: Event | None = None) -> RunCompletion:
+                cancel: Event | None = None,
+                preparation: TrustedPreparation | None = None) -> RunCompletion:
         run_id = _uuid(run_id)
         command, snapshot, repo = self._preflight(request_id, snapshot_id)
         profile = self.profiles.require(command["params"]["profile_id"])
@@ -365,46 +363,119 @@ class RunService:
         evidence_dir = self.evidence.evidence_root / run_id
         if any(os.path.lexists(path) for path in (source_path, run_root, evidence_dir)):
             raise RunServiceError("RUN_ID_REUSED", "Run ID already has local files")
+        if preparation is not None and (not isinstance(preparation, TrustedPreparation)
+                                        or run_id != request_id or writable_volume is None):
+            raise RunServiceError("PREPARATION_CONFIG_INVALID",
+                                  "Prepared VERIFY requires its one request-bound test slot")
+        if preparation is not None:
+            coordinator = preparation.coordinator
+            if (coordinator.ledger is not self.ledger
+                    or coordinator.profiles is not self.profiles
+                    or coordinator.broker is not self.broker):
+                raise RunServiceError("PREPARATION_CONFIG_INVALID",
+                                      "Prepared VERIFY services must share exact local authority")
+            prep_evidence = coordinator.evidence_root
+            storage_roots = (self.sources_root, self.runs_root, self.evidence.evidence_root)
+            if any(prep_evidence == root or prep_evidence.is_relative_to(root)
+                   or root.is_relative_to(prep_evidence) for root in storage_roots):
+                raise RunServiceError("PREPARATION_CONFIG_INVALID",
+                                      "Preparation evidence requires a separate private root")
+        # Reserve the TEST identity before materialization on both routes.
+        # A prepared route also reserves its separate PREPARATION phase before
+        # that broker runs; only the durable handoff may authorize TEST create.
         self._reserve_attempt(request_id, snapshot_id, run_id)
         materialized = materialize_snapshot(
             repo, snapshot_id, snapshot["snapshot_commit"], snapshot["tree_digest"], source_path,
         )
         # A stopped or reconciled operation cannot start a new container.
         self._preflight(request_id, snapshot_id)
+        handoff: PreparedHandoff | None = None
+        if preparation is not None:
+            assert writable_volume is not None
+            plan = plan_preparation(
+                materialized, template_id=preparation.grant.template_id,
+                execution_profile_id=profile.profile_id,
+                grant=preparation.grant, profiles=self.profiles,
+            )
+            handoff = preparation.coordinator.prepare_and_stage(
+                request_id, materialized, plan, preparation.grant,
+                preparation_volume=preparation.preparation_volume,
+                test_volume=writable_volume,
+                preparation_run_root=preparation.preparation_run_root,
+                cancel=cancel,
+            )
+            if (handoff.test_run_id != run_id or handoff.test_volume != writable_volume
+                    or handoff.plan != plan or handoff.staged_build.source_build != writable_volume / "build"):
+                raise RunServiceError("PREPARATION_HANDOFF_INVALID",
+                                      "Prepared handoff differs from the admitted test slot")
+            self._preflight(request_id, snapshot_id)
         intent_recorded = False
+        intended: ContainerIntent | None = None
+        cleanup_recorded = False
 
         def record_intent(intent: ContainerIntent) -> None:
-            nonlocal intent_recorded
+            nonlocal intent_recorded, intended
             if (intent_recorded or intent.run_id != run_id
                     or intent.profile_id != profile.profile_id
                     or intent.profile_revision_sha256 != profile.revision_sha256
                     or intent.image != profile.image
                     or intent.argv_sha256 != _sha256_argv(profile.argv)
+                    or intent.source_path != str(materialized.path)
                     or not intent.daemon_id or len(intent.daemon_id) > 256
                     or not intent.image_id.startswith("sha256:")
                     or len(intent.nonce) != 32
                     or any(character not in "0123456789abcdef" for character in intent.nonce)):
                 raise RunServiceError("CONTAINER_INTENT_INVALID",
                                       "Broker container intent does not match the admitted run")
-            try:
-                self.ledger.record_container_intent(request_id, {
-                    "run_id": intent.run_id, "daemon_id": intent.daemon_id,
-                    "profile_id": intent.profile_id,
-                    "profile_revision_sha256": intent.profile_revision_sha256,
-                    "image": intent.image, "image_id": intent.image_id,
-                    "argv_sha256": intent.argv_sha256, "nonce": intent.nonce,
+            detail = {
+                "run_id": intent.run_id, "daemon_id": intent.daemon_id,
+                "profile_id": intent.profile_id,
+                "profile_revision_sha256": intent.profile_revision_sha256,
+                "image": intent.image, "image_id": intent.image_id,
+                "argv_sha256": intent.argv_sha256, "nonce": intent.nonce,
+                "source_path": intent.source_path,
+            }
+            if handoff is not None:
+                assert writable_volume is not None
+                detail.update({
+                    "preparation_run_id": handoff.preparation_run_id,
+                    "plan_identity_sha256": handoff.plan.identity_sha256,
+                    "prepared_build_tree_sha256": handoff.staged_build.tree_sha256,
+                    "test_volume_path": str(writable_volume),
                 })
+            try:
+                self.ledger.record_container_intent(request_id, detail, phase="TEST")
             except LedgerError as error:
                 raise RunServiceError(error.code,
                                       "Contained run intent was not admitted") from None
             intent_recorded = True
+            intended = intent
+
+        def record_cleanup(proof: ContainerReconciliation) -> None:
+            nonlocal cleanup_recorded
+            if (cleanup_recorded or intended is None or proof.run_id != intended.run_id
+                    or proof.daemon_id != intended.daemon_id or proof.state != "REMOVED"
+                    or proof.container_id is None):
+                raise RunServiceError("CONTAINER_CLEANUP_PROOF_INVALID",
+                                      "Broker cleanup proof differs from its durable intent")
+            try:
+                self.ledger.record_container_cleaned(request_id, "TEST", proof)
+            except LedgerError as error:
+                raise RunServiceError(error.code,
+                                      "Contained run cleanup could not be recorded") from None
+            cleanup_recorded = True
 
         result = self.broker.run(
             profile, materialized, run_root, run_id=run_id,
             writable_volume=writable_volume, cancel=cancel,
-            record_intent=record_intent,
+            record_intent=record_intent, record_cleanup=record_cleanup,
+            preparation_plan=handoff.plan if handoff is not None else None,
+            staged_build=handoff.staged_build if handoff is not None else None,
         )
-        self._verify_result(result, profile, materialized, run_root, writable_volume)
+        if not intent_recorded or not cleanup_recorded:
+            raise RunServiceError("CONTAINER_CLEANUP_UNVERIFIED",
+                                  "Broker returned without durable container cleanup proof")
+        self._verify_result(result, profile, materialized, run_root, writable_volume, handoff)
         ensure_private_directory(evidence_dir)
         capture_outputs, frozen_capture = _freeze_capture(result.capture, run_root, evidence_dir)
         expected_output_root = (writable_volume / "out" if writable_volume is not None
@@ -488,11 +559,16 @@ class RunService:
             parse_summaries={output_id: value.summary for output_id, value in collection.parses.items()
                              if value.status == "PARSED"},
             operation_status=operation_status, operation_code=operation_code,
+            preparation=({
+                "run_id": handoff.preparation_run_id, "outcome": "PASSED",
+                "evidence_sha256": handoff.evidence_sha256,
+            } if handoff is not None else None),
         )
 
     @staticmethod
     def _verify_result(result: BrokerResult, profile: ApprovedProfile, materialized: SnapshotInput,
-                       run_root: Path, writable_volume: Path | None) -> None:
+                       run_root: Path, writable_volume: Path | None,
+                       handoff: PreparedHandoff | None = None) -> None:
         if (result.run_id != run_root.name or result.snapshot_id != materialized.snapshot_id
                 or result.snapshot_commit != materialized.commit
                 or result.snapshot_tree != materialized.tree
@@ -522,6 +598,12 @@ class RunService:
                 or containment.get("network") != "none"
                 or containment.get("read_only_source") is not True):
             raise RunServiceError("CONTAINMENT_UNVERIFIED", "Broker containment is not verified")
+        if handoff is not None and (
+                containment.get("preparation_plan_sha256") != handoff.plan.identity_sha256
+                or containment.get("preparation_run_id") != handoff.preparation_run_id
+                or containment.get("prepared_build_tree_sha256") != handoff.staged_build.tree_sha256):
+            raise RunServiceError("PREPARATION_ATTESTATION_MISMATCH",
+                                  "Contained test did not attest its prepared build")
         expected_output = writable_volume / "out" if writable_volume is not None else run_root / "out"
         if Path(result.output_root) != expected_output:
             raise RunServiceError("OUTPUT_ROOT_MISMATCH", "Broker output root differs from its run slot")

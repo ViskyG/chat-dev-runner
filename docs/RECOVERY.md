@@ -15,30 +15,39 @@ status: required-design
 | Test exit code nonzero | every retained output | COMPLETED + execution FAILED | human analyses result |
 | Timeout/cancel | partial output, signal history | timed out/cancelled execution | human decides next step |
 | Process spawn/runtime missing | input + infrastructure trace | operation FAULT | repair runtime; new request |
-| Container creation/removal uncertain | run UUID, durable pre-create intent (daemon, image, profile, command hash, private nonce), cleanup code, retained lock | FAULT / reconciliation required | inspect the original rootless daemon; local `reconcile_run_attempt` releases the lock only after exact owned-container removal is verified |
+| Preparation or test container creation/removal uncertain | phase run UUID, durable pre-create intent (daemon, image, profile, command hash, exact private source mount, nonce), cleanup code, retained lock | FAULT / reconciliation required | inspect the original rootless daemon; local `reconcile_run_attempt` releases the lock only after every phase container has exact removal proof |
 | Bad optional JUnit/JSONL | raw output + parsing finding | output unparsed | inspect/project fix |
 | Drive upload failed after tests | local immutable output | delivery FAILED/PARTIAL | PUBLISH_REPORT, no test rerun |
 | Git push divergence | local snapshot + remote refs | publication BLOCKED | explicit branch resolution |
 | Timeout after GitHub repo/PR creation | external intent/resource IDs | UNKNOWN / reconciliation needed | read remote state before repeating |
 | Partial project creation | every created resource identity | PROVISIONING_PARTIAL | explicit resume from verified state |
 | Host restarted while executing | durable operation journal | INTERRUPTED | terminate/reconcile survivors, don't rerun |
-| Disk space below reserve or evidence write returns ENOSPC | retained bytes and durable attempt where available | storage FAULT / `EVIDENCE_STORAGE_FULL`; no complete run manifest is claimed after hard ENOSPC | free/archive space; inspect the attempt and start a new request only after recovery; no silent deletion or replay |
+| Evidence ENOSPC/EDQUOT while SQLite remains writable | retained bytes and durable phase attempts/intents where available | committed minimal FAULT / `EVIDENCE_STORAGE_FULL`, execution UNKNOWN; no complete run manifest | free/archive space; inspect evidence and start a new request only after recovery; no silent deletion or replay |
+| SQLite commit or journal write fails or is ambiguous | last confirmed receipt/attempt/intents and in-memory admission fence | `STORAGE_UNAVAILABLE`; terminal result is unknown until database readback | stop new admissions, signal live handlers, restore storage, restart and reconcile; never invent or retry an ambiguous receipt |
 | Cloud authorization revoked | local data, sanitized error | integration unavailable | local reauthorization |
 | Project archived with retained runs | manifests + tombstones | read-only project history | deliberate restore/unarchive |
 
-The broker records `CONTAINER_INTENDED` in the append-only journal before Docker create.
-That write atomically checks the still-running, armed operation, exact lock and reserved
-run attempt, preventing a paused worker from creating after startup releases its lock.
-The trusted local `reconcile_run_attempt()` route reads that intent and inventories the
-original rootless daemon. A candidate must match the recorded run name and label, private
-nonce, image identity, profile revision, command hash, and container security and mount
-policy. A collision or changed daemon fails closed. The route removes only the verified
-container by its exact ID, verifies it is gone on the same daemon, then journals a `REMOVED`
-proof before `confirm_stopped` releases the lock. An empty inventory is not proof of
-absence after an ambiguous create: the Docker request may still complete later, so the
-lock remains reserved for local investigation. This route is not exposed as a remote
-command and is never run automatically at startup. A missing intent or unavailable
-original daemon also leaves the lock reserved.
+The broker records a phase-specific `CONTAINER_INTENDED` before each Docker create.
+That append atomically checks the running, armed operation, exact lock, reserved phase
+attempt and, for TEST after PREPARATION, the completed handoff. The trusted local
+`reconcile_run_attempt()` route inventories the original rootless daemon for each unproved
+intent. A candidate must match the recorded run name and label, private nonce, image and
+profile revisions, command hash, exact source mount, and isolation/mount policy. Older
+schema-6 TEST intents retain their original run-ID source-name check. A collision or changed
+daemon fails closed. The route removes only an exact owned container by ID and journals
+its `REMOVED` proof. `confirm_stopped` releases the lock only after every phase intent has
+normal CLEANED or recovered REMOVED proof. An empty inventory is not proof of absence after
+an ambiguous create: the Docker request may still complete later. This recovery route is
+local and explicit, never a remote command or automatic startup action.
+
+A minimal storage-fault receipt is durable only if its SQLite transaction commits. When
+evidence bytes cannot be frozen but SQLite is healthy, the handler records a sanitized FAULT
+with the known snapshot and an UNKNOWN execution outcome; it does not create a run manifest.
+If SQLite cannot commit, no second receipt is fabricated: the Engine fences admissions for
+its process lifetime, requests cancellation of live workers and attempts to disarm. A power
+loss or truly full database volume cannot guarantee a terminal write. On restart, the last
+confirmed RUNNING row becomes INTERRUPTED for explicit reconciliation; an ambiguous COMMIT
+must be read back before any claim about the final state.
 
 ## Recovery commands beyond the small prototype schema
 

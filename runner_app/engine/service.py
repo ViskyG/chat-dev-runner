@@ -1,6 +1,8 @@
 """Immediate finite dispatch; no executor pool, waiting list or automatic replay."""
 from __future__ import annotations
 
+import errno
+import sqlite3
 import threading
 import uuid
 from collections.abc import Callable
@@ -56,11 +58,45 @@ class Engine:
         self._workers: dict[str, tuple[threading.Thread, threading.Event]] = {}
         # Serializes only the tiny dispatch/cancel handoff, never handler execution or slot waiting.
         self._handoff = threading.RLock()
+        self._storage_fault = threading.Event()
 
     def capabilities(self) -> list[str]:
         return sorted(self.handlers)
 
+    @property
+    def storage_faulted(self) -> bool:
+        """A failed durable write stops admission for this process lifetime."""
+        return self._storage_fault.is_set()
+
+    def _trip_storage_fault(self) -> None:
+        # An ambiguous COMMIT may have succeeded. Never retry it or advertise
+        # a fabricated receipt; stop new work and signal in-flight handlers.
+        with self._handoff:
+            self._storage_fault.set()
+            for _, cancel in self._workers.values():
+                cancel.set()
+        try:
+            self.ledger.disarm()
+        except (sqlite3.Error, OSError):
+            # A physically unwritable database cannot persist even disarming.
+            # The in-memory fence remains active until a fresh startup audit.
+            pass
+
     def submit(self, raw: bytes, provenance: Provenance) -> Admission:
+        try:
+            return self._submit(raw, provenance)
+        except sqlite3.Error:
+            self._trip_storage_fault()
+            raise DomainError("STORAGE_UNAVAILABLE", "Локальное хранилище недоступно.") from None
+        except OSError as error:
+            if error.errno not in {errno.ENOSPC, errno.EDQUOT, errno.EIO, errno.EROFS}:
+                raise
+            self._trip_storage_fault()
+            raise DomainError("STORAGE_UNAVAILABLE", "Локальное хранилище недоступно.") from None
+
+    def _submit(self, raw: bytes, provenance: Provenance) -> Admission:
+        if self._storage_fault.is_set():
+            raise DomainError("STORAGE_UNAVAILABLE", "Локальное хранилище недоступно.")
         command = parse_json(raw)
         frozen = freeze(command)
         request_id = command.get("request_id")
@@ -103,6 +139,8 @@ class Engine:
             else:
                 scopes = (f"workspace:{project}/{workspace}",)
         with self._handoff:
+            if self._storage_fault.is_set():
+                raise DomainError("STORAGE_UNAVAILABLE", "Локальное хранилище недоступно.")
             if rejection is None and cancel:
                 target = self.ledger.get(command["params"]["target_request_id"])
                 if (target is None or target["command"].get("project_id") != project
@@ -141,22 +179,50 @@ class Engine:
         command = frozen.command
         request_id = command["request_id"]
         try:
-            self.ledger.journal(request_id, "dispatch", "STARTED", {"action": command["action"]})
-            result = self.handlers[command["action"]](frozen, Context(event, self.ledger))
-            self.ledger.finish(request_id, result.status, code=result.code, result=result.result)
-        except Exception:  # noqa: BLE001 -- finite handler boundary must retain a terminal fault
-            # Provider/handler messages may contain credentials. Keep a stable local fault code.
-            self.ledger.finish(request_id, "FAULT", code="HANDLER_FAILED")
+            try:
+                self.ledger.journal(request_id, "dispatch", "STARTED",
+                                    {"action": command["action"]})
+            except (sqlite3.Error, OSError):
+                self._trip_storage_fault()
+                return
+            try:
+                result = self.handlers[command["action"]](frozen, Context(event, self.ledger))
+            except sqlite3.Error:
+                # The handler may have observed an ambiguous database commit.
+                self._trip_storage_fault()
+                return
+            except Exception:  # noqa: BLE001 -- never expose provider text to receipts
+                try:
+                    self.ledger.finish(request_id, "FAULT", code="HANDLER_FAILED")
+                except (sqlite3.Error, OSError):
+                    self._trip_storage_fault()
+                return
+            try:
+                self.ledger.finish(request_id, result.status, code=result.code,
+                                   result=result.result)
+            except (sqlite3.Error, OSError):
+                # Do not retry an ambiguous terminal COMMIT.
+                self._trip_storage_fault()
+            except Exception:  # noqa: BLE001 -- a malformed result gets a stable fault
+                try:
+                    self.ledger.finish(request_id, "FAULT", code="HANDLER_FAILED")
+                except (sqlite3.Error, OSError):
+                    self._trip_storage_fault()
         finally:
             with self._handoff:
                 self._workers.pop(request_id, None)
 
     def shutdown(self, *, timeout: float = 2.0) -> None:
-        self.ledger.disarm()
         with self._handoff:
+            self._storage_fault.set()
             workers = list(self._workers.values())
             for _, cancel in workers:
                 cancel.set()
+        try:
+            self.ledger.disarm()
+        except (sqlite3.Error, OSError):
+            # Worker cancellation still happens when durable disarm is unavailable.
+            pass
         for worker, _ in workers:
             worker.join(timeout=timeout)
         # Surviving workers retain RUNNING state and locks. Startup conservatively interrupts them;

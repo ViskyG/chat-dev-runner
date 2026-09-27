@@ -20,6 +20,12 @@ versioned structure (covered by a parity test). The UI's operation inspector mus
 non-test outputs even when the workspace has no test history. The offline UI only illustrates
 operation metadata there; full operation-output viewing is an explicit EP-06 task.
 
+A locally granted dependency preparation has its own immutable attempt, bounded raw
+capture and SHA-256 receipt outside the TEST run evidence tree. The operation result records
+its phase run ID, outcome and receipt hash; these bytes are local-only and have no download,
+publication or expiry API yet. Do not describe preparation logs as delivered outputs or
+apply the TEST output retention guarantee to them until that channel is implemented.
+
 A failed unit test produces a valid COMPLETED operation with execution=FAILED. A missing
 container runtime is an executor/infrastructure problem. Invalid JUnit produced by the
 project is an artifact parsing warning; preserve the file rather than reporting fabricated

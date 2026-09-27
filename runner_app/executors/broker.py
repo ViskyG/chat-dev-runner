@@ -85,6 +85,7 @@ class ContainerIntent:
     image_id: str
     argv_sha256: str
     nonce: str
+    source_path: str | None = None
 
 
 @dataclass(frozen=True)
@@ -689,7 +690,12 @@ class RootlessDockerBroker:
             actual[mount["Destination"]] = (mount["RW"], Path(mount["Source"]))
         if len(mounts) != 4 or set(actual) != {"/src", "/build", "/out", "/tmp"}:
             return False
-        if actual["/src"][0] or actual["/src"][1].name != intent.run_id:
+        if actual["/src"][0]:
+            return False
+        if intent.source_path is not None:
+            if actual["/src"][1] != Path(intent.source_path):
+                return False
+        elif actual["/src"][1].name != intent.run_id:
             return False
         for name in ("build", "out", "tmp"):
             writable, source = actual["/" + name]
@@ -780,6 +786,7 @@ class RootlessDockerBroker:
             *, run_id: str, writable_volume: Path | None = None,
             cancel: Event | None = None,
             record_intent: Callable[[ContainerIntent], None] | None = None,
+            record_cleanup: Callable[[ContainerReconciliation], None] | None = None,
             preparation_plan: PreparationPlan | None = None,
             staged_build: BuildManifest | None = None) -> BrokerResult:
         """Execute once; raised BrokerError means no tested-run attestation is issued."""
@@ -837,10 +844,11 @@ class RootlessDockerBroker:
                               "Container intent must be durable before creation")
         if not probe.daemon_id:
             raise BrokerError("DAEMON_ID_UNAVAILABLE", "Rootless daemon identity is unavailable")
-        record_intent(ContainerIntent(
+        intent = ContainerIntent(
             run_id, probe.daemon_id, profile.profile_id, profile.revision_sha256,
-            profile.image, image_id, _sha256_argv(profile.argv), nonce,
-        ))
+            profile.image, image_id, _sha256_argv(profile.argv), nonce, str(source),
+        )
+        record_intent(intent)
         create_attempted = False
         verified_container_id: str | None = None
         reported_container_id: str | None = None
@@ -979,7 +987,20 @@ class RootlessDockerBroker:
                     if removed.returncode != 0:
                         raise BrokerError(cleanup_code,
                                           "Contained process cleanup was not verified")
-                except BrokerError as error:
+                    if record_cleanup is not None:
+                        # A successful rm response is not yet a durable cleanup
+                        # receipt. Recheck the original daemon before journaling it.
+                        if self._owned_container_ids(intent):
+                            raise BrokerError(cleanup_code,
+                                              "Owned container remains after removal")
+                        after = self.probe()
+                        if not after.available or after.daemon_id != intent.daemon_id:
+                            raise BrokerError(cleanup_code,
+                                              "Original daemon changed during cleanup")
+                        record_cleanup(ContainerReconciliation(
+                            intent.run_id, intent.daemon_id, "REMOVED", cleanup_id,
+                        ))
+                except Exception as error:  # noqa: BLE001 -- cleanup must still reap attach
                     cleanup_error = BrokerError(cleanup_code,
                                                 "Contained process cleanup was not verified")
                     cleanup_error.__cause__ = error

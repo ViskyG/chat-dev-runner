@@ -1,0 +1,141 @@
+{
+  "checks": {
+    "baseline_pytest": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp=/tmp/cdr-ep03-phase-baseline",
+        "--junitxml=verification/implementation/EP-03/phase-baseline-pytest.xml"
+      ],
+      "elapsed_seconds": 57.764,
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": "verification/implementation/EP-03/phase-baseline-pytest.xml",
+      "junit_sha256": "d689d4b6920090d3632b91e46203163a15c1e2f2dd0f56d39a4b912067c30636",
+      "skipped": 0,
+      "tests": 879
+    },
+    "final_full_pytest": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp=/tmp/cdr-ep03-phase-final3",
+        "--junitxml=verification/implementation/EP-03/phase-final3-pytest.xml"
+      ],
+      "elapsed_seconds": 70.749,
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": "verification/implementation/EP-03/phase-final3-pytest.xml",
+      "junit_sha256": "c46ff04d724ead3106ebca8e08b6835bbcd814897ecc08cac095b876f8a581c1",
+      "skipped": 0,
+      "tests": 909
+    },
+    "git_diff_check": {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    },
+    "initial_full_pytest": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp=/tmp/cdr-ep03-phase-final",
+        "--junitxml=verification/implementation/EP-03/phase-final-pytest.xml"
+      ],
+      "elapsed_seconds": 73.896,
+      "errors": 0,
+      "exit_code": 1,
+      "failures": 3,
+      "junit": "verification/implementation/EP-03/phase-final-pytest.xml",
+      "junit_sha256": "abebfdf96ac1e5ffa8362622d8857d7b1ad355e779fc8d464612e3949acd747a",
+      "skipped": 0,
+      "tests": 907
+    },
+    "mypy": {
+      "argv": [
+        ".venv/bin/mypy",
+        "runner_app"
+      ],
+      "exit_code": 0,
+      "source_files": 57
+    },
+    "prior_passing_full_pytest": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp=/tmp/cdr-ep03-phase-final2",
+        "--junitxml=verification/implementation/EP-03/phase-final2-pytest.xml"
+      ],
+      "elapsed_seconds": 63.038,
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": "verification/implementation/EP-03/phase-final2-pytest.xml",
+      "junit_sha256": "d81d1673610b78e6b66595da29ea40431a47f3644cbf6678e4f9b3e0e68e4d12",
+      "skipped": 0,
+      "tests": 907
+    },
+    "ruff": {
+      "argv": [
+        ".venv/bin/ruff",
+        "check",
+        "runner_app",
+        "tests"
+      ],
+      "exit_code": 0
+    }
+  },
+  "created_at": "2026-09-27T10:40:02.853275+00:00",
+  "drive_writes": false,
+  "environment": {
+    "kernel": "6.8.0-138-generic",
+    "mode": "offline real Git/SQLite and fake rootless brokers",
+    "python": "3.10.12",
+    "uid": 1000
+  },
+  "host": {
+    "approved_installed_toy_profile": false,
+    "delegated_controllers": [
+      "memory",
+      "pids"
+    ],
+    "hard_quota_volume_provider_configured": false,
+    "newgidmap_present": false,
+    "newuidmap_present": false,
+    "rootless_socket_present": false
+  },
+  "initial_full_failure_reason": "three stale schema-6 test expectations after schema-7 migration; corrected without changing migration code",
+  "live_execution_attempted": false,
+  "offline_completed": [
+    "phase-specific immutable attempts/intents and exact source-path recovery",
+    "durable normal container cleanup proof per phase",
+    "owner-granted contained preparation coordinator with bounded local evidence and immutable handoff",
+    "prepared TEST broker attestation checked before run evidence registration",
+    "Engine admission fence after failed or ambiguous SQLite durable write",
+    "Engine admission fence after failed or ambiguous admission SQLite transaction"
+  ],
+  "packet": "EP-03",
+  "remaining": [
+    "rootless host prerequisites and real EP-03 acceptance matrix",
+    "approved offline dependency source and test profile consuming staged build",
+    "preparation evidence read/publication/retention channel",
+    "automatic output expiry and compact-manifest retention policy"
+  ],
+  "runner_armed": false,
+  "runner_created_project_repositories": false,
+  "schema_version": "1.0",
+  "status": "BLOCKED_HOST_GATE"
+}

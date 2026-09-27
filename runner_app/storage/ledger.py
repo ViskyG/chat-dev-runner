@@ -6,11 +6,12 @@ import hashlib
 import json
 import re
 import sqlite3
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any
+from pathlib import Path
+from typing import Any, cast
 from uuid import UUID, uuid4
 
 from .database import Database
@@ -18,6 +19,9 @@ from .database import Database
 TERMINAL = frozenset({"COMPLETED", "REJECTED", "BLOCKED", "FAULT", "INTERRUPTED", "CANCELLED"})
 EFFECT_KINDS = frozenset({"github_repository", "git_ref", "pull_request", "drive_file", "local_workspace"})
 _EXECUTOR_UNCERTAIN_CODES = frozenset({"CONTAINER_CLEANUP_FAILED", "CONTAINER_CLEANUP_UNCERTAIN"})
+_PHASES = frozenset({"PREPARATION", "TEST"})
+_SHA256 = re.compile(r"[0-9a-f]{64}\Z")
+_CONTAINER_ID = re.compile(r"[0-9a-f]{64}\Z")
 _SCOPE = re.compile(r"(?:(?:repo|global):[a-z0-9][a-z0-9-]{0,47}|workspace:[a-z0-9][a-z0-9-]{0,47}/[a-z0-9][a-z0-9-]{0,47})\Z")
 
 
@@ -83,6 +87,63 @@ def _scope_conflict(left: str, right: str) -> bool:
     if right.startswith("repo:"):
         return left.startswith("workspace:" + right[5:] + "/")
     return False
+
+
+def _execution_scope(row: sqlite3.Row) -> str:
+    if row["action"] == "VERIFY":
+        return f"workspace:{row['project_id']}/{row['workspace_id']}"
+    if row["action"] == "DELIVER_VERIFY_PUBLISH":
+        return f"repo:{row['project_id']}"
+    raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
+                      "Operation does not authorize a contained run")
+
+
+def _canonical_uuid(value: object) -> bool:
+    try:
+        return isinstance(value, str) and str(UUID(value)) == value
+    except (ValueError, TypeError, AttributeError):
+        return False
+
+
+def _phase_detail(value: dict[str, Any]) -> str:
+    # Schema 6 recorded the only container as TEST without an explicit phase.
+    phase = value.get("phase", "TEST")
+    if not isinstance(phase, str) or phase not in _PHASES:
+        raise ValueError("Unknown container phase")
+    return phase
+
+
+def _container_state(connection: sqlite3.Connection, request_id: str
+                     ) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
+    """Read private append-only intents/proofs; reject duplicates and mismatches."""
+    intents: dict[str, tuple[int, dict[str, Any]]] = {}
+    proofs: dict[str, tuple[int, dict[str, Any]]] = {}
+    for row in connection.execute(
+        "SELECT event_id,event_type,detail_json FROM journal WHERE request_id=? "
+        "AND event_type IN ('CONTAINER_INTENDED','CONTAINER_CLEANED','CONTAINER_RECONCILED') "
+        "ORDER BY event_id", (request_id,),
+    ):
+        detail = json.loads(row[2])
+        if not isinstance(detail, dict):
+            raise TypeError("Container event is malformed")
+        phase = _phase_detail(detail)
+        bucket = intents if row[1] == "CONTAINER_INTENDED" else proofs
+        if phase in bucket:
+            raise ValueError("Container phase has duplicate intent or proof")
+        bucket[phase] = (row[0], detail)
+    for phase, (event_id, proof) in proofs.items():
+        intended = intents.get(phase)
+        if intended is None or event_id <= intended[0]:
+            raise ValueError("Container proof has no earlier intent")
+        intent = intended[1]
+        if (proof.get("run_id") != intent.get("run_id")
+                or proof.get("daemon_id") != intent.get("daemon_id")
+                or proof.get("state") != "REMOVED"
+                or not isinstance(proof.get("container_id"), str)
+                or _CONTAINER_ID.fullmatch(proof["container_id"]) is None):
+            raise ValueError("Container proof does not match its intent")
+    return ({phase: detail for phase, (_, detail) in intents.items()},
+            {phase: detail for phase, (_, detail) in proofs.items()})
 
 
 class Ledger:
@@ -341,13 +402,25 @@ class Ledger:
                                        (timestamp, effect["effect_id"]))
                     self._append(connection, request_id, effect["step_id"], "EFFECT_UNKNOWN",
                                  {"effect_id": effect["effect_id"], "code": "NEEDS_RECONCILIATION"}, timestamp)
-            # An executor that could not prove container removal still owns its
-            # workspace/capacity until a trusted recovery check confirms it stopped.
-            retained = interrupted or bool(unresolved) or code in _EXECUTOR_UNCERTAIN_CODES
+            # Every durable create intent needs its own exact cleanup proof.
+            # A generic handler fault code must not accidentally release a lock
+            # after an ambiguous Docker create or a failed cleanup callback.
+            try:
+                intents, proofs = _container_state(connection, request_id)
+                container_uncertain = any(phase not in proofs for phase in intents)
+            except (TypeError, ValueError):
+                container_uncertain = True
+            retained = (interrupted or bool(unresolved) or container_uncertain
+                        or code in _EXECUTOR_UNCERTAIN_CODES)
             if unresolved:
                 if status == "COMPLETED":
                     status = "FAULT"
                 code = "NEEDS_RECONCILIATION"
+            elif container_uncertain:
+                if status == "COMPLETED":
+                    status = "FAULT"
+                if code is None:
+                    code = "CONTAINER_PROOF_REQUIRED"
             elif interrupted and code is None:
                 code = "NEEDS_RECONCILIATION"
             receipt = _receipt(request_id, row["digest"], status, code, timestamp,
@@ -371,11 +444,14 @@ class Ledger:
             return receipt
 
     def confirm_stopped(self, request_id: str) -> None:
-        """Trusted recovery calls only after verifying the owned worker is gone."""
+        """Release a terminal reservation only after every container is proven removed."""
         with self._transaction() as connection:
-            row = connection.execute("SELECT status,reconcile_required FROM operations WHERE request_id=?", (request_id,)).fetchone()
+            row = connection.execute(
+                "SELECT status,reconcile_required FROM operations WHERE request_id=?", (request_id,),
+            ).fetchone()
             if row is None or row["status"] not in {"INTERRUPTED", "FAULT", "BLOCKED"}:
-                raise LedgerError("INVALID_TRANSITION", "Only uncertain terminal operations need reconciliation")
+                raise LedgerError("INVALID_TRANSITION",
+                                  "Only uncertain terminal operations need reconciliation")
             if not row["reconcile_required"]:
                 return
             effect = connection.execute(
@@ -384,84 +460,362 @@ class Ledger:
             ).fetchone()
             if effect:
                 raise LedgerError("NEEDS_RECONCILIATION", "External effect is not confirmed")
-            intents = connection.execute(
-                "SELECT detail_json FROM journal WHERE request_id=? "
-                "AND event_type='CONTAINER_INTENDED' ORDER BY event_id LIMIT 2", (request_id,),
-            ).fetchall()
-            if intents:
-                proofs = connection.execute(
-                    "SELECT detail_json FROM journal WHERE request_id=? "
-                    "AND event_type='CONTAINER_RECONCILED' ORDER BY event_id DESC LIMIT 1",
-                    (request_id,),
-                ).fetchall()
-                try:
-                    if len(intents) != 1 or len(proofs) != 1:
-                        raise ValueError
-                    intent = json.loads(intents[0][0])
-                    proof = json.loads(proofs[0][0])
-                    if (not isinstance(intent, dict) or not isinstance(proof, dict)
-                            or proof.get("run_id") != intent.get("run_id")
-                            or proof.get("daemon_id") != intent.get("daemon_id")
-                            or proof.get("state") != "REMOVED"
-                            or not isinstance(proof.get("container_id"), str)
-                            or re.fullmatch(r"[0-9a-f]{64}", proof["container_id"]) is None):
-                        raise ValueError
-                except (TypeError, ValueError):
-                    raise LedgerError("CONTAINER_PROOF_REQUIRED",
-                                      "Owned container removal is not proven") from None
+            try:
+                intents, proofs = _container_state(connection, request_id)
+                if any(phase not in proofs for phase in intents):
+                    raise ValueError("One or more containers have no removal proof")
+            except (TypeError, ValueError):
+                raise LedgerError("CONTAINER_PROOF_REQUIRED",
+                                  "Every owned container must have an exact removal proof") from None
             connection.execute("DELETE FROM locks WHERE request_id=?", (request_id,))
-            connection.execute("UPDATE operations SET capacity_held=0,reconcile_required=0,updated_at=? WHERE request_id=?",
-                               (utcnow(), request_id))
-            self._append(connection, request_id, None, "WORKERS_CONFIRMED_STOPPED", {}, utcnow())
+            connection.execute(
+                "UPDATE operations SET capacity_held=0,reconcile_required=0,updated_at=? "
+                "WHERE request_id=?", (utcnow(), request_id),
+            )
+            self._append(connection, request_id, None,
+                         "WORKERS_CONFIRMED_STOPPED", {}, utcnow())
 
     def journal(self, request_id: str, step_id: str | None, event_type: str,
                 detail: dict[str, Any]) -> dict[str, Any]:
+        # Container proofs need the separate admission and identity checks below.
+        if event_type in {"CONTAINER_INTENDED", "CONTAINER_CLEANED", "CONTAINER_RECONCILED"}:
+            raise LedgerError("RESERVED_EVENT_TYPE",
+                              "Container events require the checked local methods")
         # Callers supply sanitized structured facts, never raw command/output text.
         with self._transaction() as connection:
             return self._append(connection, request_id, step_id, event_type, detail, utcnow())
 
-    def record_container_intent(self, request_id: str,
-                                detail: dict[str, Any]) -> None:
-        """Atomically fence Docker create against interruption and lock release.
+    @staticmethod
+    def _locked_execution(connection: sqlite3.Connection, request_id: str,
+                          *, running: bool = True) -> sqlite3.Row:
+        row = connection.execute(
+            "SELECT status,action,project_id,workspace_id,reconcile_required "
+            "FROM operations WHERE request_id=?", (request_id,),
+        ).fetchone()
+        if (row is None or (running and row["status"] != "RUNNING")
+                or (not running and row["status"] not in
+                    {"RUNNING", "INTERRUPTED", "FAULT", "BLOCKED"})):
+            raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
+                              "Execution is no longer admitted")
+        scope = _execution_scope(row)
+        if connection.execute(
+            "SELECT 1 FROM locks WHERE request_id=? AND scope=?", (request_id, scope),
+        ).fetchone() is None:
+            raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
+                              "Execution no longer owns its exact lock")
+        return cast(sqlite3.Row, row)
 
-        A worker can spend time checking its snapshot and image after preflight.
-        Recovery may interrupt and release that operation in the meantime, so
-        the durable pre-create intent must recheck authority in the same write
-        transaction that appends it.
-        """
+    def reserve_phase_attempt(self, request_id: str, phase: str,
+                              run_id: str, snapshot_id: str) -> None:
+        """Reserve one immutable attempt per phase before any phase-local side effect."""
+        if phase not in _PHASES or not _canonical_uuid(run_id) or not _canonical_uuid(snapshot_id):
+            raise LedgerError("PHASE_ATTEMPT_INVALID", "Phase or run identity is invalid")
         with self._transaction() as connection:
-            row = connection.execute(
-                "SELECT status,action,project_id,workspace_id FROM operations "
-                "WHERE request_id=?", (request_id,),
+            try:
+                row = self._locked_execution(connection, request_id)
+            except LedgerError:
+                raise LedgerError("OPERATION_NOT_RUNNING",
+                                  "Run operation is no longer active") from None
+            if not self._state(connection)["armed"]:
+                raise LedgerError("PHASE_ATTEMPT_NOT_ADMITTED", "Runner is not armed")
+            snapshot = connection.execute(
+                "SELECT project_id,workspace_id,base_head,snapshot_commit,provenance "
+                "FROM source_snapshots WHERE snapshot_id=?", (snapshot_id,),
             ).fetchone()
-            if (row is None or row["status"] != "RUNNING"
-                    or not self._state(connection)["armed"]):
-                raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
-                                  "Execution is no longer armed and running")
-            if row["action"] == "VERIFY":
-                scope = f"workspace:{row['project_id']}/{row['workspace_id']}"
-            elif row["action"] == "DELIVER_VERIFY_PUBLISH":
-                scope = f"repo:{row['project_id']}"
-            else:
-                raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
-                                  "Operation does not authorize a contained run")
-            held = connection.execute(
-                "SELECT 1 FROM locks WHERE request_id=? AND scope=?",
-                (request_id, scope),
+            effect = connection.execute(
+                "SELECT intent_json,state,provider_id FROM effects WHERE request_id=? "
+                "AND step_id='source-snapshot' AND kind='git_ref'", (request_id,),
             ).fetchone()
+            operation = connection.execute(
+                "SELECT command_json FROM operations WHERE request_id=?", (request_id,),
+            ).fetchone()
+            try:
+                source_intent = json.loads(effect["intent_json"]) if effect else None
+                command = json.loads(operation["command_json"]) if operation else None
+            except (TypeError, ValueError):
+                source_intent, command = None, None
+            if (snapshot is None or snapshot["project_id"] != row["project_id"]
+                    or snapshot["workspace_id"] != row["workspace_id"]
+                    or effect is None or effect["state"] != "CONFIRMED"
+                    or effect["provider_id"] != snapshot["snapshot_commit"]
+                    or not isinstance(source_intent, dict)
+                    or not isinstance(command, dict)
+                    or source_intent.get("snapshot_id") != snapshot_id
+                    or source_intent.get("project_id") != row["project_id"]
+                    or source_intent.get("workspace_id") != row["workspace_id"]
+                    or source_intent.get("kind") != snapshot["provenance"]
+                    or source_intent.get("expected_head") != snapshot["base_head"]
+                    or command.get("expected_head") != snapshot["base_head"]):
+                raise LedgerError("PHASE_ATTEMPT_NOT_ADMITTED",
+                                  "Phase snapshot lacks an exact admitted source effect")
+            if phase == "PREPARATION":
+                intents, _ = _container_state(connection, request_id)
+                if "TEST" in intents:
+                    raise LedgerError("PHASE_ATTEMPT_NOT_ADMITTED",
+                                      "Preparation cannot begin after test container intent")
+            try:
+                connection.execute(
+                    "INSERT INTO run_attempts(request_id,phase,run_id,snapshot_id,created_at) "
+                    "VALUES(?,?,?,?,?)", (request_id, phase, run_id, snapshot_id, utcnow()),
+                )
+            except sqlite3.IntegrityError:
+                raise LedgerError("RUN_ALREADY_ATTEMPTED",
+                                  "This phase already has an immutable attempt") from None
+
+    def record_container_intent(self, request_id: str,
+                                detail: dict[str, Any], *, phase: str = "TEST") -> None:
+        """Atomically fence each Docker create against interruption and lock release."""
+        if phase not in _PHASES or not isinstance(detail, dict):
+            raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED", "Container phase is invalid")
+        fields = dict(detail)
+        if fields.get("phase", phase) != phase:
+            raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED", "Container phase differs")
+        allowed = {
+            "phase", "run_id", "daemon_id", "profile_id",
+            "profile_revision_sha256", "image", "image_id",
+            "argv_sha256", "nonce", "source_path",
+        }
+        if phase == "TEST":
+            allowed.update({"preparation_run_id", "plan_identity_sha256",
+                            "prepared_build_tree_sha256", "test_volume_path"})
+        if set(fields) - allowed:
+            raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
+                              "Container intent contains unexpected fields")
+        fields["phase"] = phase
+        source_path = fields.get("source_path")
+        # New intents always pin their exact source mount. Legacy schema-6 TEST
+        # events may lack it and are handled only by the read/recovery path.
+        source = Path(source_path) if isinstance(source_path, str) else None
+        if (source is None or not source.is_absolute() or ".." in source.parts
+                or str(source) != source_path or len(source_path) > 4096
+                or re.fullmatch(r"/[A-Za-z0-9._/-]+", source_path) is None):
+            raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
+                              "Exact source mount identity is required")
+        if (not _canonical_uuid(fields.get("run_id"))
+                or not isinstance(fields.get("daemon_id"), str)
+                or not 1 <= len(fields["daemon_id"]) <= 256
+                or not isinstance(fields.get("profile_id"), str)
+                or re.fullmatch(r"[a-z][a-z0-9-]{0,47}", fields["profile_id"]) is None
+                or not all(isinstance(fields.get(key), str)
+                           and _SHA256.fullmatch(fields[key]) is not None
+                           for key in ("profile_revision_sha256", "argv_sha256"))
+                or not isinstance(fields.get("image"), str)
+                or re.search(r"@sha256:[0-9a-f]{64}\Z", fields["image"]) is None
+                or not isinstance(fields.get("image_id"), str)
+                or re.fullmatch(r"sha256:[0-9a-f]{64}", fields["image_id"]) is None
+                or not isinstance(fields.get("nonce"), str)
+                or re.fullmatch(r"[0-9a-f]{32}", fields["nonce"]) is None):
+            raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED", "Container identity is invalid")
+        with self._transaction() as connection:
+            self._locked_execution(connection, request_id)
+            if not self._state(connection)["armed"]:
+                raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
+                                  "Execution is no longer armed")
             attempt = connection.execute(
-                "SELECT run_id FROM run_attempts WHERE request_id=?", (request_id,),
+                "SELECT run_id,snapshot_id FROM run_attempts WHERE request_id=? AND phase=?",
+                (request_id, phase),
             ).fetchone()
-            existing = connection.execute(
-                "SELECT 1 FROM journal WHERE request_id=? "
-                "AND event_type='CONTAINER_INTENDED' LIMIT 1", (request_id,),
-            ).fetchone()
-            if (held is None or attempt is None or attempt[0] != detail.get("run_id")
-                    or existing is not None):
+            try:
+                intents, _ = _container_state(connection, request_id)
+            except (TypeError, ValueError):
                 raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
-                                  "Contained run lacks its unique admitted reservation")
-            self._append(connection, request_id, "container-intent",
-                         "CONTAINER_INTENDED", detail, utcnow())
+                                  "Durable container history is inconsistent") from None
+            if (attempt is None or attempt["run_id"] != fields["run_id"] or phase in intents):
+                raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
+                                  "Contained phase lacks its unique admitted reservation")
+            if phase == "PREPARATION" and "TEST" in intents:
+                raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
+                                  "Preparation cannot start after a test intent")
+            if phase == "TEST":
+                preparation = connection.execute(
+                    "SELECT run_id,snapshot_id FROM run_attempts "
+                    "WHERE request_id=? AND phase='PREPARATION'", (request_id,),
+                ).fetchone()
+                if preparation is not None:
+                    handoff = connection.execute(
+                        "SELECT * FROM preparation_handoffs WHERE request_id=?", (request_id,),
+                    ).fetchone()
+                    required = {
+                        "preparation_run_id": preparation["run_id"],
+                        "plan_identity_sha256": handoff["plan_identity_sha256"] if handoff else None,
+                        "prepared_build_tree_sha256": handoff["build_tree_sha256"] if handoff else None,
+                        "test_volume_path": handoff["test_volume_path"] if handoff else None,
+                    }
+                    if (handoff is None or handoff["snapshot_id"] != attempt["snapshot_id"]
+                            or handoff["test_run_id"] != attempt["run_id"]
+                            or any(fields.get(key) != value for key, value in required.items())):
+                        raise LedgerError("PREPARATION_HANDOFF_REQUIRED",
+                                          "Test container requires the exact completed handoff")
+            self._append(connection, request_id, f"container-intent-{phase.lower()}",
+                         "CONTAINER_INTENDED", fields, utcnow())
+
+    @staticmethod
+    def _proof_fields(proof: object) -> dict[str, Any]:
+        if isinstance(proof, Mapping):
+            return {key: proof.get(key) for key in
+                    ("run_id", "daemon_id", "state", "container_id")}
+        return {key: getattr(proof, key, None) for key in
+                ("run_id", "daemon_id", "state", "container_id")}
+
+    def _record_container_proof(self, request_id: str, phase: str,
+                                proof: object, event_type: str) -> None:
+        if phase not in _PHASES:
+            raise LedgerError("CONTAINER_PROOF_INVALID", "Container phase is invalid")
+        fields = self._proof_fields(proof)
+        if (fields["state"] != "REMOVED" or not _canonical_uuid(fields["run_id"])
+                or not isinstance(fields["daemon_id"], str)
+                or not isinstance(fields["container_id"], str)
+                or _CONTAINER_ID.fullmatch(fields["container_id"]) is None):
+            raise LedgerError("CONTAINER_PROOF_INVALID", "Container removal proof is invalid")
+        with self._transaction() as connection:
+            row = self._locked_execution(connection, request_id, running=False)
+            if row["status"] != "RUNNING" and not row["reconcile_required"]:
+                raise LedgerError("CONTAINER_PROOF_INVALID",
+                                  "Terminal operation does not retain an execution lock")
+            try:
+                intents, proofs = _container_state(connection, request_id)
+            except (TypeError, ValueError):
+                raise LedgerError("CONTAINER_PROOF_INVALID",
+                                  "Durable container history is inconsistent") from None
+            intent = intents.get(phase)
+            if (intent is None or phase in proofs
+                    or fields["run_id"] != intent.get("run_id")
+                    or fields["daemon_id"] != intent.get("daemon_id")):
+                raise LedgerError("CONTAINER_PROOF_INVALID",
+                                  "Removal proof does not match an unproved intent")
+            self._append(connection, request_id, f"container-cleanup-{phase.lower()}",
+                         event_type, {"phase": phase, **fields}, utcnow())
+
+    def record_container_cleaned(self, request_id: str, phase: str, proof: object) -> None:
+        """Persist exact normal cleanup, including cleanup after a failing phase."""
+        self._record_container_proof(request_id, phase, proof, "CONTAINER_CLEANED")
+
+    def record_container_reconciled(self, request_id: str, phase: str, proof: object) -> None:
+        """Trusted local recovery only, after removing an exact owned container."""
+        self._record_container_proof(request_id, phase, proof, "CONTAINER_RECONCILED")
+
+    def record_preparation_result(self, request_id: str, *, run_id: str,
+                                  snapshot_id: str, plan_identity_sha256: str,
+                                  preparation_profile_revision_sha256: str,
+                                  image: str, outcome: str, exit_code: int | None,
+                                  evidence_sha256: str, capture_complete: bool,
+                                  cleanup_verified: bool) -> None:
+        """Keep bounded phase evidence even when project preparation fails."""
+        if (not _canonical_uuid(run_id) or not _canonical_uuid(snapshot_id)
+                or not all(isinstance(value, str) and _SHA256.fullmatch(value) is not None
+                           for value in (plan_identity_sha256,
+                                         preparation_profile_revision_sha256,
+                                         evidence_sha256))
+                or not isinstance(image, str)
+                or re.search(r"@sha256:[0-9a-f]{64}\Z", image) is None
+                or outcome not in {"PASSED", "FAILED", "TIMED_OUT", "CANCELLED", "UNKNOWN"}
+                or (exit_code is not None and (type(exit_code) is not int
+                                               or not -(2**31) <= exit_code < 2**31))
+                or type(capture_complete) is not bool or cleanup_verified is not True):
+            raise LedgerError("PREPARATION_RESULT_INVALID",
+                              "Preparation result identity or evidence is invalid")
+        with self._transaction() as connection:
+            self._locked_execution(connection, request_id)
+            attempt = connection.execute(
+                "SELECT run_id,snapshot_id FROM run_attempts "
+                "WHERE request_id=? AND phase='PREPARATION'", (request_id,),
+            ).fetchone()
+            try:
+                intents, proofs = _container_state(connection, request_id)
+            except (TypeError, ValueError):
+                raise LedgerError("PREPARATION_RESULT_INVALID",
+                                  "Preparation container history is inconsistent") from None
+            intended = intents.get("PREPARATION")
+            if (attempt is None or attempt["run_id"] != run_id
+                    or attempt["snapshot_id"] != snapshot_id or intended is None
+                    or "PREPARATION" not in proofs
+                    or intended.get("run_id") != run_id
+                    or intended.get("profile_revision_sha256") !=
+                    preparation_profile_revision_sha256
+                    or intended.get("image") != image):
+                raise LedgerError("PREPARATION_RESULT_NOT_ADMITTED",
+                                  "Preparation result lacks its exact cleaned attempt")
+            try:
+                connection.execute(
+                    "INSERT INTO preparation_results VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (request_id, run_id, snapshot_id, plan_identity_sha256,
+                     preparation_profile_revision_sha256, image, outcome, exit_code,
+                     evidence_sha256, int(capture_complete), 1, utcnow()),
+                )
+            except sqlite3.IntegrityError:
+                raise LedgerError("PREPARATION_RESULT_EXISTS",
+                                  "Preparation result is already immutable") from None
+            self._append(connection, request_id, "preparation-result",
+                         "PREPARATION_RESULT", {
+                             "run_id": run_id, "outcome": outcome,
+                             "exit_code": exit_code, "capture_complete": capture_complete,
+                             "evidence_sha256": evidence_sha256,
+                         }, utcnow())
+
+    def record_preparation_handoff(self, request_id: str, *, run_id: str,
+                                   snapshot_id: str, test_run_id: str,
+                                   plan_identity_sha256: str,
+                                   preparation_profile_revision_sha256: str,
+                                   image: str, build_tree_sha256: str,
+                                   evidence_sha256: str, test_volume_path: str) -> None:
+        """Persist a successful, cleaned and staged preparation before test create."""
+        volume = Path(test_volume_path) if isinstance(test_volume_path, str) else None
+        if (not _canonical_uuid(run_id) or not _canonical_uuid(snapshot_id)
+                or not _canonical_uuid(test_run_id)
+                or not all(isinstance(value, str) and _SHA256.fullmatch(value) is not None
+                           for value in (plan_identity_sha256,
+                                         preparation_profile_revision_sha256,
+                                         build_tree_sha256, evidence_sha256))
+                or not isinstance(image, str)
+                or re.search(r"@sha256:[0-9a-f]{64}\Z", image) is None
+                or volume is None or not volume.is_absolute() or ".." in volume.parts
+                or str(volume) != test_volume_path or volume.name != test_run_id
+                or re.fullmatch(r"/[A-Za-z0-9._/-]+", test_volume_path) is None):
+            raise LedgerError("PREPARATION_HANDOFF_INVALID", "Prepared handoff identity is invalid")
+        with self._transaction() as connection:
+            self._locked_execution(connection, request_id)
+            preparation = connection.execute(
+                "SELECT run_id,snapshot_id FROM run_attempts "
+                "WHERE request_id=? AND phase='PREPARATION'", (request_id,),
+            ).fetchone()
+            test = connection.execute(
+                "SELECT run_id,snapshot_id FROM run_attempts "
+                "WHERE request_id=? AND phase='TEST'", (request_id,),
+            ).fetchone()
+            result = connection.execute(
+                "SELECT * FROM preparation_results WHERE request_id=?", (request_id,),
+            ).fetchone()
+            if (preparation is None or preparation["run_id"] != run_id
+                    or preparation["snapshot_id"] != snapshot_id
+                    or (test is not None and (test["run_id"] != test_run_id
+                                             or test["snapshot_id"] != snapshot_id))
+                    or result is None or result["run_id"] != run_id
+                    or result["snapshot_id"] != snapshot_id
+                    or result["plan_identity_sha256"] != plan_identity_sha256
+                    or result["profile_revision_sha256"] !=
+                    preparation_profile_revision_sha256
+                    or result["image"] != image or result["evidence_sha256"] != evidence_sha256
+                    or result["outcome"] != "PASSED" or result["exit_code"] != 0
+                    or result["capture_complete"] != 1 or result["cleanup_verified"] != 1):
+                raise LedgerError("PREPARATION_HANDOFF_NOT_ADMITTED",
+                                  "Handoff requires exact successful preparation evidence")
+            try:
+                connection.execute(
+                    "INSERT INTO preparation_handoffs VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                    (request_id, run_id, snapshot_id, test_run_id, plan_identity_sha256,
+                     preparation_profile_revision_sha256, image, build_tree_sha256,
+                     evidence_sha256, test_volume_path, utcnow()),
+                )
+            except sqlite3.IntegrityError:
+                raise LedgerError("PREPARATION_HANDOFF_EXISTS",
+                                  "Preparation handoff is already immutable") from None
+            # The private volume path stays in the local table, never the event API.
+            self._append(connection, request_id, "preparation-handoff",
+                         "PREPARATION_HANDOFF", {
+                             "preparation_run_id": run_id, "test_run_id": test_run_id,
+                             "plan_identity_sha256": plan_identity_sha256,
+                             "build_tree_sha256": build_tree_sha256,
+                         }, utcnow())
 
     def events(self, after: int = 0, limit: int = 100) -> list[dict[str, Any]]:
         if not isinstance(after, int) or after < 0 or not 1 <= limit <= 1000:
@@ -476,6 +830,8 @@ class Ledger:
                     # The nonce is needed for trusted local reconciliation but
                     # must not be exposed through the user-facing event stream.
                     detail.pop("nonce", None)
+                    detail.pop("test_volume_path", None)
+                    detail.pop("source_path", None)
                 events.append({
                     "event_id": row["event_id"], "request_id": row["request_id"],
                     "step_id": row["step_id"], "timestamp": row["timestamp"],
@@ -705,6 +1061,16 @@ class Ledger:
             "SELECT * FROM steps WHERE request_id=? ORDER BY created_at,step_id", (row["request_id"],)
         )]
         return result
+
+    def get_preparation_result(self, request_id: str) -> dict[str, str] | None:
+        """Return only review-safe identity and evidence for a durable phase result."""
+        with self._connection() as connection:
+            row = connection.execute(
+                "SELECT run_id,outcome,evidence_sha256 FROM preparation_results "
+                "WHERE request_id=?", (request_id,),
+            ).fetchone()
+            return ({"run_id": row["run_id"], "outcome": row["outcome"],
+                     "evidence_sha256": row["evidence_sha256"]} if row else None)
 
     def get(self, request_id: str) -> dict[str, Any] | None:
         with self._connection() as connection:

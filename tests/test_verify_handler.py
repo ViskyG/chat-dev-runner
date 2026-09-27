@@ -26,9 +26,10 @@ from runner_app.executors.broker import (
     SnapshotInput,
     _sha256_argv,
 )
+from runner_app.executors.preparation_plan import PreparationError
 from runner_app.executors.profiles import ProfileRegistry
 from runner_app.executors.reconciliation import ReconciliationError, reconcile_run_attempt
-from runner_app.executors.run_service import RunService
+from runner_app.executors.run_service import RunService, RunServiceError
 from runner_app.executors.verify_handler import VerifyHandler
 from runner_app.git.argv import run_git
 from runner_app.git.registry import SourceRegistry
@@ -83,7 +84,9 @@ class FakeBroker:
     def run(self, profile: Any, snapshot: SnapshotInput, run_root: Path,
             *, run_id: str, writable_volume: Path | None = None,
             cancel: Event | None = None,
-            record_intent: Callable[[ContainerIntent], None]) -> BrokerResult:
+            record_intent: Callable[[ContainerIntent], None],
+            record_cleanup: Callable[[ContainerReconciliation], None],
+            preparation_plan: Any = None, staged_build: Any = None) -> BrokerResult:
         self.calls.append((snapshot, run_root, writable_volume, cancel))
         if self.refuse is not None and self.refuse not in {
             "CONTAINER_CLEANUP_FAILED", "CONTAINER_CLEANUP_UNCERTAIN",
@@ -92,6 +95,7 @@ class FakeBroker:
         record_intent(ContainerIntent(
             run_id, "fake-rootless-daemon", profile.profile_id, profile.revision_sha256,
             profile.image, "sha256:" + "c" * 64, _sha256_argv(profile.argv), "f" * 32,
+            str(snapshot.path),
         ))
         if self.refuse is not None:
             raise BrokerError(self.refuse, "Synthetic container cleanup refusal")
@@ -149,6 +153,9 @@ class FakeBroker:
                 "network": "none", "read_only_source": True,
             },
         )
+        record_cleanup(ContainerReconciliation(
+            run_id, "fake-rootless-daemon", "REMOVED", "d" * 64,
+        ))
         return replace(result, snapshot_tree="0" * len(snapshot.tree)) if self.bad_identity else result
 
 
@@ -464,3 +471,83 @@ def test_missing_required_output_keeps_known_project_failure_separate(setup: Fix
     run = setup.ledger.get_run(command["request_id"])
     assert run["operation_status"] == "FAULT"
     assert run["execution"]["outcome"] == "FAILED"
+
+
+def _record_finished_preparation(setup: Fixture, request_id: str,
+                                 snapshot_id: str) -> dict[str, str]:
+    """A real Ledger receipt for a cleaned fake preparation, before TEST exists."""
+    prep_run_id = str(uuid4())
+    image = "example.invalid/fixture/prep@sha256:" + "a" * 64
+    revision = "b" * 64
+    evidence_sha256 = "e" * 64
+    setup.ledger.reserve_phase_attempt(request_id, "PREPARATION", prep_run_id, snapshot_id)
+    setup.ledger.record_container_intent(request_id, {
+        "run_id": prep_run_id, "daemon_id": "fake-rootless-daemon",
+        "profile_id": "fixture-prep", "profile_revision_sha256": revision,
+        "image": image, "image_id": "sha256:" + "c" * 64,
+        "argv_sha256": "d" * 64, "nonce": "f" * 32,
+        "source_path": str(setup.workspace),
+    }, phase="PREPARATION")
+    setup.ledger.record_container_cleaned(
+        request_id, "PREPARATION",
+        ContainerReconciliation(prep_run_id, "fake-rootless-daemon", "REMOVED", "1" * 64),
+    )
+    setup.ledger.record_preparation_result(
+        request_id, run_id=prep_run_id, snapshot_id=snapshot_id,
+        plan_identity_sha256="2" * 64,
+        preparation_profile_revision_sha256=revision, image=image,
+        outcome="PASSED", exit_code=0, evidence_sha256=evidence_sha256,
+        capture_complete=True, cleanup_verified=True,
+    )
+    return {"run_id": prep_run_id, "outcome": "PASSED",
+            "evidence_sha256": evidence_sha256}
+
+
+@pytest.mark.parametrize(("failure", "status", "code", "outcome"), [
+    ("staging", "BLOCKED", "PREPARATION_ARTIFACT_UNSAFE", "NOT_RUN"),
+    ("test_broker", "FAULT", "ROOTLESS_RUNTIME_UNAVAILABLE", "NOT_RUN"),
+    ("test_cancel", "CANCELLED", None, "NOT_RUN"),
+    ("test_fault", "FAULT", "TEST_POST_PREP_FAULT", "UNKNOWN"),
+    ("storage_full", "FAULT", "EVIDENCE_STORAGE_FULL", "UNKNOWN"),
+    ("unexpected", "FAULT", "VERIFY_HANDLER_FAILED", "UNKNOWN"),
+])
+def test_post_preparation_failure_keeps_durable_review_metadata(
+    setup: Fixture, monkeypatch: pytest.MonkeyPatch,
+    failure: str, status: str, code: str | None, outcome: str,
+) -> None:
+    command = setup.command()
+    setup.prepare_volume(command["request_id"])
+    handler = setup.engine.handlers["VERIFY"]
+    assert isinstance(handler, VerifyHandler)
+    recorded: list[dict[str, str]] = []
+
+    def fail_after_preparation(request_id: str, snapshot_id: str,
+                               **_kwargs: object) -> None:
+        recorded.append(_record_finished_preparation(setup, request_id, snapshot_id))
+        if failure == "staging":
+            raise PreparationError("PREPARATION_ARTIFACT_UNSAFE", "private build path")
+        if failure == "test_broker":
+            raise BrokerError("ROOTLESS_RUNTIME_UNAVAILABLE", "private daemon detail")
+        if failure == "test_cancel":
+            raise BrokerError("CANCELLED_BEFORE_START", "private cancellation detail")
+        if failure == "test_fault":
+            raise RunServiceError("TEST_POST_PREP_FAULT", "private source detail")
+        if failure == "storage_full":
+            raise OSError(errno.ENOSPC, "private evidence path")
+        raise RuntimeError("private unexpected detail")
+
+    monkeypatch.setattr(handler.runs, "execute", fail_after_preparation)
+    setup.submit(command)
+    terminal = setup.terminal(command["request_id"])
+    assert len(recorded) == 1
+    assert terminal["status"] == status
+    assert terminal["code"] == code
+    assert terminal["result"]["execution"]["outcome"] == outcome
+    assert terminal["result"]["publication"]["status"] == "NOT_REQUESTED"
+    assert terminal["result"]["delivery"]["status"] == "NOT_ATTEMPTED"
+    assert terminal["result"]["preparation"] == recorded[0]
+    assert setup.ledger.get_preparation_result(command["request_id"]) == recorded[0]
+    assert set(terminal["result"]["preparation"]) == {
+        "run_id", "outcome", "evidence_sha256",
+    }
+    assert "private " not in json.dumps(terminal)

@@ -19,6 +19,7 @@ from runner_app.executors.broker import (
     BrokerError,
     BrokerResult,
     ContainerIntent,
+    ContainerReconciliation,
     SnapshotInput,
     _sha256_argv,
 )
@@ -71,7 +72,7 @@ class FakeBroker:
     def __init__(self, *, outcome: str = "FAILED", junit: bool = True,
                  truncate: bool = False, mutation: str | None = None,
                  fail_before_slot: bool = False, capture_fault: str | None = None,
-                 event_drop: bool = False) -> None:
+                 event_drop: bool = False, omit_cleanup: bool = False) -> None:
         self.outcome = outcome
         self.junit = junit
         self.truncate = truncate
@@ -79,18 +80,22 @@ class FakeBroker:
         self.fail_before_slot = fail_before_slot
         self.capture_fault = capture_fault
         self.event_drop = event_drop
+        self.omit_cleanup = omit_cleanup
         self.calls: list[tuple[SnapshotInput, Path, Path | None, Event | None]] = []
 
     def run(self, profile: Any, snapshot: SnapshotInput, run_root: Path,
             *, run_id: str, writable_volume: Path | None = None,
             cancel: Event | None = None,
-            record_intent: Callable[[ContainerIntent], None]) -> BrokerResult:
+            record_intent: Callable[[ContainerIntent], None],
+            record_cleanup: Callable[[ContainerReconciliation], None],
+            preparation_plan: Any = None, staged_build: Any = None) -> BrokerResult:
         self.calls.append((snapshot, run_root, writable_volume, cancel))
         if self.fail_before_slot:
             raise BrokerError("ROOTLESS_RUNTIME_UNAVAILABLE", "Synthetic runtime refusal")
         record_intent(ContainerIntent(
             run_id, "fake-rootless-daemon", profile.profile_id, profile.revision_sha256,
             profile.image, "sha256:" + "c" * 64, _sha256_argv(profile.argv), "f" * 32,
+            str(snapshot.path),
         ))
         assert snapshot.path.is_dir()
         assert (snapshot.path / "README.txt").read_bytes() == b"pinned source\n"
@@ -166,6 +171,10 @@ class FakeBroker:
                 "network": "none", "read_only_source": True,
             },
         )
+        if not self.omit_cleanup:
+            record_cleanup(ContainerReconciliation(
+                run_id, "fake-rootless-daemon", "REMOVED", "d" * 64,
+            ))
         if self.mutation == "tree":
             return replace(result, snapshot_tree="0" * len(snapshot.tree))
         if self.mutation == "commit":
@@ -467,6 +476,20 @@ def test_runtime_gate_failure_does_not_create_execution_or_run_slot(tmp_path: Pa
     _expect_unbound(fixture, run_id)
 
 
+def test_broker_result_without_durable_cleanup_cannot_register_a_run(tmp_path: Path) -> None:
+    fixture = _fixture(tmp_path, broker=FakeBroker(omit_cleanup=True))
+    run_id = str(uuid4())
+    with pytest.raises(RunServiceError) as error:
+        fixture.service.execute(fixture.request_id, fixture.snapshot_id, run_id=run_id,
+                                writable_volume=fixture.volume)
+    assert error.value.code == "CONTAINER_CLEANUP_UNVERIFIED"
+    assert fixture.ledger.get_run(run_id) is None
+    fixture.ledger.finish(fixture.request_id, "FAULT", code=error.value.code)
+    operation = fixture.ledger.get(fixture.request_id)
+    assert operation is not None and operation["reconcile_required"] == 1
+    assert fixture.ledger.holds_lock(fixture.request_id, "workspace:fixture/area")
+
+
 def test_failed_broker_attempt_cannot_start_second_run_for_same_request(tmp_path: Path) -> None:
     fixture = _fixture(tmp_path, broker=FakeBroker(fail_before_slot=True))
     first_id, second_id = str(uuid4()), str(uuid4())
@@ -504,6 +527,8 @@ def test_precreate_intent_rechecks_admission_after_broker_preparation(
         run_id: str, writable_volume: Path | None = None,
         cancel: Event | None = None,
         record_intent: Callable[[ContainerIntent], None],
+        record_cleanup: Callable[[ContainerReconciliation], None],
+        preparation_plan: Any = None, staged_build: Any = None,
     ) -> BrokerResult:
         nonlocal create_reached
         if lost_authority == "startup_release":
@@ -520,6 +545,7 @@ def test_precreate_intent_rechecks_admission_after_broker_preparation(
         record_intent(ContainerIntent(
             run_id, "fake-rootless-daemon", profile.profile_id, profile.revision_sha256,
             profile.image, "sha256:" + "c" * 64, _sha256_argv(profile.argv), "f" * 32,
+            str(_snapshot.path),
         ))
         create_reached = True
         raise AssertionError("Docker create must not be reached after authority is lost")

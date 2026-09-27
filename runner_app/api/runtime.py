@@ -50,7 +50,7 @@ def _status(code: str | None) -> int:
                 "INVALID_TRANSITION", "NEEDS_RECONCILIATION", "IMPORT_SOURCE_CHANGED"}:
         return 409
     if code in {"UNARMED", "ACTION_UNAVAILABLE", "WORKER_UNAVAILABLE", "DISPATCH_FAILED",
-                "IMPORT_NOT_CONFIGURED"}:
+                "IMPORT_NOT_CONFIGURED", "STORAGE_UNAVAILABLE"}:
         return 503
     if code == "PAYLOAD_TOO_LARGE":
         return 413

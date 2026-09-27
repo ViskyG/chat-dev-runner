@@ -16,7 +16,7 @@ from urllib.parse import quote
 
 from .paths import UnsafePathError, _absolute, _check_private, _open_directory, _open_file_at
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 _MIGRATIONS: dict[int, tuple[str, ...]] = {
     1: (
         (
@@ -253,6 +253,67 @@ _MIGRATIONS: dict[int, tuple[str, ...]] = {
             "BEGIN SELECT RAISE(ABORT,'output tombstone is immutable'); END"
         ),
         "INSERT INTO schema_migrations(version, name) VALUES (6, 'output-retention')",
+    ),
+    7: (
+        "DROP TRIGGER run_attempts_no_update",
+        "DROP TRIGGER run_attempts_no_delete",
+        "ALTER TABLE run_attempts RENAME TO run_attempts_v5",
+        (
+            "CREATE TABLE run_attempts (request_id TEXT NOT NULL REFERENCES operations(request_id), "
+            "phase TEXT NOT NULL DEFAULT 'TEST' CHECK(phase IN ('PREPARATION','TEST')), "
+            "run_id TEXT NOT NULL UNIQUE, snapshot_id TEXT NOT NULL REFERENCES source_snapshots(snapshot_id), "
+            "created_at TEXT NOT NULL, PRIMARY KEY(request_id,phase))"
+        ),
+        (
+            "INSERT INTO run_attempts(request_id,phase,run_id,snapshot_id,created_at) "
+            "SELECT request_id,'TEST',run_id,snapshot_id,created_at FROM run_attempts_v5"
+        ),
+        "DROP TABLE run_attempts_v5",
+        (
+            "CREATE TRIGGER run_attempts_no_update BEFORE UPDATE ON run_attempts "
+            "BEGIN SELECT RAISE(ABORT,'run attempt is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER run_attempts_no_delete BEFORE DELETE ON run_attempts "
+            "BEGIN SELECT RAISE(ABORT,'run attempt is immutable'); END"
+        ),
+        (
+            "CREATE TABLE preparation_results (request_id TEXT PRIMARY KEY REFERENCES operations(request_id), "
+            "run_id TEXT NOT NULL UNIQUE REFERENCES run_attempts(run_id), "
+            "snapshot_id TEXT NOT NULL REFERENCES source_snapshots(snapshot_id), "
+            "plan_identity_sha256 TEXT NOT NULL, profile_revision_sha256 TEXT NOT NULL, "
+            "image TEXT NOT NULL, outcome TEXT NOT NULL "
+            "CHECK(outcome IN ('PASSED','FAILED','TIMED_OUT','CANCELLED','UNKNOWN')), "
+            "exit_code INTEGER, evidence_sha256 TEXT NOT NULL, capture_complete INTEGER NOT NULL "
+            "CHECK(capture_complete IN (0,1)), cleanup_verified INTEGER NOT NULL "
+            "CHECK(cleanup_verified IN (0,1)), created_at TEXT NOT NULL)"
+        ),
+        (
+            "CREATE TRIGGER preparation_results_no_update BEFORE UPDATE ON preparation_results "
+            "BEGIN SELECT RAISE(ABORT,'preparation result is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER preparation_results_no_delete BEFORE DELETE ON preparation_results "
+            "BEGIN SELECT RAISE(ABORT,'preparation result is immutable'); END"
+        ),
+        (
+            "CREATE TABLE preparation_handoffs (request_id TEXT PRIMARY KEY REFERENCES operations(request_id), "
+            "preparation_run_id TEXT NOT NULL UNIQUE REFERENCES run_attempts(run_id), "
+            "snapshot_id TEXT NOT NULL REFERENCES source_snapshots(snapshot_id), "
+            "test_run_id TEXT NOT NULL UNIQUE, plan_identity_sha256 TEXT NOT NULL, "
+            "preparation_profile_revision_sha256 TEXT NOT NULL, image TEXT NOT NULL, "
+            "build_tree_sha256 TEXT NOT NULL, evidence_sha256 TEXT NOT NULL, "
+            "test_volume_path TEXT NOT NULL, created_at TEXT NOT NULL)"
+        ),
+        (
+            "CREATE TRIGGER preparation_handoffs_no_update BEFORE UPDATE ON preparation_handoffs "
+            "BEGIN SELECT RAISE(ABORT,'preparation handoff is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER preparation_handoffs_no_delete BEFORE DELETE ON preparation_handoffs "
+            "BEGIN SELECT RAISE(ABORT,'preparation handoff is immutable'); END"
+        ),
+        "INSERT INTO schema_migrations(version, name) VALUES (7, 'phase-run-attempts')",
     ),
 }
 

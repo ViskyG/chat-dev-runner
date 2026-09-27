@@ -1,9 +1,9 @@
 """Offline, byte-verified handoff from a finished preparation container.
 
-This module never starts project code. A future orchestration service must first
+This module never starts project code. The trusted coordinator must first
 obtain a successful result from the rootless broker, then stage these files in a
-separate quota-limited test volume. The current broker still requires an empty
-test volume, so staging does not authorize a test run yet.
+separate quota-limited test volume. The broker can admit that copied tree
+only with the same granted plan; staging alone does not authorize a test run.
 """
 
 from __future__ import annotations

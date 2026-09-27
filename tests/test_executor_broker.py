@@ -6,6 +6,7 @@ import os
 import socket
 import subprocess
 import uuid
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -292,6 +293,8 @@ def _fake_create_attempt(
     create_reply: subprocess.CompletedProcess[bytes] | BrokerError,
     *, inspected: str = "matching", rm_returncode: int = 0,
     intent_error: bool = False,
+    cleanup_proofs: list[broker_module.ContainerReconciliation] | None = None,
+    post_rm_present: bool = False,
 ) -> tuple[BrokerError, list[tuple[str, ...]], str]:
     """Exercise the real create/finally flow with a fake rootless Docker CLI."""
     run_id = str(uuid.uuid4())
@@ -353,6 +356,9 @@ def _fake_create_attempt(
             return subprocess.CompletedProcess([], 0, json.dumps(container).encode(), b"")
         if args[:2] == ("container", "rm"):
             return subprocess.CompletedProcess([], rm_returncode, b"", b"")
+        if args[:2] == ("container", "ls"):
+            remaining = ("d" * 64 + "\n").encode() if post_rm_present else b""
+            return subprocess.CompletedProcess([], 0, remaining, b"")
         pytest.fail(f"unexpected Docker call: {args[:2]}")
 
     def record_intent(intent: ContainerIntent) -> None:
@@ -368,8 +374,45 @@ def _fake_create_attempt(
     monkeypatch.setattr(broker, "_run_docker", fake_docker)
     with pytest.raises(BrokerError) as failure:
         broker.run(profile, snapshot, run_root, run_id=run_id, writable_volume=volume,
-                   record_intent=record_intent)
+                   record_intent=record_intent,
+                   record_cleanup=(cleanup_proofs.append if cleanup_proofs is not None else None))
     return failure.value, calls, name
+
+
+def test_cleanup_proof_is_emitted_after_exact_removal_on_original_daemon(
+    profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proofs: list[broker_module.ContainerReconciliation] = []
+    failure, calls, name = _fake_create_attempt(
+        profile, broker, tmp_path, monkeypatch,
+        subprocess.CompletedProcess([], 1, b"", b"synthetic create refusal"),
+        cleanup_proofs=proofs,
+    )
+    assert failure.code == "CONTAINER_CREATE_FAILED"
+    assert len(proofs) == 1
+    assert proofs[0].run_id == name.removeprefix("cdr-run-")
+    assert proofs[0].daemon_id == "daemon"
+    assert proofs[0].state == "REMOVED"
+    assert proofs[0].container_id == "d" * 64
+    assert [call[:2] for call in calls][-2:] == [
+        ("container", "rm"), ("container", "ls"),
+    ]
+
+
+def test_cleanup_proof_is_withheld_when_container_remains_visible(
+    profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proofs: list[broker_module.ContainerReconciliation] = []
+    failure, calls, _ = _fake_create_attempt(
+        profile, broker, tmp_path, monkeypatch,
+        subprocess.CompletedProcess([], 1, b"", b"synthetic create refusal"),
+        cleanup_proofs=proofs, post_rm_present=True,
+    )
+    assert failure.code == "CONTAINER_CLEANUP_UNCERTAIN"
+    assert proofs == []
+    assert any(call[:2] == ("container", "ls") for call in calls)
 
 
 def test_intent_persistence_failure_prevents_docker_create(
@@ -548,3 +591,22 @@ def test_recovery_refuses_changed_daemon_before_inventory(
     with pytest.raises(BrokerError) as error:
         _fake_recovery(broker, profile, tmp_path, monkeypatch, daemon_id="different")
     assert error.value.code == "CONTAINER_RECONCILIATION_UNCERTAIN"
+
+
+def test_preparation_recovery_uses_exact_source_mount_not_phase_run_name(
+    broker: RootlessDockerBroker, profile: ApprovedProfile, tmp_path: Path,
+) -> None:
+    preparation_run_id = str(uuid.uuid4())
+    test_run_id = str(uuid.uuid4())
+    source = tmp_path / "sources" / test_run_id
+    owned = _created(profile, source, tmp_path / "volumes" / preparation_run_id,
+                     "cdr-run-" + preparation_run_id)
+    intended = ContainerIntent(
+        preparation_run_id, "daemon", profile.profile_id, profile.revision_sha256,
+        profile.image, "sha256:" + "c" * 64, broker_module._sha256_argv(profile.argv),
+        "f" * 32, str(source),
+    )
+    assert broker._recovery_policy_matches(owned, intended)
+    assert not broker._recovery_policy_matches(
+        owned, replace(intended, source_path=str(tmp_path / "sources" / str(uuid.uuid4()))),
+    )

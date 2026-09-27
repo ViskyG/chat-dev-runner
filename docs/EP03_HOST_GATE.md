@@ -26,12 +26,17 @@ is required; no system settings were changed.
    work uses it. Docker's installer may change the CLI context; the broker always addresses
    the explicit user socket. Check `docker --host unix:///run/user/1000/docker.sock info` for
    `name=rootless`, cgroup version `2` and driver `systemd`.
-4. Provide a dedicated empty hard-quota filesystem mount for each run UUID. The broker requires
+4. Provide two separate dedicated hard-quota filesystem mounts for each prepared VERIFY:
+   one empty PREPARATION mount named by its phase UUID and one initially empty TEST mount
+   named by the request UUID. The broker requires
    an owner-owned `0700` mountpoint beneath an owner-only parent, a different device from that
    parent, 16 MiB to its profile-calculated budget, at most 100,000 inodes, and at least 1 GiB
    free on the host outside the run allocation. A plain directory does not satisfy this check.
-   Select and test a mount provider before enabling any profile.
-5. Install one disposable toy image by exact digest and locally approve its profile. Run the
+   The preparation and test devices must also differ from each other. Select and test a
+   mount provider before enabling any profile.
+5. Install one disposable toy image by exact digest and locally approve its offline
+   preparation and test profiles. Select a disposable lockfile/dependency source and a TEST
+   command that actually consumes staged `/build`. Run the
    real passing, failing, timeout, cancellation, hostile access, fork/memory/log-volume,
    capture-fault and disk-full cases. Record command, exit code, container identity, observed
    limit and retained evidence under `verification/implementation/EP-03/`. Only then mark the
