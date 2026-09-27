@@ -1,0 +1,53 @@
+{
+  "checked_at_utc": "2026-09-27T21:37:58.375547+00:00",
+  "host": {
+    "container_cleanup": "docker ps --all --filter ancestor=<installed image> reported 0",
+    "rootless_socket": "/run/user/1000/docker.sock"
+  },
+  "installed_ep03_image": {
+    "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "image_inspect_exit_code": 0,
+    "pytest_probe": {
+      "command": "docker --host unix:///run/user/1000/docker.sock run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges:true --pids-limit 32 --memory 128m --memory-swap 128m --cpus 1 --cgroupns private --ipc private --user 0:0 --platform linux/amd64 --tmpfs /tmp:rw,noexec,nosuid,size=16m --entrypoint python <installed-image> -m pytest --version",
+      "exit_code": 1,
+      "host_mounts": 0,
+      "project_code_executed": false,
+      "result": "No module named pytest"
+    },
+    "python_version_from_image_metadata": "3.12.14"
+  },
+  "mode": "existing approved rootless image, no project source or host mounts, no network, no package/image fetch",
+  "next_validated_steps": [
+    "Choose and locally approve a real pytest/dependency artifact source for the pinned Python 3.12 image; do not mark the reference profile installed/approved merely by editing its flags.",
+    "Provide a reproducible hash-locked, network-free preparation path and a requirements.lock in the python-basic starter, or publish and pin a derived image containing pytest at an immutable repository digest.",
+    "Create owner-private 0600 preparation and test profiles pinned to the same installed digest, with a test argv that sees prepared /build packages if preparation is used; bind exact file hashes in the owner-local grant.",
+    "Provision fresh distinct hard-quota preparation/test mounts per run and perform a real rootless python-basic smoke run; register VERIFY only after this host path passes."
+  ],
+  "readiness": "BLOCKED",
+  "reference_profile": {
+    "approved": false,
+    "argv": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "--junitxml=/out/junit.xml"
+    ],
+    "image": "docker.io/library/python@sha256:54b4fc9408ea4f5d1b1b9c63c7ef1968d46d3b927e00df8ab1f09364593f979f",
+    "image_inspect_exit_code": 1,
+    "image_inspect_result": "No such image",
+    "installed": false,
+    "path": "config/profile.python-quick.json"
+  },
+  "schema_version": "1.0",
+  "starter_and_preparation_contract": {
+    "broker_sets_pythonpath": false,
+    "preparation_and_test_profiles_must_use_same_image_and_network_none": true,
+    "preparation_grant_requires_nonempty_snapshot_lockfile": true,
+    "python_basic_starter_has_requirements_lock": false,
+    "quota_volume_pool": "EP-03 disposable toy mounts only; no production per-operation quota provisioner",
+    "reference_argv_uses_build": false,
+    "test_build_is_mounted_at": "/build"
+  }
+}

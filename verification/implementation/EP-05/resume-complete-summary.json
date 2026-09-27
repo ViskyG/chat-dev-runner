@@ -1,0 +1,34 @@
+{
+  "checked_at": "2026-09-27T21:31:38.746707+00:00",
+  "environment": {
+    "git": "git version 2.34.1",
+    "machine": "x86_64",
+    "python": "3.10.12",
+    "system": "Linux"
+  },
+  "external_writes": 0,
+  "limits": [
+    "Missing resource steps block without replay",
+    "Drive-origin root receipt recovery unsupported",
+    "Existing adapter continuation under a new request ID unsupported",
+    "No live GitHub or Drive validation"
+  ],
+  "schema_version": "1.0",
+  "scope": "No-write terminal recovery for complete owner-local new-source CREATE_PROJECT only",
+  "static": [
+    {
+      "command": ".venv/bin/ruff check runner_app/workflows/provision_resume_complete.py tests/test_provision_resume_complete.py",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/mypy runner_app/workflows/provision_resume_complete.py tests/test_provision_resume_complete.py",
+      "exit_code": 0
+    }
+  ],
+  "tests": {
+    "command": ".venv/bin/pytest -q tests/test_provision_resume_complete.py tests/test_provision_resume_preview.py tests/test_provision_effect_adoption.py --junitxml verification/implementation/EP-05/resume-complete-tests.xml",
+    "exit_code": 0,
+    "junit": "verification/implementation/EP-05/resume-complete-tests.xml",
+    "passed": 18
+  }
+}

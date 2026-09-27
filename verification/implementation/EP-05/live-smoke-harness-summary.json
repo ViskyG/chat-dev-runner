@@ -1,0 +1,25 @@
+{
+  "cloud_writes": false,
+  "commands": [
+    {
+      "command": ".venv/bin/python -m pytest -q tests/test_ep05_live_create_smoke.py --junitxml=verification/implementation/EP-05/live-smoke-harness-tests.xml",
+      "exit_code": 0,
+      "result": "13 passed"
+    },
+    {
+      "command": ".venv/bin/ruff check scripts/ep05_live_create_smoke.py tests/test_ep05_live_create_smoke.py",
+      "exit_code": 0,
+      "result": "All checks passed"
+    },
+    {
+      "command": ".venv/bin/python -m mypy scripts/ep05_live_create_smoke.py",
+      "exit_code": 0,
+      "result": "Success: no issues found in 1 source file"
+    }
+  ],
+  "implementation_repository": "/home/visky/Work/GPTRunner/chat-dev-runner",
+  "live_apply_run": false,
+  "live_preflight_run": false,
+  "stage": "EP-05 live CREATE_PROJECT harness, offline verification only",
+  "state_root": "/home/visky/Work/GPTRunner/.ep05-smoke"
+}

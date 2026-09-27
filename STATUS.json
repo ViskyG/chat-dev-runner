@@ -1,11 +1,11 @@
 {
-  "version": "0.3.0-EP03-verified-EP04-verified-EP05-blocked",
-  "date": "2026-09-27",
+  "version": "0.3.0-EP03-verified-EP04-verified-EP05-blocked-prelive",
+  "date": "2026-09-28",
   "ui": "Interactive offline HTML/CSS/JS simulation, not wired to the reference core",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
-  "live_runner": "EP-00 through EP-04 VERIFIED. EP-05 offline provisioning, publication, report delivery, read-only reconciliation and safe resume-adoption primitives pass the full offline suite (1151 passed, 1 skipped). Production proof ports/resume coordinator and gated GitHub/Drive write acceptance remain. Runner NOT_CONFIGURED/unarmed; no READY command or live project execution.",
-  "github_live_adapter": "EP-05 offline REST/Git transport implemented; runner token and gated private repository/draft PR write acceptance pending",
+  "live_runner": "EP-00 through EP-04 VERIFIED. EP-05 offline provisioning, publication, delivery, exact GitHub/Drive/local reconciliation, and no-write completion of a fully provisioned UI-origin new project pass 1183 tests (1 skipped). Live read-only Drive/GitHub preflight passed for cdr-ep05-smoke-20260928; no EP-05 provider write. Production Runtime remains NOT_CONFIGURED/unarmed; no READY command or live project execution.",
+  "github_live_adapter": "EP-05 REST/Git transport implemented; owner-only external token file configured and ViskyG identity verified. Private repo creation/draft PR live acceptance pending.",
   "credentials": "None bundled",
   "service_installation": "None performed",
   "automatic_chat_access": "Deferred, manual provider authorization",
@@ -36,7 +36,7 @@
     },
     "armed": false,
     "deployable": false,
-    "evidence": "verification/implementation/EP-05/full-offline-summary.json",
+    "evidence": "verification/implementation/EP-05/prelive-full-summary.json",
     "checkpoint": "codex/checkpoints/EP-05.md",
     "oauth_gate_evidence": "verification/implementation/EP-04/oauth-browser-gate.json",
     "oauth_live_attach_evidence": "verification/implementation/EP-04/live-attach-attempt.json",
@@ -44,7 +44,12 @@
     "live_existing_installation_evidence": "verification/implementation/EP-04/live-existing-installation-canary.json",
     "ep05_live_gate_evidence": "verification/implementation/EP-05/live-gate-readonly.json",
     "ep05_resume_evidence": "verification/implementation/EP-05/resume-adoption-summary.json",
-    "ep05_reconcile_evidence": "verification/implementation/EP-05/reconcile-provider-ports-summary.json"
+    "ep05_reconcile_evidence": "verification/implementation/EP-05/reconcile-provider-ports-summary.json",
+    "ep05_local_reconcile_evidence": "verification/implementation/EP-05/reconcile-resume-summary.json",
+    "ep05_terminal_resume_evidence": "verification/implementation/EP-05/resume-complete-summary.json",
+    "ep05_harness_evidence": "verification/implementation/EP-05/live-smoke-harness-summary.json",
+    "ep05_preflight_evidence": "verification/implementation/EP-05/live-create-preflight.json",
+    "ep05_profile_readiness_evidence": "verification/implementation/EP-05/python-quick-readiness.json"
   },
   "implementation_source_repository": {
     "local_git": "COMMITTED",

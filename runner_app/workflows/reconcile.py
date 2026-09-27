@@ -23,8 +23,10 @@ _EXTERNAL_STEPS = {
     "github_repository": frozenset({"github-repository"}),
     "git_ref": frozenset({"baseline-main", "tested-git-push"}),
     "pull_request": frozenset({"draft-pull-request", "attach-run-report-link"}),
+    "local_workspace": frozenset({"local-project", "initial-workspace"}),
 }
 _PORT_KINDS = frozenset({"github_repository", "git_ref", "pull_request", "drive_file"})
+_OPTIONAL_PORT_KINDS = frozenset({"local_workspace"})
 
 
 @dataclass(frozen=True)
@@ -92,6 +94,30 @@ def _positive_proof(effect: Mapping[str, Any], proof: EffectProof) -> bool:
                     and intent["body"] == intent["previous_body"]
                     + f"Report: {intent['url']}\n")
         return False
+    if kind == "local_workspace":
+        project_id = intent.get("project_id")
+        if (not isinstance(project_id, str)
+                or re.fullmatch(r"[a-z0-9][a-z0-9-]{0,47}", project_id) is None):
+            return False
+        if effect["step_id"] == "local-project":
+            suffix = f"/{project_id}/repo.git"
+            source_kind = intent.get("kind")
+            return (proof.provider_id.startswith("/")
+                    and proof.provider_id.endswith(suffix)
+                    and source_kind in {"new", "local", "github"}
+                    and (source_kind != "local"
+                         or isinstance(intent.get("import_handle"), str))
+                    and (source_kind != "github"
+                         or intent.get("repo_path") == proof.provider_id))
+        if effect["step_id"] == "initial-workspace":
+            return (proof.provider_id.startswith("/")
+                    and proof.provider_id.endswith(
+                        f"/{project_id}/workspaces/primary"
+                    ) and intent.get("workspace_id") == "primary"
+                    and intent.get("branch") == f"work/{project_id}"
+                    and isinstance(intent.get("base_commit"), str)
+                    and _OBJECT_ID.fullmatch(intent["base_commit"]) is not None)
+        return False
     if kind == "drive_file":
         if _DRIVE_ID.fullmatch(proof.provider_id) is None:
             return False
@@ -123,8 +149,10 @@ class ReconcileWorkflow:
         if not owner_source_ids or any(not isinstance(value, str) or not value
                                        for value in owner_source_ids):
             raise ValueError("Exact authenticated owner-local source IDs are required")
-        if set(ports) != _PORT_KINDS or any(not callable(port) for port in ports.values()):
-            raise ValueError("Four read-only external effect ports are required")
+        if (not _PORT_KINDS <= set(ports)
+                or set(ports) - _PORT_KINDS - _OPTIONAL_PORT_KINDS
+                or any(not callable(port) for port in ports.values())):
+            raise ValueError("Four external ports and an optional local Git port are required")
         self.ledger = ledger
         self.owner_source_ids = frozenset(owner_source_ids)
         self.ports = dict(ports)
@@ -204,6 +232,10 @@ class ReconcileWorkflow:
                                    "step_id": step, "code": "EFFECT_CHANGED"})
                 continue
             confirmed.append(effect_id)
+            # Later effects can depend on an earlier proof in this same finite
+            # reconciliation pass (e.g. the primary worktree on its project).
+            # Re-read the durable row; never hand a provider a speculative proof.
+            target = self.ledger.get(target_id) or target
         final = self.ledger.get(target_id)
         remaining = ([] if final is None else [item for item in final["effects"]
                       if item["state"] in {"INTENDED", "UNKNOWN"}])

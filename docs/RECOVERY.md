@@ -52,10 +52,23 @@ must be read back before any claim about the final state.
 
 ## Recovery commands beyond the small prototype schema
 
-Production must add a versioned, narrow `RECONCILE` action that only reads and classifies external
-state for a prior operation, and `RESUME_PROVISION` for a verified partial create workflow.
-Both require new request IDs. They must not rerun a test or ambiguous completed side effect.
-Add schema/tests in EP-02/EP-05; do not overload VERIFY or mutate an old request body.
+Schema v1 now includes owner-local `RECONCILE` and `RESUME_PROVISION`, each with a new
+request ID and exact target request ID. They are explicit Engine handlers, not automatic
+startup or retry behavior, and the default Runtime does not register them. `RECONCILE`
+can positively classify a previously uncertain private GitHub repository, branch,
+draft PR, scoped Drive resource, managed bare repository, or clean primary worktree.
+The configured reader rechecks the original recorded identity without replaying a
+provider write. A missing resource, unmatched registry row, dirty worktree, or
+ambiguous negative search remains unresolved and retains the original operation's
+lock until owner resolution.
+
+`RESUME_PROVISION` has a narrow no-write completion route for an already complete,
+locally READY, UI-originated new project. It rechecks the original GitHub marker and
+main commit, registered local source and clean workspace, each Drive ID and document
+content hash, then atomically adopts each confirmed effect into the new request.
+It does not fill missing steps or recover a Drive-root receipt yet. Those cases
+remain `PROVISIONING_PARTIAL` until the source/Drive adapters can continue safely
+under the new request ID. Neither action reruns a test or an ambiguous side effect.
 
 `PUBLISH_REPORT` already appears in schema v1. It addresses immutable run evidence; it may retry
 transport only. Durable delivery state is not a development-task queue and does not cause

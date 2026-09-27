@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-09-27T21:35:15.488551+00:00",
+  "credential_contents_recorded": false,
+  "expected_github_login": "ViskyG",
+  "expected_github_user_id": 12452296,
+  "github_identity_read_status": 200,
+  "github_oauth_scopes": [
+    "gist",
+    "read:org",
+    "repo",
+    "workflow"
+  ],
+  "host": "k8s-master",
+  "live_drive_write_performed": false,
+  "live_github_write_performed": false,
+  "runner_token_directory_mode": "0o700",
+  "runner_token_file_configured": true,
+  "runner_token_file_mode": "0o600",
+  "schema_version": "1.0"
+}
