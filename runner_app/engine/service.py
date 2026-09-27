@@ -42,7 +42,7 @@ Handler = Callable[[FrozenCommand, Context], OperationResult]
 # operation. VERIFY remains workspace-scoped so independent snapshots can run
 # concurrently. EP-05 may narrow repository reservation to individual safe steps.
 _REPOSITORY_ACTIONS = frozenset({
-    "CREATE_PROJECT", "CREATE_WORKSPACE", "RETARGET_WORKSPACE", "DELIVER_VERIFY_PUBLISH",
+    "CREATE_PROJECT", "RESUME_PROVISION", "CREATE_WORKSPACE", "RETARGET_WORKSPACE", "DELIVER_VERIFY_PUBLISH",
     "PUBLISH", "FETCH", "SYNC_WORKSPACE", "ARCHIVE_WORKSPACE",
 })
 
@@ -106,6 +106,7 @@ class Engine:
         except (ValueError, AttributeError) as error:
             raise DomainError("INVALID_SCHEMA", "Требуется корректный идентификатор запроса.") from error
         rejection: str | None = None
+        resume_identity_alias: str | None = None
         try:
             validate_shape(command)
             state = self.ledger.state()
@@ -119,6 +120,50 @@ class Engine:
                     self.import_grants.resolve(handle)
                     policy = replace(policy, import_handles=policy.import_handles | {handle})
             policy.authorize(command, provenance)
+            if command["action"] == "RECONCILE":
+                target_id = command["params"]["target_request_id"]
+                target = self.ledger.get(target_id)
+                if target is None:
+                    raise DomainError("RECONCILE_TARGET_MISSING", "Операция для сверки не найдена.")
+                if (target_id == request_id or target["project_id"] != command["project_id"]
+                        or target["workspace_id"] != command["workspace_id"]):
+                    raise DomainError("RECONCILE_TARGET_SCOPE_MISMATCH",
+                                      "Операция сверки относится к другой области.")
+                if target["status"] == "RUNNING":
+                    raise DomainError("RECONCILE_TARGET_ACTIVE",
+                                      "Активную операцию нельзя сверять.")
+            if command["action"] == "RESUME_PROVISION":
+                target_id = command["params"]["target_request_id"]
+                target = self.ledger.get(target_id)
+                if target is None:
+                    raise DomainError("RESUME_TARGET_MISSING", "Исходная операция не найдена.")
+                if (target_id == request_id or target["project_id"] != command["project_id"]
+                        or target["workspace_id"] is not None
+                        or target["action"] != "CREATE_PROJECT"):
+                    raise DomainError("RESUME_TARGET_SCOPE_MISMATCH",
+                                      "Исходная операция относится к другому проекту.")
+                if target["status"] not in {"BLOCKED", "FAULT", "INTERRUPTED", "CANCELLED"}:
+                    raise DomainError("RESUME_TARGET_NOT_PARTIAL",
+                                      "Только частичное создание можно продолжить.")
+                if (target["reconcile_required"]
+                        or any(effect["state"] != "CONFIRMED"
+                               for effect in target["effects"])):
+                    raise DomainError("RESUME_RECONCILIATION_REQUIRED",
+                                      "Сначала требуется сверить неясные эффекты.")
+                if not target["effects"]:
+                    raise DomainError("RESUME_NO_CONFIRMED_EFFECTS",
+                                      "У исходной операции нет подтверждённых ресурсов.")
+                original = target["command"]
+                try:
+                    validate_shape(original)
+                    resume_identity_alias = original["params"]["github_identity"]
+                    if (original["request_id"] != target_id
+                            or original["project_id"] != command["project_id"]
+                            or target["digest"] != freeze(original).digest):
+                        raise ValueError
+                except (KeyError, TypeError, ValueError):
+                    raise DomainError("RESUME_TARGET_INVALID",
+                                      "Исходная команда не подтверждена.") from None
             if command["action"] != "CANCEL_OPERATION" and command["action"] not in self.handlers:
                 raise DomainError("ACTION_UNAVAILABLE", "Действие пока не настроено.")
         except DomainError as error:
@@ -127,14 +172,18 @@ class Engine:
         workspace = command.get("workspace_id")
         action = command.get("action")
         cancel = action == "CANCEL_OPERATION"
+        reconcile = action == "RECONCILE"
         scopes: tuple[str, ...] = ()
-        if rejection is None and not cancel:
+        if rejection is None and not cancel and not reconcile:
             if action in _REPOSITORY_ACTIONS:
                 scopes = (f"repo:{project}",)
-                if action == "CREATE_PROJECT":
-                    # Both account repository creation and shared Drive index
-                    # mutation need a local global reservation before admission.
-                    scopes += (f"global:{command['params']['github_identity']}",
+                if action in {"CREATE_PROJECT", "RESUME_PROVISION"}:
+                    # Account repository creation and shared Drive mutation both
+                    # require the original owner identity and installation locks.
+                    identity_alias = (command["params"]["github_identity"]
+                                      if action == "CREATE_PROJECT" else resume_identity_alias)
+                    assert isinstance(identity_alias, str)
+                    scopes += (f"global:{identity_alias}",
                                "global:drive-installation")
             else:
                 scopes = (f"workspace:{project}/{workspace}",)
@@ -149,7 +198,8 @@ class Engine:
                 elif target["status"] != "RUNNING":
                     rejection = "TARGET_NOT_RUNNING"
             admitted = self.ledger.admit(command, frozen.digest, provenance.source_id, scopes,
-                                         rejection_code=rejection, exempt_capacity=cancel)
+                                         rejection_code=rejection,
+                                         exempt_capacity=cancel or reconcile)
             if not admitted.execute:
                 return admitted
             if cancel:

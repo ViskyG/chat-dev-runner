@@ -11,11 +11,12 @@ import os
 import re
 import shutil
 import tempfile
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
 from runner_app.git.argv import GitError, run_git, run_git_bytes, validate_branch
+from runner_app.git.changes import ChangeError, safe_source_path
 from runner_app.storage.paths import UnsafePathError, ensure_private_directory
 
 _ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,47}$", re.ASCII)
@@ -188,11 +189,13 @@ def _require_clean(worktree: Path) -> None:
         raise GitError("DIRTY_WORKSPACE", "Workspace has tracked or untracked edits")
 
 
-def create_repository(managed_root: Path, project_id: str) -> Path:
-    """Create a private bare repository with a reproducible empty main commit.
+def create_repository(managed_root: Path, project_id: str, *,
+                      starter_files: Mapping[str, bytes] | None = None) -> Path:
+    """Create a private bare repository with one exact root main commit.
 
-    The staging directory remains after a fault for operator inspection; only a complete
-    bare repository is promoted to the stable project path.
+    Optional starter bytes come only from a checked-in owner-selected template.
+    The staging directory remains after a fault for operator inspection; only a
+    complete bare repository is promoted to the stable project path.
     """
     project = _project(managed_root, project_id)
     repository = project / "repo.git"
@@ -202,10 +205,45 @@ def create_repository(managed_root: Path, project_id: str) -> Path:
     seed = stage / "seed"
     seed.mkdir(mode=0o700)
     run_git(seed, ["init", "-b", "main"])
+    if starter_files is not None:
+        if not isinstance(starter_files, Mapping) or not 1 <= len(starter_files) <= 32:
+            raise GitError("TEMPLATE_INVALID", "Starter file list is invalid")
+        total = 0
+        prepared: list[tuple[str, bytes]] = []
+        for name, content in starter_files.items():
+            try:
+                relative = safe_source_path(name)
+            except (ChangeError, TypeError):
+                raise GitError("TEMPLATE_INVALID", "Starter path is invalid") from None
+            if not isinstance(content, bytes) or len(content) > 262_144:
+                raise GitError("TEMPLATE_INVALID", "Starter file bytes are invalid")
+            total += len(content)
+            if total > 1_048_576:
+                raise GitError("TEMPLATE_INVALID", "Starter exceeds byte limit")
+            prepared.append((str(relative), content))
+        for name, content in sorted(prepared):
+            target = seed.joinpath(*name.split("/"))
+            target.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+            descriptor = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                                 0o600)
+            try:
+                view = memoryview(content)
+                while view:
+                    written = os.write(descriptor, view)
+                    if written <= 0:
+                        raise GitError("TEMPLATE_IO_FAILED", "Unable to write starter file")
+                    view = view[written:]
+                os.fsync(descriptor)
+            finally:
+                os.close(descriptor)
+        run_git(seed, ["add", "--", *(name for name, _ in sorted(prepared))])
     run_git(seed, ["-c", "user.name=Chat Dev Runner", "-c", "user.email=runner@localhost.invalid",
                    "commit", "--allow-empty", "-m", "Initialize managed project"])
     bare = stage / "repo.git"
     run_git(stage, ["clone", "--bare", "--no-local", str(seed), str(bare)])
+    # A bare clone retains origin pointing at the disposable seed. Remove that
+    # broken remote before promotion so provisioning can bind one approved target.
+    run_git(bare, ["remote", "remove", "origin"])
     _inspect_config(bare)
     if repository.exists() or repository.is_symlink():
         raise GitError("PROJECT_EXISTS", "Managed repository already exists")

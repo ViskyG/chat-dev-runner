@@ -1,0 +1,30 @@
+{
+  "base_commit": "5fb9696e012707e6f2a096c67d236b77b435bbed",
+  "drive_seed_plan": {
+    "apply_performed": false,
+    "command": ".venv/bin/python scripts/bootstrap_drive.py --plan",
+    "existing_drive_installation_preserved": true,
+    "exit_code": 0,
+    "mode": "PLAN_ONLY",
+    "network_calls": false
+  },
+  "live_runner_armed": false,
+  "pytest_baseline": {
+    "command": ".venv/bin/python -m pytest -q --basetemp=/tmp/cdr-ep03-live-final --junitxml=verification/implementation/EP-03/live-final-pytest.xml",
+    "exit_code": 0,
+    "note": "This full suite ran immediately before the EP-03 checkpoint commit; no source code changed between suite and commit.",
+    "passed": 915,
+    "skipped": 1,
+    "xml_sha256": "f9eeca912586f979c57130154f85674cf7e346fe06494c3d5e30b82a2e0e9397"
+  },
+  "recorded_at_utc": "2026-09-27T11:45:22.380542+00:00",
+  "reference_demo": {
+    "cloud_calls": false,
+    "command": ".venv/bin/python -m bridge_reference.demo",
+    "exit_code": 0,
+    "real_local_git": true,
+    "real_local_tests": true,
+    "user_projects_touched": false
+  },
+  "schema_version": "1.0"
+}

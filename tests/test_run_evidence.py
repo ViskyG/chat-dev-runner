@@ -994,7 +994,7 @@ def test_v6_migration_backfills_only_existing_terminal_contained_references(
                 (request_id, "a" * 64, command, "local-owner", "fixture", "area",
                  "PUBLISH_REPORT", "RUNNING", _now(), _now(), "{}", 1),
             )
-    assert database.migrate() == 8
+    assert database.migrate() == 9
     with closing(database.connect()) as connection:
         assert connection.execute(
             "SELECT delivery_request_id,run_id FROM run_delivery_claims",
@@ -1020,7 +1020,7 @@ def test_v6_migration_releases_only_previously_delivered_report_claims(
                 (request_id, "a" * 64, command, "local-owner", "fixture", "area",
                  "PUBLISH_REPORT", status, _now(), _now(), "{}", 0, delivery),
             )
-    assert database.migrate() == 8
+    assert database.migrate() == 9
     with closing(database.connect()) as connection:
         assert connection.execute("SELECT COUNT(*) FROM run_delivery_claims").fetchone() == (2,)
         assert connection.execute(

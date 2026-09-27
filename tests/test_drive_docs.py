@@ -124,6 +124,49 @@ def test_ready_command_and_changeset_freeze_exact_bytes_and_revisions() -> None:
     assert not any(call[0] == "files.list" for call in provider.calls)
 
 
+@pytest.mark.parametrize("blank_text", ["", "\n", "\n\n"])
+def test_blank_new_workspace_command_is_idle(blank_text: str) -> None:
+    provider, mailbox = workspace_fixture()
+    provider.put_document(COMMAND_ID, blank_text, revision="empty-rev")
+    assert read_ready_snapshot(provider, mailbox) is None
+    assert ("documents.get", CHANGESET_ID) not in provider.calls
+
+
+@pytest.mark.parametrize("malformed", [" ", "NOT_READY", "{broken", "\n \n"])
+def test_nonblank_malformed_workspace_command_is_rejected(malformed: str) -> None:
+    provider, mailbox = workspace_fixture()
+    provider.put_document(COMMAND_ID, malformed, revision="malformed-rev")
+    with pytest.raises(DriveError) as error:
+        read_ready_snapshot(provider, mailbox)
+    assert error.value.code in {"INVALID_JSON", "INVALID_SCHEMA"}
+    assert ("documents.get", CHANGESET_ID) not in provider.calls
+
+
+
+@pytest.mark.parametrize("action,workspace_id,params", [
+    ("CREATE_WORKSPACE", "brand-new", {
+        "name": "New workspace", "branch": "feature/new",
+        "base_commit": HEAD, "profile_id": "python-quick",
+    }),
+    ("FETCH", None, {}),
+])
+def test_project_mailbox_accepts_its_project_actions(
+    action: str, workspace_id: str | None, params: dict,
+) -> None:
+    provider, _ = workspace_fixture()
+    provider.put_file({**_metadata(COMMAND_ID), "name": "PROJECT COMMAND"})
+    command = _command()
+    command.update(action=action, workspace_id=workspace_id, params=params)
+    provider.put_document(COMMAND_ID, json.dumps(command), revision="project-rev")
+    mailbox = RegisteredMailbox(
+        command_id=COMMAND_ID, parent_id=PARENT_ID, project_id="project",
+    )
+    frozen = read_ready_snapshot(provider, mailbox)
+    assert frozen is not None
+    assert frozen.command.command["action"] == action
+    assert frozen.command.command["workspace_id"] == workspace_id
+    assert ("documents.get", CHANGESET_ID) not in provider.calls
+
 def test_draft_is_inert_and_never_fetches_changeset() -> None:
     command = _command()
     command["dispatch"] = "DRAFT"

@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "kind": "ep05-full-route-offline-evidence",
+  "recorded_at": "2026-09-27T12:33:25.998133+00:00",
+  "environment": {
+    "git_head": "5fb9696e012707e6f2a096c67d236b77b435bbed",
+    "python": "3.10.12",
+    "system": "Linux",
+    "release": "6.8.0-138-generic",
+    "machine": "x86_64"
+  },
+  "checks": [
+    {
+      "command": ".venv/bin/pytest -q --junitxml=verification/implementation/EP-05/full-route-offline-tests.xml tests/test_git_publish.py tests/test_publish_run_workflow.py tests/test_deliver_verify_publish_workflow.py",
+      "exit_code": 0,
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit": "verification/implementation/EP-05/full-route-offline-tests.xml"
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app/workflows/deliver_verify_publish.py tests/test_deliver_verify_publish_workflow.py",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/mypy runner_app/workflows/deliver_verify_publish.py",
+      "exit_code": 0
+    }
+  ],
+  "scope": "Local bare Git, fake GitHub REST and fake Drive publisher; no live provider writes"
+}

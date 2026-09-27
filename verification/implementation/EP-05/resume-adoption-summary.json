@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "kind": "ep05-resume-admission-adoption-offline-evidence",
+  "recorded_at": "2026-09-27T20:56:02.207306+00:00",
+  "environment": {
+    "git_head": "5fb9696e012707e6f2a096c67d236b77b435bbed",
+    "python": "3.10.12",
+    "system": "Linux",
+    "release": "6.8.0-138-generic",
+    "machine": "x86_64"
+  },
+  "checks": [
+    {
+      "command": ".venv/bin/pytest -q tests/test_provision_effect_adoption.py tests/test_resume_provision_admission.py tests/test_reconcile_workflow.py tests/test_source_registry.py tests/test_foundation_storage.py tests/test_phase_ledger.py tests/test_run_evidence.py",
+      "exit_code": 0,
+      "tests": 144,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app/storage/database.py runner_app/storage/ledger.py runner_app/domain/commands.py runner_app/engine/service.py tests/test_provision_effect_adoption.py tests/test_resume_provision_admission.py tests/test_source_registry.py tests/test_foundation_storage.py tests/test_phase_ledger.py tests/test_run_evidence.py",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/mypy runner_app/storage/database.py runner_app/storage/ledger.py runner_app/domain/commands.py runner_app/engine/service.py tests/test_provision_effect_adoption.py tests/test_resume_provision_admission.py",
+      "exit_code": 0
+    }
+  ],
+  "scope": "Owner-local versioned admission and atomic local SQLite adoption of exact previously confirmed effects; no executing resume handler and no live provider writes",
+  "design": "verification/implementation/EP-05/resume-provision-design.md"
+}

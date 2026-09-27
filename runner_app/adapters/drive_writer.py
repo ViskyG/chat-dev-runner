@@ -29,6 +29,8 @@ _ALLOWED_APP_KEYS: Mapping[str, OutputKind] = {
     "receipt": "RECEIPT",
     "state": "STATE",
     "project-receipt": "RECEIPT",
+    "project-state": "STATE",
+    "source-context": "STATE",
     "workspace-receipt": "RECEIPT",
     "latest-result": "LATEST_RESULT",
 }

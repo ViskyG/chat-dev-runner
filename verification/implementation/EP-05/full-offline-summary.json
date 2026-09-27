@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "kind": "ep05-final-offline-checks",
+  "recorded_at_utc": "2026-09-27T20:59:02.588042+00:00",
+  "environment": {
+    "host": "k8s-master",
+    "system": "Linux",
+    "release": "6.8.0-138-generic",
+    "machine": "x86_64",
+    "python": "3.10.12"
+  },
+  "baseline": "verification/implementation/EP-05/baseline-20260927.json",
+  "checks": [
+    {
+      "command": ".venv/bin/python -m pytest -q --basetemp=/tmp/cdr-ep05-final-20260927 --junitxml=verification/implementation/EP-05/full-offline-tests.xml",
+      "exit_code": 0,
+      "counts": {
+        "tests": 1152,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "junit_sha256": "14e778e209cd0f97268a2450cf3ee45d42f93a485bf823a02a7941a6d748766f",
+      "seconds": 119.407
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app tests scripts/bootstrap_drive.py",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/mypy runner_app",
+      "exit_code": 0,
+      "source_files": 72
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/python -m build --wheel --no-isolation --outdir /tmp/cdr-ep05-dist",
+      "exit_code": 0,
+      "wheel_sha256": "0707bbcc30a3ebb22e82759b5fe8245188032b0664b04990a514e19fae0eef7e"
+    },
+    {
+      "command": ".venv/bin/python -m pip install --no-deps --target /tmp/cdr-ep05-wheel-install /tmp/cdr-ep05-dist/chat_dev_runner-0.2.0-py3-none-any.whl",
+      "exit_code": 0
+    },
+    {
+      "command": "PYTHONPATH=/tmp/cdr-ep05-wheel-install /home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python - [installed-wheel smoke from /tmp]",
+      "exit_code": 0,
+      "verified": [
+        "wheel module origin under target",
+        "7 packaged schemas validated",
+        "RECONCILE and RESUME_PROVISION schema actions",
+        "EP-05 workflow imports"
+      ]
+    }
+  ],
+  "resolved_attempt": {
+    "command": "PYTHONPATH=/tmp/cdr-ep05-wheel-install .venv/bin/python - [from /tmp]",
+    "exit_code": 127,
+    "reason": "relative interpreter path unavailable after changing working directory",
+    "resolution": "used absolute interpreter path; smoke passed"
+  },
+  "scope": "Offline real local Git/SQLite and fake provider tests. No EP-05 live GitHub or Drive writes.",
+  "runner_armed": false
+}

@@ -58,6 +58,10 @@ class WorkspaceDriveRegistration:
     changeset_doc_id: str
     receipt_doc_id: str
     latest_result_doc_id: str
+    project_state_doc_id: str | None = None
+    context_doc_id: str | None = None
+    project_command_doc_id: str | None = None
+    project_receipt_doc_id: str | None = None
 
     def __post_init__(self) -> None:
         try:
@@ -66,12 +70,20 @@ class WorkspaceDriveRegistration:
             valid_installation = False
         ids = (self.project_folder_id, self.workspace_folder_id, self.command_doc_id,
                self.changeset_doc_id, self.receipt_doc_id, self.latest_result_doc_id)
+        extended_ids = (self.project_state_doc_id, self.context_doc_id,
+                        self.project_command_doc_id, self.project_receipt_doc_id)
+        all_ids = (*ids, *(value for value in extended_ids if value is not None))
         if (not valid_installation or not isinstance(self.project_id, str)
                 or _SLUG.fullmatch(self.project_id) is None
                 or not isinstance(self.workspace_id, str)
                 or _SLUG.fullmatch(self.workspace_id) is None
                 or any(not isinstance(value, str) or _ID.fullmatch(value) is None for value in ids)
-                or len(set(ids)) != len(ids)):
+                or ((self.project_state_doc_id is None) != (self.context_doc_id is None))
+                or ((self.project_command_doc_id is None) != (self.project_receipt_doc_id is None))
+                or any(value is not None and (not isinstance(value, str)
+                                              or _ID.fullmatch(value) is None)
+                       for value in extended_ids)
+                or len(set(all_ids)) != len(all_ids)):
             raise DriveRegistryError("REGISTRATION_INVALID", "Workspace registration identity is invalid")
 
     def mailbox(self) -> RegisteredMailbox:
@@ -79,6 +91,42 @@ class WorkspaceDriveRegistration:
             command_id=self.command_doc_id, parent_id=self.workspace_folder_id,
             receipt_id=self.receipt_doc_id, changeset_id=self.changeset_doc_id,
             project_id=self.project_id, workspace_id=self.workspace_id,
+        )
+
+    def project_mailbox(self) -> RegisteredMailbox:
+        """Return the project-scoped COMMAND/RECEIPT pair for known-ID polling."""
+        if self.project_command_doc_id is None or self.project_receipt_doc_id is None:
+            raise DriveRegistryError("REGISTRATION_PROJECT_MAILBOX_MISSING",
+                                     "Project command and receipt are not registered")
+        return RegisteredMailbox(
+            command_id=self.project_command_doc_id, parent_id=self.project_folder_id,
+            receipt_id=self.project_receipt_doc_id, project_id=self.project_id,
+        )
+
+    def project_receipt_output(self) -> RegisteredOutputDoc:
+        """Return the exact project RECEIPT registration for CAS writes."""
+        if self.project_receipt_doc_id is None:
+            raise DriveRegistryError("REGISTRATION_PROJECT_MAILBOX_MISSING",
+                                     "Project receipt is not registered")
+        return RegisteredOutputDoc(
+            f"project-receipt:{self.project_id}", "RECEIPT",
+            self.project_receipt_doc_id, self.project_folder_id, "project-receipt",
+        )
+
+    def state_docs(self) -> tuple[RegisteredOutputDoc, RegisteredOutputDoc]:
+        """Return only the exact registered project index and source context."""
+        if self.project_state_doc_id is None or self.context_doc_id is None:
+            raise DriveRegistryError("REGISTRATION_STATE_DOCS_MISSING",
+                                     "Project state and source context are not registered")
+        return (
+            RegisteredOutputDoc(
+                f"project-state:{self.project_id}", "STATE", self.project_state_doc_id,
+                self.project_folder_id, "project-state",
+            ),
+            RegisteredOutputDoc(
+                f"source-context:{self.project_id}/{self.workspace_id}", "STATE",
+                self.context_doc_id, self.workspace_folder_id, "source-context",
+            ),
         )
 
     def output_docs(self, *, receipt_key: str, latest_result_key: str
@@ -165,7 +213,7 @@ class WorkspaceDriveRegistry:
     def _expectations(self, value: WorkspaceDriveRegistration) -> tuple[_RemoteExpectation, ...]:
         project = value.project_id
         workspace = value.workspace_id
-        return (
+        expected = [
             _RemoteExpectation(value.project_folder_id, self._projects_folder_id, project,
                                _FOLDER, f"project:{project}", False),
             _RemoteExpectation(value.workspace_folder_id, value.project_folder_id, workspace,
@@ -178,7 +226,28 @@ class WorkspaceDriveRegistry:
                                _DOC, "workspace-receipt", True),
             _RemoteExpectation(value.latest_result_doc_id, value.workspace_folder_id,
                                "LATEST RESULT", _DOC, "latest-result", True),
-        )
+        ]
+        if value.project_state_doc_id is not None:
+            expected.append(_RemoteExpectation(
+                value.project_state_doc_id, value.project_folder_id,
+                "PROJECT STATE", _DOC, "project-state", False,
+            ))
+        if value.project_command_doc_id is not None:
+            expected.append(_RemoteExpectation(
+                value.project_command_doc_id, value.project_folder_id,
+                "PROJECT COMMAND", _DOC, "project-command", False,
+            ))
+        if value.project_receipt_doc_id is not None:
+            expected.append(_RemoteExpectation(
+                value.project_receipt_doc_id, value.project_folder_id,
+                "PROJECT RECEIPT", _DOC, "project-receipt", False,
+            ))
+        if value.context_doc_id is not None:
+            expected.append(_RemoteExpectation(
+                value.context_doc_id, value.workspace_folder_id,
+                "SOURCE CONTEXT", _DOC, "source-context", True,
+            ))
+        return tuple(expected)
 
     def _validate_remote(self, value: WorkspaceDriveRegistration) -> None:
         if value.installation_id != self._attached.index.installation_id:
@@ -239,7 +308,8 @@ class WorkspaceDriveRegistry:
                     or props.get("cdr_key") != expected.app_key
                     or props.get("cdr_project") != value.project_id
                     or (expected.workspace_scoped
-                        and props.get("cdr_workspace") != value.workspace_id)):
+                        and props.get("cdr_workspace") != value.workspace_id)
+                    or (not expected.workspace_scoped and "cdr_workspace" in props)):
                 raise DriveRegistryError("REGISTRATION_SCOPE_CHANGED", "Registered file scope changed")
             capabilities = metadata.get("capabilities")
             required = "canAddChildren" if expected.mime_type == _FOLDER else "canEdit"
@@ -282,22 +352,30 @@ class WorkspaceDriveRegistry:
     def _read(self, filename: str) -> WorkspaceDriveRegistration:
         try:
             parsed = json.loads(self._read_raw(filename).decode("utf-8"))
-            expected_keys = {"schema_version", *WorkspaceDriveRegistration.__dataclass_fields__}
-            if not isinstance(parsed, dict) or set(parsed) != expected_keys or parsed["schema_version"] != "1.0":
+            keys = set(WorkspaceDriveRegistration.__dataclass_fields__)
+            optional = {"project_state_doc_id", "context_doc_id",
+                        "project_command_doc_id", "project_receipt_doc_id"}
+            if (not isinstance(parsed, dict) or parsed.get("schema_version") != "1.0"
+                    or not keys - optional <= set(parsed) or not set(parsed) <= keys | {"schema_version"}):
                 raise ValueError
-            return WorkspaceDriveRegistration(**{
-                key: parsed[key] for key in WorkspaceDriveRegistration.__dataclass_fields__
-            })
+            record: dict[str, Any] = {key: parsed.get(key) for key in keys}
+            return WorkspaceDriveRegistration(**record)
         except DriveRegistryError:
             raise
         except (UnicodeError, TypeError, ValueError, KeyError):
             raise DriveRegistryError("REGISTRATION_INVALID", "Private registration is malformed") from None
 
     def _anchor(self, value: WorkspaceDriveRegistration) -> dict[str, str]:
-        return {
+        anchor = {
             "schema_version": "1.0", "installation_id": value.installation_id,
             "project_id": value.project_id, "project_folder_id": value.project_folder_id,
         }
+        for key in ("project_state_doc_id", "project_command_doc_id",
+                    "project_receipt_doc_id"):
+            doc_id = getattr(value, key)
+            if doc_id is not None:
+                anchor[key] = doc_id
+        return anchor
 
     def _require_anchor(self, value: WorkspaceDriveRegistration) -> None:
         try:

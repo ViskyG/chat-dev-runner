@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "kind": "ep05-resume-provision-readonly-evidence",
+  "recorded_at": "2026-09-27T13:14:08.950067+00:00",
+  "environment": {
+    "git_head": "5fb9696e012707e6f2a096c67d236b77b435bbed",
+    "python": "3.10.12",
+    "system": "Linux",
+    "release": "6.8.0-138-generic",
+    "machine": "x86_64"
+  },
+  "checks": [
+    {
+      "command": ".venv/bin/pytest -q --junitxml=verification/implementation/EP-05/resume-provision-preview-tests.xml tests/test_provision_resume_preview.py",
+      "exit_code": 0,
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit": "verification/implementation/EP-05/resume-provision-preview-tests.xml"
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app/workflows/provision_resume.py tests/test_provision_resume_preview.py",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/mypy runner_app/workflows/provision_resume.py tests/test_provision_resume_preview.py",
+      "exit_code": 0
+    }
+  ],
+  "scope": "Read-only local Ledger and source registry preview; no provider calls or writes",
+  "design": "verification/implementation/EP-05/resume-provision-design.md"
+}

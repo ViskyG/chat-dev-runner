@@ -16,7 +16,7 @@ from urllib.parse import quote
 
 from .paths import UnsafePathError, _absolute, _check_private, _open_directory, _open_file_at
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 _MIGRATIONS: dict[int, tuple[str, ...]] = {
     1: (
         (
@@ -350,6 +350,42 @@ _MIGRATIONS: dict[int, tuple[str, ...]] = {
             "SELECT RAISE(ABORT,'preparation output tombstone is immutable'); END"
         ),
         "INSERT INTO schema_migrations(version, name) VALUES (8, 'preparation-evidence-retention')",
+    ),
+    9: (
+        (
+            "CREATE TABLE provision_resume_claims ("
+            "target_request_id TEXT PRIMARY KEY REFERENCES operations(request_id), "
+            "resume_request_id TEXT NOT NULL UNIQUE REFERENCES operations(request_id), "
+            "created_at TEXT NOT NULL)"
+        ),
+        (
+            "CREATE TABLE effect_adoptions ("
+            "effect_id TEXT PRIMARY KEY REFERENCES effects(effect_id), "
+            "source_effect_id TEXT NOT NULL UNIQUE REFERENCES effects(effect_id), "
+            "proof_json TEXT NOT NULL, proof_sha256 TEXT NOT NULL, "
+            "verified_at TEXT NOT NULL)"
+        ),
+        (
+            "CREATE TRIGGER provision_resume_claims_no_update BEFORE UPDATE "
+            "ON provision_resume_claims BEGIN "
+            "SELECT RAISE(ABORT,'resume claim is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER provision_resume_claims_no_delete BEFORE DELETE "
+            "ON provision_resume_claims BEGIN "
+            "SELECT RAISE(ABORT,'resume claim is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER effect_adoptions_no_update BEFORE UPDATE "
+            "ON effect_adoptions BEGIN "
+            "SELECT RAISE(ABORT,'effect adoption is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER effect_adoptions_no_delete BEFORE DELETE "
+            "ON effect_adoptions BEGIN "
+            "SELECT RAISE(ABORT,'effect adoption is immutable'); END"
+        ),
+        "INSERT INTO schema_migrations(version, name) VALUES (9, 'provision-effect-adoption')",
     ),
 }
 

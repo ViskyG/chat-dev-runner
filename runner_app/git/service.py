@@ -15,6 +15,7 @@ from uuid import uuid4
 
 from runner_app.domain.commands import validate_shape
 from runner_app.git import worktrees
+from runner_app.git.argv import run_git
 from runner_app.git.imports import ImportGrants
 from runner_app.git.registry import SourceError, SourceRegistry
 from runner_app.git.snapshots import (
@@ -23,6 +24,7 @@ from runner_app.git.snapshots import (
     capture_dirty_verify,
     stage_changeset,
 )
+from runner_app.git.templates import starter_files
 from runner_app.storage.ledger import Ledger
 
 
@@ -94,9 +96,11 @@ class SourceService:
         if params["source"]["kind"] != "new":
             raise SourceError("WRONG_SOURCE_KIND", "Project request is not a new-source request")
         project_id = command["project_id"]
+        starter = starter_files(params["template_id"], project_id)
         effect = self.ledger.begin_effect(request_id, "local-project", "local_workspace",
                                           {"project_id": project_id, "kind": "new"})
-        repo = worktrees.create_repository(self.registry.managed_root, project_id)
+        repo = worktrees.create_repository(self.registry.managed_root, project_id,
+                                           starter_files=starter)
         record = self.registry.register_project(project_id, params["name"], repo, origin_kind="new")
         self.ledger.confirm_effect(effect, str(repo))
         return record
@@ -121,6 +125,75 @@ class SourceService:
                                                 origin_kind="local", origin_reference=handle)
         self.ledger.confirm_effect(effect, str(repo))
         return record
+
+    def create_initial_workspace_source(self, request_id: str) -> dict[str, Any]:
+        """Create the first editable area inside the admitted CREATE_PROJECT operation.
+
+        The IDs are trusted local policy, not values supplied by the root command.
+        A prior uncertain effect is retained for explicit reconciliation. Only a
+        confirmed effect with the exact registered Git state may be observed again.
+        """
+        command, operation = self._command(request_id, "CREATE_PROJECT")
+        project_id = command["project_id"]
+        workspace_id = "primary"
+        branch = f"work/{project_id}"
+        repo = self._project(project_id)
+        project_effects = [item for item in operation["effects"]
+                           if item["step_id"] == "local-project"
+                           and item["kind"] == "local_workspace"]
+        if (len(project_effects) != 1 or project_effects[0]["state"] != "CONFIRMED"
+                or project_effects[0]["provider_id"] != str(repo)
+                or project_effects[0]["intent"].get("project_id") != project_id):
+            raise SourceError("PROJECT_NOT_PROVISIONED",
+                              "The admitted operation has no confirmed managed project")
+        base_head = run_git(repo, ["rev-parse", "--verify", "HEAD^{commit}"]).strip()
+        worktree = self.registry.managed_root / project_id / "workspaces" / workspace_id
+        intent = {"project_id": project_id, "workspace_id": workspace_id,
+                  "branch": branch, "base_commit": base_head}
+        previous = [item for item in operation["effects"]
+                    if item["step_id"] == "initial-workspace"
+                    and item["kind"] == "local_workspace"]
+        if previous:
+            if len(previous) != 1 or previous[0]["intent"] != intent:
+                raise SourceError("INITIAL_WORKSPACE_INTENT_CHANGED",
+                                  "Initial workspace intent differs from its recorded identity")
+            if previous[0]["state"] != "CONFIRMED":
+                raise SourceError("INITIAL_WORKSPACE_NEEDS_RECONCILIATION",
+                                  "Prior initial workspace effect has no confirmed outcome")
+            record = self.registry.get_workspace(project_id, workspace_id)
+            if (previous[0]["provider_id"] != str(worktree) or record is None
+                    or record["worktree_path"] != str(worktree)
+                    or record["branch"] != branch or record["head"] != base_head
+                    or record["generation"] != 0 or record["archived"]):
+                raise SourceError("INITIAL_WORKSPACE_CHANGED",
+                                  "Confirmed initial workspace no longer matches its record")
+            observed = worktrees.inspect_workspace(repo, worktree)
+            if (observed["head"] != base_head or observed["branch"] != branch
+                    or observed["dirty"]):
+                raise SourceError("INITIAL_WORKSPACE_CHANGED",
+                                  "Confirmed initial workspace Git state changed")
+            return record
+        if self.registry.get_workspace(project_id, workspace_id) is not None:
+            raise SourceError("INITIAL_WORKSPACE_EXISTS",
+                              "An unowned initial workspace identity already exists")
+        effect = self.ledger.begin_effect(request_id, "initial-workspace", "local_workspace", intent)
+        path = worktrees.create_workspace(self.registry.managed_root, project_id, repo,
+                                          workspace_id, branch, base_head)
+        record = self.registry.register_workspace(project_id, workspace_id,
+                                                  "Primary workspace", path,
+                                                  branch=branch, head=base_head)
+        observed = worktrees.inspect_workspace(repo, path)
+        if (record["head"] != base_head or record["branch"] != branch
+                or observed["head"] != base_head or observed["branch"] != branch
+                or observed["dirty"]):
+            raise SourceError("INITIAL_WORKSPACE_CHANGED",
+                              "Initial workspace Git state differs from its record")
+        self.ledger.confirm_effect(effect, str(path))
+        current = self.registry.get_workspace(project_id, workspace_id)
+        if current is None:
+            raise SourceError("INITIAL_WORKSPACE_CHANGED",
+                              "Confirmed initial workspace record is unavailable")
+        return current
 
     def create_workspace_source(self, request_id: str) -> dict[str, Any]:
         command, _ = self._command(request_id, "CREATE_WORKSPACE")

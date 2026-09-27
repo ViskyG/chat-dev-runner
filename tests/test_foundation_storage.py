@@ -431,7 +431,7 @@ def test_domain_upgrade_preserves_v1_metadata(tmp_path: Path, monkeypatch: pytes
         original = connection.execute("SELECT * FROM schema_migrations WHERE version=1").fetchone()
         assert database.migrate(connection) == SCHEMA_VERSION
         assert connection.execute("SELECT * FROM schema_migrations WHERE version=1").fetchone() == original
-        assert connection.execute("SELECT version FROM schema_migrations ORDER BY version").fetchall() == [(1,), (2,), (3,), (4,), (5,), (6,), (7,), (8,)]
+        assert connection.execute("SELECT version FROM schema_migrations ORDER BY version").fetchall() == [(1,), (2,), (3,), (4,), (5,), (6,), (7,), (8,), (9,)]
         assert connection.execute("PRAGMA integrity_check").fetchone() == ("ok",)
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
     finally:

@@ -298,6 +298,46 @@ def _publication_index(bundle: DeliveryBundle, run: Mapping[str, Any],
     return _ItemCheck(item, hashlib.md5(raw, usedforsecurity=False).hexdigest(), name)
 
 
+def _saved_partial_report_status(
+    preflight: DeliveryPreflight, operation: Mapping[str, Any],
+    source: Mapping[str, Any],
+) -> bool:
+    """Permit only the pre-delivery manifest frozen in a failed full-route result.
+
+    The terminal source status may become BLOCKED or FAULT after Drive delivery
+    failed, while its already frozen operation manifest still says COMPLETED.
+    The ledger preflight pins that saved manifest's canonical hash. A report
+    retry must upload those exact bytes rather than rewrite history.
+    """
+    result = source.get("result")
+    command = source.get("command")
+    if not isinstance(result, dict) or not isinstance(command, dict):
+        return False
+    delivery = result.get("delivery")
+    manifest = result.get("operation_manifest")
+    return (
+        preflight.action == "PUBLISH_REPORT"
+        and preflight.source_action == "DELIVER_VERIFY_PUBLISH"
+        and preflight.source_operation_manifest_sha256 is not None
+        and source.get("action") == "DELIVER_VERIFY_PUBLISH"
+        and command.get("action") == source.get("action")
+        and source.get("request_id") == preflight.source_request_id
+        and preflight.source_status == source.get("status")
+        and source.get("status") in {"BLOCKED", "FAULT", "CANCELLED"}
+        and source.get("delivery_status") in {"PENDING", "PARTIAL", "FAILED"}
+        and result.get("run_id") == preflight.run_id
+        and isinstance(delivery, dict)
+        and delivery.get("status") == source.get("delivery_status")
+        and isinstance(manifest, dict)
+        and manifest == operation
+        and operation.get("status") in {"COMPLETED", "BLOCKED"}
+        and operation.get("request_id") == preflight.source_request_id
+        and operation.get("project_id") == preflight.project_id
+        and operation.get("workspace_id") == preflight.workspace_id
+        and preflight.run_id in operation.get("run_ids", [])
+    )
+
+
 class DriveDeliveryPublisher:
     """Publish once under a live admitted operation; no automatic write retries."""
 
@@ -552,7 +592,8 @@ class DriveDeliveryPublisher:
                         **source["command"], "intent": "[REDACTED FOR DELIVERY]",
                     }
                     or (source["status"] != "RUNNING"
-                        and operation["status"] != source["status"])):
+                        and operation["status"] != source["status"]
+                        and not _saved_partial_report_status(preflight, operation, source))):
                 raise DeliveryError("DELIVERY_SOURCE_CHANGED", "Source operation differs from bundle")
             receipt = self.writer.registration(receipt_key)
             latest = self.writer.registration(latest_result_key)

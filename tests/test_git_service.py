@@ -2,13 +2,18 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
+import threading
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from uuid import uuid4
 
 import pytest
 
-from runner_app.domain.commands import freeze, validate_shape
+from runner_app.domain.commands import LocalPolicy, Provenance, freeze, validate_shape
+from runner_app.engine.service import Engine, OperationResult
 from runner_app.git.argv import GitError, run_git
 from runner_app.git.imports import ImportGrants
 from runner_app.git.registry import SourceError, SourceRegistry
@@ -63,6 +68,39 @@ def create_project_workspace(ledger: Ledger, registry: SourceRegistry,
     assert ledger.get(workspace_id)["effects"][0]["state"] == "CONFIRMED"
     ledger.finish(workspace_id, "COMPLETED")
     return head, repo
+
+
+def test_unknown_starter_is_rejected_before_any_local_project_effect(tmp_path: Path) -> None:
+    ledger, registry, service = make_service(tmp_path)
+    request_id = admit(
+        ledger, "CREATE_PROJECT", "fixture", None, None,
+        {"name": "Fixture", "source": {"kind": "new"},
+         "template_id": "unknown", "github_identity": "owner", "visibility": "private"},
+        ("repo:fixture", "global:owner", "global:drive-installation"),
+    )
+    with pytest.raises(SourceError) as error:
+        service.create_new_source(request_id)
+    assert error.value.code == "TEMPLATE_UNAVAILABLE"
+    assert ledger.get(request_id)["effects"] == []
+    assert registry.get_project("fixture") is None
+
+
+def test_python_basic_source_starter_is_committed_and_runs_in_workspace(tmp_path: Path) -> None:
+    ledger, registry, service = make_service(tmp_path)
+    head, repo = create_project_workspace(ledger, registry, service)
+    tracked = set(run_git(repo, ["ls-tree", "-r", "--name-only", head]).splitlines())
+    assert tracked == {
+        ".gitignore", "README.md", "pyproject.toml", "src/__init__.py",
+        "src/app.py", "tests/test_app.py",
+    }
+    area = registry.get_workspace("fixture", "area")
+    assert area is not None
+    completed = subprocess.run(
+        [sys.executable, "-m", "pytest", "-q", "tests/test_app.py"],
+        cwd=Path(area["worktree_path"]), capture_output=True, text=True,
+        timeout=15, check=False,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
 
 
 def test_service_creates_managed_source_and_clean_snapshot_without_execution(tmp_path: Path) -> None:
@@ -218,3 +256,98 @@ def test_service_archive_retains_dirty_files_and_reports_status(tmp_path: Path) 
     assert after["archived"] and after["dirty"] and after["source_generation"] == 1
     assert private.read_bytes() == b"unsaved owner work\n"
     assert workspace.is_dir()
+
+
+def test_create_project_engine_handler_creates_primary_workspace_under_one_repo_lock(
+    tmp_path: Path,
+) -> None:
+    ledger, registry, service = make_service(tmp_path)
+    done = threading.Event()
+    failures: list[str] = []
+
+    def create_project(frozen: object, context: object) -> OperationResult:
+        try:
+            request_id = frozen.command["request_id"]
+            project = service.create_new_source(request_id)
+            first = service.create_initial_workspace_source(request_id)
+            repeated = service.create_initial_workspace_source(request_id)
+            assert repeated == first
+            return OperationResult(result={"repository": project["repo_path"],
+                                           "workspace_id": "primary", "head": first["head"]})
+        except Exception as error:
+            failures.append(repr(error))
+            raise
+        finally:
+            done.set()
+
+    engine = Engine(
+        ledger,
+        policy=LocalPolicy(approved_templates=frozenset({"python-basic"}),
+                           github_identities=frozenset({"owner"})),
+        handlers={"CREATE_PROJECT": create_project},
+    )
+    state = ledger.state()
+    now = datetime.now(timezone.utc)
+    command = {
+        "schema_version": "1.0", "request_id": str(uuid4()), "dispatch": "READY",
+        "runner_id": state["runner_id"], "epoch": state["epoch"],
+        "issued_at": now.isoformat(), "expires_at": (now + timedelta(minutes=5)).isoformat(),
+        "action": "CREATE_PROJECT", "project_id": "fixture", "workspace_id": None,
+        "expected_head": None,
+        "params": {"name": "Fixture", "source": {"kind": "new"},
+                   "template_id": "python-basic", "github_identity": "owner",
+                   "visibility": "private"},
+        "intent": "Create approved toy project",
+    }
+    admission = engine.submit(json.dumps(command).encode(), Provenance("local", "local-owner"))
+    assert admission.execute and admission.receipt["status"] == "RUNNING"
+    assert done.wait(5)
+    deadline = time.monotonic() + 5
+    while ledger.get(command["request_id"])["status"] == "RUNNING" and time.monotonic() < deadline:
+        time.sleep(0.01)
+    finished = ledger.get(command["request_id"])
+    assert finished["status"] == "COMPLETED", failures
+    assert finished["result"]["workspace_id"] == "primary"
+    effects = {item["step_id"]: item for item in finished["effects"]}
+    assert set(effects) == {"local-project", "initial-workspace"}
+    assert all(item["state"] == "CONFIRMED" for item in effects.values())
+    project = registry.get_project("fixture")
+    workspace = registry.get_workspace("fixture", "primary")
+    assert workspace["head"] == run_git(Path(project["repo_path"]),
+                                          ["rev-parse", "refs/heads/main"]).strip()
+    assert workspace["branch"] == "work/fixture"
+    assert Path(workspace["worktree_path"]).is_dir()
+    assert effects["initial-workspace"]["provider_id"] == workspace["worktree_path"]
+    engine.shutdown()
+
+
+def test_initial_workspace_uncertain_effect_is_not_adopted_by_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ledger, registry, service = make_service(tmp_path)
+    request_id = admit(ledger, "CREATE_PROJECT", "fixture", None, None,
+                       {"name": "Fixture", "source": {"kind": "new"},
+                        "template_id": "python-basic", "github_identity": "owner",
+                        "visibility": "private"},
+                       ("repo:fixture", "global:owner", "global:drive-installation"))
+    service.create_new_source(request_id)
+    original = registry.register_workspace
+
+    def lose_record(*args: object, **kwargs: object) -> dict:
+        raise RuntimeError("simulated crash after worktree creation")
+
+    monkeypatch.setattr(registry, "register_workspace", lose_record)
+    with pytest.raises(RuntimeError, match="simulated crash"):
+        service.create_initial_workspace_source(request_id)
+    monkeypatch.setattr(registry, "register_workspace", original)
+    path = registry.managed_root / "fixture" / "workspaces" / "primary"
+    assert path.is_dir()
+    assert registry.get_workspace("fixture", "primary") is None
+    with pytest.raises(SourceError) as error:
+        service.create_initial_workspace_source(request_id)
+    assert error.value.code == "INITIAL_WORKSPACE_NEEDS_RECONCILIATION"
+    effect = next(item for item in ledger.get(request_id)["effects"]
+                  if item["step_id"] == "initial-workspace")
+    assert effect["state"] == "INTENDED"
+    ledger.finish(request_id, "FAULT", code="HANDLER_FAILED")
+    assert ledger.get(request_id)["effects"][1]["state"] == "UNKNOWN"

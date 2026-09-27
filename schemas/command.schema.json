@@ -43,6 +43,8 @@
         "EXPORT_CONTEXT",
         "ARCHIVE_WORKSPACE",
         "PUBLISH_REPORT",
+        "RECONCILE",
+        "RESUME_PROVISION",
         "CANCEL_OPERATION"
       ]
     },
@@ -524,6 +526,75 @@
             },
             "required": [
               "source_run_id"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "const": "RECONCILE"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "expected_head": {
+            "type": "null"
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "reconcile_version": {
+                "const": "1.0"
+              },
+              "target_request_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "reconcile_version",
+              "target_request_id"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "const": "RESUME_PROVISION"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "workspace_id": {
+            "type": "null"
+          },
+          "expected_head": {
+            "type": "null"
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "resume_version": {
+                "const": "1.0"
+              },
+              "target_request_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "resume_version",
+              "target_request_id"
             ],
             "additionalProperties": false
           }

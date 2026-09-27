@@ -1,11 +1,11 @@
 {
-  "version": "0.3.0-EP03-verified-EP04-verified",
+  "version": "0.3.0-EP03-verified-EP04-verified-EP05-blocked",
   "date": "2026-09-27",
   "ui": "Interactive offline HTML/CSS/JS simulation, not wired to the reference core",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
-  "live_runner": "EP-00 through EP-04 VERIFIED, including eleven real rootless toy cases and owner-local preparation evidence access/retention. The finite toy quota pool is acceptance infrastructure; dynamic production provisioning and EP-05 GitHub/Drive workflow remain. VERIFY is not registered in the production Runtime. Runner NOT_CONFIGURED/unarmed; no READY command or live project execution.",
-  "github_live_adapter": "Specified; commit/push/draft PR are REQUIRED v1 scope, not an optional future add-on",
+  "live_runner": "EP-00 through EP-04 VERIFIED. EP-05 offline provisioning, publication, report delivery, read-only reconciliation and safe resume-adoption primitives pass the full offline suite (1151 passed, 1 skipped). Production proof ports/resume coordinator and gated GitHub/Drive write acceptance remain. Runner NOT_CONFIGURED/unarmed; no READY command or live project execution.",
+  "github_live_adapter": "EP-05 offline REST/Git transport implemented; runner token and gated private repository/draft PR write acceptance pending",
   "credentials": "None bundled",
   "service_installation": "None performed",
   "automatic_chat_access": "Deferred, manual provider authorization",
@@ -31,16 +31,19 @@
       "EP-01": "VERIFIED",
       "EP-02": "VERIFIED",
       "EP-03": "VERIFIED",
-      "EP-04": "VERIFIED"
+      "EP-04": "VERIFIED",
+      "EP-05": "BLOCKED"
     },
     "armed": false,
     "deployable": false,
-    "evidence": "verification/implementation/EP-03/live-acceptance-summary.json",
-    "checkpoint": "codex/checkpoints/EP-03.md",
+    "evidence": "verification/implementation/EP-05/full-offline-summary.json",
+    "checkpoint": "codex/checkpoints/EP-05.md",
     "oauth_gate_evidence": "verification/implementation/EP-04/oauth-browser-gate.json",
     "oauth_live_attach_evidence": "verification/implementation/EP-04/live-attach-attempt.json",
     "oauth_full_drive_evidence": "verification/implementation/EP-04/full-drive-oauth-transition.json",
-    "live_existing_installation_evidence": "verification/implementation/EP-04/live-existing-installation-canary.json"
+    "live_existing_installation_evidence": "verification/implementation/EP-04/live-existing-installation-canary.json",
+    "ep05_live_gate_evidence": "verification/implementation/EP-05/live-gate-readonly.json",
+    "ep05_resume_evidence": "verification/implementation/EP-05/resume-adoption-summary.json"
   },
   "implementation_source_repository": {
     "local_git": "COMMITTED",

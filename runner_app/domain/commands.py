@@ -236,6 +236,16 @@ class LocalPolicy:
         action = command["action"]
         project = command["project_id"]
         workspace = command["workspace_id"]
+        if action in {"RECONCILE", "RESUME_PROVISION"}:
+            # Recovery authority is an authenticated local owner session only.
+            # A partial CREATE_PROJECT may have no registered project/workspace yet.
+            if provenance.kind != "local":
+                raise DomainError("SOURCE_SCOPE", "Восстановление доступно только локальному владельцу.")
+            if ((provenance.project_id is not None and provenance.project_id != project)
+                    or (provenance.workspace_id is not None
+                        and provenance.workspace_id != workspace)):
+                raise DomainError("SOURCE_SCOPE", "Команда не соответствует выбранной локальной области.")
+            return
         if provenance.kind == "drive":
             registered = self.mailboxes.get(provenance.source_id)
             if registered is None or registered != provenance:

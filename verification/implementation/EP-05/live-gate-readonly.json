@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-09-27T12:45:00.244523+00:00",
+  "drive_ep05_write_performed": false,
+  "drive_existing_installation": {
+    "attach_and_canary_evidence": "verification/implementation/EP-04/live-existing-installation-canary.json",
+    "installation_index_doc_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+    "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe"
+  },
+  "github_ep05_token_file_configured": false,
+  "github_read_exit_code": 0,
+  "github_read_only_identity": {
+    "id": 12452296,
+    "login": "ViskyG",
+    "type": "User"
+  },
+  "github_token_value_recorded": false,
+  "host": "k8s-master",
+  "live_github_write_performed": false,
+  "runner_armed": false,
+  "schema_version": "1.0"
+}

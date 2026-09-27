@@ -185,6 +185,223 @@ class SourceRegistry:
         finally:
             connection.close()
 
+    def bind_project_remote(self, project_id: str, *, provider_id: int, node_id: str,
+                            owner: str, name: str, html_url: str, clone_url: str,
+                            provision_marker: str) -> dict[str, Any]:
+        """Pin a confirmed new project's private GitHub identity in local state."""
+        project_id = _slug(project_id)
+        if (type(provider_id) is not int or provider_id <= 0
+                or not isinstance(node_id, str) or not 1 <= len(node_id) <= 256
+                or not isinstance(owner, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9-]{0,38}", owner)
+                or name != project_id
+                or html_url.casefold() != f"https://github.com/{owner}/{name}".casefold()
+                or clone_url.casefold() != f"https://github.com/{owner}/{name}.git".casefold()
+                or not isinstance(provision_marker, str)
+                or not re.fullmatch(r"cdr:v1:[0-9a-f]{64}", provision_marker)):
+            raise SourceError("REMOTE_IDENTITY_INVALID", "GitHub repository identity is invalid")
+        binding = {"provider": "github", "provider_id": provider_id,
+                   "node_id": node_id, "owner": owner, "name": name,
+                   "html_url": html_url, "clone_url": clone_url,
+                   "provision_marker": provision_marker, "private": True}
+        with self._transaction() as connection:
+            row = connection.execute(
+                "SELECT p.metadata_json,s.origin_kind FROM projects p "
+                "JOIN source_projects s USING(project_id) WHERE p.project_id=?",
+                (project_id,),
+            ).fetchone()
+            if row is None or row["origin_kind"] != "new":
+                raise SourceError("PROJECT_NOT_REGISTERED", "New managed project is required")
+            metadata = json.loads(row["metadata_json"])
+            if not isinstance(metadata, dict):
+                raise SourceError("PROJECT_METADATA_INVALID", "Project metadata is invalid")
+            existing = metadata.get("remote")
+            if existing is not None and existing != binding:
+                raise SourceError("PROJECT_REMOTE_CHANGED", "Project GitHub identity differs")
+            metadata["remote"] = binding
+            connection.execute(
+                "UPDATE projects SET metadata_json=?,updated_at=? WHERE project_id=?",
+                (json.dumps(metadata, sort_keys=True, separators=(",", ":")),
+                 _timestamp(), project_id),
+            )
+        return binding
+
+    def bind_imported_project_remote(
+        self, project_id: str, *, origin_reference: str, provider_id: int,
+        owner_id: int, node_id: str, owner: str, name: str,
+        html_url: str, clone_url: str, default_branch: str,
+        default_head: str, private: bool,
+    ) -> dict[str, Any]:
+        """Pin one approved imported repository without a creation marker.
+
+        The source row must already be the separately cloned GitHub import.
+        This binding is immutable and cannot satisfy the new-repository path's
+        provision-marker contract.
+        """
+        project_id = _slug(project_id)
+        if (type(provider_id) is not int or provider_id <= 0
+                or type(owner_id) is not int or owner_id <= 0
+                or not isinstance(node_id, str) or not 1 <= len(node_id) <= 256
+                or not isinstance(owner, str)
+                or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9-]{0,38}", owner) is None
+                or not isinstance(name, str)
+                or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,99}", name) is None
+                or origin_reference != f"{owner}/{name}"
+                or html_url != f"https://github.com/{owner}/{name}"
+                or clone_url != f"https://github.com/{owner}/{name}.git"
+                or private is not True):
+            raise SourceError("REMOTE_IDENTITY_INVALID", "Imported GitHub identity is invalid")
+        if not isinstance(default_branch, str):
+            raise SourceError("INVALID_BRANCH", "Imported default branch is invalid")
+        try:
+            validate_branch(default_branch)
+        except Rejected:
+            raise SourceError("INVALID_BRANCH", "Imported default branch is invalid") from None
+        head = _object_id(default_head)
+        binding = {
+            "provider": "github", "origin_kind": "github",
+            "origin_reference": origin_reference, "provider_id": provider_id,
+            "owner_id": owner_id, "node_id": node_id, "owner": owner,
+            "name": name, "html_url": html_url, "clone_url": clone_url,
+            "default_branch": default_branch, "default_head": head, "private": True,
+        }
+        with self._transaction() as connection:
+            row = connection.execute(
+                "SELECT p.metadata_json,s.origin_kind,s.origin_reference "
+                "FROM projects p JOIN source_projects s USING(project_id) "
+                "WHERE p.project_id=?", (project_id,),
+            ).fetchone()
+            if (row is None or row["origin_kind"] != "github"
+                    or row["origin_reference"] != origin_reference):
+                raise SourceError("PROJECT_NOT_REGISTERED",
+                                  "Matching managed GitHub import is required")
+            metadata = json.loads(row["metadata_json"])
+            if not isinstance(metadata, dict):
+                raise SourceError("PROJECT_METADATA_INVALID", "Project metadata is invalid")
+            existing = metadata.get("remote")
+            if existing is not None and existing != binding:
+                raise SourceError("PROJECT_REMOTE_CHANGED", "Imported GitHub identity differs")
+            metadata["remote"] = binding
+            connection.execute(
+                "UPDATE projects SET metadata_json=?,updated_at=? WHERE project_id=?",
+                (json.dumps(metadata, sort_keys=True, separators=(",", ":")),
+                 _timestamp(), project_id),
+            )
+        return binding
+
+    def bind_local_import_project_remote(
+        self, project_id: str, *, origin_reference: str, provider_id: int,
+        owner_id: int, node_id: str, owner: str, name: str,
+        html_url: str, clone_url: str, provision_marker: str,
+        source_branch: str, source_head: str, private: bool,
+    ) -> dict[str, Any]:
+        """Pin a newly created target to the separate managed LOCAL import."""
+        project_id = _slug(project_id)
+        if (not isinstance(origin_reference, str)
+                or re.fullmatch(r"[0-9a-f]{48}", origin_reference) is None
+                or type(provider_id) is not int or provider_id <= 0
+                or type(owner_id) is not int or owner_id <= 0
+                or not isinstance(node_id, str) or not 1 <= len(node_id) <= 256
+                or not isinstance(owner, str)
+                or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9-]{0,38}", owner) is None
+                or name != project_id
+                or html_url != f"https://github.com/{owner}/{name}"
+                or clone_url != f"https://github.com/{owner}/{name}.git"
+                or not isinstance(provision_marker, str)
+                or re.fullmatch(r"cdr:v1:[0-9a-f]{64}", provision_marker) is None
+                or private is not True):
+            raise SourceError("REMOTE_IDENTITY_INVALID", "Local import target identity is invalid")
+        if not isinstance(source_branch, str):
+            raise SourceError("INVALID_BRANCH", "Imported source branch is invalid")
+        try:
+            validate_branch(source_branch)
+        except Rejected:
+            raise SourceError("INVALID_BRANCH", "Imported source branch is invalid") from None
+        head = _object_id(source_head)
+        binding = {
+            "provider": "github", "origin_kind": "local",
+            "origin_reference": origin_reference, "provider_id": provider_id,
+            "owner_id": owner_id, "node_id": node_id, "owner": owner,
+            "name": name, "html_url": html_url, "clone_url": clone_url,
+            "provision_marker": provision_marker,
+            "source_branch": source_branch, "source_head": head, "private": True,
+        }
+        with self._transaction() as connection:
+            row = connection.execute(
+                "SELECT p.metadata_json,s.origin_kind,s.origin_reference "
+                "FROM projects p JOIN source_projects s USING(project_id) "
+                "WHERE p.project_id=?", (project_id,),
+            ).fetchone()
+            if (row is None or row["origin_kind"] != "local"
+                    or row["origin_reference"] != origin_reference):
+                raise SourceError("PROJECT_NOT_REGISTERED",
+                                  "Matching managed local import is required")
+            metadata = json.loads(row["metadata_json"])
+            if not isinstance(metadata, dict):
+                raise SourceError("PROJECT_METADATA_INVALID", "Project metadata is invalid")
+            existing = metadata.get("remote")
+            if existing is not None and existing != binding:
+                raise SourceError("PROJECT_REMOTE_CHANGED", "Local import target identity differs")
+            metadata["remote"] = binding
+            connection.execute(
+                "UPDATE projects SET metadata_json=?,updated_at=? WHERE project_id=?",
+                (json.dumps(metadata, sort_keys=True, separators=(",", ":")),
+                 _timestamp(), project_id),
+            )
+        return binding
+
+    def mark_project_ready(self, project_id: str, workspace_id: str) -> None:
+        """Expose a fully provisioned project only after the workflow verifies Docs."""
+        project_id, workspace_id = _slug(project_id), _slug(workspace_id)
+        with self._transaction() as connection:
+            project = connection.execute(
+                "SELECT state,metadata_json FROM projects WHERE project_id=?",
+                (project_id,),
+            ).fetchone()
+            workspace = connection.execute(
+                "SELECT w.metadata_json,s.archived FROM workspaces w "
+                "JOIN source_workspaces s USING(project_id,workspace_id) "
+                "WHERE w.project_id=? AND w.workspace_id=?",
+                (project_id, workspace_id),
+            ).fetchone()
+            if project is None or workspace is None or workspace["archived"]:
+                raise SourceError("PROJECT_NOT_READY", "Active project workspace is missing")
+            project_metadata = json.loads(project["metadata_json"])
+            workspace_metadata = json.loads(workspace["metadata_json"])
+            if (not isinstance(project_metadata, dict)
+                    or not isinstance(project_metadata.get("remote"), dict)
+                    or not isinstance(workspace_metadata, dict)
+                    or not isinstance(workspace_metadata.get("template_id"), str)
+                    or not isinstance(workspace_metadata.get("profile_id"), str)):
+                raise SourceError("PROJECT_NOT_READY", "Project bindings are incomplete")
+            if project["state"] not in {"LOCAL_READY", "READY"}:
+                raise SourceError("PROJECT_STATE_CHANGED", "Project state changed")
+            if project["state"] == "LOCAL_READY":
+                connection.execute(
+                    "UPDATE projects SET state='READY',updated_at=? WHERE project_id=?",
+                    (_timestamp(), project_id),
+                )
+
+    def get_project_remote(self, project_id: str) -> dict[str, Any] | None:
+        project_id = _slug(project_id)
+        connection = self.database.connect()
+        try:
+            row = connection.execute(
+                "SELECT metadata_json FROM projects WHERE project_id=?", (project_id,),
+            ).fetchone()
+        finally:
+            connection.close()
+        if row is None:
+            return None
+        metadata = json.loads(row[0])
+        if not isinstance(metadata, dict):
+            raise SourceError("PROJECT_METADATA_INVALID", "Project metadata is invalid")
+        remote = metadata.get("remote")
+        if remote is None:
+            return None
+        if not isinstance(remote, dict) or remote.get("provider") != "github":
+            raise SourceError("PROJECT_METADATA_INVALID", "Project remote identity is invalid")
+        return remote
+
     def register_workspace(self, project_id: str, workspace_id: str, display_name: str,
                            worktree_path: Path, *, branch: str, head: str) -> dict[str, Any]:
         project_id, workspace_id = _slug(project_id), _slug(workspace_id)
@@ -237,6 +454,66 @@ class SourceRegistry:
         finally:
             connection.close()
 
+    def get_workspace_profile(self, project_id: str, workspace_id: str
+                              ) -> dict[str, str] | None:
+        """Read the stored owner-side template/profile binding, if complete."""
+        project_id, workspace_id = _slug(project_id), _slug(workspace_id)
+        connection = self.database.connect()
+        try:
+            row = connection.execute(
+                "SELECT metadata_json FROM workspaces WHERE project_id=? AND workspace_id=?",
+                (project_id, workspace_id),
+            ).fetchone()
+        finally:
+            connection.close()
+        if row is None:
+            return None
+        metadata = json.loads(row[0])
+        if not isinstance(metadata, dict):
+            raise SourceError("WORKSPACE_METADATA_INVALID", "Workspace metadata is invalid")
+        template_id, profile_id = metadata.get("template_id"), metadata.get("profile_id")
+        if template_id is None and profile_id is None:
+            return None
+        if not isinstance(template_id, str) or not isinstance(profile_id, str):
+            raise SourceError("WORKSPACE_METADATA_INVALID", "Workspace profile binding is invalid")
+        try:
+            return {"template_id": _slug(template_id), "profile_id": _slug(profile_id)}
+        except SourceError:
+            raise SourceError("WORKSPACE_METADATA_INVALID", "Workspace profile binding is invalid") from None
+
+    def bind_workspace_profile(self, project_id: str, workspace_id: str, *,
+                               template_id: str, profile_id: str) -> dict[str, str]:
+        """Persist an immutable owner-selected template/profile pair for a workspace.
+
+        This records a binding, not an assertion that dependency preparation or a
+        test environment has already succeeded. Source transitions preserve it.
+        """
+        project_id, workspace_id = _slug(project_id), _slug(workspace_id)
+        template_id, profile_id = _slug(template_id), _slug(profile_id)
+        binding = {"template_id": template_id, "profile_id": profile_id}
+        with self._transaction() as connection:
+            row = connection.execute(
+                "SELECT w.metadata_json FROM workspaces w JOIN source_workspaces s "
+                "USING(project_id,workspace_id) WHERE w.project_id=? AND w.workspace_id=? "
+                "AND s.archived=0", (project_id, workspace_id),
+            ).fetchone()
+            if row is None:
+                raise SourceError("WORKSPACE_NOT_REGISTERED", "Active workspace is required")
+            metadata = json.loads(row["metadata_json"])
+            if not isinstance(metadata, dict):
+                raise SourceError("WORKSPACE_METADATA_INVALID", "Workspace metadata is invalid")
+            previous = {key: metadata[key] for key in binding if key in metadata}
+            if previous and previous != binding:
+                raise SourceError("PROFILE_BINDING_CHANGED", "Workspace profile binding differs")
+            metadata.update(binding)
+            connection.execute(
+                "UPDATE workspaces SET metadata_json=?,updated_at=? "
+                "WHERE project_id=? AND workspace_id=?",
+                (json.dumps(metadata, sort_keys=True, separators=(",", ":")),
+                 _timestamp(), project_id, workspace_id),
+            )
+        return binding
+
     def transition_workspace(self, project_id: str, workspace_id: str, *, expected_generation: int,
                              expected_head: str, branch: str, head: str,
                              capture_fingerprint: str | None = None,
@@ -266,7 +543,14 @@ class SourceRegistry:
             generation = expected_generation + 1
             timestamp = _timestamp()
             state = "ARCHIVED" if archive else "ACTIVE"
-            metadata = json.dumps({"source_generation": generation, "head": head}, sort_keys=True)
+            metadata = json.loads(connection.execute(
+                "SELECT metadata_json FROM workspaces WHERE project_id=? AND workspace_id=?",
+                (project_id, workspace_id),
+            ).fetchone()[0])
+            if not isinstance(metadata, dict):
+                raise SourceError("WORKSPACE_METADATA_INVALID", "Workspace metadata is invalid")
+            metadata.update({"source_generation": generation, "head": head})
+            metadata_json = json.dumps(metadata, sort_keys=True, separators=(",", ":"))
             connection.execute(
                 "UPDATE source_workspaces SET head=?,generation=?,capture_fingerprint=?,archived=?,updated_at=? "
                 "WHERE project_id=? AND workspace_id=?",
@@ -275,7 +559,7 @@ class SourceRegistry:
             connection.execute(
                 "UPDATE workspaces SET branch=?,state=?,metadata_json=?,updated_at=? "
                 "WHERE project_id=? AND workspace_id=?",
-                (branch, state, metadata, timestamp, project_id, workspace_id),
+                (branch, state, metadata_json, timestamp, project_id, workspace_id),
             )
             return {"project_id": project_id, "workspace_id": workspace_id, "branch": branch,
                     "head": head, "generation": generation, "state": state, "archived": archive}

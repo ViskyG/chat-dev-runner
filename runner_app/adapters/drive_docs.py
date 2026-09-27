@@ -237,8 +237,9 @@ def _scope(command: Mapping[str, Any], mailbox: RegisteredMailbox) -> None:
     if mailbox.project_id is None:
         allowed = action in ROOT_ACTIONS and workspace_id is None
     elif mailbox.workspace_id is None:
-        allowed = (action in PROJECT_ACTIONS and project_id == mailbox.project_id
-                   and workspace_id is None)
+        # CREATE_WORKSPACE chooses a new workspace_id; FETCH has no workspace.
+        # Both are authorized by the project mailbox's project identity.
+        allowed = action in PROJECT_ACTIONS and project_id == mailbox.project_id
     else:
         allowed = (action in WORKSPACE_ACTIONS and project_id == mailbox.project_id
                    and workspace_id == mailbox.workspace_id)
@@ -263,6 +264,10 @@ def read_ready_snapshot(provider: ReadProvider, mailbox: RegisteredMailbox) -> F
         legacy_attachment=mailbox.legacy_attachment, receipt_id=mailbox.receipt_id,
     )
     first = read_document(provider, mailbox.command_id, max_bytes=MAX_COMMAND_DOC_BYTES)
+    # A newly provisioned native Doc has no command yet (often just its
+    # paragraph newline). Other malformed content still remains an error.
+    if first.text.strip("\n") == "":
+        return None
     try:
         frozen = parse_command(first.raw_bytes)
     except DomainError as error:

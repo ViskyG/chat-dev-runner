@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "kind": "ep05-github-publish-and-import-offline-evidence",
+  "recorded_at": "2026-09-27T12:54:59.128302+00:00",
+  "environment": {
+    "git_head": "5fb9696e012707e6f2a096c67d236b77b435bbed",
+    "python": "3.10.12",
+    "system": "Linux",
+    "release": "6.8.0-138-generic",
+    "machine": "x86_64"
+  },
+  "checks": [
+    {
+      "command": ".venv/bin/pytest -q --junitxml=verification/implementation/EP-05/github-publish-transport-tests.xml tests/test_git_publish.py tests/test_publish_run_workflow.py tests/test_github_publish_workflow.py tests/test_github_git_transport.py tests/test_local_import_github_bootstrap.py tests/test_deliver_verify_publish_workflow.py",
+      "exit_code": 0,
+      "tests": 69,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit": "verification/implementation/EP-05/github-publish-transport-tests.xml"
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app/git/publish.py runner_app/git/github_transport.py runner_app/workflows/publish_run.py tests/test_github_publish_workflow.py tests/test_local_import_github_bootstrap.py tests/test_publish_run_workflow.py",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/mypy runner_app/git/publish.py runner_app/git/github_transport.py runner_app/workflows/publish_run.py",
+      "exit_code": 0
+    }
+  ],
+  "scope": "Disposable local Git receivers, fake GitHub REST and fake HTTPS Git network; no live provider calls",
+  "limitations": [
+    "Live GitHub token and repository configuration not used",
+    "Drive report URL requires registered delivery result sequencing"
+  ]
+}

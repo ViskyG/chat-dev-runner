@@ -22,6 +22,7 @@ from runner_app.adapters.drive_index import AttachedInstallation
 from runner_app.storage.paths import UnsafePathError, open_private_file
 
 FOLDER_MIME = "application/vnd.google-apps.folder"
+DOCUMENT_MIME = "application/vnd.google-apps.document"
 METADATA_FIELDS = (
     "id,name,mimeType,parents,trashed,isAppAuthorized,appProperties,webViewLink,"
     "capabilities(canEdit,canAddChildren),size,md5Checksum,sha256Checksum"
@@ -33,6 +34,7 @@ _INSTALLATION_ID = re.compile(
     r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z"
 )
 _KEY = re.compile(r"[A-Za-z0-9_./:-]{1,117}\Z")  # cdr_key + value <= 124 bytes.
+_SLUG = re.compile(r"[a-z0-9][a-z0-9-]{0,47}\Z")
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 _MD5 = re.compile(r"[0-9a-f]{32}\Z")
 _MEDIA_TYPE = re.compile(r"[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+(?:; charset=utf-8)?\Z")
@@ -68,8 +70,22 @@ def _name(value: str) -> None:
         raise DriveUploadError("UPLOAD_NAME_INVALID")
 
 
-def _scope_properties(installation_id: str, key: str) -> dict[str, str]:
-    return {"cdr_installation": installation_id, "cdr_key": key}
+def _scope_properties(installation_id: str, key: str, *,
+                      project_id: str | None = None,
+                      workspace_id: str | None = None) -> dict[str, str]:
+    if ((project_id is not None
+         and (not isinstance(project_id, str) or _SLUG.fullmatch(project_id) is None))
+            or (workspace_id is not None
+                and (not isinstance(workspace_id, str)
+                     or _SLUG.fullmatch(workspace_id) is None))
+            or (workspace_id is not None and project_id is None)):
+        raise DriveUploadError("UPLOAD_SCOPE_INVALID")
+    properties = {"cdr_installation": installation_id, "cdr_key": key}
+    if project_id is not None:
+        properties["cdr_project"] = project_id
+    if workspace_id is not None:
+        properties["cdr_workspace"] = workspace_id
+    return properties
 
 
 def _validate_metadata(
@@ -78,6 +94,7 @@ def _validate_metadata(
     mime_type: str | None = None, name: str | None = None,
     sha256: str | None = None, size_bytes: int | None = None,
     md5: str | None = None, legacy_results_parent: bool = False,
+    project_id: str | None = None, workspace_id: str | None = None,
 ) -> None:
     if metadata.get("id") != file_id or metadata.get("trashed") is not False:
         raise DriveUploadError("UPLOAD_FILE_IDENTITY_MISMATCH")
@@ -118,6 +135,10 @@ def _validate_metadata(
             raise DriveUploadError("UPLOAD_APP_IDENTITY_MISMATCH")
         if key is not None and props.get("cdr_key") != key:
             raise DriveUploadError("UPLOAD_APP_IDENTITY_MISMATCH")
+        if project_id is not None and props.get("cdr_project") != project_id:
+            raise DriveUploadError("UPLOAD_SCOPE_MISMATCH")
+        if workspace_id is not None and props.get("cdr_workspace") != workspace_id:
+            raise DriveUploadError("UPLOAD_SCOPE_MISMATCH")
     if sha256 is not None:
         if props.get("cdr_sha256") != sha256:
             raise DriveUploadError("UPLOAD_CONTENT_DIGEST_MISMATCH")
@@ -188,33 +209,33 @@ class GoogleUploadProvider:
             raise TypeError("A verified Drive installation attachment is required")
         self._attached = attached
 
-    def _legacy_results_parent(self, file_id: str, installation_id: str | None
-                               ) -> tuple[str, str] | None:
-        """Return the one indexed legacy Results contract, never a general grant."""
+    def _legacy_indexed_parent(self, file_id: str, installation_id: str | None
+                               ) -> tuple[str, str, str] | None:
+        """Recognize only attached legacy Projects/Results parents by exact ID."""
         attached = self._attached
         if (attached is None or attached.index.identity_mode != "owner_manifest"
                 or installation_id != attached.index.installation_id):
             return None
         root = attached.index.files.get("root")
-        results = attached.index.files.get("results")
         index = attached.index.files.get("installation-index")
-        checked = attached.metadata.get("results")
-        if (root is None or results is None or index is None
-                or not isinstance(checked, Mapping)
-                or root.file_id != attached.config.root_id
-                or index.file_id != attached.config.index_id
-                or results.file_id != file_id or results.key != "results"
-                or results.name != "02 Results" or results.mime_type != FOLDER_MIME
-                or results.parents != (root.file_id,)
-                or checked.get("id") != file_id or checked.get("name") != results.name
-                or checked.get("mimeType") != FOLDER_MIME
-                or checked.get("parents") != [root.file_id]
-                or checked.get("trashed") is not False):
+        if (root is None or index is None or root.file_id != attached.config.root_id
+                or index.file_id != attached.config.index_id):
             return None
-        capabilities = checked.get("capabilities")
-        if not isinstance(capabilities, Mapping) or capabilities.get("canAddChildren") is not True:
-            return None
-        return root.file_id, results.name
+        for role in ("results", "projects"):
+            item = attached.index.files.get(role)
+            checked = attached.metadata.get(role)
+            if (item is None or not isinstance(checked, Mapping)
+                    or item.file_id != file_id or item.key != role
+                    or item.mime_type != FOLDER_MIME or item.parents != (root.file_id,)
+                    or checked.get("id") != file_id or checked.get("name") != item.name
+                    or checked.get("mimeType") != FOLDER_MIME
+                    or checked.get("parents") != [root.file_id]
+                    or checked.get("trashed") is not False):
+                continue
+            capabilities = checked.get("capabilities")
+            if isinstance(capabilities, Mapping) and capabilities.get("canAddChildren") is True:
+                return root.file_id, item.name, role
+        return None
 
     def _read_request(self, request: Any) -> Mapping[str, Any]:
         try:
@@ -231,6 +252,8 @@ class GoogleUploadProvider:
         expected_mime_type: str | None = None, expected_name: str | None = None,
         expected_sha256: str | None = None, expected_size_bytes: int | None = None,
         expected_md5: str | None = None,
+        expected_project_id: str | None = None,
+        expected_workspace_id: str | None = None,
     ) -> Mapping[str, Any]:
         """Read one registered ID and optionally validate full remote identity/content."""
         if not _valid_id(file_id):
@@ -254,10 +277,13 @@ class GoogleUploadProvider:
             not isinstance(expected_md5, str) or _MD5.fullmatch(expected_md5) is None
         ):
             raise DriveUploadError("UPLOAD_SOURCE_INVALID")
-        legacy = self._legacy_results_parent(file_id, expected_installation_id)
+        _scope_properties(expected_installation_id or "", expected_key or "",
+                          project_id=expected_project_id,
+                          workspace_id=expected_workspace_id)
+        legacy = self._legacy_indexed_parent(file_id, expected_installation_id)
         legacy_results_parent = (
             legacy is not None and expected_parent_id == legacy[0]
-            and expected_key == "results" and expected_mime_type == FOLDER_MIME
+            and expected_key == legacy[2] and expected_mime_type == FOLDER_MIME
             and expected_name == legacy[1] and expected_sha256 is None
             and expected_size_bytes is None and expected_md5 is None
         )
@@ -268,18 +294,19 @@ class GoogleUploadProvider:
             mime_type=expected_mime_type, name=expected_name,
             sha256=expected_sha256, size_bytes=expected_size_bytes, md5=expected_md5,
             legacy_results_parent=legacy_results_parent,
+            project_id=expected_project_id, workspace_id=expected_workspace_id,
         )
         return value
 
     def _parent(self, parent_id: str, installation_id: str) -> None:
-        legacy = self._legacy_results_parent(parent_id, installation_id)
+        legacy = self._legacy_indexed_parent(parent_id, installation_id)
         if legacy is None:
             parent = self.get_file(parent_id, expected_installation_id=installation_id,
                                    expected_mime_type=FOLDER_MIME)
         else:
             parent = self.get_file(
                 parent_id, expected_parent_id=legacy[0],
-                expected_installation_id=installation_id, expected_key="results",
+                expected_installation_id=installation_id, expected_key=legacy[2],
                 expected_mime_type=FOLDER_MIME, expected_name=legacy[1],
             )
         capabilities = parent.get("capabilities")
@@ -291,9 +318,13 @@ class GoogleUploadProvider:
         expected_mime_type: str | None = None, expected_name: str | None = None,
         expected_sha256: str | None = None, expected_size_bytes: int | None = None,
         expected_md5: str | None = None,
+        expected_project_id: str | None = None,
+        expected_workspace_id: str | None = None,
     ) -> Mapping[str, Any] | None:
         """Bounded exact app-property lookup only for uncertain-write reconciliation."""
         _identity(parent_id, installation_id, key)
+        _scope_properties(installation_id, key, project_id=expected_project_id,
+                          workspace_id=expected_workspace_id)
         self._parent(parent_id, installation_id)
         # Search app identity globally, then verify the exact parent by ID. A
         # moved app-owned file must be detected, never mistaken for absence.
@@ -301,6 +332,12 @@ class GoogleUploadProvider:
             f"appProperties has {{ key='cdr_installation' and value='{installation_id}' }} "
             f"and appProperties has {{ key='cdr_key' and value='{key}' }}"
         )
+        if expected_project_id is not None:
+            query += (" and appProperties has { key='cdr_project' and value='"
+                      + expected_project_id + "' }")
+        if expected_workspace_id is not None:
+            query += (" and appProperties has { key='cdr_workspace' and value='"
+                      + expected_workspace_id + "' }")
         matches: list[str] = []
         seen_ids: set[str] = set()
         seen_tokens: set[str] = set()
@@ -343,6 +380,8 @@ class GoogleUploadProvider:
             expected_mime_type=expected_mime_type, expected_name=expected_name,
             expected_sha256=expected_sha256, expected_size_bytes=expected_size_bytes,
             expected_md5=expected_md5,
+            expected_project_id=expected_project_id,
+            expected_workspace_id=expected_workspace_id,
         )
 
     def _create(
@@ -350,11 +389,14 @@ class GoogleUploadProvider:
         mime_type: str, *, media_body: Any = None,
         sha256: str | None = None, size_bytes: int | None = None,
         md5: str | None = None,
+        project_id: str | None = None,
+        workspace_id: str | None = None,
     ) -> Mapping[str, Any]:
         _identity(parent_id, installation_id, key)
         _name(name)
         self._parent(parent_id, installation_id)
-        properties = _scope_properties(installation_id, key)
+        properties = _scope_properties(installation_id, key,
+                                       project_id=project_id, workspace_id=workspace_id)
         if sha256 is not None and size_bytes is not None:
             properties.update(cdr_sha256=sha256, cdr_size=str(size_bytes))
         body = {"name": name, "mimeType": mime_type, "parents": [parent_id],
@@ -377,16 +419,27 @@ class GoogleUploadProvider:
                 expected_installation_id=installation_id, expected_key=key,
                 expected_mime_type=mime_type, expected_name=name,
                 expected_sha256=sha256, expected_size_bytes=size_bytes,
-                expected_md5=md5,
+                expected_md5=md5, expected_project_id=project_id,
+                expected_workspace_id=workspace_id,
             )
         except DriveUploadError:
             raise DriveUploadError("UPLOAD_VERIFY_UNCERTAIN", effect_uncertain=True) from None
 
     def create_folder(
-        self, parent_id: str, installation_id: str, key: str, name: str,
+        self, parent_id: str, installation_id: str, key: str, name: str, *,
+        project_id: str | None = None, workspace_id: str | None = None,
     ) -> Mapping[str, Any]:
         """Create one folder under a verified parent; no retry."""
-        return self._create(parent_id, installation_id, key, name, FOLDER_MIME)
+        return self._create(parent_id, installation_id, key, name, FOLDER_MIME,
+                            project_id=project_id, workspace_id=workspace_id)
+
+    def create_document(
+        self, parent_id: str, installation_id: str, key: str, name: str, *,
+        project_id: str, workspace_id: str | None = None,
+    ) -> Mapping[str, Any]:
+        """Create one blank native Google Doc in a scoped project folder."""
+        return self._create(parent_id, installation_id, key, name, DOCUMENT_MIME,
+                            project_id=project_id, workspace_id=workspace_id)
 
     def upload_file(
         self, parent_id: str, installation_id: str, key: str, name: str,

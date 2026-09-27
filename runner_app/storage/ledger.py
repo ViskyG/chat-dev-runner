@@ -69,6 +69,15 @@ class DeliveryPreflight:
     source_operation_manifest_sha256: str | None
 
 
+@dataclass(frozen=True)
+class EffectAdoptionProof:
+    """Exact facts returned by a trusted read-only verifier immediately before adoption."""
+
+    source_effect_id: str
+    provider_id: str
+    observed_intent: Mapping[str, Any]
+
+
 def _receipt(request_id: str, digest: str, status: str, code: str | None, timestamp: str,
              run_id: str | None = None) -> dict[str, Any]:
     return {
@@ -280,8 +289,10 @@ class Ledger:
         normalized_scopes = tuple(sorted(set(scopes)))
         if any(not _SCOPE.fullmatch(scope) for scope in normalized_scopes):
             raise ValueError("Invalid locally derived resource scope")
-        if exempt_capacity and (command.get("action") != "CANCEL_OPERATION" or normalized_scopes):
-            raise ValueError("Only targeted cancellation may bypass capacity")
+        if (exempt_capacity
+                and (command.get("action") not in {"CANCEL_OPERATION", "RECONCILE"}
+                     or normalized_scopes)):
+            raise ValueError("Only targeted cancellation or read-only recovery may bypass capacity")
         with self._transaction() as connection:
             # Observe time inside the admission transaction. A command can expire
             # while waiting for a short SQLite writer lock or dispatch handoff.
@@ -298,7 +309,8 @@ class Ledger:
             code = rejection_code
             if code is None and (command.get("runner_id") != state["runner_id"] or command.get("epoch") != state["epoch"]):
                 code = "WRONG_RUNNER_EPOCH"
-            if code is None and not state["armed"] and command.get("action") != "CANCEL_OPERATION":
+            if (code is None and not state["armed"]
+                    and command.get("action") not in {"CANCEL_OPERATION", "RECONCILE"}):
                 code = "UNARMED"
             if code is None:
                 expires_at = command.get("expires_at")
@@ -1006,6 +1018,175 @@ class Ledger:
                     connection.execute("ROLLBACK")
                 raise
 
+    def adopt_confirmed_effect(self, resume_request_id: str,
+                               proof: EffectAdoptionProof) -> str:
+        """Atomically copy one positively rechecked CREATE_PROJECT effect to a resume.
+
+        The caller must obtain ``proof`` from an exact-ID, read-only provider or
+        managed-source verifier. Equality with the old immutable intent/provider ID
+        is checked here; this method does not itself call a cloud provider or replay
+        its write. A claim binds one old create to only one resume request.
+        """
+        if (not isinstance(proof, EffectAdoptionProof)
+                or not isinstance(proof.source_effect_id, str)
+                or not isinstance(proof.provider_id, str)
+                or not 1 <= len(proof.provider_id) <= 4096
+                or any(ord(char) < 32 or ord(char) == 127
+                       for char in proof.provider_id)
+                or not isinstance(proof.observed_intent, Mapping)):
+            raise LedgerError("ADOPTION_PROOF_INVALID", "Exact readback proof is required")
+        try:
+            observed_intent = _json(dict(proof.observed_intent))
+            proof_json = _json({
+                "source_effect_id": proof.source_effect_id,
+                "provider_id": proof.provider_id,
+                "intent": json.loads(observed_intent),
+            })
+        except (TypeError, ValueError, OverflowError):
+            raise LedgerError("ADOPTION_PROOF_INVALID", "Exact readback proof is invalid") from None
+        if len(proof_json.encode("utf-8")) > 65_536:
+            raise LedgerError("ADOPTION_PROOF_INVALID", "Exact readback proof is too large")
+        proof_sha256 = hashlib.sha256(proof_json.encode("utf-8")).hexdigest()
+        with self._transaction() as connection:
+            resume = connection.execute(
+                "SELECT request_id,digest,command_json,project_id,workspace_id,action,status "
+                "FROM operations WHERE request_id=?", (resume_request_id,),
+            ).fetchone()
+            if (resume is None or resume["status"] != "RUNNING"
+                    or resume["action"] != "RESUME_PROVISION"
+                    or resume["workspace_id"] is not None):
+                raise LedgerError("ADOPTION_NOT_ADMITTED",
+                                  "A running provision resume is required")
+            source_effect = connection.execute(
+                "SELECT * FROM effects WHERE effect_id=?", (proof.source_effect_id,),
+            ).fetchone()
+            if source_effect is None:
+                raise LedgerError("ADOPTION_SOURCE_MISSING", "Original effect is missing")
+            target_id = source_effect["request_id"]
+            target = connection.execute(
+                "SELECT request_id,digest,command_json,project_id,workspace_id,action,"
+                "status,reconcile_required FROM operations WHERE request_id=?",
+                (target_id,),
+            ).fetchone()
+            try:
+                resume_command = json.loads(resume["command_json"])
+                target_command = json.loads(target["command_json"]) if target else None
+                if not isinstance(target_command, dict):
+                    raise TypeError("Original command is not an object")
+                alias = target_command["params"]["github_identity"]
+                valid_commands = (
+                    isinstance(resume_command, dict)
+                    and isinstance(target_command, dict)
+                    and resume_command.get("request_id") == resume_request_id
+                    and resume_command.get("action") == "RESUME_PROVISION"
+                    and resume_command.get("project_id") == resume["project_id"]
+                    and resume_command.get("workspace_id") is None
+                    and resume_command.get("expected_head") is None
+                    and resume_command.get("params") == {
+                        "resume_version": "1.0", "target_request_id": target_id,
+                    }
+                    and target_command.get("request_id") == target_id
+                    and target_command.get("action") == "CREATE_PROJECT"
+                    and target_command.get("project_id") == target["project_id"]
+                    and target_command.get("workspace_id") is None
+                    and isinstance(alias, str)
+                    and re.fullmatch(r"[a-z0-9][a-z0-9-]{0,47}", alias) is not None
+                    and hashlib.sha256(resume["command_json"].encode("utf-8")).hexdigest()
+                        == resume["digest"]
+                    and hashlib.sha256(target["command_json"].encode("utf-8")).hexdigest()
+                        == target["digest"]
+                )
+            except (KeyError, TypeError, ValueError, OverflowError):
+                valid_commands = False
+            if (not valid_commands or target is None
+                    or target_id == resume_request_id
+                    or target["action"] != "CREATE_PROJECT"
+                    or target["status"] not in {"BLOCKED", "FAULT", "INTERRUPTED", "CANCELLED"}
+                    or target["workspace_id"] is not None
+                    or target["project_id"] != resume["project_id"]):
+                raise LedgerError("ADOPTION_TARGET_MISMATCH",
+                                  "Resume does not target the original partial create")
+            if (target["reconcile_required"]
+                    or connection.execute(
+                        "SELECT 1 FROM effects WHERE request_id=? "
+                        "AND state IN ('INTENDED','UNKNOWN') LIMIT 1", (target_id,),
+                    ).fetchone() is not None
+                    or connection.execute(
+                        "SELECT 1 FROM locks WHERE request_id=? LIMIT 1", (target_id,),
+                    ).fetchone() is not None):
+                raise LedgerError("ADOPTION_RECONCILIATION_REQUIRED",
+                                  "Original create still has uncertain effects or locks")
+            required_scopes = {
+                f"repo:{resume['project_id']}", f"global:{alias}",
+                "global:drive-installation",
+            }
+            held_scopes = {
+                row["scope"] for row in connection.execute(
+                    "SELECT scope FROM locks WHERE request_id=?", (resume_request_id,),
+                )
+            }
+            if held_scopes != required_scopes:
+                raise LedgerError("ADOPTION_LOCK_MISSING",
+                                  "Resume does not hold the exact provision locks")
+            if (source_effect["state"] != "CONFIRMED"
+                    or source_effect["provider_id"] != proof.provider_id
+                    or source_effect["intent_json"] != observed_intent):
+                raise LedgerError("ADOPTION_PROOF_MISMATCH",
+                                  "Readback differs from the confirmed original effect")
+            claim = connection.execute(
+                "SELECT resume_request_id FROM provision_resume_claims "
+                "WHERE target_request_id=?", (target_id,),
+            ).fetchone()
+            if claim is not None and claim["resume_request_id"] != resume_request_id:
+                raise LedgerError("ADOPTION_TARGET_CLAIMED",
+                                  "Another resume already claimed this partial create")
+            previous = connection.execute(
+                "SELECT * FROM effects WHERE request_id=? AND step_id=? AND kind=?",
+                (resume_request_id, source_effect["step_id"], source_effect["kind"]),
+            ).fetchone()
+            if previous is not None:
+                adoption = connection.execute(
+                    "SELECT source_effect_id,proof_sha256 FROM effect_adoptions "
+                    "WHERE effect_id=?", (previous["effect_id"],),
+                ).fetchone()
+                if (adoption is None
+                        or adoption["source_effect_id"] != proof.source_effect_id
+                        or adoption["proof_sha256"] != proof_sha256
+                        or previous["intent_json"] != source_effect["intent_json"]
+                        or previous["provider_id"] != proof.provider_id
+                        or previous["state"] != "CONFIRMED"):
+                    raise LedgerError("ADOPTION_EFFECT_CONFLICT",
+                                      "Resume effect does not match the original proof")
+                return str(previous["effect_id"])
+            timestamp, effect_id = utcnow(), str(uuid4())
+            if claim is None:
+                connection.execute(
+                    "INSERT INTO provision_resume_claims "
+                    "(target_request_id,resume_request_id,created_at) VALUES(?,?,?)",
+                    (target_id, resume_request_id, timestamp),
+                )
+            self._append(
+                connection, resume_request_id, source_effect["step_id"], "EFFECT_ADOPTED",
+                {"effect_id": effect_id, "source_effect_id": proof.source_effect_id,
+                 "kind": source_effect["kind"], "provider_id": proof.provider_id,
+                 "proof_sha256": proof_sha256}, timestamp,
+            )
+            connection.execute(
+                "INSERT INTO effects(effect_id,request_id,step_id,kind,intent_json,state,"
+                "provider_id,url,created_at,updated_at) "
+                "VALUES(?,?,?,?,?,'CONFIRMED',?,?,?,?)",
+                (effect_id, resume_request_id, source_effect["step_id"],
+                 source_effect["kind"], source_effect["intent_json"],
+                 proof.provider_id, source_effect["url"], timestamp, timestamp),
+            )
+            connection.execute(
+                "INSERT INTO effect_adoptions "
+                "(effect_id,source_effect_id,proof_json,proof_sha256,verified_at) "
+                "VALUES(?,?,?,?,?)",
+                (effect_id, proof.source_effect_id, proof_json, proof_sha256, timestamp),
+            )
+            return effect_id
+
     def begin_effect(self, request_id: str, step_id: str, kind: str, intent: dict[str, Any]) -> str:
         if kind not in EFFECT_KINDS or not step_id:
             raise ValueError("Unknown effect kind or missing step identity")
@@ -1053,9 +1234,22 @@ class Ledger:
             value = result.pop(name + "_json")
             result[name] = json.loads(value) if value is not None else None
         result["effects"] = []
-        for effect in connection.execute("SELECT * FROM effects WHERE request_id=? ORDER BY created_at,effect_id", (row["request_id"],)):
+        for effect in connection.execute(
+            "SELECT e.*,a.source_effect_id,a.proof_sha256,a.verified_at "
+            "FROM effects e LEFT JOIN effect_adoptions a ON a.effect_id=e.effect_id "
+            "WHERE e.request_id=? ORDER BY e.created_at,e.effect_id", (row["request_id"],)
+        ):
             item = dict(effect)
+            source_effect_id = item.pop("source_effect_id")
+            proof_sha256 = item.pop("proof_sha256")
+            verified_at = item.pop("verified_at")
             item["intent"] = json.loads(item.pop("intent_json"))
+            if source_effect_id is not None:
+                item["adoption"] = {
+                    "source_effect_id": source_effect_id,
+                    "proof_sha256": proof_sha256,
+                    "verified_at": verified_at,
+                }
             result["effects"].append(item)
         result["steps"] = [dict(step) for step in connection.execute(
             "SELECT * FROM steps WHERE request_id=? ORDER BY created_at,step_id", (row["request_id"],)

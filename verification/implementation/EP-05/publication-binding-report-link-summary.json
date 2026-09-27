@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "kind": "ep05-publication-binding-report-link-offline-evidence",
+  "recorded_at": "2026-09-27T13:15:50.333098+00:00",
+  "environment": {
+    "git_head": "5fb9696e012707e6f2a096c67d236b77b435bbed",
+    "python": "3.10.12",
+    "system": "Linux",
+    "release": "6.8.0-138-generic",
+    "machine": "x86_64"
+  },
+  "checks": [
+    {
+      "command": ".venv/bin/pytest -q --junitxml=verification/implementation/EP-05/publication-binding-report-link-tests.xml tests/test_publish_run_workflow.py tests/test_github_publish_workflow.py tests/test_deliver_verify_publish_workflow.py tests/test_github_adapter.py tests/test_github_git_transport.py",
+      "exit_code": 0,
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit": "verification/implementation/EP-05/publication-binding-report-link-tests.xml"
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app/workflows/publish_run.py runner_app/adapters/github.py runner_app/git/github_transport.py tests/test_publish_run_workflow.py tests/test_git_publish.py tests/test_deliver_verify_publish_workflow.py tests/test_github_git_transport.py",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/mypy runner_app/workflows/publish_run.py runner_app/adapters/github.py runner_app/git/github_transport.py",
+      "exit_code": 0
+    }
+  ],
+  "scope": "Disposable local Git receivers, fake GitHub REST and fake Drive delivery; no live provider calls",
+  "limitations": [
+    "Live GitHub authentication and Drive-to-GitHub report-link update have not been attempted",
+    "GitHub PR PATCH does not offer an atomic compare-and-set on body text; preflight and post-write readback bound the update to one exact draft PR"
+  ]
+}

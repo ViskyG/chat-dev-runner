@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "kind": "ep05-local-import-github-bootstrap-offline-evidence",
+  "recorded_at": "2026-09-27T12:53:51.770684+00:00",
+  "environment": {
+    "git_head": "5fb9696e012707e6f2a096c67d236b77b435bbed",
+    "python": "3.10.12",
+    "system": "Linux",
+    "release": "6.8.0-138-generic",
+    "machine": "x86_64"
+  },
+  "checks": [
+    {
+      "command": ".venv/bin/pytest -q --junitxml=verification/implementation/EP-05/local-import-github-bootstrap-tests.xml tests/test_local_import_github_bootstrap.py tests/test_github_git_transport.py",
+      "exit_code": 0,
+      "tests": 30,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit": "verification/implementation/EP-05/local-import-github-bootstrap-tests.xml"
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app/git/github_transport.py tests/test_local_import_github_bootstrap.py runner_app/workflows/publish_run.py tests/test_publish_run_workflow.py",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/mypy runner_app/git/github_transport.py runner_app/workflows/publish_run.py",
+      "exit_code": 0
+    }
+  ],
+  "scope": "Registered LOCAL-import bare source, disposable local Git receiver and fake GitHub HTTPS network; no live provider calls",
+  "guardrails": [
+    "exact imported HEAD and branch",
+    "registered local origin",
+    "full non-shallow history",
+    "safe HEAD tree",
+    "private provision marker and numeric ID",
+    "empty main",
+    "normal non-force push",
+    "read-only ambiguity reconciliation"
+  ]
+}

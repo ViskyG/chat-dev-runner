@@ -1,0 +1,29 @@
+{
+  "checks": [
+    {
+      "command": ".venv/bin/pytest -q tests/test_git_publish.py tests/test_git_registry_integration.py tests/test_git_snapshots.py --junitxml=verification/implementation/EP-05/local-git-publish-tests.xml",
+      "exit_code": 0,
+      "result": "34 passed in 9.28s"
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app/git/publish.py tests/test_git_publish.py",
+      "exit_code": 0,
+      "result": "All checks passed"
+    },
+    {
+      "command": ".venv/bin/mypy runner_app/git/publish.py",
+      "exit_code": 0,
+      "result": "Success: no issues found in 1 source file"
+    }
+  ],
+  "environment": {
+    "git": "git version 2.34.1",
+    "machine": "x86_64",
+    "release": "6.8.0-138-generic",
+    "system": "Linux"
+  },
+  "purpose": "Offline real local bare Git publication of attested snapshot and new-project main bootstrap",
+  "receiver": "Disposable owner-controlled local bare Git repositories created by pytest under /tmp; no live GitHub push",
+  "recorded_at": "2026-09-27T12:00:04.049906+00:00",
+  "schema_version": "1.0"
+}

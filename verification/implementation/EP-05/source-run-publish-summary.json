@@ -1,0 +1,30 @@
+{
+  "checks": [
+    {
+      "command": ".venv/bin/pytest -q tests/test_publish_run_workflow.py tests/test_git_publish.py --junitxml=verification/implementation/EP-05/source-run-publish-tests.xml",
+      "exit_code": 0,
+      "result": "19 passed in 11.08s"
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app/workflows/publish_run.py runner_app/git/publish.py tests/test_publish_run_workflow.py tests/test_git_publish.py",
+      "exit_code": 0,
+      "result": "All checks passed"
+    },
+    {
+      "command": ".venv/bin/mypy runner_app/workflows/publish_run.py runner_app/git/publish.py",
+      "exit_code": 0,
+      "result": "Success: no issues found in 2 source files"
+    }
+  ],
+  "environment": {
+    "git": "git version 2.34.1",
+    "machine": "x86_64",
+    "release": "6.8.0-138-generic",
+    "system": "Linux"
+  },
+  "external_effects": "None; disposable local Git receiver and fake GitHub REST only",
+  "known_integration_gap": "Live GitHub pack transport/credential helper and durable terminal RECONCILE action are separate EP-05 work; this handler remains unregistered by default",
+  "purpose": "Offline PUBLISH of an immutable attested run through real local bare Git and fake GitHub REST",
+  "recorded_at": "2026-09-27T12:12:04.612016+00:00",
+  "schema_version": "1.0"
+}
