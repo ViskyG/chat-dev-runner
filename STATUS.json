@@ -42,10 +42,12 @@
     "oauth_full_drive_evidence": "verification/implementation/EP-04/full-drive-oauth-transition.json"
   },
   "implementation_source_repository": {
-    "local_git": "INITIALIZED",
+    "local_git": "COMMITTED",
     "branch": "main",
-    "github_remote": "NOT_CONFIGURED",
+    "github_remote": "ViskyG/chat-dev-runner",
     "private_repository_requested": true,
-    "note": "Source repository for this runner implementation; separate from EP-05 project provisioning."
+    "note": "Source repository for this runner implementation; separate from EP-05 project provisioning.",
+    "visibility": "private",
+    "remote_privacy_verified": true
   }
 }
