@@ -51,6 +51,18 @@ using lockfiles and controlled network access. A package's build hook is code ex
 run pip/npm install globally on the host because the request contained a requirements file.
 Do not let a project edit its own runtime profile to add host mounts or internet access.
 
+The offline preparation handoff accepts only a complete, successful result from an independently
+cleaned rootless preparation container whose frozen source, image and exact owner-approved profile
+revision match the local preparation plan. It inventories only bounded ordinary files/directories
+(no links, devices or hardlinks), copies through nofollow directory descriptors into a separate
+empty private build root, then rechecks both trees by size, executable bit and SHA-256. A mismatch quarantines
+the target and grants no execution authority. The broker now has an offline admission path for a quota-limited test volume containing only
+a separately staged `build/` tree. It binds the plan to the frozen snapshot and both owner-approved
+profile revisions, then rescans the copied bytes before Docker create and again before start.
+A trusted coordinator for the actual preparation run and the target-host acceptance tests are
+still required before live use. An in-memory handoff manifest or fake broker result alone is
+not proof that target-host containment has passed.
+
 ## Git and publication
 
 Restrict protocols and owners, validate refs, disable repository hooks and unexpected global

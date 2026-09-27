@@ -5,8 +5,10 @@ import hashlib
 import json
 import os
 import sqlite3
+import threading
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
+from multiprocessing import get_context
 from pathlib import Path
 from uuid import uuid4
 
@@ -24,6 +26,7 @@ from runner_app.git.snapshots import capture_clean_verify
 from runner_app.git.worktrees import create_repository, create_workspace
 from runner_app.storage import Database, ensure_private_directory
 from runner_app.storage import database as database_module
+from runner_app.storage import run_evidence as evidence_module
 from runner_app.storage.ledger import Ledger, LedgerError
 from runner_app.storage.run_evidence import EvidenceError, RunEvidenceStore
 
@@ -511,7 +514,7 @@ def test_delivery_preflight_report_retry_uses_only_named_stored_run(tmp_path: Pa
 
 @pytest.mark.parametrize("change,expected", [
     ({"action": "PUBLISH", "params": {"source_run_id": "ignored"}}, "DELIVERY_ACTION_INVALID"),
-    ({"params": {"source_run_id": str(uuid4())}}, "DELIVERY_RUN_MISMATCH"),
+    ({"params": {"source_run_id": str(uuid4())}}, "SOURCE_RUN_MISSING"),
     ({"project_id": "other"}, "DELIVERY_SOURCE_MISMATCH"),
     ({"workspace_id": "other"}, "DELIVERY_SOURCE_MISMATCH"),
 ])
@@ -534,11 +537,20 @@ def test_delivery_preflight_rejects_wrong_action_or_scope(
         "intent": "Retry immutable evidence delivery",
     }
     retry.update(change)
-    assert ledger.admit(retry, freeze(retry).digest, "local-owner",
-                        ("workspace:fixture/area",)).execute
-    with pytest.raises(LedgerError) as error:
-        ledger.require_delivery_preflight(retry["request_id"], manifest["run_id"])
-    assert error.value.code == expected
+    admitted = ledger.admit(retry, freeze(retry).digest, "local-owner",
+                            ("workspace:fixture/area",))
+    if retry["action"] == "PUBLISH":
+        assert admitted.execute
+        with pytest.raises(LedgerError) as error:
+            ledger.require_delivery_preflight(retry["request_id"], manifest["run_id"])
+        assert error.value.code == expected
+    else:
+        assert not admitted.execute and admitted.receipt["code"] == expected
+        with closing(store.database.connect()) as connection:
+            assert connection.execute(
+                "SELECT 1 FROM run_delivery_claims WHERE delivery_request_id=?",
+                (retry["request_id"],),
+            ).fetchone() is None
 
 
 def test_delivery_preflight_requires_exact_held_lock(tmp_path: Path) -> None:
@@ -557,10 +569,13 @@ def test_delivery_preflight_requires_exact_held_lock(tmp_path: Path) -> None:
         "expected_head": head, "params": {"source_run_id": manifest["run_id"]},
         "intent": "Retry immutable evidence delivery",
     }
-    assert ledger.admit(retry, freeze(retry).digest, "local-owner", ()).execute
-    with pytest.raises(LedgerError) as error:
-        ledger.require_delivery_preflight(retry["request_id"], manifest["run_id"])
-    assert error.value.code == "DELIVERY_LOCK_MISSING"
+    admitted = ledger.admit(retry, freeze(retry).digest, "local-owner", ())
+    assert not admitted.execute and admitted.receipt["code"] == "DELIVERY_LOCK_MISSING"
+    with closing(store.database.connect()) as connection:
+        assert connection.execute(
+            "SELECT 1 FROM run_delivery_claims WHERE delivery_request_id=?",
+            (retry["request_id"],),
+        ).fetchone() is None
 
 
 def test_input_manifest_is_exact_registered_run_snapshot_bytes(tmp_path: Path) -> None:
@@ -623,3 +638,462 @@ def test_input_manifest_refuses_run_record_with_different_source_scope(tmp_path:
     with pytest.raises(EvidenceError) as mismatch:
         store.read_input_manifest(manifest["run_id"])
     assert mismatch.value.code == "INPUT_MANIFEST_SCOPE_MISMATCH"
+
+
+def _report_retry(ledger: Ledger, run_id: str, head: str) -> dict:
+    issued = datetime.now(timezone.utc)
+    return {
+        "schema_version": "1.0", "request_id": str(uuid4()), "dispatch": "READY",
+        "runner_id": "local-runner", "epoch": ledger.state()["epoch"],
+        "issued_at": issued.isoformat(),
+        "expires_at": (issued + timedelta(minutes=5)).isoformat(),
+        "action": "PUBLISH_REPORT", "project_id": "fixture", "workspace_id": "area",
+        "expected_head": head, "params": {"source_run_id": run_id},
+        "intent": "Retry immutable evidence delivery",
+    }
+
+
+def test_retention_tombstone_preserves_immutable_manifest_and_other_output(tmp_path: Path) -> None:
+    store, registry, ledger, request_id, snapshot_id, _, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, request_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    aged = datetime.now(timezone.utc) + timedelta(days=15)
+    with pytest.raises(EvidenceError) as running:
+        store.expire_output(manifest["run_id"], "stdout-raw", now=aged)
+    assert running.value.code == "EVIDENCE_REFERENCED"
+    ledger.finish(request_id, "COMPLETED")
+    with pytest.raises(EvidenceError) as young:
+        store.expire_output(manifest["run_id"], "stdout-raw")
+    assert young.value.code == "RETENTION_NOT_DUE"
+    tombstone = store.expire_output(manifest["run_id"], "stdout-raw", now=aged)
+    assert tombstone["reason"] == "RETENTION_EXPIRED"
+    assert not files["stdout-raw"].exists()
+    assert files["stderr-raw"].exists()
+    assert store.expire_output(manifest["run_id"], "stdout-raw", now=aged) == tombstone
+    indexed = {row["output_id"]: row for row in store.output_retention_index(manifest["run_id"])}
+    assert indexed["stdout-raw"]["state"] == "EXPIRED"
+    assert indexed["stdout-raw"]["tombstone_at"] == tombstone["created_at"]
+    assert indexed["stderr-raw"]["state"] == "AVAILABLE"
+    assert ledger.get_run(manifest["run_id"]) == manifest
+    assert ledger.list_outputs(manifest["run_id"]) == sorted(
+        manifest["outputs"], key=lambda item: item["output_id"],
+    )
+    with pytest.raises(EvidenceError) as expired:
+        store.open_output(manifest["run_id"], "stdout-raw")
+    assert expired.value.code == "EVIDENCE_EXPIRED"
+    with closing(store.database.connect()) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM output_tombstones").fetchone() == (1,)
+        with pytest.raises(sqlite3.IntegrityError):
+            connection.execute("UPDATE output_tombstones SET reason='changed'")
+        with pytest.raises(sqlite3.IntegrityError):
+            connection.execute("DELETE FROM output_tombstones")
+
+
+def test_retention_pin_and_pending_source_delivery_block_deletion(tmp_path: Path) -> None:
+    store, registry, ledger, request_id, snapshot_id, _, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, request_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    aged = datetime.now(timezone.utc) + timedelta(days=15)
+    assert store.set_run_pin(manifest["run_id"], pinned=True)
+    assert not store.set_run_pin(manifest["run_id"], pinned=True)
+    ledger.record_delivery(request_id, "PENDING")
+    ledger.finish(request_id, "COMPLETED")
+    with pytest.raises(EvidenceError) as pending:
+        store.expire_output(manifest["run_id"], "stdout-raw", now=aged)
+    assert pending.value.code == "EVIDENCE_REFERENCED"
+    assert store.set_run_pin(manifest["run_id"], pinned=False)
+    assert not store.set_run_pin(manifest["run_id"], pinned=False)
+    with pytest.raises(EvidenceError) as still_pending:
+        store.expire_output(manifest["run_id"], "stdout-raw", now=aged)
+    assert still_pending.value.code == "EVIDENCE_REFERENCED"
+    assert files["stdout-raw"].exists()
+    with closing(store.database.connect()) as connection:
+        assert connection.execute(
+            "SELECT action FROM run_retention_pin_events ORDER BY event_id"
+        ).fetchall() == [("PIN",), ("UNPIN",)]
+
+
+def test_pinned_run_blocks_retention_until_explicit_unpin(tmp_path: Path) -> None:
+    store, registry, ledger, request_id, snapshot_id, _, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, request_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    ledger.finish(request_id, "COMPLETED")
+    aged = datetime.now(timezone.utc) + timedelta(days=15)
+    store.set_run_pin(manifest["run_id"], pinned=True)
+    with pytest.raises(EvidenceError) as pinned:
+        store.expire_output(manifest["run_id"], "stdout-raw", now=aged)
+    assert pinned.value.code == "EVIDENCE_PINNED"
+    assert files["stdout-raw"].exists()
+    store.set_run_pin(manifest["run_id"], pinned=False)
+    store.expire_output(manifest["run_id"], "stdout-raw", now=aged)
+    with pytest.raises(EvidenceError) as expired:
+        store.set_run_pin(manifest["run_id"], pinned=True)
+    assert expired.value.code == "EVIDENCE_EXPIRED"
+
+
+def test_report_claim_is_admission_atomic_and_released_only_after_delivery(
+    tmp_path: Path,
+) -> None:
+    store, registry, ledger, source_id, snapshot_id, head, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, source_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    ledger.finish(source_id, "COMPLETED")
+    retry = _report_retry(ledger, manifest["run_id"], head)
+    assert ledger.admit(retry, freeze(retry).digest, "local-owner",
+                        ("workspace:fixture/area",)).execute
+    with closing(store.database.connect()) as connection:
+        assert connection.execute(
+            "SELECT run_id FROM run_delivery_claims WHERE delivery_request_id=?",
+            (retry["request_id"],),
+        ).fetchone() == (manifest["run_id"],)
+    assert ledger.require_delivery_preflight(retry["request_id"], manifest["run_id"]).run_id == manifest["run_id"]
+    aged = datetime.now(timezone.utc) + timedelta(days=15)
+    with pytest.raises(EvidenceError) as claimed:
+        store.expire_output(manifest["run_id"], "stdout-raw", now=aged)
+    assert claimed.value.code == "EVIDENCE_REFERENCED"
+    ledger.record_delivery(retry["request_id"], "DELIVERED")
+    with pytest.raises(EvidenceError) as still_running:
+        store.expire_output(manifest["run_id"], "stdout-raw", now=aged)
+    assert still_running.value.code == "EVIDENCE_REFERENCED"
+    ledger.finish(retry["request_id"], "COMPLETED")
+    with closing(store.database.connect()) as connection:
+        assert connection.execute(
+            "SELECT delivery_request_id FROM run_delivery_claim_releases",
+        ).fetchone() == (retry["request_id"],)
+    store.expire_output(manifest["run_id"], "stdout-raw", now=aged)
+    assert not files["stdout-raw"].exists()
+
+
+def test_failed_report_claim_remains_until_resolution(tmp_path: Path) -> None:
+    store, registry, ledger, source_id, snapshot_id, head, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, source_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    ledger.finish(source_id, "COMPLETED")
+    retry = _report_retry(ledger, manifest["run_id"], head)
+    assert ledger.admit(retry, freeze(retry).digest, "local-owner",
+                        ("workspace:fixture/area",)).execute
+    ledger.record_delivery(retry["request_id"], "FAILED")
+    ledger.finish(retry["request_id"], "FAULT")
+    with pytest.raises(EvidenceError) as claimed:
+        store.expire_output(manifest["run_id"], "stdout-raw",
+                            now=datetime.now(timezone.utc) + timedelta(days=15))
+    assert claimed.value.code == "EVIDENCE_REFERENCED"
+    assert files["stdout-raw"].exists()
+
+
+def test_expired_run_cannot_be_claimed_by_new_report(tmp_path: Path) -> None:
+    store, registry, ledger, source_id, snapshot_id, head, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, source_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    ledger.finish(source_id, "COMPLETED")
+    store.expire_output(manifest["run_id"], "stdout-raw",
+                        now=datetime.now(timezone.utc) + timedelta(days=15))
+    retry = _report_retry(ledger, manifest["run_id"], head)
+    admitted = ledger.admit(retry, freeze(retry).digest, "local-owner",
+                            ("workspace:fixture/area",))
+    assert not admitted.execute
+    assert admitted.receipt["code"] == "SOURCE_EVIDENCE_RETIRED"
+    with closing(store.database.connect()) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM run_delivery_claims").fetchone() == (0,)
+    assert not files["stdout-raw"].exists()
+
+
+def test_tombstone_survives_failed_unlink_and_retry_finishes_purge(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, registry, ledger, source_id, snapshot_id, _, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, source_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    ledger.finish(source_id, "COMPLETED")
+    original_unlink = os.unlink
+
+    def fail_unlink(path: str, *, dir_fd: int | None = None) -> None:
+        if path == "stdout.bin":
+            raise OSError("injected failure")
+        original_unlink(path, dir_fd=dir_fd)
+
+    monkeypatch.setattr(os, "unlink", fail_unlink)
+    aged = datetime.now(timezone.utc) + timedelta(days=15)
+    with pytest.raises(EvidenceError) as failed:
+        store.expire_output(manifest["run_id"], "stdout-raw", now=aged)
+    assert failed.value.code == "EVIDENCE_PURGE_FAILED"
+    assert files["stdout-raw"].exists()
+    assert store.output_retention_index(manifest["run_id"])[1]["state"] == "EXPIRED"
+    with pytest.raises(EvidenceError) as expired:
+        store.open_output(manifest["run_id"], "stdout-raw")
+    assert expired.value.code == "EVIDENCE_EXPIRED"
+    monkeypatch.setattr(os, "unlink", original_unlink)
+    store.expire_output(manifest["run_id"], "stdout-raw", now=aged)
+    assert not files["stdout-raw"].exists()
+
+
+def test_retention_refuses_symlink_without_touching_external_file(tmp_path: Path) -> None:
+    store, registry, ledger, source_id, snapshot_id, _, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, source_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    ledger.finish(source_id, "COMPLETED")
+    outside = tmp_path / "outside"
+    outside.write_bytes(b"untouched")
+    files["stdout-raw"].unlink()
+    files["stdout-raw"].symlink_to(outside)
+    with pytest.raises(EvidenceError) as unsafe:
+        store.expire_output(manifest["run_id"], "stdout-raw",
+                            now=datetime.now(timezone.utc) + timedelta(days=15))
+    assert unsafe.value.code == "EVIDENCE_PURGE_FAILED"
+    assert outside.read_bytes() == b"untouched"
+    assert files["stdout-raw"].is_symlink()
+    assert store.output_retention_index(manifest["run_id"])[1]["state"] == "EXPIRED"
+
+
+def test_failed_v6_retention_migration_preserves_v5_database(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    database = Database(tmp_path / "state" / "state.sqlite")
+    with monkeypatch.context() as scope:
+        scope.setattr(database_module, "SCHEMA_VERSION", 5)
+        assert database.migrate() == 5
+    monkeypatch.setitem(database_module._MIGRATIONS, 6,
+                        database_module._MIGRATIONS[6] + ("NOT VALID SQL",))
+    with closing(database.connect()) as connection:
+        with pytest.raises(sqlite3.OperationalError):
+            database.migrate(connection)
+        assert connection.execute("PRAGMA user_version").fetchone() == (5,)
+        assert connection.execute(
+            "SELECT name FROM sqlite_master WHERE name='output_tombstones'",
+        ).fetchone() is None
+        assert connection.execute("SELECT version FROM schema_migrations ORDER BY version").fetchall() == [
+            (1,), (2,), (3,), (4,), (5,),
+        ]
+
+
+def _hold_cross_process_lock(evidence_root: Path, database_path: Path, managed_root: Path,
+                             run_id: str, pipe: object) -> None:
+    database = Database(database_path)
+    store = RunEvidenceStore(database, SourceRegistry(database, managed_root), evidence_root)
+    with store._run_lock(run_id):
+        pipe.send("locked")  # type: ignore[attr-defined]
+        pipe.recv()  # type: ignore[attr-defined]
+
+
+def test_cross_process_reader_lock_prevents_retention_unlink(tmp_path: Path) -> None:
+    store, registry, ledger, source_id, snapshot_id, _, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, source_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    ledger.finish(source_id, "COMPLETED")
+    context = get_context("fork")
+    parent, child = context.Pipe()
+    process = context.Process(target=_hold_cross_process_lock, args=(
+        store.evidence_root, store.database.path, registry.managed_root,
+        manifest["run_id"], child,
+    ))
+    process.start()
+    child.close()
+    try:
+        assert parent.poll(10) and parent.recv() == "locked"
+        with pytest.raises(EvidenceError) as busy:
+            store.expire_output(manifest["run_id"], "stdout-raw",
+                                now=datetime.now(timezone.utc) + timedelta(days=15))
+        assert busy.value.code == "EVIDENCE_BUSY"
+        assert files["stdout-raw"].exists()
+        assert all(row["state"] == "AVAILABLE" for row in
+                   store.output_retention_index(manifest["run_id"]))
+        parent.send("release")
+        process.join(timeout=10)
+        assert process.exitcode == 0
+    finally:
+        if process.is_alive():
+            process.terminate()
+            process.join(timeout=10)
+        parent.close()
+    store.expire_output(manifest["run_id"], "stdout-raw",
+                        now=datetime.now(timezone.utc) + timedelta(days=15))
+    assert not files["stdout-raw"].exists()
+
+
+def test_reader_seals_output_before_retention_can_tombstone(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, registry, ledger, source_id, snapshot_id, _, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, source_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    ledger.finish(source_id, "COMPLETED")
+    entered = threading.Event()
+    release = threading.Event()
+    original_copy = evidence_module._sealed_output_copy
+    handles = []
+    errors = []
+
+    def paused_copy(path: Path, digest: str, size: int) -> int:
+        entered.set()
+        assert release.wait(timeout=10)
+        return original_copy(path, digest, size)
+
+    def read() -> None:
+        try:
+            handles.append(store.open_output(manifest["run_id"], "stdout-raw"))
+        except (EvidenceError, OSError, AssertionError) as error:
+            errors.append(error)
+
+    monkeypatch.setattr(evidence_module, "_sealed_output_copy", paused_copy)
+    thread = threading.Thread(target=read)
+    thread.start()
+    try:
+        assert entered.wait(timeout=10)
+        with pytest.raises(EvidenceError) as busy:
+            store.expire_output(manifest["run_id"], "stdout-raw",
+                                now=datetime.now(timezone.utc) + timedelta(days=15))
+        assert busy.value.code == "EVIDENCE_BUSY"
+    finally:
+        release.set()
+        thread.join(timeout=10)
+    assert not errors and len(handles) == 1
+    store.expire_output(manifest["run_id"], "stdout-raw",
+                        now=datetime.now(timezone.utc) + timedelta(days=15))
+    try:
+        assert os.read(handles[0].descriptor, 100) == b"test failed\n"
+    finally:
+        handles[0].close()
+    assert not files["stdout-raw"].exists()
+
+
+def _v5_terminal_run(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Database, str]:
+    with monkeypatch.context() as scope:
+        scope.setattr(database_module, "SCHEMA_VERSION", 5)
+        store, registry, ledger, source_id, snapshot_id, _, _ = _fixture(tmp_path)
+        manifest, provenance, files = _evidence(store, source_id, snapshot_id, registry)
+        store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                                   provenance=provenance, files=files)
+        ledger.finish(source_id, "COMPLETED")
+    return store.database, manifest["run_id"]
+
+
+def test_v6_migration_backfills_only_existing_terminal_contained_references(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    database, run_id = _v5_terminal_run(tmp_path, monkeypatch)
+    report_id, missing_id, missing_run_id = str(uuid4()), str(uuid4()), str(uuid4())
+    with closing(database.connect()) as connection:
+        for request_id, source_run_id in ((report_id, run_id), (missing_id, missing_run_id)):
+            command = json.dumps({
+                "action": "PUBLISH_REPORT", "params": {"source_run_id": source_run_id},
+            })
+            connection.execute(
+                "INSERT INTO operations(request_id,digest,command_json,source_id,"
+                "project_id,workspace_id,action,status,received_at,updated_at,receipt_json,"
+                "capacity_held) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                (request_id, "a" * 64, command, "local-owner", "fixture", "area",
+                 "PUBLISH_REPORT", "RUNNING", _now(), _now(), "{}", 1),
+            )
+    assert database.migrate() == 6
+    with closing(database.connect()) as connection:
+        assert connection.execute(
+            "SELECT delivery_request_id,run_id FROM run_delivery_claims",
+        ).fetchall() == [(report_id, run_id)]
+        assert connection.execute("PRAGMA synchronous").fetchone() == (2,)
+
+
+def test_v6_migration_releases_only_previously_delivered_report_claims(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    database, run_id = _v5_terminal_run(tmp_path, monkeypatch)
+    command = json.dumps({"action": "PUBLISH_REPORT", "params": {"source_run_id": run_id}})
+    delivered_id, failed_id = str(uuid4()), str(uuid4())
+    with closing(database.connect()) as connection:
+        for request_id, status, delivery in (
+            (delivered_id, "COMPLETED", "DELIVERED"),
+            (failed_id, "FAULT", "FAILED"),
+        ):
+            connection.execute(
+                "INSERT INTO operations(request_id,digest,command_json,source_id,project_id,"
+                "workspace_id,action,status,received_at,updated_at,receipt_json,capacity_held,"
+                "delivery_status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (request_id, "a" * 64, command, "local-owner", "fixture", "area",
+                 "PUBLISH_REPORT", status, _now(), _now(), "{}", 0, delivery),
+            )
+    assert database.migrate() == 6
+    with closing(database.connect()) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM run_delivery_claims").fetchone() == (2,)
+        assert connection.execute(
+            "SELECT delivery_request_id FROM run_delivery_claim_releases",
+        ).fetchall() == [(delivered_id,)]
+
+
+def test_unknown_output_read_does_not_create_lock_file(tmp_path: Path) -> None:
+    store, _, _, _, _, _, _ = _fixture(tmp_path)
+    unknown = str(uuid4())
+    with pytest.raises(EvidenceError) as missing:
+        store.open_output(unknown, "stdout-raw")
+    assert missing.value.code == "OUTPUT_NOT_FOUND"
+    assert not (store.evidence_root / ".locks" / f"{unknown}.lock").exists()
+
+
+def test_pending_combined_publication_retains_run_even_after_terminal_operation(
+    tmp_path: Path,
+) -> None:
+    store, registry, ledger, source_id, snapshot_id, _, _ = _fixture(
+        tmp_path, action="DELIVER_VERIFY_PUBLISH",
+    )
+    manifest, provenance, files = _evidence(store, source_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    ledger.finish(source_id, "COMPLETED")
+    with pytest.raises(EvidenceError) as pending:
+        store.expire_output(manifest["run_id"], "stdout-raw",
+                            now=datetime.now(timezone.utc) + timedelta(days=15))
+    assert pending.value.code == "EVIDENCE_REFERENCED"
+    assert files["stdout-raw"].exists()
+
+
+def test_report_admission_rejects_nonterminal_source_without_claim(tmp_path: Path) -> None:
+    store, registry, ledger, source_id, snapshot_id, head, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, source_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    retry = _report_retry(ledger, manifest["run_id"], head)
+    # An empty scope avoids BUSY from the still-running source, so the source
+    # status check itself is exercised before claim creation.
+    admitted = ledger.admit(retry, freeze(retry).digest, "local-owner", ())
+    assert not admitted.execute and admitted.receipt["code"] == "DELIVERY_RUN_MISMATCH"
+    with closing(store.database.connect()) as connection:
+        assert connection.execute(
+            "SELECT 1 FROM run_delivery_claims WHERE delivery_request_id=?",
+            (retry["request_id"],),
+        ).fetchone() is None
+
+
+def test_report_admission_rejects_run_without_contained_execution(tmp_path: Path) -> None:
+    store, registry, ledger, source_id, snapshot_id, head, _ = _fixture(tmp_path)
+    manifest, _, _ = _evidence(store, source_id, snapshot_id, registry)
+    with closing(store.database.connect()) as connection:
+        connection.execute(
+            "INSERT INTO runs(run_id,request_id,project_id,workspace_id,manifest_json,created_at) "
+            "VALUES(?,?,?,?,?,?)",
+            (manifest["run_id"], source_id, "fixture", "area", json.dumps(manifest), _now()),
+        )
+    ledger.finish(source_id, "COMPLETED")
+    retry = _report_retry(ledger, manifest["run_id"], head)
+    admitted = ledger.admit(retry, freeze(retry).digest, "local-owner",
+                            ("workspace:fixture/area",))
+    assert not admitted.execute and admitted.receipt["code"] == "CONTAINED_RUN_MISSING"
+    with closing(store.database.connect()) as connection:
+        assert connection.execute(
+            "SELECT 1 FROM run_delivery_claims WHERE delivery_request_id=?",
+            (retry["request_id"],),
+        ).fetchone() is None
+
+
+def test_retention_rejects_age_overflow_with_stable_code(tmp_path: Path) -> None:
+    store, _, _, _, _, _, _ = _fixture(tmp_path)
+    with pytest.raises(EvidenceError) as invalid:
+        store.expire_output(str(uuid4()), "stdout-raw", retention_days=10**12)
+    assert invalid.value.code == "RETENTION_POLICY_INVALID"

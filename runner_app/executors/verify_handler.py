@@ -7,6 +7,7 @@ any project code can execute; this handler never falls back to host execution.
 """
 from __future__ import annotations
 
+import errno
 import os
 import re
 import stat
@@ -168,6 +169,13 @@ class VerifyHandler:
         except RunServiceError as error:
             code = _safe_code(error.code, "RUN_STEP_FAILED")
             return OperationResult("FAULT", code, _axes("UNKNOWN", snapshot_id=snapshot_id))
+        except OSError as error:
+            # Evidence storage can fill after the container exits but before an
+            # immutable run is registered. The attempt prevents silent replay.
+            code = ("EVIDENCE_STORAGE_FULL" if error.errno in {errno.ENOSPC, errno.EDQUOT}
+                    else "VERIFY_HANDLER_FAILED")
+            outcome = "UNKNOWN" if snapshot_id is not None else "NOT_RUN"
+            return OperationResult("FAULT", code, _axes(outcome, snapshot_id=snapshot_id))
         except Exception:  # noqa: BLE001 -- Engine receives only a stable, sanitized fault
             outcome = "UNKNOWN" if snapshot_id is not None else "NOT_RUN"
             return OperationResult("FAULT", "VERIFY_HANDLER_FAILED", _axes(

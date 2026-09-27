@@ -50,17 +50,17 @@ def register_snapshot(registry: SourceRegistry, snapshot_id: str, path: Path) ->
     )
 
 
-def test_v1_to_v5_migration_preserves_metadata_and_is_atomic(tmp_path: Path,
+def test_v1_to_v6_migration_preserves_metadata_and_is_atomic(tmp_path: Path,
                                                               monkeypatch: pytest.MonkeyPatch) -> None:
     database = Database(tmp_path / "state" / "state.sqlite")
     with monkeypatch.context() as scope:
         scope.setattr(database_module, "SCHEMA_VERSION", 1)
         assert database.migrate() == 1
-    assert database.migrate() == 5
+    assert database.migrate() == 6
     connection = database.connect()
     try:
         assert connection.execute("SELECT version FROM schema_migrations ORDER BY version").fetchall() == [
-            (1,), (2,), (3,), (4,), (5,)
+            (1,), (2,), (3,), (4,), (5,), (6,)
         ]
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone() == ("ok",)

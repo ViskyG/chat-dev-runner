@@ -15,16 +15,30 @@ status: required-design
 | Test exit code nonzero | every retained output | COMPLETED + execution FAILED | human analyses result |
 | Timeout/cancel | partial output, signal history | timed out/cancelled execution | human decides next step |
 | Process spawn/runtime missing | input + infrastructure trace | operation FAULT | repair runtime; new request |
-| Container creation/removal uncertain | run UUID, source snapshot, cleanup code, retained lock | FAULT / reconciliation required | inspect the exact rootless container identity, prove it stopped/was removed, then trusted `confirm_stopped` |
+| Container creation/removal uncertain | run UUID, durable pre-create intent (daemon, image, profile, command hash, private nonce), cleanup code, retained lock | FAULT / reconciliation required | inspect the original rootless daemon; local `reconcile_run_attempt` releases the lock only after exact owned-container removal is verified |
 | Bad optional JUnit/JSONL | raw output + parsing finding | output unparsed | inspect/project fix |
 | Drive upload failed after tests | local immutable output | delivery FAILED/PARTIAL | PUBLISH_REPORT, no test rerun |
 | Git push divergence | local snapshot + remote refs | publication BLOCKED | explicit branch resolution |
 | Timeout after GitHub repo/PR creation | external intent/resource IDs | UNKNOWN / reconciliation needed | read remote state before repeating |
 | Partial project creation | every created resource identity | PROVISIONING_PARTIAL | explicit resume from verified state |
 | Host restarted while executing | durable operation journal | INTERRUPTED | terminate/reconcile survivors, don't rerun |
-| Disk space below reserve | minimal manifest + known outputs | storage FAULT | free/archive space; no silent deletion |
+| Disk space below reserve or evidence write returns ENOSPC | retained bytes and durable attempt where available | storage FAULT / `EVIDENCE_STORAGE_FULL`; no complete run manifest is claimed after hard ENOSPC | free/archive space; inspect the attempt and start a new request only after recovery; no silent deletion or replay |
 | Cloud authorization revoked | local data, sanitized error | integration unavailable | local reauthorization |
 | Project archived with retained runs | manifests + tombstones | read-only project history | deliberate restore/unarchive |
+
+The broker records `CONTAINER_INTENDED` in the append-only journal before Docker create.
+That write atomically checks the still-running, armed operation, exact lock and reserved
+run attempt, preventing a paused worker from creating after startup releases its lock.
+The trusted local `reconcile_run_attempt()` route reads that intent and inventories the
+original rootless daemon. A candidate must match the recorded run name and label, private
+nonce, image identity, profile revision, command hash, and container security and mount
+policy. A collision or changed daemon fails closed. The route removes only the verified
+container by its exact ID, verifies it is gone on the same daemon, then journals a `REMOVED`
+proof before `confirm_stopped` releases the lock. An empty inventory is not proof of
+absence after an ambiguous create: the Docker request may still complete later, so the
+lock remains reserved for local investigation. This route is not exposed as a remote
+command and is never run automatically at startup. A missing intent or unavailable
+original daemon also leaves the lock reserved.
 
 ## Recovery commands beyond the small prototype schema
 

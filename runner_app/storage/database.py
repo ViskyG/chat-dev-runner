@@ -16,7 +16,7 @@ from urllib.parse import quote
 
 from .paths import UnsafePathError, _absolute, _check_private, _open_directory, _open_file_at
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 _MIGRATIONS: dict[int, tuple[str, ...]] = {
     1: (
         (
@@ -180,6 +180,80 @@ _MIGRATIONS: dict[int, tuple[str, ...]] = {
         ),
         "INSERT INTO schema_migrations(version, name) VALUES (5, 'single-run-attempt')",
     ),
+    6: (
+        (
+            "CREATE TABLE run_delivery_claims (delivery_request_id TEXT PRIMARY KEY "
+            "REFERENCES operations(request_id), run_id TEXT NOT NULL REFERENCES runs(run_id), "
+            "created_at TEXT NOT NULL)"
+        ),
+        "CREATE INDEX run_delivery_claims_by_run ON run_delivery_claims(run_id)",
+        (
+            "INSERT INTO run_delivery_claims(delivery_request_id,run_id,created_at) "
+            "SELECT o.request_id,r.run_id,o.received_at FROM operations o "
+            "JOIN runs r ON r.run_id=json_extract(o.command_json,'$.params.source_run_id') "
+            "JOIN run_executions e ON e.run_id=r.run_id "
+            "JOIN operations s ON s.request_id=r.request_id "
+            "WHERE o.action='PUBLISH_REPORT' AND o.status!='REJECTED' "
+            "AND s.action IN ('VERIFY','DELIVER_VERIFY_PUBLISH') "
+            "AND s.status IN ('COMPLETED','BLOCKED','FAULT','INTERRUPTED','CANCELLED') "
+            "AND o.project_id=r.project_id AND o.workspace_id=r.workspace_id "
+            "AND s.project_id=r.project_id AND s.workspace_id=r.workspace_id"
+        ),
+        (
+            "CREATE TRIGGER run_delivery_claims_no_update BEFORE UPDATE ON run_delivery_claims "
+            "BEGIN SELECT RAISE(ABORT,'delivery claim is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER run_delivery_claims_no_delete BEFORE DELETE ON run_delivery_claims "
+            "BEGIN SELECT RAISE(ABORT,'delivery claim is immutable'); END"
+        ),
+        (
+            "CREATE TABLE run_delivery_claim_releases (delivery_request_id TEXT PRIMARY KEY "
+            "REFERENCES run_delivery_claims(delivery_request_id), released_at TEXT NOT NULL)"
+        ),
+        (
+            "INSERT INTO run_delivery_claim_releases(delivery_request_id,released_at) "
+            "SELECT c.delivery_request_id,o.updated_at FROM run_delivery_claims c "
+            "JOIN operations o ON o.request_id=c.delivery_request_id "
+            "WHERE o.status='COMPLETED' AND o.delivery_status='DELIVERED'"
+        ),
+        (
+            "CREATE TRIGGER run_delivery_claim_releases_no_update BEFORE UPDATE ON run_delivery_claim_releases "
+            "BEGIN SELECT RAISE(ABORT,'delivery claim release is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER run_delivery_claim_releases_no_delete BEFORE DELETE ON run_delivery_claim_releases "
+            "BEGIN SELECT RAISE(ABORT,'delivery claim release is immutable'); END"
+        ),
+        (
+            "CREATE TABLE run_retention_pin_events (event_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "run_id TEXT NOT NULL REFERENCES runs(run_id), action TEXT NOT NULL "
+            "CHECK(action IN ('PIN','UNPIN')), created_at TEXT NOT NULL)"
+        ),
+        "CREATE INDEX run_retention_pin_events_by_run ON run_retention_pin_events(run_id,event_id)",
+        (
+            "CREATE TRIGGER run_retention_pin_events_no_update BEFORE UPDATE ON run_retention_pin_events "
+            "BEGIN SELECT RAISE(ABORT,'retention pin event is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER run_retention_pin_events_no_delete BEFORE DELETE ON run_retention_pin_events "
+            "BEGIN SELECT RAISE(ABORT,'retention pin event is immutable'); END"
+        ),
+        (
+            "CREATE TABLE output_tombstones (run_id TEXT NOT NULL REFERENCES runs(run_id), "
+            "output_id TEXT NOT NULL, reason TEXT NOT NULL CHECK(reason='RETENTION_EXPIRED'), "
+            "created_at TEXT NOT NULL, PRIMARY KEY(run_id,output_id))"
+        ),
+        (
+            "CREATE TRIGGER output_tombstones_no_update BEFORE UPDATE ON output_tombstones "
+            "BEGIN SELECT RAISE(ABORT,'output tombstone is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER output_tombstones_no_delete BEFORE DELETE ON output_tombstones "
+            "BEGIN SELECT RAISE(ABORT,'output tombstone is immutable'); END"
+        ),
+        "INSERT INTO schema_migrations(version, name) VALUES (6, 'output-retention')",
+    ),
 }
 
 
@@ -282,6 +356,8 @@ class Database:
             connection.execute(f"PRAGMA busy_timeout = {self.busy_timeout_ms}")
             if connection.execute("PRAGMA journal_mode = WAL").fetchone()[0] != "wal":
                 raise MigrationError("SQLite could not enable WAL journaling")
+            # Admission claims and cleanup intents must survive a power loss.
+            connection.execute("PRAGMA synchronous = FULL")
             connection.execute("PRAGMA trusted_schema = OFF")
             _validate_sidecars(directory_fd, self.path.name)
             return connection

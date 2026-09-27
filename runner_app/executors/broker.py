@@ -18,19 +18,24 @@ import stat
 import subprocess
 import time
 import uuid
-from collections.abc import Mapping
-from dataclasses import dataclass
+from collections.abc import Callable, Mapping
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from threading import Event
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from runner_app.outputs.capture import CaptureResult, capture_process
 
-from .profiles import ApprovedProfile, ProfileRegistry
+from .profiles import ApprovedProfile, ProfileError, ProfileRegistry
+
+if TYPE_CHECKING:
+    from .preparation_handoff import BuildManifest
+    from .preparation_plan import PreparationPlan
 
 _OID = re.compile(r"(?:[0-9a-f]{40}|[0-9a-f]{64})\Z")
 _CONTAINER_ID = re.compile(r"[0-9a-f]{64}\Z")
+_IMAGE_ID = re.compile(r"sha256:[0-9a-f]{64}\Z")
 _SAFE_MOUNT_PATH = re.compile(r"/[A-Za-z0-9._/-]+\Z")
 _MAX_SNAPSHOT_FILES = 20_000
 _MAX_SNAPSHOT_BYTES = 512 * 1024 * 1024
@@ -66,6 +71,28 @@ class RuntimeProbe:
     cgroup_version: str | None
     cgroup_driver: str | None
     delegated_controllers: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ContainerIntent:
+    """Durable identity that must be journaled before Docker create is attempted."""
+
+    run_id: str
+    daemon_id: str
+    profile_id: str
+    profile_revision_sha256: str
+    image: str
+    image_id: str
+    argv_sha256: str
+    nonce: str
+
+
+@dataclass(frozen=True)
+class ContainerReconciliation:
+    run_id: str
+    daemon_id: str
+    state: str  # REMOVED on the same verified rootless daemon
+    container_id: str | None
 
 
 @dataclass(frozen=True)
@@ -140,7 +167,8 @@ def _run_volume_budget(profile: ApprovedProfile) -> int:
                _MAX_RUN_VOLUME_BYTES)
 
 
-def _verified_run_volume(volume: Path | None, run_id: str, budget: int) -> Path:
+def _verified_run_volume(volume: Path | None, run_id: str, budget: int, *,
+                         preloaded_build: bool = False) -> Path:
     """Require a dedicated, bounded filesystem before granting any write mount."""
     if volume is None:
         raise BrokerError("DISK_QUOTA_UNAVAILABLE", "A dedicated quota-limited run volume is required")
@@ -157,9 +185,21 @@ def _verified_run_volume(volume: Path | None, run_id: str, budget: int) -> Path:
         total_bytes = filesystem.f_blocks * filesystem.f_frsize
         available_bytes = filesystem.f_bavail * filesystem.f_frsize
         if (total_bytes < 16 * 1024 * 1024 or total_bytes > budget
-                or available_bytes < total_bytes // 2
-                or filesystem.f_files > 100_000 or any(source.iterdir())):
-            raise BrokerError("DISK_QUOTA_UNAVAILABLE", "Run volume exceeds budget or is not empty")
+                or available_bytes < total_bytes // 2 or filesystem.f_files > 100_000):
+            raise BrokerError("DISK_QUOTA_UNAVAILABLE", "Run volume exceeds budget")
+        entries = tuple(source.iterdir())
+        if preloaded_build:
+            if entries != (source / "build",):
+                raise BrokerError("DISK_QUOTA_UNAVAILABLE", "Run volume has unexpected contents")
+            build = source / "build"
+            build_info = build.lstat()
+            if (not stat.S_ISDIR(build_info.st_mode) or build_info.st_uid != os.getuid()
+                    or build_info.st_mode & 0o077 or build_info.st_dev != info.st_dev
+                    or os.path.ismount(build)):
+                raise BrokerError("DISK_QUOTA_UNAVAILABLE",
+                                  "Prepared build is not part of the private run volume")
+        elif entries:
+            raise BrokerError("DISK_QUOTA_UNAVAILABLE", "Run volume has unexpected contents")
     except OSError as exc:
         raise BrokerError("DISK_QUOTA_UNAVAILABLE", "Run volume capacity is unavailable") from exc
     return source
@@ -363,7 +403,7 @@ class RootlessDockerBroker:
         architecture = image.get("Architecture")
         os_name = image.get("Os")
         if (not isinstance(digests, list) or profile.image not in digests
-                or not isinstance(identifier, str) or not identifier.startswith("sha256:")
+                or not isinstance(identifier, str) or not _IMAGE_ID.fullmatch(identifier)
                 or f"{os_name}/{architecture}" != profile.platform):
             raise BrokerError("IMAGE_NOT_APPROVED", "Installed image does not match pinned profile")
         return identifier
@@ -387,8 +427,72 @@ class RootlessDockerBroker:
         if actual != expected:
             raise BrokerError("PROFILE_INVALID", "Approved profile mount layout changed")
 
+    def _verify_preloaded_build(self, profile: ApprovedProfile, snapshot: SnapshotInput,
+                                run_id: str, volume: Path, plan: PreparationPlan,
+                                manifest: BuildManifest) -> None:
+        """Accept only an owner-local plan and the copied bytes in this run's build root.
+
+        This is an offline admission primitive. A future trusted coordinator must
+        supply the plan and in-memory manifest; remote commands cannot supply them.
+        """
+        from .preparation_handoff import BuildManifest, _scan, _tree_digest
+        from .preparation_plan import PreparationError, PreparationPlan
+
+        if type(plan) is not PreparationPlan or type(manifest) is not BuildManifest:
+            raise BrokerError("PREPARATION_HANDOFF_INVALID", "Prepared build handoff is invalid")
+        try:
+            identity = asdict(plan)
+            supplied_digest = identity.pop("identity_sha256")
+            encoded = json.dumps(identity, sort_keys=True, separators=(",", ":"),
+                                 ensure_ascii=False).encode("utf-8")
+            plan_digest = hashlib.sha256(encoded).hexdigest()
+            preparation_run_id = str(uuid.UUID(manifest.preparation_run_id))
+        except (KeyError, TypeError, ValueError, AttributeError, UnicodeError):
+            raise BrokerError("PREPARATION_HANDOFF_INVALID", "Prepared build handoff is invalid") from None
+        if (not all(isinstance(value, str) for value in identity.values())
+                or not isinstance(supplied_digest, str) or supplied_digest != plan_digest
+                or not isinstance(plan.lockfile_sha256, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", plan.lockfile_sha256)
+                or plan.snapshot_id != snapshot.snapshot_id
+                or plan.snapshot_commit != snapshot.commit
+                or plan.snapshot_tree != snapshot.tree
+                or plan.execution_profile_id != profile.profile_id
+                or plan.execution_revision_sha256 != profile.revision_sha256
+                or plan.preparation_profile_id == profile.profile_id
+                or plan.image != profile.image or plan.platform != profile.platform
+                or preparation_run_id != manifest.preparation_run_id
+                or preparation_run_id == run_id
+                or manifest.plan_identity_sha256 != supplied_digest
+                or manifest.preparation_profile_revision_sha256 != plan.preparation_revision_sha256
+                or manifest.source_build != volume / "build"
+                or type(manifest.total_bytes) is not int or manifest.total_bytes < 0):
+            raise BrokerError("PREPARATION_HANDOFF_INVALID", "Prepared build handoff does not match run")
+        try:
+            preparation_profile = self.registry.require(plan.preparation_profile_id)
+        except ProfileError:
+            raise BrokerError("PREPARATION_HANDOFF_INVALID",
+                              "Preparation profile is no longer approved") from None
+        if (not isinstance(preparation_profile, ApprovedProfile)
+                or preparation_profile.profile_id != plan.preparation_profile_id
+                or preparation_profile.revision_sha256 != plan.preparation_revision_sha256
+                or preparation_profile.image != plan.image
+                or preparation_profile.platform != plan.platform
+                or preparation_profile.network != "none" or preparation_profile.user != "0:0"):
+            raise BrokerError("PREPARATION_HANDOFF_INVALID",
+                              "Preparation profile no longer matches the local plan")
+        try:
+            actual_entries, actual_bytes = _scan(manifest.source_build)
+            actual_digest = _tree_digest(actual_entries)
+        except (PreparationError, OSError, TypeError, ValueError):
+            raise BrokerError("PREPARATION_ARTIFACT_CHANGED",
+                              "Prepared build could not be verified") from None
+        if (actual_entries != manifest.entries or actual_bytes != manifest.total_bytes
+                or actual_digest != manifest.tree_sha256):
+            raise BrokerError("PREPARATION_ARTIFACT_CHANGED",
+                              "Prepared build differs from its copied manifest")
+
     def _create_argv(self, profile: ApprovedProfile, image_id: str, snapshot: Path,
-                     writable_volume: Path, container_name: str) -> list[str]:
+                     writable_volume: Path, container_name: str, nonce: str) -> list[str]:
         host_mounts = ((snapshot, "/src", True),
                        (writable_volume / "build", "/build", False),
                        (writable_volume / "out", "/out", False),
@@ -404,6 +508,7 @@ class RootlessDockerBroker:
             "--no-healthcheck", "--stop-signal", "SIGTERM", "--stop-timeout", "1",
             "--label", f"cdr.run-id={container_name.removeprefix('cdr-run-')}",
             "--label", f"cdr.profile-revision={profile.revision_sha256}",
+            "--label", f"cdr.intent-nonce={nonce}",
             "--user", profile.user, "--workdir", profile.cwd, "--platform", profile.platform,
             "--env", "HOME=/tmp", "--env", "LANG=C.UTF-8",
             "--env", "PYTHONDONTWRITEBYTECODE=1", "--entrypoint", profile.argv[0],
@@ -415,14 +520,14 @@ class RootlessDockerBroker:
                 mount += ",readonly,bind-recursive=disabled"
             argv.extend(("--mount", mount))
         argv.extend((profile.image, *profile.argv[1:]))
-        if not image_id.startswith("sha256:"):
+        if not _IMAGE_ID.fullmatch(image_id):
             raise BrokerError("IMAGE_NOT_APPROVED", "Image ID is invalid")
         return argv
 
     @staticmethod
     def _validate_created(container: Mapping[str, Any], profile: ApprovedProfile,
                           image_id: str, snapshot: Path, writable_volume: Path,
-                          name: str) -> None:
+                          name: str, nonce: str) -> None:
         config = container.get("Config")
         host = container.get("HostConfig")
         state = container.get("State")
@@ -441,7 +546,8 @@ class RootlessDockerBroker:
                 or config.get("AttachStdout") is not True
                 or config.get("AttachStderr") is not True
                 or config.get("Labels", {}).get("cdr.run-id") != name.removeprefix("cdr-run-")
-                or config.get("Labels", {}).get("cdr.profile-revision") != profile.revision_sha256):
+                or config.get("Labels", {}).get("cdr.profile-revision") != profile.revision_sha256
+                or config.get("Labels", {}).get("cdr.intent-nonce") != nonce):
             raise BrokerError("CONTAINER_POLICY_MISMATCH", "Created container identity changed")
         security_options = host.get("SecurityOpt")
         cap_drop = host.get("CapDrop")
@@ -490,7 +596,8 @@ class RootlessDockerBroker:
             raise BrokerError("CONTAINER_KILL_FAILED", "Contained process could not be signalled")
 
     def _created_cleanup_id(self, name: str, profile: ApprovedProfile,
-                            image_id: str, expected_id: str | None) -> str:
+                            image_id: str, expected_id: str | None,
+                            nonce: str) -> str:
         """Resolve an uncertain create by name, without trusting that name alone for removal."""
         container = self._docker_json("container", "inspect", name,
                                       "--format", "{{json .}}")
@@ -504,14 +611,177 @@ class RootlessDockerBroker:
                 or not isinstance(config, dict) or config.get("Image") != profile.image
                 or not isinstance(labels, dict)
                 or labels.get("cdr.run-id") != name.removeprefix("cdr-run-")
-                or labels.get("cdr.profile-revision") != profile.revision_sha256):
+                or labels.get("cdr.profile-revision") != profile.revision_sha256
+                or labels.get("cdr.intent-nonce") != nonce):
             raise BrokerError("CONTAINER_CLEANUP_UNCERTAIN",
                               "Created container identity could not be verified for cleanup")
         return identifier
 
+    def _all_container_ids(self) -> tuple[str, ...]:
+        """Take a bounded daemon-wide inventory; never infer absence from inspect failure."""
+        listed = self._run_docker("container", "ls", "--all", "--quiet", "--no-trunc")
+        if listed.returncode != 0:
+            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                              "Rootless container inventory failed")
+        try:
+            identifiers = tuple(line for line in listed.stdout.decode("ascii", "strict").splitlines()
+                                if line)
+        except UnicodeDecodeError as error:
+            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                              "Rootless container inventory is malformed") from error
+        if (len(identifiers) > 1024 or len(set(identifiers)) != len(identifiers)
+                or any(not _CONTAINER_ID.fullmatch(item) for item in identifiers)):
+            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                              "Rootless container inventory is malformed")
+        return identifiers
+
+    @staticmethod
+    def _recovery_policy_matches(container: Mapping[str, Any],
+                                 intent: ContainerIntent) -> bool:
+        """Refuse a lookalike with different argv, isolation flags or mounts."""
+        config = container.get("Config")
+        host = container.get("HostConfig")
+        mounts = container.get("Mounts")
+        if not isinstance(config, dict) or not isinstance(host, dict) or not isinstance(mounts, list):
+            return False
+        entrypoint = config.get("Entrypoint")
+        command = config.get("Cmd")
+        if (not isinstance(entrypoint, list) or len(entrypoint) != 1
+                or not isinstance(command, list)
+                or any(not isinstance(item, str) for item in (*entrypoint, *command))
+                or _sha256_argv((*entrypoint, *command)) != intent.argv_sha256
+                or config.get("User") != "0:0"
+                or not isinstance(config.get("WorkingDir"), str)
+                or (config["WorkingDir"] != "/src"
+                    and not config["WorkingDir"].startswith("/src/"))
+                or config.get("Tty") is not False
+                or config.get("OpenStdin") is not False
+                or host.get("Privileged") is not False
+                or host.get("NetworkMode") != "none"
+                or host.get("ReadonlyRootfs") is not True
+                or host.get("CgroupnsMode") != "private"
+                or host.get("PidMode") not in ("", "private")
+                or host.get("IpcMode") != "private"
+                or host.get("AutoRemove") is not False
+                or not isinstance(host.get("LogConfig"), dict)
+                or host["LogConfig"].get("Type") != "none"
+                or not isinstance(host.get("RestartPolicy"), dict)
+                or host["RestartPolicy"].get("Name") != "no"
+                or host.get("CapAdd") not in (None, [])
+                or host.get("Devices") not in (None, [])
+                or host.get("DeviceRequests") not in (None, [])
+                or not isinstance(host.get("CapDrop"), list)
+                or "ALL" not in host["CapDrop"]
+                or not isinstance(host.get("SecurityOpt"), list)
+                or "no-new-privileges:true" not in host["SecurityOpt"]
+                or not isinstance(host.get("Memory"), int) or host["Memory"] <= 0
+                or host.get("MemorySwap") != host["Memory"]
+                or not isinstance(host.get("NanoCpus"), int) or host["NanoCpus"] <= 0
+                or not isinstance(host.get("PidsLimit"), int) or host["PidsLimit"] <= 0):
+            return False
+        actual: dict[str, tuple[bool, Path]] = {}
+        for mount in mounts:
+            if (not isinstance(mount, dict) or mount.get("Type") != "bind"
+                    or not isinstance(mount.get("Destination"), str)
+                    or not isinstance(mount.get("Source"), str)
+                    or type(mount.get("RW")) is not bool):
+                return False
+            actual[mount["Destination"]] = (mount["RW"], Path(mount["Source"]))
+        if len(mounts) != 4 or set(actual) != {"/src", "/build", "/out", "/tmp"}:
+            return False
+        if actual["/src"][0] or actual["/src"][1].name != intent.run_id:
+            return False
+        for name in ("build", "out", "tmp"):
+            writable, source = actual["/" + name]
+            if not writable or source.name != name or source.parent.name != intent.run_id:
+                return False
+        return True
+
+    def _owned_container_ids(self, intent: ContainerIntent) -> tuple[str, ...]:
+        """Fail if any name or run-label collision has a different exact identity."""
+        name = "cdr-run-" + intent.run_id
+        matches: list[str] = []
+        for identifier in self._all_container_ids():
+            try:
+                inspected = self._docker_json("container", "inspect", identifier,
+                                              "--format", "{{json .}}")
+            except BrokerError as error:
+                raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                                  "Container changed during recovery inventory") from error
+            config = inspected.get("Config")
+            labels = config.get("Labels") if isinstance(config, dict) else None
+            run_label = labels.get("cdr.run-id") if isinstance(labels, dict) else None
+            if (inspected.get("Name") != "/" + name and run_label != intent.run_id):
+                continue
+            if (inspected.get("Id") != identifier or inspected.get("Name") != "/" + name
+                    or inspected.get("Image") != intent.image_id
+                    or not isinstance(config, dict) or config.get("Image") != intent.image
+                    or not isinstance(labels, dict)
+                    or labels.get("cdr.run-id") != intent.run_id
+                    or labels.get("cdr.profile-revision") != intent.profile_revision_sha256
+                    or labels.get("cdr.intent-nonce") != intent.nonce
+                    or not self._recovery_policy_matches(inspected, intent)):
+                raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                                  "Container identity differs from the durable intent")
+            matches.append(identifier)
+        if len(matches) > 1:
+            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                              "Multiple containers claim one run")
+        return tuple(matches)
+
+    def reconcile_container(self, intent: ContainerIntent) -> ContainerReconciliation:
+        """Remove only the exact owned container after a crash, on its original daemon.
+
+        The caller must obtain ``intent`` from the durable pre-create journal and
+        release its ledger lock only after this method returns successfully.
+        """
+        try:
+            valid_run = str(uuid.UUID(intent.run_id)) == intent.run_id
+        except (ValueError, TypeError, AttributeError):
+            valid_run = False
+        if (not valid_run or not intent.daemon_id or len(intent.daemon_id) > 256
+                or not _IMAGE_ID.fullmatch(intent.image_id)
+                or not re.fullmatch(r"[a-z][a-z0-9-]{0,47}", intent.profile_id)
+                or not re.fullmatch(r"[0-9a-f]{64}", intent.profile_revision_sha256)
+                or not re.fullmatch(r"[0-9a-f]{64}", intent.argv_sha256)
+                or not re.fullmatch(r"[0-9a-f]{32}", intent.nonce)
+                or not isinstance(intent.image, str)
+                or not re.search(r"@sha256:[0-9a-f]{64}\Z", intent.image)):
+            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                              "Durable container intent is invalid")
+        probe = self.probe()
+        if not probe.available or probe.daemon_id != intent.daemon_id:
+            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                              "Original rootless daemon is unavailable")
+        matches = self._owned_container_ids(intent)
+        if not matches:
+            # An ambiguous Docker create can still be executing in the daemon
+            # after the CLI timed out. A single empty inventory is not proof
+            # that no container can appear later; retain the workspace lock.
+            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                              "No owned container can be safely reconciled yet")
+        removed_id = matches[0]
+        removed = self._run_docker("container", "rm", "--force", "--volumes",
+                                   removed_id, timeout=8.0)
+        if removed.returncode != 0:
+            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                              "Owned container removal was not verified")
+        if self._owned_container_ids(intent):
+            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                              "Owned container remains after removal")
+        after = self.probe()
+        if not after.available or after.daemon_id != intent.daemon_id:
+            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                              "Rootless daemon changed during reconciliation")
+        return ContainerReconciliation(intent.run_id, intent.daemon_id,
+                                       "REMOVED", removed_id)
+
     def run(self, profile: ApprovedProfile, snapshot: SnapshotInput, run_root: Path,
             *, run_id: str, writable_volume: Path | None = None,
-            cancel: Event | None = None) -> BrokerResult:
+            cancel: Event | None = None,
+            record_intent: Callable[[ContainerIntent], None] | None = None,
+            preparation_plan: PreparationPlan | None = None,
+            staged_build: BuildManifest | None = None) -> BrokerResult:
         """Execute once; raised BrokerError means no tested-run attestation is issued."""
         try:
             canonical_run = str(uuid.UUID(run_id))
@@ -532,8 +802,17 @@ class RootlessDockerBroker:
             raise BrokerError(probe.code, "Rootless container runtime is unavailable")
         if cancel is not None and cancel.is_set():
             raise BrokerError("CANCELLED_BEFORE_START", "Run was cancelled before execution")
+        if (preparation_plan is None) != (staged_build is None):
+            raise BrokerError("PREPARATION_HANDOFF_INVALID",
+                              "Preparation plan and copied manifest must be supplied together")
         budget_bytes = _run_volume_budget(profile)
-        volume = _verified_run_volume(writable_volume, run_id, budget_bytes)
+        if preparation_plan is not None and staged_build is not None:
+            volume = _verified_run_volume(writable_volume, run_id, budget_bytes,
+                                          preloaded_build=True)
+            self._verify_preloaded_build(profile, snapshot, run_id, volume,
+                                         preparation_plan, staged_build)
+        else:
+            volume = _verified_run_volume(writable_volume, run_id, budget_bytes)
         image_id = self._image_id(profile)
         source = _safe_path(snapshot.path)
         _snapshot_tree(source, snapshot.tree)
@@ -547,10 +826,21 @@ class RootlessDockerBroker:
             raise BrokerError("DISK_RESERVE_LOW", "Host disk reserve is below execution policy")
         run_root.mkdir(mode=0o700)
         (run_root / "docker-home").mkdir(mode=0o700)
-        for name in ("build", "out", "tmp"):
+        for name in (("out", "tmp") if staged_build is not None
+                     else ("build", "out", "tmp")):
             (volume / name).mkdir(mode=0o700)
         container_name = "cdr-run-" + run_id
-        create_args = self._create_argv(profile, image_id, source, volume, container_name)
+        nonce = uuid.uuid4().hex
+        create_args = self._create_argv(profile, image_id, source, volume, container_name, nonce)
+        if record_intent is None:
+            raise BrokerError("CONTAINER_INTENT_REQUIRED",
+                              "Container intent must be durable before creation")
+        if not probe.daemon_id:
+            raise BrokerError("DAEMON_ID_UNAVAILABLE", "Rootless daemon identity is unavailable")
+        record_intent(ContainerIntent(
+            run_id, probe.daemon_id, profile.profile_id, profile.revision_sha256,
+            profile.image, image_id, _sha256_argv(profile.argv), nonce,
+        ))
         create_attempted = False
         verified_container_id: str | None = None
         reported_container_id: str | None = None
@@ -575,11 +865,14 @@ class RootlessDockerBroker:
             inspected = self._docker_json("container", "inspect", container_ref,
                                           "--format", "{{json .}}")
             self._validate_created(inspected, profile, image_id, source, volume,
-                                   container_name)
+                                   container_name, nonce)
             if inspected.get("Id") != container_ref:
                 raise BrokerError("CONTAINER_POLICY_MISMATCH", "Container ID changed before start")
             verified_container_id = container_ref
             _snapshot_tree(source, snapshot.tree)
+            if preparation_plan is not None and staged_build is not None:
+                self._verify_preloaded_build(profile, snapshot, run_id, volume,
+                                             preparation_plan, staged_build)
             if cancel is not None and cancel.is_set():
                 raise BrokerError("CANCELLED_BEFORE_START", "Run was cancelled before execution")
             started_at = _utc_now()
@@ -662,6 +955,10 @@ class RootlessDockerBroker:
                 "mounts_verified_before_start": True, "cleanup_verified": True,
                 "run_volume_hard_limit_bytes": os.statvfs(volume).f_blocks * os.statvfs(volume).f_frsize,
             }
+            if preparation_plan is not None and staged_build is not None:
+                containment["preparation_plan_sha256"] = preparation_plan.identity_sha256
+                containment["preparation_run_id"] = staged_build.preparation_run_id
+                containment["prepared_build_tree_sha256"] = staged_build.tree_sha256
             candidate = BrokerResult(
                 run_id, snapshot.snapshot_id, snapshot.commit, snapshot.tree, source,
                 profile.profile_id, profile.revision_sha256, profile.image,
@@ -675,7 +972,7 @@ class RootlessDockerBroker:
                                 else "CONTAINER_CLEANUP_UNCERTAIN")
                 try:
                     cleanup_id = (verified_container_id or self._created_cleanup_id(
-                        container_name, profile, image_id, reported_container_id))
+                        container_name, profile, image_id, reported_container_id, nonce))
                     removed = self._run_docker("container", "rm", "--force", "--volumes",
                                                cleanup_id, timeout=8.0,
                                                env=self._docker_env(run_root / "docker-home"))

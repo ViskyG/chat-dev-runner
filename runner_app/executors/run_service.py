@@ -12,7 +12,7 @@ import json
 import math
 import os
 import sqlite3
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -30,7 +30,7 @@ from runner_app.outputs.collection import (
     OutputSpec,
     collect_outputs,
 )
-from runner_app.storage.ledger import Ledger
+from runner_app.storage.ledger import Ledger, LedgerError
 from runner_app.storage.paths import (
     UnsafePathError,
     _absolute,
@@ -39,7 +39,7 @@ from runner_app.storage.paths import (
 )
 from runner_app.storage.run_evidence import RunEvidenceStore
 
-from .broker import BrokerResult, SnapshotInput, _sha256_argv
+from .broker import BrokerResult, ContainerIntent, SnapshotInput, _sha256_argv
 from .profiles import ApprovedProfile, ProfileRegistry
 
 _CAPTURE_NAMES = {
@@ -246,7 +246,8 @@ class ContainedRunBroker(Protocol):
 
     def run(self, profile: ApprovedProfile, snapshot: SnapshotInput, run_root: Path,
             *, run_id: str, writable_volume: Path | None = None,
-            cancel: Event | None = None) -> BrokerResult: ...
+            cancel: Event | None = None,
+            record_intent: Callable[[ContainerIntent], None]) -> BrokerResult: ...
 
 
 class RunService:
@@ -370,9 +371,38 @@ class RunService:
         )
         # A stopped or reconciled operation cannot start a new container.
         self._preflight(request_id, snapshot_id)
+        intent_recorded = False
+
+        def record_intent(intent: ContainerIntent) -> None:
+            nonlocal intent_recorded
+            if (intent_recorded or intent.run_id != run_id
+                    or intent.profile_id != profile.profile_id
+                    or intent.profile_revision_sha256 != profile.revision_sha256
+                    or intent.image != profile.image
+                    or intent.argv_sha256 != _sha256_argv(profile.argv)
+                    or not intent.daemon_id or len(intent.daemon_id) > 256
+                    or not intent.image_id.startswith("sha256:")
+                    or len(intent.nonce) != 32
+                    or any(character not in "0123456789abcdef" for character in intent.nonce)):
+                raise RunServiceError("CONTAINER_INTENT_INVALID",
+                                      "Broker container intent does not match the admitted run")
+            try:
+                self.ledger.record_container_intent(request_id, {
+                    "run_id": intent.run_id, "daemon_id": intent.daemon_id,
+                    "profile_id": intent.profile_id,
+                    "profile_revision_sha256": intent.profile_revision_sha256,
+                    "image": intent.image, "image_id": intent.image_id,
+                    "argv_sha256": intent.argv_sha256, "nonce": intent.nonce,
+                })
+            except LedgerError as error:
+                raise RunServiceError(error.code,
+                                      "Contained run intent was not admitted") from None
+            intent_recorded = True
+
         result = self.broker.run(
             profile, materialized, run_root, run_id=run_id,
             writable_volume=writable_volume, cancel=cancel,
+            record_intent=record_intent,
         )
         self._verify_result(result, profile, materialized, run_root, writable_volume)
         ensure_private_directory(evidence_dir)

@@ -3,8 +3,9 @@
 A plan grants no execution authority. Both profiles and their exact revisions come
 from owner-private local configuration; the source snapshot is verified against
 its Git tree, and the lockfile is read without following symlinks. Package hooks
-must remain unavailable until a separate rootless preparation broker, artifact
-handoff, and evidence contract are implemented and accepted on the target host.
+must remain unavailable until a separate rootless preparation broker, its
+verified offline artifact handoff, and evidence contract are integrated and
+accepted on the target host.
 """
 
 from __future__ import annotations

@@ -13,9 +13,10 @@ import math
 import os
 import re
 import sqlite3
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -30,6 +31,8 @@ from runner_app.storage.database import Database
 from runner_app.storage.paths import (
     UnsafePathError,
     _absolute,
+    _check_private,
+    _open_directory,
     ensure_private_directory,
     open_private_file,
 )
@@ -180,6 +183,7 @@ class RunEvidenceStore:
         self.registry = registry
         self.evidence_root = _absolute(evidence_root)
         ensure_private_directory(self.evidence_root)
+        ensure_private_directory(self.evidence_root / ".locks")
         self.database.migrate()
 
     def record_contained_run(self, manifest: Mapping[str, Any], *, snapshot_id: str,
@@ -531,26 +535,258 @@ class RunEvidenceStore:
             raise EvidenceError("INPUT_MANIFEST_INVALID", "Input manifest contains unsafe metadata") from None
         return content
 
-    def open_output(self, run_id: str, output_id: str) -> OutputHandle:
+    @contextmanager
+    def _run_lock(self, run_id: str, *, exclusive: bool = False) -> Iterator[None]:
+        """A stable owner-private flock coordinates sealed readers and physical deletion."""
+        try:
+            descriptor = open_private_file(
+                self.evidence_root / ".locks" / f"{run_id}.lock", create=True,
+            )
+        except (OSError, UnsafePathError):
+            raise EvidenceError("EVIDENCE_LOCK_UNAVAILABLE", "Run evidence lock is unsafe") from None
+        try:
+            mode = fcntl.LOCK_EX | fcntl.LOCK_NB if exclusive else fcntl.LOCK_SH
+            try:
+                fcntl.flock(descriptor, mode)
+            except BlockingIOError:
+                raise EvidenceError("EVIDENCE_BUSY", "Run evidence is being read") from None
+            except OSError:
+                raise EvidenceError("EVIDENCE_LOCK_UNAVAILABLE", "Run evidence lock failed") from None
+            yield
+        finally:
+            os.close(descriptor)
+
+    @staticmethod
+    def _retention_time(now: datetime | None, retention_days: int) -> tuple[datetime, str]:
+        if isinstance(retention_days, bool) or not isinstance(retention_days, int) or retention_days < 1:
+            raise EvidenceError("RETENTION_POLICY_INVALID", "Retention days must be positive")
+        observed = datetime.now(timezone.utc) if now is None else now
+        if not isinstance(observed, datetime) or observed.tzinfo is None or observed.utcoffset() is None:
+            raise EvidenceError("RETENTION_POLICY_INVALID", "Retention time must include a timezone")
+        observed = observed.astimezone(timezone.utc)
+        try:
+            cutoff = observed - timedelta(days=retention_days)
+        except OverflowError:
+            raise EvidenceError("RETENTION_POLICY_INVALID", "Retention age is out of range") from None
+        return cutoff, observed.isoformat()
+
+    def set_run_pin(self, run_id: str, *, pinned: bool) -> bool:
+        """Trusted local owner policy records PIN/UNPIN as append-only decisions."""
         run_id = _uuid(run_id)
-        if not isinstance(output_id, str) or _SLUG.fullmatch(output_id) is None:
-            raise EvidenceError("INVALID_OUTPUT_ID", "Output ID is invalid")
+        if type(pinned) is not bool:
+            raise EvidenceError("RETENTION_POLICY_INVALID", "Pin state must be explicit")
         connection = self.database.connect()
         try:
-            row = connection.execute(
-                "SELECT private_path,sha256,size_bytes FROM output_files WHERE run_id=? AND output_id=?",
-                (run_id, output_id),
+            connection.execute("BEGIN IMMEDIATE")
+            if connection.execute("SELECT 1 FROM runs WHERE run_id=?", (run_id,)).fetchone() is None:
+                raise EvidenceError("RUN_NOT_FOUND", "Contained run is unavailable")
+            if pinned and connection.execute(
+                "SELECT 1 FROM output_tombstones WHERE run_id=? LIMIT 1", (run_id,),
+            ).fetchone() is not None:
+                raise EvidenceError("EVIDENCE_EXPIRED", "Expired evidence cannot be pinned")
+            previous = connection.execute(
+                "SELECT action FROM run_retention_pin_events WHERE run_id=? "
+                "ORDER BY event_id DESC LIMIT 1", (run_id,),
             ).fetchone()
+            was_pinned = previous is not None and previous[0] == "PIN"
+            if was_pinned != pinned:
+                connection.execute(
+                    "INSERT INTO run_retention_pin_events(run_id,action,created_at) VALUES(?,?,?)",
+                    (run_id, "PIN" if pinned else "UNPIN", datetime.now(timezone.utc).isoformat()),
+                )
+            connection.execute("COMMIT")
+            return was_pinned != pinned
+        except BaseException:
+            if connection.in_transaction:
+                connection.execute("ROLLBACK")
+            raise
         finally:
             connection.close()
-        if row is None:
-            raise EvidenceError("OUTPUT_NOT_FOUND", "Output is not registered")
-        path = _absolute(Path(row[0]))
+
+    def output_retention_index(self, run_id: str) -> list[dict[str, Any]]:
+        """Local index overlays immutable manifests with explicit expiry tombstones."""
+        run_id = _uuid(run_id)
+        connection = self.database.connect()
+        try:
+            if connection.execute("SELECT 1 FROM runs WHERE run_id=?", (run_id,)).fetchone() is None:
+                raise EvidenceError("RUN_NOT_FOUND", "Contained run is unavailable")
+            rows = connection.execute(
+                "SELECT f.output_id,f.sha256,f.size_bytes,t.reason,t.created_at "
+                "FROM output_files f LEFT JOIN output_tombstones t "
+                "ON t.run_id=f.run_id AND t.output_id=f.output_id "
+                "WHERE f.run_id=? ORDER BY f.output_id", (run_id,),
+            ).fetchall()
+            return [{
+                "output_id": row[0], "sha256": row[1], "size_bytes": row[2],
+                "state": "EXPIRED" if row[3] is not None else "AVAILABLE",
+                "tombstone_reason": row[3], "tombstone_at": row[4],
+            } for row in rows]
+        finally:
+            connection.close()
+
+    def _purge_tombstoned_file(self, run_id: str, private_path: str,
+                              expected_digest: str, expected_size: int) -> None:
+        path = _absolute(Path(private_path))
         try:
             relative = path.relative_to(self.evidence_root / run_id)
         except ValueError:
             raise EvidenceError("INVALID_OUTPUT_PATH", "Registered output left its private run slot") from None
         if not relative.parts or ".." in relative.parts:
             raise EvidenceError("INVALID_OUTPUT_PATH", "Registered output left its private run slot")
-        descriptor = _sealed_output_copy(path, str(row[1]), int(row[2]))
-        return OutputHandle(descriptor, int(row[2]), str(row[1]), output_id)
+        try:
+            parent_fd = _open_directory(path.parent, create=False)
+        except (OSError, UnsafePathError):
+            raise EvidenceError("EVIDENCE_PURGE_FAILED", "Output parent is unavailable") from None
+        descriptor = -1
+        sync_fd = -1
+        try:
+            try:
+                descriptor = os.open(
+                    path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK,
+                    dir_fd=parent_fd,
+                )
+            except FileNotFoundError:
+                # Persist an earlier unlink even if this retry found no entry.
+                sync_fd = os.open(".", os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC,
+                                  dir_fd=parent_fd)
+                os.fsync(sync_fd)
+                return
+            _check_private(os.fstat(descriptor), directory=False)
+            before = os.fstat(descriptor)
+            if before.st_size != expected_size or before.st_size > _MAX_OUTPUT_BYTES:
+                raise EvidenceError("OUTPUT_CHANGED", "Tombstoned output differs from registration")
+            digest = hashlib.sha256()
+            count = 0
+            while chunk := os.read(descriptor, 1024 * 1024):
+                digest.update(chunk)
+                count += len(chunk)
+                if count > _MAX_OUTPUT_BYTES:
+                    raise EvidenceError("OUTPUT_CHANGED", "Tombstoned output exceeds local limit")
+            after = os.fstat(descriptor)
+            named = os.stat(path.name, dir_fd=parent_fd, follow_symlinks=False)
+            if (count != expected_size or digest.hexdigest() != expected_digest
+                    or (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns) !=
+                    (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns)
+                    or (named.st_dev, named.st_ino) != (before.st_dev, before.st_ino)):
+                raise EvidenceError("OUTPUT_CHANGED", "Tombstoned output changed before purge")
+            os.unlink(path.name, dir_fd=parent_fd)
+            sync_fd = os.open(".", os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC,
+                              dir_fd=parent_fd)
+            os.fsync(sync_fd)
+        except EvidenceError:
+            raise
+        except (OSError, UnsafePathError):
+            raise EvidenceError("EVIDENCE_PURGE_FAILED", "Tombstoned output could not be purged") from None
+        finally:
+            if sync_fd >= 0:
+                os.close(sync_fd)
+            if descriptor >= 0:
+                os.close(descriptor)
+            os.close(parent_fd)
+
+    def expire_output(self, run_id: str, output_id: str, *, retention_days: int = 14,
+                      now: datetime | None = None) -> dict[str, str]:
+        """Retire one old output after checking references under SQLite and a run flock.
+
+        The append-only tombstone commits before unlink. A crash after commit is
+        recoverable by calling this method again; the public reader refuses the
+        tombstoned ID even if physical removal failed.
+        """
+        run_id = _uuid(run_id)
+        if not isinstance(output_id, str) or _SLUG.fullmatch(output_id) is None:
+            raise EvidenceError("INVALID_OUTPUT_ID", "Output ID is invalid")
+        cutoff, timestamp = self._retention_time(now, retention_days)
+        with self._run_lock(run_id, exclusive=True):
+            connection = self.database.connect()
+            try:
+                connection.execute("BEGIN IMMEDIATE")
+                row = connection.execute(
+                    "SELECT f.private_path,f.sha256,f.size_bytes,r.created_at,"
+                    "o.status,o.action,o.delivery_status,o.reconcile_required,o.capacity_held,"
+                    "t.created_at AS tombstone_at "
+                    "FROM output_files f JOIN runs r ON r.run_id=f.run_id "
+                    "JOIN operations o ON o.request_id=r.request_id "
+                    "LEFT JOIN output_tombstones t ON t.run_id=f.run_id AND t.output_id=f.output_id "
+                    "WHERE f.run_id=? AND f.output_id=?", (run_id, output_id),
+                ).fetchone()
+                if row is None:
+                    raise EvidenceError("OUTPUT_NOT_FOUND", "Output is not registered")
+                tombstone_at = row[9]
+                if tombstone_at is None:
+                    if _time(row[3]) > cutoff:
+                        raise EvidenceError("RETENTION_NOT_DUE", "Output has not reached retention age")
+                    if (row[4] == "RUNNING" or row[7] or row[8]
+                            or row[6] in {"PENDING", "PARTIAL", "FAILED"}
+                            or (row[5] == "DELIVER_VERIFY_PUBLISH" and row[6] != "DELIVERED")):
+                        raise EvidenceError("EVIDENCE_REFERENCED", "Run has pending execution or delivery")
+                    if connection.execute(
+                        "SELECT 1 FROM effects e JOIN runs r ON r.request_id=e.request_id "
+                        "WHERE r.run_id=? AND e.state IN ('INTENDED','UNKNOWN') LIMIT 1", (run_id,),
+                    ).fetchone() is not None:
+                        raise EvidenceError("EVIDENCE_REFERENCED", "Run has an uncertain external effect")
+                    if connection.execute(
+                        "SELECT 1 FROM run_delivery_claims c LEFT JOIN run_delivery_claim_releases x "
+                        "ON x.delivery_request_id=c.delivery_request_id "
+                        "WHERE c.run_id=? AND x.delivery_request_id IS NULL LIMIT 1", (run_id,),
+                    ).fetchone() is not None:
+                        raise EvidenceError("EVIDENCE_REFERENCED", "Run has an active delivery claim")
+                    pin = connection.execute(
+                        "SELECT action FROM run_retention_pin_events WHERE run_id=? "
+                        "ORDER BY event_id DESC LIMIT 1", (run_id,),
+                    ).fetchone()
+                    if pin is not None and pin[0] == "PIN":
+                        raise EvidenceError("EVIDENCE_PINNED", "Run is pinned by local owner policy")
+                    connection.execute(
+                        "INSERT INTO output_tombstones(run_id,output_id,reason,created_at) "
+                        "VALUES(?,?,'RETENTION_EXPIRED',?)", (run_id, output_id, timestamp),
+                    )
+                    tombstone_at = timestamp
+                connection.execute("COMMIT")
+            except BaseException:
+                if connection.in_transaction:
+                    connection.execute("ROLLBACK")
+                raise
+            finally:
+                connection.close()
+            self._purge_tombstoned_file(run_id, str(row[0]), str(row[1]), int(row[2]))
+            return {"run_id": run_id, "output_id": output_id,
+                    "reason": "RETENTION_EXPIRED", "created_at": str(tombstone_at)}
+
+    def open_output(self, run_id: str, output_id: str) -> OutputHandle:
+        run_id = _uuid(run_id)
+        if not isinstance(output_id, str) or _SLUG.fullmatch(output_id) is None:
+            raise EvidenceError("INVALID_OUTPUT_ID", "Output ID is invalid")
+        # Unknown authenticated IDs must not create unbounded lock files.
+        connection = self.database.connect()
+        try:
+            known = connection.execute(
+                "SELECT 1 FROM runs WHERE run_id=?", (run_id,),
+            ).fetchone() is not None
+        finally:
+            connection.close()
+        if not known:
+            raise EvidenceError("OUTPUT_NOT_FOUND", "Output is not registered")
+        with self._run_lock(run_id):
+            connection = self.database.connect()
+            try:
+                row = connection.execute(
+                    "SELECT f.private_path,f.sha256,f.size_bytes,t.created_at "
+                    "FROM output_files f LEFT JOIN output_tombstones t "
+                    "ON t.run_id=f.run_id AND t.output_id=f.output_id "
+                    "WHERE f.run_id=? AND f.output_id=?", (run_id, output_id),
+                ).fetchone()
+            finally:
+                connection.close()
+            if row is None:
+                raise EvidenceError("OUTPUT_NOT_FOUND", "Output is not registered")
+            if row[3] is not None:
+                raise EvidenceError("EVIDENCE_EXPIRED", "Output retention has expired")
+            path = _absolute(Path(row[0]))
+            try:
+                relative = path.relative_to(self.evidence_root / run_id)
+            except ValueError:
+                raise EvidenceError("INVALID_OUTPUT_PATH", "Registered output left its private run slot") from None
+            if not relative.parts or ".." in relative.parts:
+                raise EvidenceError("INVALID_OUTPUT_PATH", "Registered output left its private run slot")
+            descriptor = _sealed_output_copy(path, str(row[1]), int(row[2]))
+            return OutputHandle(descriptor, int(row[2]), str(row[1]), output_id)

@@ -1,13 +1,16 @@
 """A finite Engine VERIFY with real Git/SQLite and no project-code execution."""
 from __future__ import annotations
 
+import errno
 import hashlib
 import json
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from threading import Event
+from types import SimpleNamespace
 from typing import Any
 from uuid import uuid4
 
@@ -15,8 +18,16 @@ import pytest
 
 from runner_app.domain.commands import LocalPolicy, Provenance
 from runner_app.engine.service import Engine
-from runner_app.executors.broker import BrokerError, BrokerResult, SnapshotInput, _sha256_argv
+from runner_app.executors.broker import (
+    BrokerError,
+    BrokerResult,
+    ContainerIntent,
+    ContainerReconciliation,
+    SnapshotInput,
+    _sha256_argv,
+)
 from runner_app.executors.profiles import ProfileRegistry
+from runner_app.executors.reconciliation import ReconciliationError, reconcile_run_attempt
 from runner_app.executors.run_service import RunService
 from runner_app.executors.verify_handler import VerifyHandler
 from runner_app.git.argv import run_git
@@ -25,7 +36,7 @@ from runner_app.git.service import SourceService
 from runner_app.git.worktrees import create_repository, create_workspace
 from runner_app.outputs.capture import CaptureResult, StreamCapture
 from runner_app.storage import Database
-from runner_app.storage.ledger import Ledger
+from runner_app.storage.ledger import Ledger, LedgerError
 from runner_app.storage.run_evidence import RunEvidenceStore
 
 _LOCAL = Provenance(kind="local", source_id="local-owner")
@@ -71,10 +82,19 @@ class FakeBroker:
 
     def run(self, profile: Any, snapshot: SnapshotInput, run_root: Path,
             *, run_id: str, writable_volume: Path | None = None,
-            cancel: Event | None = None) -> BrokerResult:
+            cancel: Event | None = None,
+            record_intent: Callable[[ContainerIntent], None]) -> BrokerResult:
         self.calls.append((snapshot, run_root, writable_volume, cancel))
-        if self.refuse is not None:
+        if self.refuse is not None and self.refuse not in {
+            "CONTAINER_CLEANUP_FAILED", "CONTAINER_CLEANUP_UNCERTAIN",
+        }:
             raise BrokerError(self.refuse, "Synthetic runtime refusal with untrusted details")
+        record_intent(ContainerIntent(
+            run_id, "fake-rootless-daemon", profile.profile_id, profile.revision_sha256,
+            profile.image, "sha256:" + "c" * 64, _sha256_argv(profile.argv), "f" * 32,
+        ))
+        if self.refuse is not None:
+            raise BrokerError(self.refuse, "Synthetic container cleanup refusal")
         assert snapshot.path.is_dir()
         assert (snapshot.path / "README.txt").read_bytes() == b"pinned source\n"
         self.started.set()
@@ -233,6 +253,19 @@ def test_failed_project_check_is_completed_with_pinned_real_git_source(setup: Fi
     assert setup.broker.calls[0][0].path != setup.workspace
     assert run_git(setup.workspace, ["rev-parse", "HEAD"]).strip() == setup.head
     assert (setup.store.evidence_root / command["request_id"] / "capture" / "stdout.bin").read_bytes() == b"project failed\n"
+    visible_intents = [event for event in setup.ledger.events()
+                       if event["type"] == "CONTAINER_INTENDED"]
+    assert len(visible_intents) == 1
+    assert "nonce" not in visible_intents[0]["detail"]
+    connection = setup.registry.database.connect()
+    try:
+        stored = connection.execute(
+            "SELECT detail_json FROM journal WHERE request_id=? "
+            "AND event_type='CONTAINER_INTENDED'", (command["request_id"],)
+        ).fetchone()
+        assert len(json.loads(stored[0])["nonce"]) == 32
+    finally:
+        connection.close()
 
 
 def test_missing_preprovisioned_volume_blocks_before_source_capture(setup: Fixture) -> None:
@@ -295,12 +328,66 @@ def test_uncertain_container_cleanup_keeps_workspace_reserved(setup: Fixture) ->
         connection.close()
 
 
+def test_trusted_recovery_releases_lock_only_after_exact_container_proof(
+    setup: Fixture,
+) -> None:
+    setup.broker.refuse = "CONTAINER_CLEANUP_UNCERTAIN"
+    command = setup.command()
+    setup.prepare_volume(command["request_id"])
+    setup.submit(command)
+    assert setup.terminal(command["request_id"])["reconcile_required"] == 1
+    setup.ledger.disarm()
+    with pytest.raises(LedgerError) as still_held:
+        setup.ledger.arm()
+    assert still_held.value.code == "NEEDS_RECONCILIATION"
+    with pytest.raises(LedgerError) as no_container_proof:
+        setup.ledger.confirm_stopped(command["request_id"])
+    assert no_container_proof.value.code == "CONTAINER_PROOF_REQUIRED"
+
+    def prove_removed(intent: ContainerIntent) -> ContainerReconciliation:
+        assert intent.run_id == command["request_id"]
+        assert intent.daemon_id == "fake-rootless-daemon"
+        return ContainerReconciliation(intent.run_id, intent.daemon_id,
+                                       "REMOVED", "d" * 64)
+
+    proof = reconcile_run_attempt(
+        setup.ledger, SimpleNamespace(reconcile_container=prove_removed), command["request_id"],
+    )
+    assert proof.state == "REMOVED"
+    assert setup.ledger.get(command["request_id"])["reconcile_required"] == 0
+    assert setup.ledger.arm()["armed"] is True
+    assert any(event["type"] == "CONTAINER_RECONCILED" for event in setup.ledger.events())
+
+
+def test_invalid_recovery_proof_keeps_uncertain_workspace_reserved(
+    setup: Fixture,
+) -> None:
+    setup.broker.refuse = "CONTAINER_CLEANUP_UNCERTAIN"
+    command = setup.command()
+    setup.prepare_volume(command["request_id"])
+    setup.submit(command)
+    assert setup.terminal(command["request_id"])["reconcile_required"] == 1
+
+    def wrong_proof(intent: ContainerIntent) -> ContainerReconciliation:
+        return ContainerReconciliation(str(uuid4()), intent.daemon_id, "REMOVED", "d" * 64)
+
+    with pytest.raises(ReconciliationError) as error:
+        reconcile_run_attempt(
+            setup.ledger, SimpleNamespace(reconcile_container=wrong_proof),
+            command["request_id"],
+        )
+    assert error.value.code == "CONTAINER_PROOF_INVALID"
+    retained = setup.ledger.get(command["request_id"])
+    assert retained["reconcile_required"] == 1
+    assert retained["capacity_held"] == 1
+
+
 def test_cancellation_reaches_broker_and_retains_cancelled_evidence(setup: Fixture) -> None:
     setup.broker.wait_for_cancel = True
     command = setup.command()
     setup.prepare_volume(command["request_id"])
     setup.submit(command)
-    assert setup.broker.started.wait(3)
+    assert setup.broker.started.wait(8)
     cancel = setup.command("CANCEL_OPERATION", target=command["request_id"])
     setup.submit(cancel)
     assert setup.terminal(cancel["request_id"])["status"] == "COMPLETED"
@@ -311,6 +398,36 @@ def test_cancellation_reaches_broker_and_retains_cancelled_evidence(setup: Fixtu
     assert setup.ledger.get_run(command["request_id"])["execution"]["outcome"] == "CANCELLED"
     assert setup.broker.calls[0][3] is not None
     assert setup.broker.calls[0][3].is_set()
+
+
+def test_hard_evidence_enospc_is_a_nonreplayed_storage_fault(
+    setup: Fixture, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    command = setup.command()
+    setup.prepare_volume(command["request_id"])
+
+    def full_store(*_args: object, **_kwargs: object) -> None:
+        raise OSError(errno.ENOSPC, "synthetic private filesystem detail")
+
+    monkeypatch.setattr(setup.store, "record_contained_run", full_store)
+    setup.submit(command)
+    terminal = setup.terminal(command["request_id"])
+    assert terminal["status"] == "FAULT"
+    assert terminal["code"] == "EVIDENCE_STORAGE_FULL"
+    assert terminal["result"]["execution"]["outcome"] == "UNKNOWN"
+    assert setup.ledger.get_run(command["request_id"]) is None
+    assert len(setup.broker.calls) == 1
+    connection = setup.registry.database.connect()
+    try:
+        assert connection.execute(
+            "SELECT run_id FROM run_attempts WHERE request_id=?", (command["request_id"],)
+        ).fetchone() == (command["request_id"],)
+    finally:
+        connection.close()
+    duplicate = setup.engine.submit(json.dumps(command).encode(), _LOCAL)
+    assert duplicate.duplicate and not duplicate.execute
+    assert len(setup.broker.calls) == 1
+    assert "synthetic private filesystem detail" not in json.dumps(terminal)
 
 
 def test_invalid_broker_identity_is_fault_without_claimed_test_result(setup: Fixture) -> None:

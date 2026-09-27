@@ -258,6 +258,45 @@ class Ledger:
                 capacity = connection.execute("SELECT count(*) FROM operations WHERE capacity_held=1").fetchone()[0]
                 if busy or (not exempt_capacity and capacity >= self.max_parallel):
                     code = "BUSY"
+            report_run_id: str | None = None
+            if code is None and command.get("action") == "PUBLISH_REPORT":
+                params = command.get("params")
+                candidate = params.get("source_run_id") if isinstance(params, dict) else None
+                try:
+                    if not isinstance(candidate, str) or str(UUID(candidate)) != candidate:
+                        raise ValueError
+                except (TypeError, ValueError, AttributeError):
+                    code = "DELIVERY_RUN_MISMATCH"
+                else:
+                    source_run = connection.execute(
+                        "SELECT r.project_id,r.workspace_id,s.project_id AS source_project_id,"
+                        "s.workspace_id AS source_workspace_id,s.action,s.status,"
+                        "e.run_id AS contained_run_id "
+                        "FROM runs r JOIN operations s ON s.request_id=r.request_id "
+                        "LEFT JOIN run_executions e ON e.run_id=r.run_id "
+                        "WHERE r.run_id=?", (candidate,),
+                    ).fetchone()
+                    if source_run is None:
+                        code = "SOURCE_RUN_MISSING"
+                    elif (source_run["project_id"] != command.get("project_id")
+                            or source_run["workspace_id"] != command.get("workspace_id")
+                            or source_run["source_project_id"] != source_run["project_id"]
+                            or source_run["source_workspace_id"] != source_run["workspace_id"]
+                            or source_run["action"] not in {"VERIFY", "DELIVER_VERIFY_PUBLISH"}):
+                        code = "DELIVERY_SOURCE_MISMATCH"
+                    elif source_run["status"] not in TERMINAL:
+                        code = "DELIVERY_RUN_MISMATCH"
+                    elif source_run["contained_run_id"] is None:
+                        code = "CONTAINED_RUN_MISSING"
+                    elif f"workspace:{source_run['project_id']}/{source_run['workspace_id']}" not in normalized_scopes:
+                        code = "DELIVERY_LOCK_MISSING"
+                    elif connection.execute(
+                        "SELECT 1 FROM output_tombstones WHERE run_id=? LIMIT 1",
+                        (candidate,),
+                    ).fetchone() is not None:
+                        code = "SOURCE_EVIDENCE_RETIRED"
+                    else:
+                        report_run_id = candidate
             status = "REJECTED" if code else "RUNNING"
             receipt = _receipt(request_id, digest, status, code, timestamp)
             # Invalid command fields remain only in frozen JSON. They never become
@@ -274,6 +313,11 @@ class Ledger:
             if code is None:
                 connection.executemany("INSERT INTO locks VALUES(?,?,?)",
                                        [(scope, request_id, timestamp) for scope in normalized_scopes])
+                if report_run_id is not None:
+                    connection.execute(
+                        "INSERT INTO run_delivery_claims(delivery_request_id,run_id,created_at) "
+                        "VALUES(?,?,?)", (request_id, report_run_id, timestamp),
+                    )
             self._append(connection, request_id, None, status, {"code": code}, timestamp)
             return Admission(receipt, code is None)
 
@@ -316,6 +360,13 @@ class Ledger:
             )
             if not retained:
                 connection.execute("DELETE FROM locks WHERE request_id=?", (request_id,))
+            if (row["action"] == "PUBLISH_REPORT" and status == "COMPLETED"
+                    and row["delivery_status"] == "DELIVERED"):
+                connection.execute(
+                    "INSERT INTO run_delivery_claim_releases(delivery_request_id,released_at) "
+                    "SELECT delivery_request_id,? FROM run_delivery_claims "
+                    "WHERE delivery_request_id=?", (timestamp, request_id),
+                )
             self._append(connection, request_id, None, status, {"code": code}, timestamp)
             return receipt
 
@@ -333,6 +384,31 @@ class Ledger:
             ).fetchone()
             if effect:
                 raise LedgerError("NEEDS_RECONCILIATION", "External effect is not confirmed")
+            intents = connection.execute(
+                "SELECT detail_json FROM journal WHERE request_id=? "
+                "AND event_type='CONTAINER_INTENDED' ORDER BY event_id LIMIT 2", (request_id,),
+            ).fetchall()
+            if intents:
+                proofs = connection.execute(
+                    "SELECT detail_json FROM journal WHERE request_id=? "
+                    "AND event_type='CONTAINER_RECONCILED' ORDER BY event_id DESC LIMIT 1",
+                    (request_id,),
+                ).fetchall()
+                try:
+                    if len(intents) != 1 or len(proofs) != 1:
+                        raise ValueError
+                    intent = json.loads(intents[0][0])
+                    proof = json.loads(proofs[0][0])
+                    if (not isinstance(intent, dict) or not isinstance(proof, dict)
+                            or proof.get("run_id") != intent.get("run_id")
+                            or proof.get("daemon_id") != intent.get("daemon_id")
+                            or proof.get("state") != "REMOVED"
+                            or not isinstance(proof.get("container_id"), str)
+                            or re.fullmatch(r"[0-9a-f]{64}", proof["container_id"]) is None):
+                        raise ValueError
+                except (TypeError, ValueError):
+                    raise LedgerError("CONTAINER_PROOF_REQUIRED",
+                                      "Owned container removal is not proven") from None
             connection.execute("DELETE FROM locks WHERE request_id=?", (request_id,))
             connection.execute("UPDATE operations SET capacity_held=0,reconcile_required=0,updated_at=? WHERE request_id=?",
                                (utcnow(), request_id))
@@ -344,13 +420,68 @@ class Ledger:
         with self._transaction() as connection:
             return self._append(connection, request_id, step_id, event_type, detail, utcnow())
 
+    def record_container_intent(self, request_id: str,
+                                detail: dict[str, Any]) -> None:
+        """Atomically fence Docker create against interruption and lock release.
+
+        A worker can spend time checking its snapshot and image after preflight.
+        Recovery may interrupt and release that operation in the meantime, so
+        the durable pre-create intent must recheck authority in the same write
+        transaction that appends it.
+        """
+        with self._transaction() as connection:
+            row = connection.execute(
+                "SELECT status,action,project_id,workspace_id FROM operations "
+                "WHERE request_id=?", (request_id,),
+            ).fetchone()
+            if (row is None or row["status"] != "RUNNING"
+                    or not self._state(connection)["armed"]):
+                raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
+                                  "Execution is no longer armed and running")
+            if row["action"] == "VERIFY":
+                scope = f"workspace:{row['project_id']}/{row['workspace_id']}"
+            elif row["action"] == "DELIVER_VERIFY_PUBLISH":
+                scope = f"repo:{row['project_id']}"
+            else:
+                raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
+                                  "Operation does not authorize a contained run")
+            held = connection.execute(
+                "SELECT 1 FROM locks WHERE request_id=? AND scope=?",
+                (request_id, scope),
+            ).fetchone()
+            attempt = connection.execute(
+                "SELECT run_id FROM run_attempts WHERE request_id=?", (request_id,),
+            ).fetchone()
+            existing = connection.execute(
+                "SELECT 1 FROM journal WHERE request_id=? "
+                "AND event_type='CONTAINER_INTENDED' LIMIT 1", (request_id,),
+            ).fetchone()
+            if (held is None or attempt is None or attempt[0] != detail.get("run_id")
+                    or existing is not None):
+                raise LedgerError("CONTAINER_INTENT_NOT_ADMITTED",
+                                  "Contained run lacks its unique admitted reservation")
+            self._append(connection, request_id, "container-intent",
+                         "CONTAINER_INTENDED", detail, utcnow())
+
     def events(self, after: int = 0, limit: int = 100) -> list[dict[str, Any]]:
         if not isinstance(after, int) or after < 0 or not 1 <= limit <= 1000:
             raise ValueError("Invalid event cursor or page size")
         with self._connection() as connection:
-            return [{"event_id": row["event_id"], "request_id": row["request_id"], "step_id": row["step_id"],
-                     "timestamp": row["timestamp"], "type": row["event_type"], "detail": json.loads(row["detail_json"])}
-                    for row in connection.execute("SELECT * FROM journal WHERE event_id>? ORDER BY event_id LIMIT ?", (after, limit))]
+            events = []
+            for row in connection.execute(
+                "SELECT * FROM journal WHERE event_id>? ORDER BY event_id LIMIT ?", (after, limit),
+            ):
+                detail = json.loads(row["detail_json"])
+                if row["event_type"] == "CONTAINER_INTENDED" and isinstance(detail, dict):
+                    # The nonce is needed for trusted local reconciliation but
+                    # must not be exposed through the user-facing event stream.
+                    detail.pop("nonce", None)
+                events.append({
+                    "event_id": row["event_id"], "request_id": row["request_id"],
+                    "step_id": row["step_id"], "timestamp": row["timestamp"],
+                    "type": row["event_type"], "detail": detail,
+                })
+            return events
 
     def record_delivery(self, request_id: str, status: str, code: str | None = None) -> None:
         """Persist delivery progress separately from execution and Git publication."""
@@ -389,9 +520,10 @@ class Ledger:
     def require_delivery_preflight(self, delivery_request_id: str, run_id: str) -> DeliveryPreflight:
         """Bind a live delivery operation to one registered contained run.
 
-        This is a read-only SQLite snapshot. The publisher must still declare a
-        durable effect before each external write; this check alone does not
-        reserve an additional lock or authorize a replay after a crash.
+        This is a read-only SQLite snapshot. A PUBLISH_REPORT run claim was
+        recorded atomically at admission; the publisher must still declare a
+        durable effect before each external write. This check does not authorize
+        a replay after a crash.
         """
         for value in (delivery_request_id, run_id):
             try:
@@ -454,6 +586,15 @@ class Ledger:
                     scope = f"workspace:{run['project_id']}/{run['workspace_id']}"
                 else:
                     raise LedgerError("DELIVERY_ACTION_INVALID", "Action cannot deliver a run")
+                if connection.execute(
+                    "SELECT 1 FROM output_tombstones WHERE run_id=? LIMIT 1", (run_id,),
+                ).fetchone() is not None:
+                    raise LedgerError("SOURCE_EVIDENCE_RETIRED", "Run output retention has expired")
+                if action == "PUBLISH_REPORT" and connection.execute(
+                    "SELECT 1 FROM run_delivery_claims WHERE delivery_request_id=? AND run_id=?",
+                    (delivery_request_id, run_id),
+                ).fetchone() is None:
+                    raise LedgerError("DELIVERY_CLAIM_MISSING", "Report retry has no admission claim")
                 source_snapshot = connection.execute(
                     "SELECT s.project_id,s.workspace_id,s.snapshot_commit,s.tree_digest,"
                     "s.manifest_sha256 FROM run_executions e "

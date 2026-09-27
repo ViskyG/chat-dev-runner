@@ -12,7 +12,12 @@ from uuid import uuid4
 
 import pytest
 
-from runner_app.executors.broker import SnapshotInput
+from runner_app.executors.broker import BrokerResult, SnapshotInput
+from runner_app.executors.preparation_handoff import (
+    OfflinePreparationCoordinator,
+    attest_prepared_build,
+    stage_prepared_build,
+)
 from runner_app.executors.preparation_plan import (
     PreparationError,
     PreparationGrant,
@@ -20,6 +25,7 @@ from runner_app.executors.preparation_plan import (
     plan_preparation,
 )
 from runner_app.executors.profiles import ProfileRegistry
+from runner_app.outputs.capture import CaptureResult, StreamCapture
 
 REFERENCE = Path(__file__).resolve().parents[1] / "config" / "profile.python-quick.json"
 
@@ -173,3 +179,161 @@ def test_plan_identity_changes_with_lockfile_and_snapshot(tmp_path: Path) -> Non
     assert first.lockfile_sha256 != second.lockfile_sha256
     assert first.snapshot_tree != second.snapshot_tree
     assert first.identity_sha256 != second.identity_sha256
+
+
+def _prepared_result(plan: Any, root: Path) -> BrokerResult:
+    capture_root = root / "capture"
+    capture_root.mkdir(mode=0o700)
+    streams = tuple(
+        StreamCapture(name, capture_root / f"{name}.bin", None, 0, 0,
+                      hashlib.sha256(b"").hexdigest(), None, 0, True, None)
+        for name in ("stdout", "stderr")
+    )
+    capture = CaptureResult(
+        "2026-01-01T00:00:00+00:00", "2026-01-01T00:00:01+00:00", 1.0,
+        0, None, None, streams, capture_root / "events.jsonl", "0" * 64,
+        capture_root / "capture.json", "0" * 64, 0, 0,
+    )
+    return BrokerResult(
+        root.name, plan.snapshot_id, plan.snapshot_commit, plan.snapshot_tree,
+        root / "snapshot", plan.preparation_profile_id,
+        plan.preparation_revision_sha256, plan.image, "0" * 64,
+        ("<approved-profile>", plan.preparation_profile_id),
+        "2026-01-01T00:00:00+00:00", "2026-01-01T00:00:01+00:00", 1.0,
+        "PASSED", 0, root / "out", capture,
+        {
+            "verified": True, "backend": "rootless_docker",
+            "image_repo_digest": plan.image, "run_volume_hard_limit_bytes": 64 * 1024 * 1024,
+            "daemon_rootless": True, "cleanup_verified": True,
+            "network": "none", "read_only_source": True, "read_only_root": True,
+            "no_new_privileges": True, "capabilities_dropped": "ALL",
+            "mounts_verified_before_start": True,
+        },
+    )
+
+
+def _build_roots(root: Path) -> tuple[Path, Path]:
+    source = root / str(uuid4()) / "build"
+    target = root / str(uuid4()) / "build"
+    source.mkdir(mode=0o700, parents=True)
+    target.mkdir(mode=0o700, parents=True)
+    source.parent.chmod(0o700)
+    target.parent.chmod(0o700)
+    (source.parent / "out").mkdir(mode=0o700)
+    return source, target
+
+
+def test_offline_handoff_copies_verified_bytes_to_distinct_build_root(tmp_path: Path) -> None:
+    registry, grant, _ = _profiles(tmp_path)
+    plan = _plan(_snapshot(tmp_path), registry, grant)
+    source, target = _build_roots(tmp_path)
+    package = source / "sample"
+    package.mkdir(mode=0o700)
+    (package / "__init__.py").write_bytes(b"VALUE = 7\n")
+    (package / "__init__.py").chmod(0o600)
+    script = source / "tool"
+    script.write_bytes(b"#!/bin/sh\nexit 0\n")
+    script.chmod(0o700)
+    (source / "empty").mkdir(mode=0o700)
+    result = _prepared_result(plan, source.parent)
+
+    staged = OfflinePreparationCoordinator().attest_and_stage(
+        plan, result, source, target,
+    )
+    assert staged.source_build == target
+    assert staged.tree_sha256 == attest_prepared_build(plan, result, source).tree_sha256
+    assert staged.total_bytes == len(b"VALUE = 7\n") + len(b"#!/bin/sh\nexit 0\n")
+    assert (target / "sample" / "__init__.py").read_bytes() == b"VALUE = 7\n"
+    assert (target / "tool").stat().st_mode & 0o111
+    assert (target / "empty").is_dir()
+    _refusal("PREPARATION_MANIFEST_MISMATCH",
+             lambda: stage_prepared_build(plan, staged, source))
+
+
+def test_handoff_refuses_untrusted_or_incomplete_preparation(tmp_path: Path) -> None:
+    registry, grant, _ = _profiles(tmp_path)
+    plan = _plan(_snapshot(tmp_path), registry, grant)
+    source, target = _build_roots(tmp_path)
+    (source / "module.py").write_bytes(b"print('safe')\n")
+    (source / "module.py").chmod(0o600)
+    result = _prepared_result(plan, source.parent)
+    _refusal("PREPARATION_RESULT_UNTRUSTED",
+             lambda: attest_prepared_build(plan, replace(result, outcome="FAILED"), source))
+    _refusal("PREPARATION_RESULT_UNTRUSTED",
+             lambda: attest_prepared_build(
+                 plan, replace(result, containment={**result.containment,
+                                                    "cleanup_verified": False}), source,
+             ))
+    _refusal("PREPARATION_RESULT_UNTRUSTED",
+             lambda: attest_prepared_build(
+                 plan, replace(result, capture=replace(result.capture,
+                                                       capture_fault="WRITE_FAILED")), source,
+             ))
+    manifest = attest_prepared_build(plan, result, source)
+    _refusal("PREPARATION_MANIFEST_MISMATCH",
+             lambda: stage_prepared_build(plan, replace(manifest,
+                                                       preparation_run_id=str(uuid4())),
+                                          target))
+    _refusal("PREPARATION_MANIFEST_MISMATCH",
+             lambda: stage_prepared_build(replace(plan, identity_sha256="0" * 64),
+                                          manifest, target))
+    assert not list(target.iterdir())
+
+
+def test_handoff_refuses_links_special_files_and_changed_source(tmp_path: Path) -> None:
+    registry, grant, _ = _profiles(tmp_path)
+    plan = _plan(_snapshot(tmp_path), registry, grant)
+    source, target = _build_roots(tmp_path)
+    result = _prepared_result(plan, source.parent)
+    original = source / "module.py"
+    original.write_bytes(b"alpha")
+    original.chmod(0o600)
+    (source / "alias.py").symlink_to("module.py")
+    _refusal("PREPARATION_ARTIFACT_UNSAFE",
+             lambda: attest_prepared_build(plan, result, source))
+    (source / "alias.py").unlink()
+    os.link(original, source / "hardlink.py")
+    _refusal("PREPARATION_ARTIFACT_UNSAFE",
+             lambda: attest_prepared_build(plan, result, source))
+    (source / "hardlink.py").unlink()
+    manifest = attest_prepared_build(plan, result, source)
+    original.write_bytes(b"bravo")
+    _refusal("PREPARATION_ARTIFACT_CHANGED",
+             lambda: stage_prepared_build(plan, manifest, target))
+    assert not list(target.iterdir())
+
+
+def test_handoff_refuses_existing_target_and_same_root(tmp_path: Path) -> None:
+    registry, grant, _ = _profiles(tmp_path)
+    plan = _plan(_snapshot(tmp_path), registry, grant)
+    source, target = _build_roots(tmp_path)
+    (source / "module.py").write_bytes(b"one")
+    (source / "module.py").chmod(0o600)
+    manifest = attest_prepared_build(plan, _prepared_result(plan, source.parent), source)
+    _refusal("PREPARATION_ARTIFACT_UNSAFE",
+             lambda: stage_prepared_build(plan, manifest, source))
+    (target / "previous").write_bytes(b"anything")
+    _refusal("PREPARATION_TARGET_NOT_EMPTY",
+             lambda: stage_prepared_build(plan, manifest, target))
+
+
+def test_handoff_refuses_unsafe_modes_and_special_entries(tmp_path: Path) -> None:
+    registry, grant, _ = _profiles(tmp_path)
+    plan = _plan(_snapshot(tmp_path), registry, grant)
+    source, _ = _build_roots(tmp_path)
+    result = _prepared_result(plan, source.parent)
+    file = source / "module.py"
+    file.write_bytes(b"one")
+    file.chmod(0o666)
+    _refusal("PREPARATION_ARTIFACT_UNSAFE",
+             lambda: attest_prepared_build(plan, result, source))
+    file.chmod(0o600)
+    os.mkfifo(source / "pipe", 0o600)
+    _refusal("PREPARATION_ARTIFACT_UNSAFE",
+             lambda: attest_prepared_build(plan, result, source))
+    (source / "pipe").unlink()
+    missing = tmp_path / str(uuid4()) / "build"
+    missing_result = replace(result, run_id=missing.parent.name,
+                             output_root=missing.parent / "out")
+    _refusal("PREPARATION_ARTIFACT_UNSAFE",
+             lambda: attest_prepared_build(plan, missing_result, missing))

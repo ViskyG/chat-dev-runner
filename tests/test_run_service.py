@@ -4,6 +4,7 @@ from __future__ import annotations
 import errno
 import hashlib
 import json
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -14,7 +15,13 @@ from uuid import uuid4
 import pytest
 
 from runner_app.domain.commands import freeze
-from runner_app.executors.broker import BrokerError, BrokerResult, SnapshotInput, _sha256_argv
+from runner_app.executors.broker import (
+    BrokerError,
+    BrokerResult,
+    ContainerIntent,
+    SnapshotInput,
+    _sha256_argv,
+)
 from runner_app.executors.profiles import ProfileError, ProfileRegistry
 from runner_app.executors.run_service import RunService, RunServiceError
 from runner_app.git.argv import run_git
@@ -76,10 +83,15 @@ class FakeBroker:
 
     def run(self, profile: Any, snapshot: SnapshotInput, run_root: Path,
             *, run_id: str, writable_volume: Path | None = None,
-            cancel: Event | None = None) -> BrokerResult:
+            cancel: Event | None = None,
+            record_intent: Callable[[ContainerIntent], None]) -> BrokerResult:
         self.calls.append((snapshot, run_root, writable_volume, cancel))
         if self.fail_before_slot:
             raise BrokerError("ROOTLESS_RUNTIME_UNAVAILABLE", "Synthetic runtime refusal")
+        record_intent(ContainerIntent(
+            run_id, "fake-rootless-daemon", profile.profile_id, profile.revision_sha256,
+            profile.image, "sha256:" + "c" * 64, _sha256_argv(profile.argv), "f" * 32,
+        ))
         assert snapshot.path.is_dir()
         assert (snapshot.path / "README.txt").read_bytes() == b"pinned source\n"
         run_root.mkdir(mode=0o700)
@@ -476,6 +488,50 @@ def test_failed_broker_attempt_cannot_start_second_run_for_same_request(tmp_path
     assert len(fixture.broker.calls) == 1
     assert not (fixture.service.sources_root / second_id).exists()
     assert fixture.ledger.get_run(second_id) is None
+
+
+@pytest.mark.parametrize("lost_authority", ["startup_release", "lock_lost", "disarmed"])
+def test_precreate_intent_rechecks_admission_after_broker_preparation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, lost_authority: str,
+) -> None:
+    """An old worker cannot create after recovery releases its reservation."""
+    fixture = _fixture(tmp_path)
+    run_id = str(uuid4())
+    create_reached = False
+
+    def broker_after_slow_preparation(
+        profile: Any, _snapshot: SnapshotInput, _run_root: Path, *,
+        run_id: str, writable_volume: Path | None = None,
+        cancel: Event | None = None,
+        record_intent: Callable[[ContainerIntent], None],
+    ) -> BrokerResult:
+        nonlocal create_reached
+        if lost_authority == "startup_release":
+            fixture.ledger.startup()
+            fixture.ledger.confirm_stopped(fixture.request_id)
+        elif lost_authority == "lock_lost":
+            connection = fixture.registry.database.connect()
+            try:
+                connection.execute("DELETE FROM locks WHERE request_id=?", (fixture.request_id,))
+            finally:
+                connection.close()
+        else:
+            fixture.ledger.disarm()
+        record_intent(ContainerIntent(
+            run_id, "fake-rootless-daemon", profile.profile_id, profile.revision_sha256,
+            profile.image, "sha256:" + "c" * 64, _sha256_argv(profile.argv), "f" * 32,
+        ))
+        create_reached = True
+        raise AssertionError("Docker create must not be reached after authority is lost")
+
+    monkeypatch.setattr(fixture.broker, "run", broker_after_slow_preparation)
+    with pytest.raises(RunServiceError) as error:
+        fixture.service.execute(fixture.request_id, fixture.snapshot_id, run_id=run_id,
+                                writable_volume=fixture.volume)
+    assert error.value.code == "CONTAINER_INTENT_NOT_ADMITTED"
+    assert create_reached is False
+    assert fixture.ledger.get_run(run_id) is None
+    assert all(event["type"] != "CONTAINER_INTENDED" for event in fixture.ledger.events())
 
 
 def test_overlapping_private_roots_are_refused(tmp_path: Path) -> None:

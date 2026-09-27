@@ -103,5 +103,26 @@ retained evidence. Counts must come from recognized parsers, never guessed from 
 text. A PUBLISH_REPORT request reuses frozen evidence and must not trigger a new process.
 
 Retention default proposal: 14 days local raw logs, 90 days compact manifests, pinned runs
-until explicit unpin. These are owner-adjustable installation decisions. Deletion writes a
-tombstone into the manifest/index so historical links do not silently mean “no output”.
+until explicit unpin. These are owner-adjustable installation decisions. The immutable v1
+run/output manifests remain unchanged when an output expires. SQLite migration 6 adds an
+append-only local `output_tombstones` index; `output_retention_index()` shows the original
+hash/size and an explicit `EXPIRED` state, and authenticated download returns
+`EVIDENCE_EXPIRED` rather than silently treating a historical link as unknown.
+
+`RunEvidenceStore.expire_output()` is a trusted local retention primitive, not a network
+command or an automatic sweeper. It defaults to a 14-day age, checks terminal
+execution, pending/failed delivery, uncertain effects, active `PUBLISH_REPORT` claims and
+owner pin events inside one SQLite writer transaction. The `PUBLISH_REPORT` claim is inserted
+in its admission transaction only for an existing same-scope terminal contained run;
+a successful delivered report releases its claim only when the operation finishes.
+Existing valid report requests are backfilled conservatively on migration. A later report admission is
+rejected if any output of its source run is already tombstoned. Incomplete or failed
+reports keep their claim until a future explicit recovery policy resolves them.
+
+A stable owner-only per-run `flock` coordinates readers and the expirer across processes.
+Readers seal and hash the output before releasing their shared lock; expiration requires
+an exclusive lock, commits the tombstone first, and then unlinks only the checked private
+file. If unlink fails or the process crashes, the tombstone still blocks access and a
+retry can complete physical removal. The local owner can add an append-only PIN/UNPIN
+decision; an active pin prevents expiry. This does not yet schedule automatic retention
+or remove 90-day manifest records.

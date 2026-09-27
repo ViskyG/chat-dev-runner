@@ -14,6 +14,7 @@ import pytest
 import runner_app.executors.broker as broker_module
 from runner_app.executors.broker import (
     BrokerError,
+    ContainerIntent,
     RootlessDockerBroker,
     RuntimeProbe,
     SnapshotInput,
@@ -48,7 +49,8 @@ def broker(profile: ApprovedProfile, tmp_path: Path) -> RootlessDockerBroker:
                                 runtime_dir=tmp_path / "runtime")  # type: ignore[arg-type]
 
 
-def _created(profile: ApprovedProfile, snapshot: Path, run_root: Path, name: str) -> dict[str, object]:
+def _created(profile: ApprovedProfile, snapshot: Path, run_root: Path, name: str,
+             nonce: str = "f" * 32) -> dict[str, object]:
     return {
         "Id": "d" * 64, "Name": "/" + name, "Image": "sha256:" + "c" * 64,
         "State": {"Status": "created"},
@@ -59,7 +61,8 @@ def _created(profile: ApprovedProfile, snapshot: Path, run_root: Path, name: str
             "Tty": False, "OpenStdin": False,
             "AttachStdout": True, "AttachStderr": True,
             "Labels": {"cdr.run-id": name.removeprefix("cdr-run-"),
-                       "cdr.profile-revision": profile.revision_sha256},
+                       "cdr.profile-revision": profile.revision_sha256,
+                       "cdr.intent-nonce": nonce},
         },
         "HostConfig": {
             "Privileged": False, "NetworkMode": "none", "ReadonlyRootfs": True,
@@ -138,7 +141,8 @@ def test_create_flags_and_prestart_inspection_reject_extra_mount(
     root.mkdir()
     for name in ("build", "out", "tmp"):
         (root / name).mkdir()
-    argv = broker._create_argv(profile, "sha256:" + "c" * 64, source, root, "cdr-run-test")
+    argv = broker._create_argv(profile, "sha256:" + "c" * 64, source, root,
+                               "cdr-run-test", "f" * 32)
     assert argv.count("--mount") == 4
     assert "--network" in argv and argv[argv.index("--network") + 1] == "none"
     assert argv.count("--attach") == 2
@@ -148,13 +152,13 @@ def test_create_flags_and_prestart_inspection_reject_extra_mount(
     assert "--entrypoint" in argv and argv[argv.index("--entrypoint") + 1] == "python"
     created = _created(profile, source, root, "cdr-run-test")
     broker._validate_created(created, profile, "sha256:" + "c" * 64, source,
-                             root, "cdr-run-test")
+                             root, "cdr-run-test", "f" * 32)
     mounts = created["Mounts"]
     assert isinstance(mounts, list)
     mounts.append({"Type": "bind", "Destination": "/home", "Source": "/home", "RW": True})
     with pytest.raises(BrokerError) as error:
         broker._validate_created(created, profile, "sha256:" + "c" * 64, source,
-                                 root, "cdr-run-test")
+                                 root, "cdr-run-test", "f" * 32)
     assert error.value.code == "CONTAINER_POLICY_MISMATCH"
 
 
@@ -234,7 +238,7 @@ def test_prestart_policy_rejects_false_no_new_privileges(
     host["SecurityOpt"] = ["no-new-privileges:false"]
     with pytest.raises(BrokerError) as error:
         broker._validate_created(created, profile, "sha256:" + "c" * 64, source,
-                                 root, "cdr-run-test")
+                                 root, "cdr-run-test", "f" * 32)
     assert error.value.code == "CONTAINER_POLICY_MISMATCH"
 
 
@@ -287,6 +291,7 @@ def _fake_create_attempt(
     monkeypatch: pytest.MonkeyPatch,
     create_reply: subprocess.CompletedProcess[bytes] | BrokerError,
     *, inspected: str = "matching", rm_returncode: int = 0,
+    intent_error: bool = False,
 ) -> tuple[BrokerError, list[tuple[str, ...]], str]:
     """Exercise the real create/finally flow with a fake rootless Docker CLI."""
     run_id = str(uuid.uuid4())
@@ -331,10 +336,14 @@ def _fake_create_attempt(
     elif inspected not in ("matching", "missing"):
         raise AssertionError("unknown fake inspection mode")
     calls: list[tuple[str, ...]] = []
+    intents: list[ContainerIntent] = []
 
     def fake_docker(*args: str, **_kwargs: object) -> subprocess.CompletedProcess[bytes]:
         calls.append(args)
         if args[:2] == ("container", "create"):
+            assert len(intents) == 1
+            assert intents[0].run_id == run_id
+            assert intents[0].daemon_id == "daemon"
             if isinstance(create_reply, BrokerError):
                 raise create_reply
             return create_reply
@@ -346,10 +355,34 @@ def _fake_create_attempt(
             return subprocess.CompletedProcess([], rm_returncode, b"", b"")
         pytest.fail(f"unexpected Docker call: {args[:2]}")
 
+    def record_intent(intent: ContainerIntent) -> None:
+        intents.append(intent)
+        config = container["Config"]
+        assert isinstance(config, dict)
+        labels = config["Labels"]
+        assert isinstance(labels, dict)
+        labels["cdr.intent-nonce"] = intent.nonce
+        if intent_error:
+            raise BrokerError("INTENT_PERSIST_FAILED", "Synthetic journal failure")
+
     monkeypatch.setattr(broker, "_run_docker", fake_docker)
     with pytest.raises(BrokerError) as failure:
-        broker.run(profile, snapshot, run_root, run_id=run_id, writable_volume=volume)
+        broker.run(profile, snapshot, run_root, run_id=run_id, writable_volume=volume,
+                   record_intent=record_intent)
     return failure.value, calls, name
+
+
+def test_intent_persistence_failure_prevents_docker_create(
+    profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    failure, calls, _ = _fake_create_attempt(
+        profile, broker, tmp_path, monkeypatch,
+        subprocess.CompletedProcess([], 0, ("d" * 64).encode(), b""),
+        intent_error=True,
+    )
+    assert failure.code == "INTENT_PERSIST_FAILED"
+    assert all(call[:2] != ("container", "create") for call in calls)
 
 
 @pytest.mark.parametrize(
@@ -411,3 +444,107 @@ def test_reported_create_id_must_match_named_container_before_cleanup(
     assert [call[2] for call in calls if call[:2] == ("container", "inspect")] == [
         "d" * 64, name]
     assert all(call[:2] != ("container", "rm") for call in calls)
+
+
+def _fake_recovery(
+    broker: RootlessDockerBroker, profile: ApprovedProfile, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch, *, mismatch: str | None = None,
+    initially_present: bool = True, daemon_id: str = "daemon",
+    record_calls: list[tuple[str, ...]] | None = None,
+) -> tuple[broker_module.ContainerReconciliation, list[tuple[str, ...]]]:
+    run_id = str(uuid.uuid4())
+    intent = ContainerIntent(
+        run_id, "daemon", profile.profile_id, profile.revision_sha256,
+        profile.image, "sha256:" + "c" * 64, broker_module._sha256_argv(profile.argv),
+        "f" * 32,
+    )
+    ready = RuntimeProbe(True, "READY", broker.socket_path, daemon_id, "29.1", "2",
+                         "systemd", ("cpu", "memory", "pids"))
+    monkeypatch.setattr(broker, "probe", lambda: ready)
+    name = "cdr-run-" + run_id
+    owned = _created(profile, tmp_path / "sources" / run_id,
+                       tmp_path / "volumes" / run_id, name)
+    if mismatch == "label":
+        owned["Config"]["Labels"]["cdr.run-id"] = "another-run"  # type: ignore[index]
+    elif mismatch == "image":
+        owned["Image"] = "sha256:" + "f" * 64
+    elif mismatch == "name":
+        owned["Name"] = "/renamed-container"
+    elif mismatch == "nonce":
+        owned["Config"]["Labels"]["cdr.intent-nonce"] = "0" * 32  # type: ignore[index]
+    elif mismatch == "mount":
+        owned["Mounts"].append({"Type": "bind", "Destination": "/home",  # type: ignore[union-attr]
+                                "Source": "/home", "RW": True})
+    elif mismatch == "argv":
+        owned["Config"]["Cmd"] = ["unexpected"]  # type: ignore[index]
+    unrelated = {
+        "Id": "e" * 64, "Name": "/unrelated", "Image": "sha256:" + "e" * 64,
+        "Config": {"Labels": {"other": "data"}},
+    }
+    present = initially_present
+    calls: list[tuple[str, ...]] = record_calls if record_calls is not None else []
+
+    def fake_docker(*args: str, **_kwargs: object) -> subprocess.CompletedProcess[bytes]:
+        nonlocal present
+        calls.append(args)
+        if args[:2] == ("container", "ls"):
+            ids = (["d" * 64] if present else []) + ["e" * 64]
+            return subprocess.CompletedProcess([], 0, ("\n".join(ids) + "\n").encode(), b"")
+        if args[:2] == ("container", "rm"):
+            assert args[-1] == "d" * 64
+            present = False
+            return subprocess.CompletedProcess([], 0, b"", b"")
+        pytest.fail(f"unexpected Docker call: {args[:2]}")
+
+    def fake_json(*args: str) -> dict[str, object]:
+        assert args[:2] == ("container", "inspect")
+        return owned if args[2] == "d" * 64 else unrelated
+
+    monkeypatch.setattr(broker, "_run_docker", fake_docker)
+    monkeypatch.setattr(broker, "_docker_json", fake_json)
+    return broker.reconcile_container(intent), calls
+
+
+def test_recovery_removes_only_exact_owned_container(
+    broker: RootlessDockerBroker, profile: ApprovedProfile, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proof, calls = _fake_recovery(broker, profile, tmp_path, monkeypatch)
+    assert proof.state == "REMOVED"
+    assert proof.container_id == "d" * 64
+    assert [call[-1] for call in calls if call[:2] == ("container", "rm")] == ["d" * 64]
+    assert len([call for call in calls if call[:2] == ("container", "ls")]) == 2
+
+
+def test_recovery_keeps_lock_when_ambiguous_create_is_not_yet_visible(
+    broker: RootlessDockerBroker, profile: ApprovedProfile, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, ...]] = []
+    with pytest.raises(BrokerError) as error:
+        _fake_recovery(broker, profile, tmp_path, monkeypatch,
+                       initially_present=False, record_calls=calls)
+    assert error.value.code == "CONTAINER_RECONCILIATION_UNCERTAIN"
+    assert all(call[:2] != ("container", "rm") for call in calls)
+
+
+@pytest.mark.parametrize("mismatch", ["label", "image", "name", "nonce", "mount", "argv"])
+def test_recovery_refuses_identity_collision_without_removal(
+    broker: RootlessDockerBroker, profile: ApprovedProfile, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch, mismatch: str,
+) -> None:
+    calls: list[tuple[str, ...]] = []
+    with pytest.raises(BrokerError) as error:
+        _fake_recovery(broker, profile, tmp_path, monkeypatch,
+                       mismatch=mismatch, record_calls=calls)
+    assert error.value.code == "CONTAINER_RECONCILIATION_UNCERTAIN"
+    assert all(call[:2] != ("container", "rm") for call in calls)
+
+
+def test_recovery_refuses_changed_daemon_before_inventory(
+    broker: RootlessDockerBroker, profile: ApprovedProfile, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with pytest.raises(BrokerError) as error:
+        _fake_recovery(broker, profile, tmp_path, monkeypatch, daemon_id="different")
+    assert error.value.code == "CONTAINER_RECONCILIATION_UNCERTAIN"
