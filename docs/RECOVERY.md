@@ -15,6 +15,7 @@ status: required-design
 | Test exit code nonzero | every retained output | COMPLETED + execution FAILED | human analyses result |
 | Timeout/cancel | partial output, signal history | timed out/cancelled execution | human decides next step |
 | Process spawn/runtime missing | input + infrastructure trace | operation FAULT | repair runtime; new request |
+| Container creation/removal uncertain | run UUID, source snapshot, cleanup code, retained lock | FAULT / reconciliation required | inspect the exact rootless container identity, prove it stopped/was removed, then trusted `confirm_stopped` |
 | Bad optional JUnit/JSONL | raw output + parsing finding | output unparsed | inspect/project fix |
 | Drive upload failed after tests | local immutable output | delivery FAILED/PARTIAL | PUBLISH_REPORT, no test rerun |
 | Git push divergence | local snapshot + remote refs | publication BLOCKED | explicit branch resolution |

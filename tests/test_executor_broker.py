@@ -1,6 +1,7 @@
 """EP-03 broker refusals and policy checks; no untrusted process runs on host."""
 from __future__ import annotations
 
+import json
 import os
 import socket
 import subprocess
@@ -10,6 +11,7 @@ from types import SimpleNamespace
 
 import pytest
 
+import runner_app.executors.broker as broker_module
 from runner_app.executors.broker import (
     BrokerError,
     RootlessDockerBroker,
@@ -278,3 +280,134 @@ def test_cancel_kill_race_accepts_already_exited_container(
                         subprocess.CompletedProcess([], 1, b"", b"already exited"))
     monkeypatch.setattr(broker, "_docker_json", lambda *_args: {"State": {"Status": "exited"}})
     broker._kill_container("d" * 64, "SIGTERM")
+
+
+def _fake_create_attempt(
+    profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    create_reply: subprocess.CompletedProcess[bytes] | BrokerError,
+    *, inspected: str = "matching", rm_returncode: int = 0,
+) -> tuple[BrokerError, list[tuple[str, ...]], str]:
+    """Exercise the real create/finally flow with a fake rootless Docker CLI."""
+    run_id = str(uuid.uuid4())
+    name = "cdr-run-" + run_id
+    source = tmp_path / "source"
+    source.mkdir()
+    volume = tmp_path / "volume"
+    volume.mkdir()
+    parent = tmp_path / "private"
+    parent.mkdir(mode=0o700)
+    run_root = parent / run_id
+    snapshot = SnapshotInput(str(uuid.uuid4()), "a" * 40, "b" * 40, source)
+    image_id = "sha256:" + "c" * 64
+    ready = RuntimeProbe(True, "READY", broker.socket_path, "daemon", "29.1", "2",
+                         "systemd", ("cpu", "memory", "pids"))
+    monkeypatch.setattr(broker, "probe", lambda: ready)
+    monkeypatch.setattr(broker, "_image_id", lambda _profile: image_id)
+    monkeypatch.setattr(broker_module, "_verified_run_volume",
+                        lambda _volume, _run_id, _budget: volume)
+    monkeypatch.setattr(broker_module, "_snapshot_tree", lambda _path, tree: tree)
+    monkeypatch.setattr(broker_module.shutil, "disk_usage",
+                        lambda _path: SimpleNamespace(free=2**40))
+    container = _created(profile, source, volume, name)
+    if inspected == "wrong_label":
+        config = container["Config"]
+        assert isinstance(config, dict)
+        labels = config["Labels"]
+        assert isinstance(labels, dict)
+        labels["cdr.run-id"] = "another-run"
+    elif inspected == "wrong_profile_label":
+        config = container["Config"]
+        assert isinstance(config, dict)
+        labels = config["Labels"]
+        assert isinstance(labels, dict)
+        labels["cdr.profile-revision"] = "f" * 64
+    elif inspected == "wrong_name":
+        container["Name"] = "/another-container"
+    elif inspected == "wrong_image":
+        container["Image"] = "sha256:" + "f" * 64
+    elif inspected == "wrong_id":
+        container["Id"] = "e" * 64
+    elif inspected not in ("matching", "missing"):
+        raise AssertionError("unknown fake inspection mode")
+    calls: list[tuple[str, ...]] = []
+
+    def fake_docker(*args: str, **_kwargs: object) -> subprocess.CompletedProcess[bytes]:
+        calls.append(args)
+        if args[:2] == ("container", "create"):
+            if isinstance(create_reply, BrokerError):
+                raise create_reply
+            return create_reply
+        if args[:2] == ("container", "inspect"):
+            if inspected == "missing":
+                return subprocess.CompletedProcess([], 1, b"", b"No such object")
+            return subprocess.CompletedProcess([], 0, json.dumps(container).encode(), b"")
+        if args[:2] == ("container", "rm"):
+            return subprocess.CompletedProcess([], rm_returncode, b"", b"")
+        pytest.fail(f"unexpected Docker call: {args[:2]}")
+
+    monkeypatch.setattr(broker, "_run_docker", fake_docker)
+    with pytest.raises(BrokerError) as failure:
+        broker.run(profile, snapshot, run_root, run_id=run_id, writable_volume=volume)
+    return failure.value, calls, name
+
+
+@pytest.mark.parametrize(
+    ("create_reply", "expected_code"),
+    [
+        (BrokerError("RUNTIME_UNAVAILABLE", "timed out"), "RUNTIME_UNAVAILABLE"),
+        (subprocess.CompletedProcess([], 1, b"", b"failed"), "CONTAINER_CREATE_FAILED"),
+        (subprocess.CompletedProcess([], 0, b"invalid-id\n", b""), "INVALID_RUNTIME_RESPONSE"),
+        (subprocess.CompletedProcess([], 0, b"\xff", b""), "INVALID_RUNTIME_RESPONSE"),
+    ],
+)
+def test_uncertain_create_cleans_only_verified_named_container(
+    profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    create_reply: subprocess.CompletedProcess[bytes] | BrokerError, expected_code: str,
+) -> None:
+    failure, calls, name = _fake_create_attempt(
+        profile, broker, tmp_path, monkeypatch, create_reply)
+    assert failure.code == expected_code
+    assert [call[2] for call in calls if call[:2] == ("container", "inspect")] == [name]
+    assert [call[-1] for call in calls if call[:2] == ("container", "rm")] == ["d" * 64]
+    assert all(call[:2] != ("container", "start") for call in calls)
+
+
+@pytest.mark.parametrize(
+    "inspected", ["missing", "wrong_label", "wrong_profile_label", "wrong_name", "wrong_image"]
+)
+def test_uncertain_create_never_removes_unverified_container(
+    profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch, inspected: str,
+) -> None:
+    failure, calls, name = _fake_create_attempt(
+        profile, broker, tmp_path, monkeypatch,
+        subprocess.CompletedProcess([], 1, b"", b"failed"), inspected=inspected)
+    assert failure.code == "CONTAINER_CLEANUP_UNCERTAIN"
+    assert [call[2] for call in calls if call[:2] == ("container", "inspect")] == [name]
+    assert all(call[:2] != ("container", "rm") for call in calls)
+
+
+def test_uncertain_create_reports_failed_removal(
+    profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    failure, calls, _ = _fake_create_attempt(
+        profile, broker, tmp_path, monkeypatch,
+        subprocess.CompletedProcess([], 0, b"invalid-id", b""), rm_returncode=1)
+    assert failure.code == "CONTAINER_CLEANUP_UNCERTAIN"
+    assert [call[-1] for call in calls if call[:2] == ("container", "rm")] == ["d" * 64]
+
+
+def test_reported_create_id_must_match_named_container_before_cleanup(
+    profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    failure, calls, name = _fake_create_attempt(
+        profile, broker, tmp_path, monkeypatch,
+        subprocess.CompletedProcess([], 0, ("d" * 64).encode(), b""), inspected="wrong_id")
+    assert failure.code == "CONTAINER_CLEANUP_UNCERTAIN"
+    assert [call[2] for call in calls if call[:2] == ("container", "inspect")] == [
+        "d" * 64, name]
+    assert all(call[:2] != ("container", "rm") for call in calls)

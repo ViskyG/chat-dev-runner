@@ -489,6 +489,26 @@ class RootlessDockerBroker:
                 return
             raise BrokerError("CONTAINER_KILL_FAILED", "Contained process could not be signalled")
 
+    def _created_cleanup_id(self, name: str, profile: ApprovedProfile,
+                            image_id: str, expected_id: str | None) -> str:
+        """Resolve an uncertain create by name, without trusting that name alone for removal."""
+        container = self._docker_json("container", "inspect", name,
+                                      "--format", "{{json .}}")
+        identifier = container.get("Id")
+        config = container.get("Config")
+        labels = config.get("Labels") if isinstance(config, dict) else None
+        if (not isinstance(identifier, str) or not _CONTAINER_ID.fullmatch(identifier)
+                or container.get("Name") != "/" + name
+                or (expected_id is not None and identifier != expected_id)
+                or container.get("Image") != image_id
+                or not isinstance(config, dict) or config.get("Image") != profile.image
+                or not isinstance(labels, dict)
+                or labels.get("cdr.run-id") != name.removeprefix("cdr-run-")
+                or labels.get("cdr.profile-revision") != profile.revision_sha256):
+            raise BrokerError("CONTAINER_CLEANUP_UNCERTAIN",
+                              "Created container identity could not be verified for cleanup")
+        return identifier
+
     def run(self, profile: ApprovedProfile, snapshot: SnapshotInput, run_root: Path,
             *, run_id: str, writable_volume: Path | None = None,
             cancel: Event | None = None) -> BrokerResult:
@@ -531,23 +551,26 @@ class RootlessDockerBroker:
             (volume / name).mkdir(mode=0o700)
         container_name = "cdr-run-" + run_id
         create_args = self._create_argv(profile, image_id, source, volume, container_name)
-        created = False
+        create_attempted = False
+        verified_container_id: str | None = None
+        reported_container_id: str | None = None
         container_ref = container_name
         process: subprocess.Popen[bytes] | None = None
         candidate: BrokerResult | None = None
         cleanup_error: BrokerError | None = None
         try:
+            create_attempted = True
             create = self._run_docker(*create_args, timeout=30.0,
                                       env=self._docker_env(run_root / "docker-home"))
             if create.returncode != 0:
                 raise BrokerError("CONTAINER_CREATE_FAILED", "Rootless container creation failed")
-            created = True
             try:
                 created_id = create.stdout.decode("ascii", "strict").strip()
             except UnicodeDecodeError as exc:
                 raise BrokerError("INVALID_RUNTIME_RESPONSE", "Docker returned an invalid container ID") from exc
             if not _CONTAINER_ID.fullmatch(created_id):
                 raise BrokerError("INVALID_RUNTIME_RESPONSE", "Docker returned an invalid container ID")
+            reported_container_id = created_id
             container_ref = created_id
             inspected = self._docker_json("container", "inspect", container_ref,
                                           "--format", "{{json .}}")
@@ -555,6 +578,7 @@ class RootlessDockerBroker:
                                    container_name)
             if inspected.get("Id") != container_ref:
                 raise BrokerError("CONTAINER_POLICY_MISMATCH", "Container ID changed before start")
+            verified_container_id = container_ref
             _snapshot_tree(source, snapshot.tree)
             if cancel is not None and cancel.is_set():
                 raise BrokerError("CANCELLED_BEFORE_START", "Run was cancelled before execution")
@@ -615,13 +639,15 @@ class RootlessDockerBroker:
                     or not isinstance(final_state.get("ExitCode"), int)
                     or final_state.get("Error")):
                 raise BrokerError("CONTAINER_EXIT_UNKNOWN", "Container exit could not be verified")
-            if capture.capture_fault is not None:
-                raise BrokerError("CAPTURE_FAULT", "Execution output capture was incomplete")
-            if capture.termination_reason is None and process.returncode != final_state["ExitCode"]:
+            attach_exit_mismatch = (capture.termination_reason is None
+                                    and process.returncode != final_state["ExitCode"])
+            if attach_exit_mismatch and capture.capture_fault is None:
                 raise BrokerError("CONTAINER_EXIT_UNKNOWN", "Docker CLI and container exit disagree")
             _snapshot_tree(source, snapshot.tree)
-            outcome = (capture.termination_reason
-                       or ("PASSED" if final_state["ExitCode"] == 0 else "FAILED"))
+            # The final container inspect establishes its exit code. A capture fault
+            # must not discard retained raw bytes; an uncertain attach/termination
+            # still has an UNKNOWN execution outcome and no publication authority.
+            outcome = "UNKNOWN" if attach_exit_mismatch else capture.outcome_hint
             containment: dict[str, Any] = {
                 "verified": True, "backend": "rootless_docker", "socket_path": str(probe.socket_path),
                 "daemon_id": probe.daemon_id, "daemon_rootless": True,
@@ -644,16 +670,20 @@ class RootlessDockerBroker:
                 outcome, final_state["ExitCode"], volume / "out", capture, containment,
             )
         finally:
-            if created:
+            if create_attempted:
+                cleanup_code = ("CONTAINER_CLEANUP_FAILED" if verified_container_id is not None
+                                else "CONTAINER_CLEANUP_UNCERTAIN")
                 try:
+                    cleanup_id = (verified_container_id or self._created_cleanup_id(
+                        container_name, profile, image_id, reported_container_id))
                     removed = self._run_docker("container", "rm", "--force", "--volumes",
-                                               container_ref, timeout=8.0,
+                                               cleanup_id, timeout=8.0,
                                                env=self._docker_env(run_root / "docker-home"))
                     if removed.returncode != 0:
-                        cleanup_error = BrokerError("CONTAINER_CLEANUP_FAILED",
-                                                    "Contained process cleanup was not verified")
+                        raise BrokerError(cleanup_code,
+                                          "Contained process cleanup was not verified")
                 except BrokerError as error:
-                    cleanup_error = BrokerError("CONTAINER_CLEANUP_FAILED",
+                    cleanup_error = BrokerError(cleanup_code,
                                                 "Contained process cleanup was not verified")
                     cleanup_error.__cause__ = error
             if process is not None and process.poll() is None:

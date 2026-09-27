@@ -4,7 +4,7 @@
   "ui": "Interactive offline HTML/CSS/JS simulation, not wired to the reference core",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
-  "live_runner": "EP-00 through EP-02 and EP-04 component/live canary VERIFIED. EP-03 BLOCKED on real rootless host gate. EP-05 provisioning/GitHub workflow not started; service has no production CREATE_PROJECT handler. Runner NOT_CONFIGURED/unarmed; no READY command or live project execution.",
+  "live_runner": "EP-00 through EP-02 and EP-04 VERIFIED. EP-03 offline safety fixes and a fake-backed finite VERIFY handler pass, but real rootless host acceptance remains BLOCKED. The handler is not registered in the production Runtime. EP-05 provisioning/GitHub workflow has not started; no production CREATE_PROJECT handler. Runner NOT_CONFIGURED/unarmed; no READY command or live project execution.",
   "github_live_adapter": "Specified; commit/push/draft PR are REQUIRED v1 scope, not an optional future add-on",
   "credentials": "None bundled",
   "service_installation": "None performed",
@@ -25,7 +25,7 @@
     "source": "Owner update after archive creation; seed is a reference specification"
   },
   "implementation": {
-    "selected_packet": "EP-04",
+    "selected_packet": "EP-03",
     "packets": {
       "EP-00": "VERIFIED",
       "EP-01": "VERIFIED",
@@ -35,8 +35,8 @@
     },
     "armed": false,
     "deployable": false,
-    "evidence": "verification/implementation/EP-04/legacy-attach-final-summary.json",
-    "checkpoint": "codex/checkpoints/EP-04.md",
+    "evidence": "verification/implementation/EP-03/resume-20260927-summary.json",
+    "checkpoint": "codex/checkpoints/EP-03.md",
     "oauth_gate_evidence": "verification/implementation/EP-04/oauth-browser-gate.json",
     "oauth_live_attach_evidence": "verification/implementation/EP-04/live-attach-attempt.json",
     "oauth_full_drive_evidence": "verification/implementation/EP-04/full-drive-oauth-transition.json",

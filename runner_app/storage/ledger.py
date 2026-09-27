@@ -17,6 +17,7 @@ from .database import Database
 
 TERMINAL = frozenset({"COMPLETED", "REJECTED", "BLOCKED", "FAULT", "INTERRUPTED", "CANCELLED"})
 EFFECT_KINDS = frozenset({"github_repository", "git_ref", "pull_request", "drive_file", "local_workspace"})
+_EXECUTOR_UNCERTAIN_CODES = frozenset({"CONTAINER_CLEANUP_FAILED", "CONTAINER_CLEANUP_UNCERTAIN"})
 _SCOPE = re.compile(r"(?:(?:repo|global):[a-z0-9][a-z0-9-]{0,47}|workspace:[a-z0-9][a-z0-9-]{0,47}/[a-z0-9][a-z0-9-]{0,47})\Z")
 
 
@@ -296,7 +297,9 @@ class Ledger:
                                        (timestamp, effect["effect_id"]))
                     self._append(connection, request_id, effect["step_id"], "EFFECT_UNKNOWN",
                                  {"effect_id": effect["effect_id"], "code": "NEEDS_RECONCILIATION"}, timestamp)
-            retained = interrupted or bool(unresolved)
+            # An executor that could not prove container removal still owns its
+            # workspace/capacity until a trusted recovery check confirms it stopped.
+            retained = interrupted or bool(unresolved) or code in _EXECUTOR_UNCERTAIN_CODES
             if unresolved:
                 if status == "COMPLETED":
                     status = "FAULT"

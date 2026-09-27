@@ -33,6 +33,19 @@ def test_xml_entities_depth_and_malformed_data_are_unparsed() -> None:
     assert parse_cobertura(dtd).status == "UNPARSED"
 
 
+def test_utf16_xml_doctype_and_entities_are_rejected_before_expansion() -> None:
+    for root, parser in (("testsuite", parse_junit), ("coverage", parse_cobertura)):
+        attribute = ' line-rate="0.5"' if root == "coverage" else ""
+        document = (
+            '<?xml version="1.0" encoding="UTF-16"?>'
+            f'<!DOCTYPE {root} [<!ENTITY injected "EXPANDED">]>'
+            f'<{root}{attribute}><testcase name="&injected;"/></{root}>'
+        ).encode("utf-16")
+        parsed = parser(document)
+        assert parsed.status == "UNPARSED"
+        assert parsed.findings == ("XML_DTD_FORBIDDEN",)
+
+
 def test_cobertura_only_uses_valid_root_totals() -> None:
     result = parse_cobertura(
         b'<coverage line-rate=".5" branch-rate=".25" lines-covered="5" lines-valid="10"/>'

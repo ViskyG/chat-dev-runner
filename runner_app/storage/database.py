@@ -16,7 +16,7 @@ from urllib.parse import quote
 
 from .paths import UnsafePathError, _absolute, _check_private, _open_directory, _open_file_at
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 _MIGRATIONS: dict[int, tuple[str, ...]] = {
     1: (
         (
@@ -163,6 +163,22 @@ _MIGRATIONS: dict[int, tuple[str, ...]] = {
         "CREATE TRIGGER outputs_no_update BEFORE UPDATE ON outputs BEGIN SELECT RAISE(ABORT,'output record is immutable'); END",
         "CREATE TRIGGER outputs_no_delete BEFORE DELETE ON outputs BEGIN SELECT RAISE(ABORT,'output record is immutable'); END",
         "INSERT INTO schema_migrations(version, name) VALUES (4, 'contained-run-evidence')",
+    ),
+    5: (
+        (
+            "CREATE TABLE run_attempts (request_id TEXT PRIMARY KEY REFERENCES operations(request_id), "
+            "run_id TEXT NOT NULL UNIQUE, snapshot_id TEXT NOT NULL REFERENCES source_snapshots(snapshot_id), "
+            "created_at TEXT NOT NULL)"
+        ),
+        (
+            "CREATE TRIGGER run_attempts_no_update BEFORE UPDATE ON run_attempts "
+            "BEGIN SELECT RAISE(ABORT,'run attempt is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER run_attempts_no_delete BEFORE DELETE ON run_attempts "
+            "BEGIN SELECT RAISE(ABORT,'run attempt is immutable'); END"
+        ),
+        "INSERT INTO schema_migrations(version, name) VALUES (5, 'single-run-attempt')",
     ),
 }
 

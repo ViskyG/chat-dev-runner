@@ -201,6 +201,46 @@ def test_faulted_operation_retains_run_without_publication_authority(tmp_path: P
     assert error.value.code == "RUN_NOT_TESTED"
 
 
+def test_unknown_capture_fault_is_durable_but_cannot_bind_publication(tmp_path: Path) -> None:
+    store, registry, ledger, request_id, snapshot_id, _, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, request_id, snapshot_id, registry)
+    fault = {
+        **manifest, "operation_status": "FAULT",
+        "execution": {**manifest["execution"], "outcome": "UNKNOWN"},
+        "outputs": [{**item, "complete": False, "truncated_reason": "storage_error"}
+                    if item["output_id"] == "stdout-raw" else item
+                    for item in manifest["outputs"]],
+    }
+    observed = {
+        **provenance, "outcome": "UNKNOWN", "capture_fault": "STORAGE_WRITE_FAILED:OSError",
+        "containment": {**provenance["containment"], "output_collection_complete": False},
+    }
+    store.record_contained_run(fault, snapshot_id=snapshot_id,
+                               provenance=observed, files=files)
+    assert ledger.get_run(manifest["run_id"]) == fault
+    with pytest.raises(SourceError) as error:
+        registry.publication_target(manifest["run_id"], project_id="fixture",
+                                    workspace_id="area")
+    assert error.value.code == "RUN_NOT_TESTED"
+
+
+def test_incomplete_capture_cannot_be_recorded_as_completed(tmp_path: Path) -> None:
+    store, registry, _, request_id, snapshot_id, _, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, request_id, snapshot_id, registry)
+    incomplete = {
+        **manifest,
+        "outputs": [{**item, "complete": False, "truncated_reason": "storage_error"}
+                    if item["output_id"] == "stdout-raw" else item
+                    for item in manifest["outputs"]],
+    }
+    with pytest.raises(EvidenceError) as error:
+        store.record_contained_run(incomplete, snapshot_id=snapshot_id,
+                                   provenance=provenance, files=files)
+    assert error.value.code == "CAPTURE_INCOMPLETE"
+    with closing(store.database.connect()) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM runs").fetchone()[0] == 0
+
+
 def test_broker_identity_must_match_recorded_snapshot(tmp_path: Path) -> None:
     store, registry, _, request_id, snapshot_id, _, _ = _fixture(tmp_path)
     manifest, provenance, files = _evidence(store, request_id, snapshot_id, registry)
@@ -278,6 +318,27 @@ def test_failed_v4_migration_preserves_v3_database(tmp_path: Path,
         assert connection.execute(
             "SELECT name FROM sqlite_master WHERE name='output_files'",
         ).fetchone() is None
+
+
+def test_failed_v5_run_reservation_migration_preserves_v4_database(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    database = Database(tmp_path / "state" / "state.sqlite")
+    with monkeypatch.context() as scope:
+        scope.setattr(database_module, "SCHEMA_VERSION", 4)
+        assert database.migrate() == 4
+    monkeypatch.setitem(database_module._MIGRATIONS, 5,
+                        database_module._MIGRATIONS[5] + ("NOT VALID SQL",))
+    with closing(database.connect()) as connection:
+        with pytest.raises(sqlite3.OperationalError):
+            database.migrate(connection)
+        assert connection.execute("PRAGMA user_version").fetchone() == (4,)
+        assert connection.execute(
+            "SELECT name FROM sqlite_master WHERE name='run_attempts'",
+        ).fetchone() is None
+        assert connection.execute("SELECT version FROM schema_migrations ORDER BY version").fetchall() == [
+            (1,), (2,), (3,), (4,),
+        ]
 
 
 def test_run_cannot_change_admitted_profile_or_source(tmp_path: Path) -> None:

@@ -246,11 +246,21 @@ class RunEvidenceStore:
             json.dumps(provenance["containment"], allow_nan=False)
         except (TypeError, ValueError):
             raise EvidenceError("INVALID_RUN_EVIDENCE", "Containment facts must be finite JSON") from None
-        if (actual["outcome"] not in {"PASSED", "FAILED", "TIMED_OUT", "CANCELLED"}
+        if (actual["outcome"] not in {"PASSED", "FAILED", "TIMED_OUT", "CANCELLED", "UNKNOWN"}
                 or actual["outcome"] != provenance.get("outcome")
                 or actual["exit_code"] != provenance.get("exit_code")
                 or actual["duration_seconds"] != provenance.get("duration_seconds")):
             raise EvidenceError("EXECUTION_MISMATCH", "Run outcome differs from contained execution")
+        capture_fault = provenance.get("capture_fault")
+        if (capture_fault is not None and
+                (not isinstance(capture_fault, str) or not 1 <= len(capture_fault) <= 128)):
+            raise EvidenceError("INVALID_RUN_EVIDENCE", "Capture fault code is invalid")
+        if (actual["outcome"] == "UNKNOWN" and
+                (value["operation_status"] != "FAULT" or capture_fault is None)):
+            raise EvidenceError("EXECUTION_MISMATCH", "Unknown execution requires a faulted run")
+        if (value["operation_status"] == "COMPLETED" and
+                (capture_fault is not None or any(not item["complete"] for item in value["outputs"]))):
+            raise EvidenceError("CAPTURE_INCOMPLETE", "Incomplete capture cannot complete a run")
         run_dir = self.evidence_root / run_id
         ensure_private_directory(run_dir)
         opened: list[int] = []

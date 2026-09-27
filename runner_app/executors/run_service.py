@@ -11,6 +11,7 @@ import hashlib
 import json
 import math
 import os
+import sqlite3
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -144,8 +145,6 @@ def _freeze_one(source: Path, destination: Path, *, expected_size: int,
 
 def _freeze_capture(capture: CaptureResult, run_root: Path,
                     evidence_dir: Path) -> tuple[tuple[dict[str, Any], ...], dict[str, Path]]:
-    if capture.capture_fault is not None:
-        raise RunServiceError("CAPTURE_FAULT", "Broker reported incomplete capture")
     if {stream.name for stream in capture.streams} != {"stdout", "stderr"}:
         raise RunServiceError("CAPTURE_INCOMPLETE", "Both process streams are required")
     original_files = capture.files()
@@ -199,6 +198,10 @@ def _collection_metadata(result: CollectionResult, capture: CaptureResult,
     value = {
         "schema_version": "1.0",
         "collection_complete": complete,
+        "capture_fault": capture.capture_fault,
+        "capture_events": {
+            "observed": capture.observed_events, "retained": capture.retained_events,
+        },
         "findings": list(findings),
         "parses": parsed,
         "provenance": result.provenance,
@@ -316,6 +319,39 @@ class RunService:
             raise RunServiceError("PROJECT_NOT_REGISTERED", "Managed project source is unavailable")
         return command, snapshot, Path(project["repo_path"])
 
+    def _reserve_attempt(self, request_id: str, snapshot_id: str, run_id: str) -> None:
+        """Persist one execution attempt before touching source or starting a container.
+
+        A crashed or failed attempt is never retried under the same command ID. The
+        owner must submit a new command after reconciling any uncertain effects.
+        """
+        connection = self.registry.database.connect()
+        try:
+            connection.execute("BEGIN IMMEDIATE")
+            operation = connection.execute(
+                "SELECT status FROM operations WHERE request_id=?", (request_id,),
+            ).fetchone()
+            if operation is None or operation[0] != "RUNNING":
+                raise RunServiceError("OPERATION_NOT_RUNNING", "Run operation is no longer active")
+            if connection.execute(
+                "SELECT 1 FROM runs WHERE request_id=?", (request_id,),
+            ).fetchone() is not None:
+                raise RunServiceError("RUN_ALREADY_ATTEMPTED", "Run command already has evidence")
+            connection.execute(
+                "INSERT INTO run_attempts(request_id,run_id,snapshot_id,created_at) "
+                "VALUES(?,?,?,?)",
+                (request_id, run_id, snapshot_id, datetime.now(timezone.utc).isoformat()),
+            )
+            connection.execute("COMMIT")
+        except sqlite3.IntegrityError:
+            connection.execute("ROLLBACK")
+            raise RunServiceError("RUN_ALREADY_ATTEMPTED", "Run command already has an attempt") from None
+        except BaseException:
+            connection.execute("ROLLBACK")
+            raise
+        finally:
+            connection.close()
+
     def execute(self, request_id: str, snapshot_id: str, *,
                 run_id: str | None = None, writable_volume: Path | None = None,
                 cancel: Event | None = None) -> RunCompletion:
@@ -328,6 +364,7 @@ class RunService:
         evidence_dir = self.evidence.evidence_root / run_id
         if any(os.path.lexists(path) for path in (source_path, run_root, evidence_dir)):
             raise RunServiceError("RUN_ID_REUSED", "Run ID already has local files")
+        self._reserve_attempt(request_id, snapshot_id, run_id)
         materialized = materialize_snapshot(
             repo, snapshot_id, snapshot["snapshot_commit"], snapshot["tree_digest"], source_path,
         )
@@ -356,8 +393,14 @@ class RunService:
             f"{stream.name}:CAPTURE_TRUNCATED" for stream in result.capture.streams
             if not stream.complete
         )
-        findings = (*collection.findings, *capture_incomplete)
-        collection_complete = collection.complete and not capture_incomplete
+        event_incomplete = (() if result.capture.observed_events == result.capture.retained_events
+                            else ("capture-events:CAPTURE_TRUNCATED",))
+        capture_fault = (() if result.capture.capture_fault is None
+                         else (f"CAPTURE_FAULT:{result.capture.capture_fault}",))
+        findings = (*collection.findings, *capture_incomplete, *event_incomplete, *capture_fault)
+        collection_complete = collection.complete and not (
+            capture_incomplete or event_incomplete or capture_fault
+        )
         metadata_path = evidence_dir / "collection.json"
         metadata_output = _collection_metadata(
             collection, result.capture, metadata_path,
@@ -368,12 +411,13 @@ class RunService:
         if len({output["output_id"] for output in outputs}) != len(outputs):
             raise RunServiceError("OUTPUT_ID_COLLISION", "Collected output IDs collide")
         operation_status = (
-            "CANCELLED" if result.outcome == "CANCELLED"
-            else "FAULT" if not collection_complete
+            "FAULT" if not collection_complete or result.outcome == "UNKNOWN"
+            else "CANCELLED" if result.outcome == "CANCELLED"
             else "COMPLETED"
         )
         operation_code = (
-            "CAPTURE_INCOMPLETE" if capture_incomplete and operation_status == "FAULT"
+            "CAPTURE_FAULT" if capture_fault
+            else "CAPTURE_INCOMPLETE" if capture_incomplete or event_incomplete
             else "OUTPUT_COLLECTION_INCOMPLETE" if operation_status == "FAULT"
             else None
         )
@@ -403,6 +447,7 @@ class RunService:
             "started_at": result.started_at, "ended_at": result.ended_at,
             "containment": containment, "outcome": result.outcome,
             "exit_code": result.exit_code, "duration_seconds": result.duration_seconds,
+            "capture_fault": result.capture.capture_fault,
         }
         recorded = self.evidence.record_contained_run(
             manifest, snapshot_id=snapshot_id, provenance=provenance, files=files,
@@ -427,13 +472,16 @@ class RunService:
                 or result.image != profile.image
                 or result.argv_sha256 != _sha256_argv(profile.argv)):
             raise RunServiceError("BROKER_IDENTITY_MISMATCH", "Broker returned a different run identity")
-        if (result.outcome not in {"PASSED", "FAILED", "TIMED_OUT", "CANCELLED"}
+        capture = result.capture
+        if (result.outcome not in {"PASSED", "FAILED", "TIMED_OUT", "CANCELLED", "UNKNOWN"}
                 or isinstance(result.duration_seconds, bool)
                 or not isinstance(result.duration_seconds, (int, float))
                 or not math.isfinite(result.duration_seconds)
                 or result.duration_seconds < 0
-                or result.capture.capture_fault is not None
-                or result.capture.outcome_hint != result.outcome):
+                or (result.outcome == "UNKNOWN" and capture.capture_fault is None)
+                or (result.outcome != "UNKNOWN" and capture.outcome_hint != result.outcome)
+                or (result.outcome in {"PASSED", "FAILED"}
+                    and capture.exit_code != result.exit_code)):
             raise RunServiceError("BROKER_RESULT_INVALID", "Broker result is not a finite captured run")
         containment = result.containment
         if (not isinstance(containment, Mapping) or containment.get("verified") is not True

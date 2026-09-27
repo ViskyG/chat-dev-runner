@@ -29,6 +29,7 @@ Local setup must eventually obtain, locally:
   reference, actual identity/capability probe, and permission for draft PRs and normal pushes.
 - Approved local import roots, environment templates, pinned images and dependency build
   policy. Remote fields cannot expand local policy or supply shell commands/host paths.
+  The exact host prerequisites and safe verification order are in `docs/EP03_HOST_GATE.md`.
 - The owner permits clearly labelled test files created by this runner inside the existing
   shared experiments installation, provided no pre-existing resources or other experiments
   are overwritten or deleted. Other live external effects still require the relevant

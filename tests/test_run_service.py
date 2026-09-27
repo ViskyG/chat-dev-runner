@@ -1,6 +1,7 @@
 """Offline EP-03 orchestration checks: real Git/SQLite, synthetic broker, no project execution."""
 from __future__ import annotations
 
+import errno
 import hashlib
 import json
 from dataclasses import dataclass, replace
@@ -62,12 +63,15 @@ def _profile(root: Path, *, required: bool = True) -> ProfileRegistry:
 class FakeBroker:
     def __init__(self, *, outcome: str = "FAILED", junit: bool = True,
                  truncate: bool = False, mutation: str | None = None,
-                 fail_before_slot: bool = False) -> None:
+                 fail_before_slot: bool = False, capture_fault: str | None = None,
+                 event_drop: bool = False) -> None:
         self.outcome = outcome
         self.junit = junit
         self.truncate = truncate
         self.mutation = mutation
         self.fail_before_slot = fail_before_slot
+        self.capture_fault = capture_fault
+        self.event_drop = event_drop
         self.calls: list[tuple[SnapshotInput, Path, Path | None, Event | None]] = []
 
     def run(self, profile: Any, snapshot: SnapshotInput, run_root: Path,
@@ -89,27 +93,51 @@ class FakeBroker:
                 b'<testcase name="passes"/></testsuite>'
             )
         streams = []
-        for name, content in (("stdout", b"project failed\n"), ("stderr", b"")):
+        for name, original in (("stdout", b"project failed\n"), ("stderr", b"")):
+            storage_fault = (self.capture_fault == "STORAGE_WRITE_FAILED:OSError"
+                             and name == "stdout")
+            content = original[:5] if storage_fault else original
             path = capture_dir / f"{name}.bin"
             path.write_bytes(content)
             path.chmod(0o600)
             streams.append(StreamCapture(
                 name=name, raw_path=path, view_path=None,
-                observed_bytes=len(content) + (100 if self.truncate and name == "stdout" else 0),
+                observed_bytes=len(original) + (100 if self.truncate and name == "stdout" else 0),
                 retained_bytes=len(content), raw_sha256=_sha(content), view_sha256=None,
-                view_bytes=0, complete=not (self.truncate and name == "stdout"),
-                truncated_reason="stream_limit" if self.truncate and name == "stdout" else None,
+                view_bytes=0, complete=not (storage_fault or self.truncate and name == "stdout"),
+                truncated_reason=("storage_error" if storage_fault else
+                                  "stream_limit" if self.truncate and name == "stdout" else None),
             ))
-        exit_code = 1 if self.outcome == "FAILED" else 0 if self.outcome == "PASSED" else None
+        exit_code = (1 if self.outcome == "FAILED" else 0 if self.outcome == "PASSED"
+                     else 137 if self.outcome == "UNKNOWN" else None)
         now = _now()
+        metadata_path = None
+        metadata_digest = None
+        if self.capture_fault is not None and not self.capture_fault.startswith("METADATA_WRITE_FAILED"):
+            metadata_path = capture_dir / "capture.json"
+            metadata = (json.dumps({"capture_fault": self.capture_fault}) + "\n").encode()
+            metadata_path.write_bytes(metadata)
+            metadata_path.chmod(0o600)
+            metadata_digest = _sha(metadata)
+        events_path = None
+        events_digest = None
+        if self.event_drop:
+            events_path = capture_dir / "events.jsonl"
+            events = b'{"sequence":1}\n'
+            events_path.write_bytes(events)
+            events_path.chmod(0o600)
+            events_digest = _sha(events)
         capture = CaptureResult(
             started_at=now, ended_at=now, duration_seconds=0.05,
             exit_code=exit_code, termination_reason=("CANCELLED" if self.outcome == "CANCELLED"
                                                      else "TIMED_OUT" if self.outcome == "TIMED_OUT"
+                                                     else "RESOURCE_LIMIT" if self.outcome == "UNKNOWN"
                                                      else None),
-            capture_fault=None, streams=(streams[0], streams[1]),
-            events_path=None, events_sha256=None, metadata_path=None,
-            metadata_sha256=None, observed_events=0, retained_events=0,
+            capture_fault=self.capture_fault, streams=(streams[0], streams[1]),
+            events_path=events_path, events_sha256=events_digest,
+            metadata_path=metadata_path, metadata_sha256=metadata_digest,
+            observed_events=2 if self.event_drop else 0,
+            retained_events=1 if self.event_drop else 0,
         )
         result = BrokerResult(
             run_id=run_id, snapshot_id=snapshot.snapshot_id,
@@ -288,6 +316,85 @@ def test_truncated_capture_retains_execution_but_prevents_binding(tmp_path: Path
     _expect_unbound(fixture, result.run_id)
 
 
+def test_partial_storage_fault_preserves_raw_evidence_with_known_failed_exit(tmp_path: Path) -> None:
+    fixture = _fixture(tmp_path, broker=FakeBroker(capture_fault="STORAGE_WRITE_FAILED:OSError"))
+    result = fixture.service.execute(fixture.request_id, fixture.snapshot_id)
+    assert result.operation_status == "FAULT" and result.operation_code == "CAPTURE_FAULT"
+    assert result.manifest["execution"]["outcome"] == "FAILED"
+    assert result.manifest["execution"]["exit_code"] == 1
+    assert "CAPTURE_FAULT:STORAGE_WRITE_FAILED:OSError" in result.findings
+    assert fixture.ledger.get_run(result.run_id) == result.manifest
+    stdout = next(item for item in result.manifest["outputs"] if item["output_id"] == "stdout-raw")
+    assert (stdout["size_bytes"], stdout["complete"], stdout["truncated_reason"]) == (
+        5, False, "storage_error",
+    )
+    assert (fixture.store.evidence_root / result.run_id / "capture" / "stdout.bin").read_bytes() == b"proje"
+    assert (fixture.store.evidence_root / result.run_id / "capture" / "capture.json").is_file()
+    metadata = json.loads((fixture.store.evidence_root / result.run_id / "collection.json").read_text())
+    assert metadata["capture_fault"] == "STORAGE_WRITE_FAILED:OSError"
+    assert metadata["collection_complete"] is False
+    _expect_unbound(fixture, result.run_id)
+
+
+def test_unknown_resource_fault_retains_exit_code_without_test_authority(tmp_path: Path) -> None:
+    fixture = _fixture(tmp_path, broker=FakeBroker(
+        outcome="UNKNOWN", capture_fault="RESOURCE_LIMIT:RUN_VOLUME_FULL",
+    ))
+    result = fixture.service.execute(fixture.request_id, fixture.snapshot_id)
+    assert result.operation_status == "FAULT" and result.operation_code == "CAPTURE_FAULT"
+    assert result.manifest["execution"] == {
+        "outcome": "UNKNOWN", "exit_code": 137, "duration_seconds": 0.05,
+    }
+    assert fixture.ledger.get_run(result.run_id) == result.manifest
+    _expect_unbound(fixture, result.run_id)
+
+
+def test_missing_capture_metadata_keeps_raw_streams_and_fault_code(tmp_path: Path) -> None:
+    fixture = _fixture(tmp_path, broker=FakeBroker(capture_fault="METADATA_WRITE_FAILED:OSError"))
+    result = fixture.service.execute(fixture.request_id, fixture.snapshot_id)
+    assert result.operation_status == "FAULT"
+    assert {item["output_id"] for item in result.manifest["outputs"]} >= {
+        "stdout-raw", "stderr-raw", "runner-collection",
+    }
+    assert "capture-metadata" not in {item["output_id"] for item in result.manifest["outputs"]}
+    metadata = json.loads((fixture.store.evidence_root / result.run_id / "collection.json").read_text())
+    assert metadata["capture_fault"] == "METADATA_WRITE_FAILED:OSError"
+    _expect_unbound(fixture, result.run_id)
+
+
+def test_evidence_volume_failure_retains_private_raw_slot_but_cannot_register_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fixture = _fixture(tmp_path)
+    run_id = str(uuid4())
+
+    def fail_freeze(*_args: object, **_kwargs: object) -> None:
+        raise OSError(errno.ENOSPC, "synthetic evidence volume full")
+
+    monkeypatch.setattr("runner_app.executors.run_service._freeze_one", fail_freeze)
+    with pytest.raises(OSError) as error:
+        fixture.service.execute(fixture.request_id, fixture.snapshot_id, run_id=run_id)
+    assert error.value.errno == errno.ENOSPC
+    assert (fixture.service.runs_root / run_id / "capture" / "stdout.bin").read_bytes() == (
+        b"project failed\n"
+    )
+    assert fixture.ledger.get_run(run_id) is None
+    with pytest.raises(RunServiceError) as retry:
+        fixture.service.execute(fixture.request_id, fixture.snapshot_id, run_id=str(uuid4()))
+    assert retry.value.code == "RUN_ALREADY_ATTEMPTED"
+    _expect_unbound(fixture, run_id)
+
+
+def test_event_limit_faults_operation_without_discarding_streams(tmp_path: Path) -> None:
+    fixture = _fixture(tmp_path, broker=FakeBroker(event_drop=True))
+    result = fixture.service.execute(fixture.request_id, fixture.snapshot_id)
+    assert result.operation_status == "FAULT" and result.operation_code == "CAPTURE_INCOMPLETE"
+    assert "capture-events:CAPTURE_TRUNCATED" in result.findings
+    events = next(item for item in result.manifest["outputs"] if item["output_id"] == "capture-events")
+    assert events["complete"] is False and events["truncated_reason"] == "event_limit"
+    _expect_unbound(fixture, result.run_id)
+
+
 @pytest.mark.parametrize("mutation", ["tree", "commit", "source-path", "profile-revision",
                                       "argv", "capture-path"])
 def test_mismatched_broker_evidence_cannot_be_persisted(tmp_path: Path, mutation: str) -> None:
@@ -346,6 +453,29 @@ def test_runtime_gate_failure_does_not_create_execution_or_run_slot(tmp_path: Pa
     assert not (fixture.service.runs_root / run_id).exists()
     assert fixture.ledger.get_run(run_id) is None
     _expect_unbound(fixture, run_id)
+
+
+def test_failed_broker_attempt_cannot_start_second_run_for_same_request(tmp_path: Path) -> None:
+    fixture = _fixture(tmp_path, broker=FakeBroker(fail_before_slot=True))
+    first_id, second_id = str(uuid4()), str(uuid4())
+    with pytest.raises(BrokerError) as first:
+        fixture.service.execute(fixture.request_id, fixture.snapshot_id, run_id=first_id)
+    assert first.value.code == "ROOTLESS_RUNTIME_UNAVAILABLE"
+    connection = fixture.registry.database.connect()
+    try:
+        assert connection.execute(
+            "SELECT run_id,snapshot_id FROM run_attempts WHERE request_id=?",
+            (fixture.request_id,),
+        ).fetchone() == (first_id, fixture.snapshot_id)
+    finally:
+        connection.close()
+
+    with pytest.raises(RunServiceError) as second:
+        fixture.service.execute(fixture.request_id, fixture.snapshot_id, run_id=second_id)
+    assert second.value.code == "RUN_ALREADY_ATTEMPTED"
+    assert len(fixture.broker.calls) == 1
+    assert not (fixture.service.sources_root / second_id).exists()
+    assert fixture.ledger.get_run(second_id) is None
 
 
 def test_overlapping_private_roots_are_refused(tmp_path: Path) -> None:

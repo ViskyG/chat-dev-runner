@@ -402,6 +402,41 @@ def test_uncertain_effect_cannot_release_locks_or_report_success(
     assert error.value.code == "NEEDS_RECONCILIATION"
 
 
+@pytest.mark.parametrize("cleanup_code", [
+    "CONTAINER_CLEANUP_FAILED", "CONTAINER_CLEANUP_UNCERTAIN",
+])
+def test_uncertain_container_cleanup_holds_lock_until_trusted_reconciliation(
+    database: Database, cleanup_code: str,
+) -> None:
+    ledger = Ledger(database, max_parallel=1)
+    ledger.startup()
+    ledger.arm()
+    command = make_command(ledger)
+    assert admit(ledger, command, ("workspace:project/area",)).execute
+    receipt = ledger.finish(command["request_id"], "FAULT", code=cleanup_code)
+    assert_receipt(receipt, "FAULT", cleanup_code)
+    retained = ledger.get(command["request_id"])
+    assert retained["reconcile_required"] == 1
+    assert retained["capacity_held"] == 1
+    with closing(database.connect()) as connection:
+        assert connection.execute(
+            "SELECT scope FROM locks WHERE request_id=?", (command["request_id"],)
+        ).fetchall() == [("workspace:project/area",)]
+    ledger.disarm()
+    with pytest.raises(LedgerError) as blocked:
+        ledger.arm()
+    assert blocked.value.code == "NEEDS_RECONCILIATION"
+
+    # Only a trusted recovery path may call this after proving the container is gone.
+    ledger.confirm_stopped(command["request_id"])
+    assert ledger.get(command["request_id"])["reconcile_required"] == 0
+    with closing(database.connect()) as connection:
+        assert connection.execute(
+            "SELECT 1 FROM locks WHERE request_id=?", (command["request_id"],)
+        ).fetchone() is None
+    assert ledger.arm()["armed"] is True
+
+
 def test_effect_confirmation_is_idempotent_but_provider_identity_is_immutable(ledger: Ledger) -> None:
     command = make_command(ledger)
     assert admit(ledger, command).execute

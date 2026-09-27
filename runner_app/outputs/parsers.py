@@ -13,6 +13,7 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from xml.parsers import expat
 
 from jsonschema import Draft202012Validator, FormatChecker
 
@@ -49,9 +50,18 @@ def _xml_tree(raw: bytes) -> ET.Element:
         raise ValueError("PARSER_BYTE_LIMIT")
     if _DTD.search(raw):
         raise ValueError("XML_DTD_FORBIDDEN")
+    # A byte scan alone misses declarations in UTF-16 and other XML encodings.
+    # Expat reports the declaration before expanding entities; abort there.
+    preflight = expat.ParserCreate()
+
+    def reject_doctype(*_args: object) -> None:
+        raise ValueError("XML_DTD_FORBIDDEN")
+
+    preflight.StartDoctypeDeclHandler = reject_doctype
     try:
+        preflight.Parse(raw, True)
         root = ET.fromstring(raw)
-    except ET.ParseError as error:
+    except (expat.ExpatError, ET.ParseError) as error:
         raise ValueError("XML_PARSE_ERROR") from error
     stack = [(root, 1)]
     visited = 0
