@@ -1,0 +1,45 @@
+{
+  "case": "pass",
+  "container_intent_phases": [
+    "PREPARATION",
+    "TEST"
+  ],
+  "ended_at": "2026-09-27T11:30:48.726711+00:00",
+  "expected_operation_status": "COMPLETED",
+  "expected_test_outcome": "PASSED",
+  "handoff_build_tree_sha256": "7a229e17037a1dca5ac8806f83c7c6b1ad54f4c7e92adc695075fb535ccca2d6",
+  "junit_sha256": "5f5767de39f0eef0d3eb161bd9d811d6853e8a2d71e2ed6cce85c0a92bb0d50b",
+  "live_acceptance_passed": true,
+  "observed_operation_status": "COMPLETED",
+  "observed_test_outcome": "PASSED",
+  "operation_code": null,
+  "preparation_receipt_sha256": "97254ff40497c6cc3ef764763093bdd8a072e2e9c7f521204301dc2a0b622bbf",
+  "preparation_result": {
+    "evidence_sha256": "97254ff40497c6cc3ef764763093bdd8a072e2e9c7f521204301dc2a0b622bbf",
+    "outcome": "PASSED",
+    "run_id": "8cc41720-6056-55bc-82f2-bff75b4d30f6"
+  },
+  "request_id": "113fb477-6f7b-49a0-9d60-330933d38e4f",
+  "retained_temp_root": "/tmp/cdr-ep03-two-phase-113fb477-6f7b-49a0-9d60-330933d38e4f-1qdvkfae",
+  "schema_version": "1.0",
+  "staged_module_sha256": "76b26c40fd1de8995c9a5457c2bd4cf363c42d1f88a66f4d583bc10295f2062a",
+  "test_attempts": [
+    [
+      "PREPARATION",
+      "8cc41720-6056-55bc-82f2-bff75b4d30f6"
+    ],
+    [
+      "TEST",
+      "113fb477-6f7b-49a0-9d60-330933d38e4f"
+    ]
+  ],
+  "test_output_ids": [
+    "stdout-raw",
+    "stdout-view",
+    "stderr-raw",
+    "stderr-view",
+    "capture-events",
+    "capture-metadata",
+    "runner-collection"
+  ]
+}

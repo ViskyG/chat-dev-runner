@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import sqlite3
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, replace
@@ -38,7 +40,8 @@ from runner_app.git.service import SourceService
 from runner_app.git.worktrees import create_repository, create_workspace
 from runner_app.storage import Database
 from runner_app.storage.ledger import Ledger
-from runner_app.storage.run_evidence import RunEvidenceStore
+from runner_app.storage.preparation_evidence import PreparationEvidenceStore
+from runner_app.storage.run_evidence import EvidenceError, RunEvidenceStore
 
 _LOCAL = Provenance(kind="local", source_id="local-owner")
 
@@ -295,3 +298,137 @@ def test_mismatched_test_broker_attestation_cannot_register_complete_run(
         ).fetchone() is not None
     finally:
         connection.close()
+
+
+@pytest.mark.parametrize("setup", ["PASSED", "FAILED"], indirect=True)
+def test_durable_preparation_result_has_local_verified_download_and_retention(
+        setup: Fixture) -> None:
+    command = setup.command()
+    request_id = command["request_id"]
+    setup.prepare_test_volume(request_id)
+    operation = setup.submit_and_wait(command)
+    assert operation["status"] in {"COMPLETED", "BLOCKED"}
+    prep_id = preparation_run_id(request_id)
+    local = PreparationEvidenceStore(setup.ledger.database, setup.prep_evidence)
+    receipt = local.receipt(prep_id)
+    assert receipt["run_id"] == prep_id
+    assert receipt["outcome"] == setup.broker.preparation.outcome
+    assert {item["output_id"] for item in receipt["outputs"]} >= {
+        "stdout-raw", "stderr-raw",
+    }
+    handle = local.open_receipt(prep_id)
+    try:
+        assert hashlib.sha256(os.read(handle.descriptor, handle.size_bytes)).hexdigest() == (
+            operation["result"]["preparation"]["evidence_sha256"]
+        )
+    finally:
+        handle.close()
+    handle = local.open_output(prep_id, "stdout-raw")
+    try:
+        assert os.read(handle.descriptor, handle.size_bytes) == b"dependency preparation\n"
+    finally:
+        handle.close()
+    with pytest.raises(EvidenceError) as build:
+        local.open_output(prep_id, "module.py")
+    assert build.value.code == "INVALID_OUTPUT_ID"
+    with pytest.raises(EvidenceError) as recent:
+        local.expire_output(prep_id, "stdout-raw")
+    assert recent.value.code == "RETENTION_NOT_DUE"
+    assert local.set_pin(prep_id, pinned=True)
+    aged = datetime.now(timezone.utc) + timedelta(days=15)
+    with pytest.raises(EvidenceError) as pinned:
+        local.expire_output(prep_id, "stdout-raw", now=aged)
+    assert pinned.value.code == "EVIDENCE_PINNED"
+    assert local.set_pin(prep_id, pinned=False)
+    tombstone = local.expire_output(prep_id, "stdout-raw", now=aged)
+    assert local.expire_output(prep_id, "stdout-raw", now=aged) == tombstone
+    assert not (setup.prep_evidence / prep_id / "capture" / "stdout.bin").exists()
+    indexed = {item["output_id"]: item for item in local.retention_index(prep_id)}
+    assert indexed["stdout-raw"]["state"] == "EXPIRED"
+    assert indexed["stdout-raw"]["sha256"] == next(
+        item["sha256"] for item in receipt["outputs"] if item["output_id"] == "stdout-raw"
+    )
+    assert indexed["stderr-raw"]["state"] == "AVAILABLE"
+    with pytest.raises(EvidenceError) as expired:
+        local.open_output(prep_id, "stdout-raw")
+    assert expired.value.code == "EVIDENCE_EXPIRED"
+    assert local.receipt(prep_id) == receipt
+    connection = setup.ledger.database.connect()
+    try:
+        with pytest.raises(sqlite3.IntegrityError):
+            connection.execute(
+                "DELETE FROM preparation_output_tombstones WHERE run_id=?", (prep_id,),
+            )
+        with pytest.raises(sqlite3.IntegrityError):
+            connection.execute(
+                "UPDATE preparation_retention_pin_events SET action='PIN' WHERE run_id=?",
+                (prep_id,),
+            )
+    finally:
+        connection.close()
+
+
+@pytest.mark.parametrize("setup", ["FAILED"], indirect=True)
+def test_preparation_reader_lock_and_unsafe_file_block_physical_purge(
+        setup: Fixture, tmp_path: Path) -> None:
+    command = setup.command()
+    setup.prepare_test_volume(command["request_id"])
+    setup.submit_and_wait(command)
+    prep_id = preparation_run_id(command["request_id"])
+    local = PreparationEvidenceStore(setup.ledger.database, setup.prep_evidence)
+    aged = datetime.now(timezone.utc) + timedelta(days=15)
+    with local._lock(prep_id), pytest.raises(EvidenceError) as busy:
+        local.expire_output(prep_id, "stdout-raw", now=aged)
+    assert busy.value.code == "EVIDENCE_BUSY"
+    original = setup.prep_evidence / prep_id / "capture" / "stdout.bin"
+    backup = original.with_name("stdout.saved")
+    original.rename(backup)
+    outside = tmp_path / "outside.txt"
+    outside.write_bytes(b"outside fixture must survive\n")
+    original.symlink_to(outside)
+    with pytest.raises(EvidenceError) as unsafe:
+        local.expire_output(prep_id, "stdout-raw", now=aged)
+    assert unsafe.value.code == "EVIDENCE_PURGE_FAILED"
+    assert outside.read_bytes() == b"outside fixture must survive\n"
+    with pytest.raises(EvidenceError) as expired:
+        local.open_output(prep_id, "stdout-raw")
+    assert expired.value.code == "EVIDENCE_EXPIRED"
+    original.unlink()
+    backup.rename(original)
+    local.expire_output(prep_id, "stdout-raw", now=aged)
+    assert not original.exists()
+
+
+@pytest.mark.parametrize("setup", ["PASSED"], indirect=True)
+def test_unknown_preparation_id_does_not_allocate_lock(setup: Fixture) -> None:
+    local = PreparationEvidenceStore(setup.ledger.database, setup.prep_evidence)
+    unknown = str(uuid4())
+    with pytest.raises(EvidenceError) as missing:
+        local.open_output(unknown, "stdout-raw")
+    assert missing.value.code == "PREPARATION_NOT_FOUND"
+    assert not (setup.prep_evidence / ".locks" / f"{unknown}.lock").exists()
+
+
+@pytest.mark.parametrize("setup", ["FAILED"], indirect=True)
+def test_preparation_retention_refuses_pending_delivery_reference(setup: Fixture) -> None:
+    command = setup.command()
+    request_id = command["request_id"]
+    setup.prepare_test_volume(request_id)
+    setup.submit_and_wait(command)
+    prep_id = preparation_run_id(request_id)
+    local = PreparationEvidenceStore(setup.ledger.database, setup.prep_evidence)
+    connection = setup.ledger.database.connect()
+    try:
+        connection.execute(
+            "UPDATE operations SET delivery_status='PENDING' WHERE request_id=?",
+            (request_id,),
+        )
+    finally:
+        connection.close()
+    with pytest.raises(EvidenceError) as referenced:
+        local.expire_output(
+            prep_id, "stdout-raw", now=datetime.now(timezone.utc) + timedelta(days=15),
+        )
+    assert referenced.value.code == "EVIDENCE_REFERENCED"
+    assert (setup.prep_evidence / prep_id / "capture" / "stdout.bin").exists()
+    assert all(item["state"] == "AVAILABLE" for item in local.retention_index(prep_id))

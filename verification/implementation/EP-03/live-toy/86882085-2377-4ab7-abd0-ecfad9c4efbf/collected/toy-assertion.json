@@ -1,0 +1,1 @@
+{"configured_memory_max": "134217728", "expected_memory_max": 134217728, "oom_kills_before": 0, "oom_kills_after": 1, "child_exit_code": -9, "limit_enforced": true}

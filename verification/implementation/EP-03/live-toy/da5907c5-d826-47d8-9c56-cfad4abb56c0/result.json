@@ -1,0 +1,144 @@
+{
+  "capture_fault": null,
+  "capture_outputs": [
+    {
+      "complete": true,
+      "format": "raw-bytes-v1",
+      "kind": "console",
+      "media_type": "application/octet-stream",
+      "output_id": "stdout-raw",
+      "publication": "local_only",
+      "relative_path": "capture/stdout.bin",
+      "sha256": "4923dd4873e16c2581d1ee2a376ac9163feaed542942b9294162d24b2687bbe3",
+      "size_bytes": 26,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "utf8-safe-view-v1",
+      "kind": "console",
+      "media_type": "text/plain; charset=utf-8",
+      "output_id": "stdout-view",
+      "publication": "local_only",
+      "relative_path": "capture/stdout.txt",
+      "sha256": "4923dd4873e16c2581d1ee2a376ac9163feaed542942b9294162d24b2687bbe3",
+      "size_bytes": 26,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "raw-bytes-v1",
+      "kind": "console",
+      "media_type": "application/octet-stream",
+      "output_id": "stderr-raw",
+      "publication": "local_only",
+      "relative_path": "capture/stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "utf8-safe-view-v1",
+      "kind": "console",
+      "media_type": "text/plain; charset=utf-8",
+      "output_id": "stderr-view",
+      "publication": "local_only",
+      "relative_path": "capture/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "stream-observation/v1",
+      "kind": "runner_log",
+      "media_type": "application/x-ndjson",
+      "output_id": "capture-events",
+      "publication": "local_only",
+      "relative_path": "capture/events.jsonl",
+      "sha256": "83708690f9000b6e005222d07d3405daa22caf11f1bc10ebf47d348ca116e883",
+      "size_bytes": 105,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "capture-metadata/v1",
+      "kind": "runner_log",
+      "media_type": "application/json",
+      "output_id": "capture-metadata",
+      "publication": "local_only",
+      "relative_path": "capture/capture.json",
+      "sha256": "7572db027aa37c773ad4997fbb1727eccbcd24d0a295ecae3e1a37d75313fe93",
+      "size_bytes": 677,
+      "truncated_reason": null
+    }
+  ],
+  "case": "fork",
+  "cleanup_recorded": true,
+  "collection_complete": true,
+  "collection_findings": [
+    "toy-assertion:FORMAT_NOT_REGISTERED"
+  ],
+  "collection_outputs": [
+    {
+      "complete": true,
+      "format": "json",
+      "kind": "report",
+      "media_type": "application/json",
+      "output_id": "toy-assertion",
+      "publication": "local_only",
+      "relative_path": "collected/toy-assertion.json",
+      "sha256": "60e24cb4737d9afc541c0607a9515d1e28dc9ac6fe39a8d3e77b4a410c3ce7c2",
+      "size_bytes": 161,
+      "truncated_reason": null
+    }
+  ],
+  "containment": {
+    "backend": "rootless_docker",
+    "capabilities_dropped": "ALL",
+    "cgroup_driver": "systemd",
+    "cgroup_version": "2",
+    "cleanup_verified": true,
+    "cpu_nano": 1000000000,
+    "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+    "daemon_rootless": true,
+    "delegated_controllers": [
+      "cpu",
+      "memory",
+      "pids"
+    ],
+    "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "image_repo_digest": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "memory_bytes": 134217728,
+    "mounts_verified_before_start": true,
+    "network": "none",
+    "no_new_privileges": true,
+    "pids_limit": 32,
+    "read_only_root": true,
+    "read_only_source": true,
+    "run_volume_hard_limit_bytes": 67108864,
+    "server_version": "29.1.5",
+    "socket_path": "/run/user/1000/docker.sock",
+    "verified": true
+  },
+  "duration_seconds": 0.238075,
+  "ended_at": "2026-09-27T11:27:12.188555+00:00",
+  "exit_code": 0,
+  "expected_outcome": "PASSED",
+  "intent_recorded": true,
+  "observed_outcome": "PASSED",
+  "request_id": "da5907c5-d826-47d8-9c56-cfad4abb56c0",
+  "schema_version": "1.0",
+  "smoke_passed": true,
+  "termination_reason": null,
+  "toy_proof": {
+    "configured_pids_max": "32",
+    "expected_pids_max": 32,
+    "limit_enforced": true,
+    "max_events_after": 2,
+    "max_events_before": 0,
+    "refused_errno": 11,
+    "spawned": 31
+  }
+}

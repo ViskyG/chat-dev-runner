@@ -403,7 +403,12 @@ class RootlessDockerBroker:
         identifier = image.get("Id")
         architecture = image.get("Architecture")
         os_name = image.get("Os")
-        if (not isinstance(digests, list) or profile.image not in digests
+        accepted = {profile.image}
+        # Docker reports official Hub library images without its implicit
+        # docker.io/library/ prefix even when pulled by a fully qualified digest.
+        if profile.image.startswith("docker.io/library/"):
+            accepted.add(profile.image.removeprefix("docker.io/library/"))
+        if (not isinstance(digests, list) or not any(item in accepted for item in digests)
                 or not isinstance(identifier, str) or not _IMAGE_ID.fullmatch(identifier)
                 or f"{os_name}/{architecture}" != profile.platform):
             raise BrokerError("IMAGE_NOT_APPROVED", "Installed image does not match pinned profile")
@@ -505,7 +510,7 @@ class RootlessDockerBroker:
             "--security-opt", "no-new-privileges:true", "--pids-limit", str(profile.pids_limit),
             "--memory", f"{profile.memory_mb}m", "--memory-swap", f"{profile.memory_mb}m",
             "--cpus", str(profile.cpu_limit), "--cgroupns", "private", "--ipc", "private",
-            "--pid", "private", "--log-driver", "none", "--restart", "no",
+            "--log-driver", "none", "--restart", "no",
             "--no-healthcheck", "--stop-signal", "SIGTERM", "--stop-timeout", "1",
             "--label", f"cdr.run-id={container_name.removeprefix('cdr-run-')}",
             "--label", f"cdr.profile-revision={profile.revision_sha256}",

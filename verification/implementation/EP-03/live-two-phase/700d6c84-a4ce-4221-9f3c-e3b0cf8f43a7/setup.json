@@ -1,0 +1,19 @@
+{
+  "case": "preparation-fail",
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "preparation_profile_id": "ep03-live-prep",
+  "preparation_profile_sha256": "8ae2d68faa434b322d457d2562a3a14c2283a10bf4f25f5bd73352aeebd5ad02",
+  "preparation_run_id": "66904bb9-da5e-58fe-80da-fa9c4e2286bf",
+  "preparation_volume": "/home/visky/.local/share/chat-dev-runner/volumes/66904bb9-da5e-58fe-80da-fa9c4e2286bf",
+  "request_id": "700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7",
+  "schema_version": "1.0",
+  "server_version": "29.1.5",
+  "source_head": "84ff2cf59cb17287051b136486877019762f3fdd",
+  "source_tree": "59879b50670372f7e534a6acc4775e5c57cbef34",
+  "started_at": "2026-09-27T11:31:20.347256+00:00",
+  "temp_root": "/tmp/cdr-ep03-two-phase-700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7-tgnk6wnp",
+  "test_profile_id": "ep03-live-prepared-test",
+  "test_profile_sha256": "4df3b6dce5b356441dfb449ca2de2abacc49e55a3f5af962e1b0baed7e8bf657",
+  "test_volume": "/home/visky/.local/share/chat-dev-runner/volumes/700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7"
+}

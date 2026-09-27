@@ -345,7 +345,7 @@ def test_schema_six_attempt_migrates_to_test_and_failed_upgrade_rolls_back(
         ).fetchone() is None
     finally:
         connection.close()
-    assert database.migrate() == 7
+    assert database.migrate() == 8
     connection = database.connect()
     try:
         assert connection.execute(
@@ -358,5 +358,40 @@ def test_schema_six_attempt_migrates_to_test_and_failed_upgrade_rolls_back(
                 (request_id,),
             )
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
+    finally:
+        connection.close()
+
+
+def test_preparation_retention_migration_preserves_existing_phase_result(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    with monkeypatch.context() as context:
+        context.setattr(database_module, "SCHEMA_VERSION", 7)
+        ledger, database, request_id, snapshot_id, prep_id = _ledger(tmp_path)
+        _prepared(ledger, request_id, snapshot_id, prep_id, outcome="FAILED")
+    with monkeypatch.context() as context:
+        context.setitem(database_module._MIGRATIONS, 8,
+                        database_module._MIGRATIONS[8] + ("INVALID MIGRATION SQL",))
+        with pytest.raises(sqlite3.OperationalError):
+            database.migrate()
+    connection = database.connect()
+    try:
+        assert connection.execute("PRAGMA user_version").fetchone() == (7,)
+        assert connection.execute(
+            "SELECT name FROM sqlite_master WHERE name='preparation_output_tombstones'",
+        ).fetchone() is None
+        assert connection.execute(
+            "SELECT outcome,evidence_sha256 FROM preparation_results WHERE run_id=?",
+            (prep_id,),
+        ).fetchone() == ("FAILED", _EVIDENCE)
+    finally:
+        connection.close()
+    assert database.migrate() == 8
+    connection = database.connect()
+    try:
+        assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
+        assert connection.execute(
+            "SELECT outcome,evidence_sha256 FROM preparation_results WHERE run_id=?",
+            (prep_id,),
+        ).fetchone() == ("FAILED", _EVIDENCE)
     finally:
         connection.close()

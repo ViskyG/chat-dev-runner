@@ -1,10 +1,10 @@
 {
-  "version": "0.3.0-EP03-blocked-EP04-verified",
+  "version": "0.3.0-EP03-verified-EP04-verified",
   "date": "2026-09-27",
   "ui": "Interactive offline HTML/CSS/JS simulation, not wired to the reference core",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
-  "live_runner": "EP-00 through EP-02 and EP-04 VERIFIED. EP-03 offline phase-specific preparation/test journal, fake-backed contained coordinator and VERIFY integration, manual TEST output retention and trusted recovery pass; real rootless host acceptance and preparation evidence delivery/retention remain BLOCKED. VERIFY is not registered in the production Runtime. EP-05 CREATE_PROJECT/GitHub workflow has not started. Runner NOT_CONFIGURED/unarmed; no READY command or live project execution.",
+  "live_runner": "EP-00 through EP-04 VERIFIED, including eleven real rootless toy cases and owner-local preparation evidence access/retention. The finite toy quota pool is acceptance infrastructure; dynamic production provisioning and EP-05 GitHub/Drive workflow remain. VERIFY is not registered in the production Runtime. Runner NOT_CONFIGURED/unarmed; no READY command or live project execution.",
   "github_live_adapter": "Specified; commit/push/draft PR are REQUIRED v1 scope, not an optional future add-on",
   "credentials": "None bundled",
   "service_installation": "None performed",
@@ -25,17 +25,17 @@
     "source": "Owner update after archive creation; seed is a reference specification"
   },
   "implementation": {
-    "selected_packet": "EP-03",
+    "selected_packet": "EP-05",
     "packets": {
       "EP-00": "VERIFIED",
       "EP-01": "VERIFIED",
       "EP-02": "VERIFIED",
-      "EP-03": "BLOCKED",
+      "EP-03": "VERIFIED",
       "EP-04": "VERIFIED"
     },
     "armed": false,
     "deployable": false,
-    "evidence": "verification/implementation/EP-03/phase-20260927-summary.json",
+    "evidence": "verification/implementation/EP-03/live-acceptance-summary.json",
     "checkpoint": "codex/checkpoints/EP-03.md",
     "oauth_gate_evidence": "verification/implementation/EP-04/oauth-browser-gate.json",
     "oauth_live_attach_evidence": "verification/implementation/EP-04/live-attach-attempt.json",

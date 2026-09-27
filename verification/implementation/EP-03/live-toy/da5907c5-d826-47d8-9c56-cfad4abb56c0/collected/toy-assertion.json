@@ -1,0 +1,1 @@
+{"configured_pids_max": "32", "expected_pids_max": 32, "spawned": 31, "max_events_before": 0, "max_events_after": 2, "refused_errno": 11, "limit_enforced": true}

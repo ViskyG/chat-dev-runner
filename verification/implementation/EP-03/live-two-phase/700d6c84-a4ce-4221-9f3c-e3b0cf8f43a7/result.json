@@ -1,0 +1,36 @@
+{
+  "case": "preparation-fail",
+  "container_intent_phases": [
+    "PREPARATION"
+  ],
+  "ended_at": "2026-09-27T11:31:21.033576+00:00",
+  "expected_operation_status": "BLOCKED",
+  "expected_test_outcome": null,
+  "handoff_build_tree_sha256": null,
+  "junit_sha256": null,
+  "live_acceptance_passed": true,
+  "observed_operation_status": "BLOCKED",
+  "observed_test_outcome": null,
+  "operation_code": "PREPARATION_FAILED",
+  "preparation_receipt_sha256": "be1fdd0032221a5d10fdce552cac1ce3667fec7cd01394a770f66c4a1c2b2834",
+  "preparation_result": {
+    "evidence_sha256": "be1fdd0032221a5d10fdce552cac1ce3667fec7cd01394a770f66c4a1c2b2834",
+    "outcome": "FAILED",
+    "run_id": "66904bb9-da5e-58fe-80da-fa9c4e2286bf"
+  },
+  "request_id": "700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7",
+  "retained_temp_root": "/tmp/cdr-ep03-two-phase-700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7-tgnk6wnp",
+  "schema_version": "1.0",
+  "staged_module_sha256": null,
+  "test_attempts": [
+    [
+      "PREPARATION",
+      "66904bb9-da5e-58fe-80da-fa9c4e2286bf"
+    ],
+    [
+      "TEST",
+      "700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7"
+    ]
+  ],
+  "test_output_ids": []
+}

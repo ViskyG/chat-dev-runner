@@ -1,0 +1,133 @@
+{
+  "capture_fault": null,
+  "capture_outputs": [
+    {
+      "complete": true,
+      "format": "raw-bytes-v1",
+      "kind": "console",
+      "media_type": "application/octet-stream",
+      "output_id": "stdout-raw",
+      "publication": "local_only",
+      "relative_path": "capture/stdout.bin",
+      "sha256": "1088463d3432771cb71a2d12a0f18b6074986790abd77ced3ea7d470c2b21a75",
+      "size_bytes": 26,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "utf8-safe-view-v1",
+      "kind": "console",
+      "media_type": "text/plain; charset=utf-8",
+      "output_id": "stdout-view",
+      "publication": "local_only",
+      "relative_path": "capture/stdout.txt",
+      "sha256": "1088463d3432771cb71a2d12a0f18b6074986790abd77ced3ea7d470c2b21a75",
+      "size_bytes": 26,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "raw-bytes-v1",
+      "kind": "console",
+      "media_type": "application/octet-stream",
+      "output_id": "stderr-raw",
+      "publication": "local_only",
+      "relative_path": "capture/stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "utf8-safe-view-v1",
+      "kind": "console",
+      "media_type": "text/plain; charset=utf-8",
+      "output_id": "stderr-view",
+      "publication": "local_only",
+      "relative_path": "capture/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "stream-observation/v1",
+      "kind": "runner_log",
+      "media_type": "application/x-ndjson",
+      "output_id": "capture-events",
+      "publication": "local_only",
+      "relative_path": "capture/events.jsonl",
+      "sha256": "83fca96b31e759de8b71e5e72913158d5f66c9dcd0388bc3bcbcde6d31cc509b",
+      "size_bytes": 105,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "capture-metadata/v1",
+      "kind": "runner_log",
+      "media_type": "application/json",
+      "output_id": "capture-metadata",
+      "publication": "local_only",
+      "relative_path": "capture/capture.json",
+      "sha256": "ce39d5e866baaf5236d17e2108ed6d1079b5fc1b7a343a699d1caf13de9ec7d8",
+      "size_bytes": 677,
+      "truncated_reason": null
+    }
+  ],
+  "case": "pass",
+  "cleanup_recorded": true,
+  "collection_complete": true,
+  "collection_findings": [],
+  "collection_outputs": [
+    {
+      "complete": true,
+      "format": "junit-xml",
+      "kind": "test_result",
+      "media_type": "application/xml",
+      "output_id": "toy-junit",
+      "publication": "local_only",
+      "relative_path": "collected/toy-junit.xml",
+      "sha256": "2d23e11286ccc7285bd5dc1a45091f180a17a3f92eff6976335275a9b7da8727",
+      "size_bytes": 68,
+      "truncated_reason": null
+    }
+  ],
+  "containment": {
+    "backend": "rootless_docker",
+    "capabilities_dropped": "ALL",
+    "cgroup_driver": "systemd",
+    "cgroup_version": "2",
+    "cleanup_verified": true,
+    "cpu_nano": 1000000000,
+    "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+    "daemon_rootless": true,
+    "delegated_controllers": [
+      "cpu",
+      "memory",
+      "pids"
+    ],
+    "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "image_repo_digest": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "memory_bytes": 134217728,
+    "mounts_verified_before_start": true,
+    "network": "none",
+    "no_new_privileges": true,
+    "pids_limit": 32,
+    "read_only_root": true,
+    "read_only_source": true,
+    "run_volume_hard_limit_bytes": 67108864,
+    "server_version": "29.1.5",
+    "socket_path": "/run/user/1000/docker.sock",
+    "verified": true
+  },
+  "duration_seconds": 0.21321,
+  "ended_at": "2026-09-27T11:18:25.183948+00:00",
+  "exit_code": 0,
+  "expected_outcome": "PASSED",
+  "intent_recorded": true,
+  "observed_outcome": "PASSED",
+  "request_id": "e1b58df5-8a5a-4d65-9093-a35029d1c2f0",
+  "schema_version": "1.0",
+  "smoke_passed": true,
+  "termination_reason": null
+}

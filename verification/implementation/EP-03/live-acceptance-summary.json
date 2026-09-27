@@ -1,0 +1,179 @@
+{
+  "captured_at_utc": "2026-09-27T11:36:12.676143+00:00",
+  "cloud_writes": false,
+  "direct_broker_cases": [
+    {
+      "capture_fault": null,
+      "case": "pass",
+      "cleanup_recorded": true,
+      "command": ".venv/bin/python scripts/ep03_live_toy.py --case pass --request-id e1b58df5-8a5a-4d65-9093-a35029d1c2f0 --docker-socket /run/user/1000/docker.sock --profile-dir /tmp/cdr-ep03-toy/profiles --profile-id ep03-live-python --profile-sha256 d443f1982455520a67f75e67790cc7055f2053e4ffcd81179f7bd27de5222e8f --volume-base /home/visky/.local/share/chat-dev-runner/volumes",
+      "command_exit_code": 0,
+      "container_exit_code": 0,
+      "outcome": "PASSED",
+      "request_id": "e1b58df5-8a5a-4d65-9093-a35029d1c2f0",
+      "result_path": "verification/implementation/EP-03/live-toy/e1b58df5-8a5a-4d65-9093-a35029d1c2f0/result.json",
+      "result_sha256": "661d5af55d72070f56c8ce8c48040cf8fc6cfdc951ae007b86bae9dba3698d6f",
+      "termination_reason": null
+    },
+    {
+      "capture_fault": null,
+      "case": "fail",
+      "cleanup_recorded": true,
+      "command": ".venv/bin/python scripts/ep03_live_toy.py --case fail --request-id 094ed370-45cb-46a3-ba14-a474210273a8 --docker-socket /run/user/1000/docker.sock --profile-dir /tmp/cdr-ep03-toy/profiles --profile-id ep03-live-python --profile-sha256 d443f1982455520a67f75e67790cc7055f2053e4ffcd81179f7bd27de5222e8f --volume-base /home/visky/.local/share/chat-dev-runner/volumes",
+      "command_exit_code": 0,
+      "container_exit_code": 1,
+      "outcome": "FAILED",
+      "request_id": "094ed370-45cb-46a3-ba14-a474210273a8",
+      "result_path": "verification/implementation/EP-03/live-toy/094ed370-45cb-46a3-ba14-a474210273a8/result.json",
+      "result_sha256": "4e02e759f6c5ebebf616d22a68e17ec47527068e8ec72855e28196a94cb13312",
+      "termination_reason": null
+    },
+    {
+      "capture_fault": null,
+      "case": "timeout",
+      "cleanup_recorded": true,
+      "command": ".venv/bin/python scripts/ep03_live_toy.py --case timeout --request-id e756cc0e-2f73-47b1-b0ef-48bb32ce3c10 --docker-socket /run/user/1000/docker.sock --profile-dir /tmp/cdr-ep03-toy/profiles --profile-id ep03-live-python --profile-sha256 d443f1982455520a67f75e67790cc7055f2053e4ffcd81179f7bd27de5222e8f --volume-base /home/visky/.local/share/chat-dev-runner/volumes",
+      "command_exit_code": 0,
+      "container_exit_code": 137,
+      "outcome": "TIMED_OUT",
+      "request_id": "e756cc0e-2f73-47b1-b0ef-48bb32ce3c10",
+      "result_path": "verification/implementation/EP-03/live-toy/e756cc0e-2f73-47b1-b0ef-48bb32ce3c10/result.json",
+      "result_sha256": "c644330d8420ec4747022ac1271387b03a129fb5e93bdf3de06443981167a3b1",
+      "termination_reason": "TIMED_OUT"
+    },
+    {
+      "capture_fault": null,
+      "case": "cancel",
+      "cleanup_recorded": true,
+      "command": ".venv/bin/python scripts/ep03_live_toy.py --case cancel --request-id ed8f86d8-cc83-43e2-a8ec-15667a0c925e --docker-socket /run/user/1000/docker.sock --profile-dir /tmp/cdr-ep03-toy/profiles --profile-id ep03-live-python --profile-sha256 d443f1982455520a67f75e67790cc7055f2053e4ffcd81179f7bd27de5222e8f --volume-base /home/visky/.local/share/chat-dev-runner/volumes",
+      "command_exit_code": 0,
+      "container_exit_code": 137,
+      "outcome": "CANCELLED",
+      "request_id": "ed8f86d8-cc83-43e2-a8ec-15667a0c925e",
+      "result_path": "verification/implementation/EP-03/live-toy/ed8f86d8-cc83-43e2-a8ec-15667a0c925e/result.json",
+      "result_sha256": "50c107d6d26be53cef8cf7a0673419666c54852d54eae342162e30ec5b5b5991",
+      "termination_reason": "CANCELLED"
+    },
+    {
+      "capture_fault": null,
+      "case": "hostile",
+      "cleanup_recorded": true,
+      "command": ".venv/bin/python scripts/ep03_live_toy.py --case hostile --request-id 7fa65503-8531-4c49-a465-4231dc67fdbd --docker-socket /run/user/1000/docker.sock --profile-dir /tmp/cdr-ep03-toy/profiles --profile-id ep03-live-python --profile-sha256 d443f1982455520a67f75e67790cc7055f2053e4ffcd81179f7bd27de5222e8f --volume-base /home/visky/.local/share/chat-dev-runner/volumes",
+      "command_exit_code": 0,
+      "container_exit_code": 0,
+      "outcome": "PASSED",
+      "request_id": "7fa65503-8531-4c49-a465-4231dc67fdbd",
+      "result_path": "verification/implementation/EP-03/live-toy/7fa65503-8531-4c49-a465-4231dc67fdbd/result.json",
+      "result_sha256": "de7d68421d7befe3c7ca9395f982bb428a99e6368f181f8c518275f28eaea9a6",
+      "termination_reason": null
+    },
+    {
+      "capture_fault": null,
+      "case": "fork",
+      "cleanup_recorded": true,
+      "command": ".venv/bin/python scripts/ep03_live_toy.py --case fork --request-id da5907c5-d826-47d8-9c56-cfad4abb56c0 --docker-socket /run/user/1000/docker.sock --profile-dir /tmp/cdr-ep03-toy/profiles --profile-id ep03-live-python --profile-sha256 d443f1982455520a67f75e67790cc7055f2053e4ffcd81179f7bd27de5222e8f --volume-base /home/visky/.local/share/chat-dev-runner/volumes",
+      "command_exit_code": 0,
+      "container_exit_code": 0,
+      "outcome": "PASSED",
+      "request_id": "da5907c5-d826-47d8-9c56-cfad4abb56c0",
+      "result_path": "verification/implementation/EP-03/live-toy/da5907c5-d826-47d8-9c56-cfad4abb56c0/result.json",
+      "result_sha256": "e7f4715732c9ef38ae26026c097ab2ea75f5fb19421f38c94fd1dafe94b81da4",
+      "termination_reason": null
+    },
+    {
+      "capture_fault": null,
+      "case": "memory",
+      "cleanup_recorded": true,
+      "command": ".venv/bin/python scripts/ep03_live_toy.py --case memory --request-id 86882085-2377-4ab7-abd0-ecfad9c4efbf --docker-socket /run/user/1000/docker.sock --profile-dir /tmp/cdr-ep03-toy/profiles --profile-id ep03-live-python --profile-sha256 d443f1982455520a67f75e67790cc7055f2053e4ffcd81179f7bd27de5222e8f --volume-base /home/visky/.local/share/chat-dev-runner/volumes",
+      "command_exit_code": 0,
+      "container_exit_code": 0,
+      "outcome": "PASSED",
+      "request_id": "86882085-2377-4ab7-abd0-ecfad9c4efbf",
+      "result_path": "verification/implementation/EP-03/live-toy/86882085-2377-4ab7-abd0-ecfad9c4efbf/result.json",
+      "result_sha256": "b2b307c7693fde6cb026c12cdd1ef6eb3b07a3249b88042db4c879fe743bb7aa",
+      "termination_reason": null
+    },
+    {
+      "capture_fault": null,
+      "case": "log-volume",
+      "cleanup_recorded": true,
+      "command": ".venv/bin/python scripts/ep03_live_toy.py --case log-volume --request-id 8177323c-c66b-48ea-a04d-4fe4536eb780 --docker-socket /run/user/1000/docker.sock --profile-dir /tmp/cdr-ep03-toy/profiles --profile-id ep03-live-python --profile-sha256 d443f1982455520a67f75e67790cc7055f2053e4ffcd81179f7bd27de5222e8f --volume-base /home/visky/.local/share/chat-dev-runner/volumes",
+      "command_exit_code": 0,
+      "container_exit_code": 0,
+      "outcome": "PASSED",
+      "request_id": "8177323c-c66b-48ea-a04d-4fe4536eb780",
+      "result_path": "verification/implementation/EP-03/live-toy/8177323c-c66b-48ea-a04d-4fe4536eb780/result.json",
+      "result_sha256": "3bf50ea458d74cfa03f9354ae3b6dcca8b05b0f81704cab58aa6f63b76ec3853",
+      "termination_reason": null
+    },
+    {
+      "capture_fault": "RESOURCE_LIMIT:RUN_VOLUME_FULL",
+      "case": "disk-full",
+      "cleanup_recorded": true,
+      "command": ".venv/bin/python scripts/ep03_live_toy.py --case disk-full --request-id a8487949-073f-4e82-a037-d508a8d12115 --docker-socket /run/user/1000/docker.sock --profile-dir /tmp/cdr-ep03-toy/profiles --profile-id ep03-live-python --profile-sha256 d443f1982455520a67f75e67790cc7055f2053e4ffcd81179f7bd27de5222e8f --volume-base /home/visky/.local/share/chat-dev-runner/volumes",
+      "command_exit_code": 0,
+      "container_exit_code": 137,
+      "outcome": "UNKNOWN",
+      "request_id": "a8487949-073f-4e82-a037-d508a8d12115",
+      "result_path": "verification/implementation/EP-03/live-toy/a8487949-073f-4e82-a037-d508a8d12115/result.json",
+      "result_sha256": "3d63f534efa43e6a42811cab7cacae2781d8b0feb1c3ab8195cfdc732a6711eb",
+      "termination_reason": "RESOURCE_LIMIT"
+    }
+  ],
+  "environment": {
+    "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+    "docker_server_version": "29.1.5",
+    "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "python": "3.10.12",
+    "rootless_socket": "/run/user/1000/docker.sock"
+  },
+  "initial_create_refusal": {
+    "cause": "unsupported --pid private; no container present; fixed and retested under fresh request ID",
+    "diagnostic_path": "verification/implementation/EP-03/live-toy/6eafcb9d-fbb0-494a-9b76-752b8958de5b/diagnostic.json",
+    "docker_cli_exit_code": 125,
+    "error_code": "CONTAINER_CLEANUP_UNCERTAIN",
+    "invocation_exit_code": 1,
+    "request_id": "6eafcb9d-fbb0-494a-9b76-752b8958de5b"
+  },
+  "post_matrix_inventory": {
+    "command": "docker --host unix:///run/user/1000/docker.sock ps --all --no-trunc --format {{.ID}}",
+    "command_exit_code": 0,
+    "container_ids": []
+  },
+  "production_runner_armed": false,
+  "schema_version": "1.0",
+  "two_phase_cases": [
+    {
+      "case": "pass",
+      "command": ".venv/bin/python scripts/ep03_live_two_phase.py --case pass --request-id 113fb477-6f7b-49a0-9d60-330933d38e4f --docker-socket /run/user/1000/docker.sock --profile-dir /tmp/cdr-ep03-toy/profiles --preparation-profile-id ep03-live-prep --preparation-profile-sha256 8ae2d68faa434b322d457d2562a3a14c2283a10bf4f25f5bd73352aeebd5ad02 --test-profile-id ep03-live-prepared-test --test-profile-sha256 4df3b6dce5b356441dfb449ca2de2abacc49e55a3f5af962e1b0baed7e8bf657 --volume-base /home/visky/.local/share/chat-dev-runner/volumes",
+      "command_exit_code": 0,
+      "container_intent_phases": [
+        "PREPARATION",
+        "TEST"
+      ],
+      "operation_code": null,
+      "operation_status": "COMPLETED",
+      "preparation_receipt_sha256": "97254ff40497c6cc3ef764763093bdd8a072e2e9c7f521204301dc2a0b622bbf",
+      "request_id": "113fb477-6f7b-49a0-9d60-330933d38e4f",
+      "result_path": "verification/implementation/EP-03/live-two-phase/113fb477-6f7b-49a0-9d60-330933d38e4f/result.json",
+      "result_sha256": "5eadf351d563f3839aa2c17c369a6f30a9152bf252a5e61852cf40b2354ab6a9",
+      "test_outcome": "PASSED"
+    },
+    {
+      "case": "preparation-fail",
+      "command": ".venv/bin/python scripts/ep03_live_two_phase.py --case preparation-fail --request-id 700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7 --docker-socket /run/user/1000/docker.sock --profile-dir /tmp/cdr-ep03-toy/profiles --preparation-profile-id ep03-live-prep --preparation-profile-sha256 8ae2d68faa434b322d457d2562a3a14c2283a10bf4f25f5bd73352aeebd5ad02 --test-profile-id ep03-live-prepared-test --test-profile-sha256 4df3b6dce5b356441dfb449ca2de2abacc49e55a3f5af962e1b0baed7e8bf657 --volume-base /home/visky/.local/share/chat-dev-runner/volumes",
+      "command_exit_code": 0,
+      "container_intent_phases": [
+        "PREPARATION"
+      ],
+      "operation_code": "PREPARATION_FAILED",
+      "operation_status": "BLOCKED",
+      "preparation_receipt_sha256": "be1fdd0032221a5d10fdce552cac1ce3667fec7cd01394a770f66c4a1c2b2834",
+      "request_id": "700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7",
+      "result_path": "verification/implementation/EP-03/live-two-phase/700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7/result.json",
+      "result_sha256": "dd4fcc7d66d0fdb122b7b4efa8aae0c45a95c4745a51415fdef76772ff2e1295",
+      "test_outcome": null
+    }
+  ]
+}

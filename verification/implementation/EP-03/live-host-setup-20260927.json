@@ -1,0 +1,623 @@
+{
+  "approved_toy_image": {
+    "architecture": "amd64",
+    "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "os": "linux",
+    "reference": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "repo_digests": [
+      "python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111"
+    ]
+  },
+  "captured_at_utc": "2026-09-27T11:17:34.521678+00:00",
+  "host_gate": "READY",
+  "host_setup_scripts": {
+    "current_reference_path": "verification/implementation/EP-03/host-admin-batch.sh",
+    "current_reference_sha256": "537ba8e3816b6cf6cda4a74fb520dd5d1be9228b7aab4e87472cf073f687e1b9",
+    "executed_path": "verification/implementation/EP-03/host-admin-batch-executed.sh",
+    "executed_sha256": "04cb97d61d143ad8eac49858f6d2985b83754184f4788d23924c5ab449e459ff",
+    "reference_note": "Current reference freezes and validates the owner-writable volume plan in one root-owned snapshot; original executed script was preserved exactly."
+  },
+  "rootless_docker": {
+    "broker_probe": {
+      "available": true,
+      "cgroup_driver": "systemd",
+      "cgroup_version": "2",
+      "code": "READY",
+      "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+      "delegated_controllers": [
+        "cpu",
+        "memory",
+        "pids"
+      ],
+      "server_version": "29.1.5",
+      "socket_path": "/run/user/1000/docker.sock"
+    },
+    "cgroup_driver": "systemd",
+    "cgroup_version": "2",
+    "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+    "docker_cli_endpoint": "unix:///run/user/1000/docker.sock",
+    "security_options": [
+      "name=seccomp,profile=builtin",
+      "name=rootless",
+      "name=cgroupns"
+    ],
+    "server_version": "29.1.5",
+    "socket": "/run/user/1000/docker.sock",
+    "socket_mode": "0o1660",
+    "socket_uid": 1000,
+    "storage_driver": "overlayfs",
+    "user_service": {
+      "ActiveState": "active",
+      "MainPID": "1870183",
+      "UnitFileState": "enabled"
+    }
+  },
+  "schema_version": "1.0",
+  "scope": "read-only verification after owner-authorized one-time host setup; no container run in this check",
+  "toy_volume_pool": {
+    "capacity_bytes_each": 67108864,
+    "distinct_devices": 24,
+    "inode_capacity_each": 16384,
+    "mount_count": 24,
+    "parent": "/home/visky/.local/share/chat-dev-runner/volumes",
+    "parent_gid": 1000,
+    "parent_mode": "0o700",
+    "parent_uid": 1000,
+    "path": "verification/implementation/EP-03/toy-volume-pool.tsv",
+    "request_pair_count": 12,
+    "sha256": "e2d87f533ca95d9c361e0e950a9475014aaba93fc2b22baa4aa17149e47f21ce",
+    "visible_to_rootless_daemon_count": 24,
+    "volumes": [
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048732,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/a2ae22c2-bd28-5e03-846b-ba3cd33bc71a",
+        "phase": "preparation",
+        "request_id": "6eafcb9d-fbb0-494a-9b76-752b8958de5b",
+        "run_id": "a2ae22c2-bd28-5e03-846b-ba3cd33bc71a",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048733,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/6eafcb9d-fbb0-494a-9b76-752b8958de5b",
+        "phase": "test",
+        "request_id": "6eafcb9d-fbb0-494a-9b76-752b8958de5b",
+        "run_id": "6eafcb9d-fbb0-494a-9b76-752b8958de5b",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048734,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/df523251-df4f-5ffa-bb59-3a2494d900e4",
+        "phase": "preparation",
+        "request_id": "e1b58df5-8a5a-4d65-9093-a35029d1c2f0",
+        "run_id": "df523251-df4f-5ffa-bb59-3a2494d900e4",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048735,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/e1b58df5-8a5a-4d65-9093-a35029d1c2f0",
+        "phase": "test",
+        "request_id": "e1b58df5-8a5a-4d65-9093-a35029d1c2f0",
+        "run_id": "e1b58df5-8a5a-4d65-9093-a35029d1c2f0",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048736,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/e6eaec41-fad1-5231-9389-1cd301b9a44f",
+        "phase": "preparation",
+        "request_id": "094ed370-45cb-46a3-ba14-a474210273a8",
+        "run_id": "e6eaec41-fad1-5231-9389-1cd301b9a44f",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048737,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/094ed370-45cb-46a3-ba14-a474210273a8",
+        "phase": "test",
+        "request_id": "094ed370-45cb-46a3-ba14-a474210273a8",
+        "run_id": "094ed370-45cb-46a3-ba14-a474210273a8",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048738,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/d9224d7f-34e4-531e-ba39-56b23a1944cf",
+        "phase": "preparation",
+        "request_id": "e756cc0e-2f73-47b1-b0ef-48bb32ce3c10",
+        "run_id": "d9224d7f-34e4-531e-ba39-56b23a1944cf",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048739,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/e756cc0e-2f73-47b1-b0ef-48bb32ce3c10",
+        "phase": "test",
+        "request_id": "e756cc0e-2f73-47b1-b0ef-48bb32ce3c10",
+        "run_id": "e756cc0e-2f73-47b1-b0ef-48bb32ce3c10",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048740,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/4e680c38-fda0-59bd-bbb4-6711ce4f1662",
+        "phase": "preparation",
+        "request_id": "ed8f86d8-cc83-43e2-a8ec-15667a0c925e",
+        "run_id": "4e680c38-fda0-59bd-bbb4-6711ce4f1662",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048741,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/ed8f86d8-cc83-43e2-a8ec-15667a0c925e",
+        "phase": "test",
+        "request_id": "ed8f86d8-cc83-43e2-a8ec-15667a0c925e",
+        "run_id": "ed8f86d8-cc83-43e2-a8ec-15667a0c925e",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048742,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/4a2b71d5-0368-5ff1-84f6-8b0b5b49a974",
+        "phase": "preparation",
+        "request_id": "7fa65503-8531-4c49-a465-4231dc67fdbd",
+        "run_id": "4a2b71d5-0368-5ff1-84f6-8b0b5b49a974",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048743,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/7fa65503-8531-4c49-a465-4231dc67fdbd",
+        "phase": "test",
+        "request_id": "7fa65503-8531-4c49-a465-4231dc67fdbd",
+        "run_id": "7fa65503-8531-4c49-a465-4231dc67fdbd",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048744,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/37ce1022-97f6-5e8b-80de-3a2b20066ace",
+        "phase": "preparation",
+        "request_id": "da5907c5-d826-47d8-9c56-cfad4abb56c0",
+        "run_id": "37ce1022-97f6-5e8b-80de-3a2b20066ace",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048746,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/da5907c5-d826-47d8-9c56-cfad4abb56c0",
+        "phase": "test",
+        "request_id": "da5907c5-d826-47d8-9c56-cfad4abb56c0",
+        "run_id": "da5907c5-d826-47d8-9c56-cfad4abb56c0",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048747,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/58f98bb1-7aa1-52c2-9049-2b8ee7571212",
+        "phase": "preparation",
+        "request_id": "86882085-2377-4ab7-abd0-ecfad9c4efbf",
+        "run_id": "58f98bb1-7aa1-52c2-9049-2b8ee7571212",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048748,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/86882085-2377-4ab7-abd0-ecfad9c4efbf",
+        "phase": "test",
+        "request_id": "86882085-2377-4ab7-abd0-ecfad9c4efbf",
+        "run_id": "86882085-2377-4ab7-abd0-ecfad9c4efbf",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048749,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/c4a5c0ca-1e2c-5f7b-a491-f86b3328c663",
+        "phase": "preparation",
+        "request_id": "8177323c-c66b-48ea-a04d-4fe4536eb780",
+        "run_id": "c4a5c0ca-1e2c-5f7b-a491-f86b3328c663",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048750,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/8177323c-c66b-48ea-a04d-4fe4536eb780",
+        "phase": "test",
+        "request_id": "8177323c-c66b-48ea-a04d-4fe4536eb780",
+        "run_id": "8177323c-c66b-48ea-a04d-4fe4536eb780",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048751,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/69ed1aca-a867-5458-bd5d-6a64c37f6726",
+        "phase": "preparation",
+        "request_id": "a8487949-073f-4e82-a037-d508a8d12115",
+        "run_id": "69ed1aca-a867-5458-bd5d-6a64c37f6726",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048752,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/a8487949-073f-4e82-a037-d508a8d12115",
+        "phase": "test",
+        "request_id": "a8487949-073f-4e82-a037-d508a8d12115",
+        "run_id": "a8487949-073f-4e82-a037-d508a8d12115",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048753,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/8cc41720-6056-55bc-82f2-bff75b4d30f6",
+        "phase": "preparation",
+        "request_id": "113fb477-6f7b-49a0-9d60-330933d38e4f",
+        "run_id": "8cc41720-6056-55bc-82f2-bff75b4d30f6",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048754,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/113fb477-6f7b-49a0-9d60-330933d38e4f",
+        "phase": "test",
+        "request_id": "113fb477-6f7b-49a0-9d60-330933d38e4f",
+        "run_id": "113fb477-6f7b-49a0-9d60-330933d38e4f",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048755,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/66904bb9-da5e-58fe-80da-fa9c4e2286bf",
+        "phase": "preparation",
+        "request_id": "700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7",
+        "run_id": "66904bb9-da5e-58fe-80da-fa9c4e2286bf",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      },
+      {
+        "capacity_bytes": 67108864,
+        "device": 1048756,
+        "filesystem": "tmpfs",
+        "gid": 1000,
+        "inode_capacity": 16384,
+        "mode": "0o700",
+        "mount_options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "relatime"
+        ],
+        "mounted": true,
+        "path": "/home/visky/.local/share/chat-dev-runner/volumes/700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7",
+        "phase": "test",
+        "request_id": "700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7",
+        "run_id": "700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7",
+        "source": "cdr-ep03-toy",
+        "uid": 1000,
+        "visible_in_rootless_daemon_namespace": true
+      }
+    ]
+  },
+  "uidmap": {
+    "newgidmap": "/usr/bin/newgidmap",
+    "newuidmap": "/usr/bin/newuidmap",
+    "package": "install ok installed 1:4.8.1-2ubuntu2.2"
+  },
+  "user_manager": {
+    "cgroup_controllers": [
+      "cpu",
+      "memory",
+      "pids"
+    ],
+    "delegation_drop_in": "/etc/systemd/system/user@.service.d/90-chat-dev-runner-cpu.conf",
+    "linger": {
+      "Linger": "yes",
+      "State": "active"
+    },
+    "systemd": {
+      "ActiveState": "active",
+      "Delegate": "yes",
+      "DelegateControllers": "cpu memory pids"
+    }
+  }
+}

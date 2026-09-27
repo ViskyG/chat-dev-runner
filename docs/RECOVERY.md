@@ -24,6 +24,7 @@ status: required-design
 | Host restarted while executing | durable operation journal | INTERRUPTED | terminate/reconcile survivors, don't rerun |
 | Evidence ENOSPC/EDQUOT while SQLite remains writable | retained bytes and durable phase attempts/intents where available | committed minimal FAULT / `EVIDENCE_STORAGE_FULL`, execution UNKNOWN; no complete run manifest | free/archive space; inspect evidence and start a new request only after recovery; no silent deletion or replay |
 | SQLite commit or journal write fails or is ambiguous | last confirmed receipt/attempt/intents and in-memory admission fence | `STORAGE_UNAVAILABLE`; terminal result is unknown until database readback | stop new admissions, signal live handlers, restore storage, restart and reconcile; never invent or retry an ambiguous receipt |
+| Preparation capture tombstoned but unlink interrupted | immutable preparation receipt and output tombstone | `EVIDENCE_EXPIRED` on owner-local read; file may still occupy disk | trusted local owner retries `PreparationEvidenceStore.expire_output` to verify and purge the exact file; never restore download from an old path |
 | Cloud authorization revoked | local data, sanitized error | integration unavailable | local reauthorization |
 | Project archived with retained runs | manifests + tombstones | read-only project history | deliberate restore/unarchive |
 

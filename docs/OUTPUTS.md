@@ -22,9 +22,15 @@ operation metadata there; full operation-output viewing is an explicit EP-06 tas
 
 A locally granted dependency preparation has its own immutable attempt, bounded raw
 capture and SHA-256 receipt outside the TEST run evidence tree. The operation result records
-its phase run ID, outcome and receipt hash; these bytes are local-only and have no download,
-publication or expiry API yet. Do not describe preparation logs as delivered outputs or
-apply the TEST output retention guarantee to them until that channel is implemented.
+its phase run ID, outcome and receipt hash. `PreparationEvidenceStore`, constructed by trusted
+local code with the same SQLite database and the coordinator's private `evidence_root`,
+reads that existing durable result and verifies `preparation.json` before exposing metadata or
+sealed capture bytes. This works for failed as well as successful preparation without a second
+registration step. `receipt(run_id)`, `open_receipt(run_id)`, `retention_index(run_id)` and
+`open_output(run_id, output_id)` are owner-local methods only; the caller closes returned
+file descriptors. Only the six frozen capture IDs are allowed. Prepared build files cannot be
+read through this channel. There is no Drive publication or HTTP route for raw preparation
+evidence, and the operation result's hash is not a claim that the bytes were delivered.
 
 A failed unit test produces a valid COMPLETED operation with execution=FAILED. A missing
 container runtime is an executor/infrastructure problem. Invalid JUnit produced by the
@@ -132,3 +138,14 @@ file. If unlink fails or the process crashes, the tombstone still blocks access 
 retry can complete physical removal. The local owner can add an append-only PIN/UNPIN
 decision; an active pin prevents expiry. This does not yet schedule automatic retention
 or remove 90-day manifest records.
+
+Preparation capture has its own manual, owner-local 14-day retention method,
+`PreparationEvidenceStore.expire_output()`. Schema migration 8 adds append-only preparation
+pin decisions and per-output tombstones. The method checks age, terminal operation state,
+uncertain effects, pending delivery and active report claims in one SQLite writer transaction.
+It requires an exclusive per-preparation file lock, commits the tombstone before unlink,
+and verifies owner-only file type, byte hash, size and inode before physical removal.
+Readers seal a verified copy while holding the shared lock. A crash between tombstone and
+unlink leaves a blocked download and a retryable purge. The original preparation receipt
+remains as compact provenance, with its output hashes and explicit `EXPIRED` index state.
+No automatic sweep or 90-day compact-receipt expiry is implemented yet.

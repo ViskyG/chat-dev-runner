@@ -7,6 +7,22 @@ substitute an ordinary directory for the broker's hard-quota run volume.
 
 ## Current host finding (2026-09-27)
 
+The owner authorized and completed a one-time local administrator setup. The user-owned
+`/run/user/1000/docker.sock` now serves Docker 29.1.5 in rootless mode; the broker's
+read-only probe returns `READY` with cgroup v2, systemd, and active `cpu memory pids`
+delegation. `uidmap` and linger are installed. A disposable pool of 12 paired,
+owner-private, 64 MiB tmpfs mounts is available for toy PREPARATION/TEST checks, and
+an approved Python image was pulled by exact digest into this rootless daemon.
+`verification/implementation/EP-03/live-host-setup-20260927.json` records the
+read-only checks. The default Docker context remains the pre-existing `default`;
+the broker always names the user socket explicitly.
+
+The volume pool is finite acceptance infrastructure, not an automatic per-project
+quota provisioner. Live toy results and remaining gates are recorded in
+`codex/checkpoints/EP-03.md`; the production runner remains unarmed.
+
+## Earlier host finding (before setup, 2026-09-27)
+
 The user-owned `/run/user/1000/docker.sock` is absent. The default Docker context points to
 `/var/run/docker.sock` and does not report `name=rootless`. The owner has subordinate UID/GID
 ranges, but `newuidmap` and `newgidmap` are absent. The user manager delegates `memory` and
@@ -37,10 +53,13 @@ is required; no system settings were changed.
 5. Install one disposable toy image by exact digest and locally approve its offline
    preparation and test profiles. Select a disposable lockfile/dependency source and a TEST
    command that actually consumes staged `/build`. Run the
-   real passing, failing, timeout, cancellation, hostile access, fork/memory/log-volume,
-   capture-fault and disk-full cases. Record command, exit code, container identity, observed
-   limit and retained evidence under `verification/implementation/EP-03/`. Only then mark the
-   packet VERIFIED and proceed to EP-05.
+   real passing, failing, timeout, cancellation, hostile access, fork/memory/log-volume
+   and disk-full cases. The disk-full run must expose a real capture resource fault;
+   deterministic injected storage-write/metadata-write faults and delivery/redaction paths
+   remain in the offline integration suite so their exact failure points are reproducible.
+   Record commands, exit codes, observed limits and retained evidence under
+   `verification/implementation/EP-03/`. Only then mark the packet VERIFIED and proceed
+   to EP-05.
 
 Read-only checks:
 

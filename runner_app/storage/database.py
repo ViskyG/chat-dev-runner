@@ -16,7 +16,7 @@ from urllib.parse import quote
 
 from .paths import UnsafePathError, _absolute, _check_private, _open_directory, _open_file_at
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 _MIGRATIONS: dict[int, tuple[str, ...]] = {
     1: (
         (
@@ -314,6 +314,42 @@ _MIGRATIONS: dict[int, tuple[str, ...]] = {
             "BEGIN SELECT RAISE(ABORT,'preparation handoff is immutable'); END"
         ),
         "INSERT INTO schema_migrations(version, name) VALUES (7, 'phase-run-attempts')",
+    ),
+    8: (
+        (
+            "CREATE TABLE preparation_retention_pin_events (event_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "run_id TEXT NOT NULL REFERENCES preparation_results(run_id), action TEXT NOT NULL "
+            "CHECK(action IN ('PIN','UNPIN')), created_at TEXT NOT NULL)"
+        ),
+        "CREATE INDEX preparation_retention_pins_by_run ON preparation_retention_pin_events(run_id,event_id)",
+        (
+            "CREATE TRIGGER preparation_retention_pin_events_no_update BEFORE UPDATE "
+            "ON preparation_retention_pin_events BEGIN "
+            "SELECT RAISE(ABORT,'preparation retention pin event is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER preparation_retention_pin_events_no_delete BEFORE DELETE "
+            "ON preparation_retention_pin_events BEGIN "
+            "SELECT RAISE(ABORT,'preparation retention pin event is immutable'); END"
+        ),
+        (
+            "CREATE TABLE preparation_output_tombstones (run_id TEXT NOT NULL "
+            "REFERENCES preparation_results(run_id), output_id TEXT NOT NULL, "
+            "sha256 TEXT NOT NULL, size_bytes INTEGER NOT NULL, "
+            "reason TEXT NOT NULL CHECK(reason='RETENTION_EXPIRED'), created_at TEXT NOT NULL, "
+            "PRIMARY KEY(run_id,output_id))"
+        ),
+        (
+            "CREATE TRIGGER preparation_output_tombstones_no_update BEFORE UPDATE "
+            "ON preparation_output_tombstones BEGIN "
+            "SELECT RAISE(ABORT,'preparation output tombstone is immutable'); END"
+        ),
+        (
+            "CREATE TRIGGER preparation_output_tombstones_no_delete BEFORE DELETE "
+            "ON preparation_output_tombstones BEGIN "
+            "SELECT RAISE(ABORT,'preparation output tombstone is immutable'); END"
+        ),
+        "INSERT INTO schema_migrations(version, name) VALUES (8, 'preparation-evidence-retention')",
     ),
 }
 

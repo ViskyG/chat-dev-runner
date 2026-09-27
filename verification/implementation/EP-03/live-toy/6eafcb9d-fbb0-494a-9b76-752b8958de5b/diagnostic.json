@@ -1,0 +1,12 @@
+{
+  "cleanup_proof_for_failed_attempt": false,
+  "docker_cli_exit": 125,
+  "docker_cli_stderr": "docker: --pid: invalid PID mode",
+  "note": "Original no-container intent retained; no retry under the same request ID.",
+  "phase": "container_create",
+  "retest_request_id": "e1b58df5-8a5a-4d65-9093-a35029d1c2f0",
+  "retest_result": "PASSED",
+  "rootless_inventory_after_failure": [],
+  "schema_version": "1.0",
+  "source_change": "Omit unsupported --pid private; default PID namespace remains isolated"
+}

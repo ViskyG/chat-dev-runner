@@ -1,0 +1,30 @@
+{
+  "checked_at_utc": "2026-09-27T11:38:18.845633+00:00",
+  "cloud_writes": false,
+  "pytest": {
+    "command": ".venv/bin/python -m pytest -q --basetemp=/tmp/cdr-ep03-live-final --junitxml=verification/implementation/EP-03/live-final-pytest.xml",
+    "exit_code": 0,
+    "passed": 915,
+    "skipped": 1,
+    "warning": "pre-existing Starlette/httpx deprecation",
+    "xml_path": "verification/implementation/EP-03/live-final-pytest.xml",
+    "xml_sha256": "f9eeca912586f979c57130154f85674cf7e346fe06494c3d5e30b82a2e0e9397"
+  },
+  "runner_armed": false,
+  "schema_version": "1.0",
+  "static_checks": [
+    {
+      "command": ".venv/bin/ruff check runner_app tests scripts/ep03_live_toy.py scripts/ep03_live_two_phase.py",
+      "exit_code": 0
+    },
+    {
+      "checked_source_files": 60,
+      "command": ".venv/bin/mypy runner_app scripts/ep03_live_toy.py scripts/ep03_live_two_phase.py",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ]
+}

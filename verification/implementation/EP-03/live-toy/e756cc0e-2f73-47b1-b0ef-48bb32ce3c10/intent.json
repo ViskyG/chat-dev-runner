@@ -1,0 +1,11 @@
+{
+  "argv_sha256": "9e64f52c34a57e974ba4611b9b4a52c4a054d8ad3e576d125141b1e5801a2234",
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "nonce": "8ec00d92cb054ddb97a1fdb4935c5c9e",
+  "profile_id": "ep03-live-python",
+  "profile_revision_sha256": "d443f1982455520a67f75e67790cc7055f2053e4ffcd81179f7bd27de5222e8f",
+  "run_id": "e756cc0e-2f73-47b1-b0ef-48bb32ce3c10",
+  "source_path": "/tmp/cdr-ep03-toy-e756cc0e-2f73-47b1-b0ef-48bb32ce3c10-iqwex4bf/sources/e756cc0e-2f73-47b1-b0ef-48bb32ce3c10"
+}

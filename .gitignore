@@ -27,3 +27,4 @@ dist/
 verification/implementation/EP-00/baseline/toy-demo/
 verification/**/*.whl
 verification/**/*.bin
+verification/**/.locks/

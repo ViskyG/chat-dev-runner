@@ -1,0 +1,29 @@
+{
+  "cases": [
+    {
+      "all_available": true,
+      "case": "pass",
+      "indexed_outputs": 6,
+      "preparation_run_id": "8cc41720-6056-55bc-82f2-bff75b4d30f6",
+      "raw_contents_emitted": false,
+      "receipt_hash_verified": true,
+      "request_id": "113fb477-6f7b-49a0-9d60-330933d38e4f",
+      "stdout_hash_verified": true
+    },
+    {
+      "all_available": true,
+      "case": "preparation-fail",
+      "indexed_outputs": 6,
+      "preparation_run_id": "66904bb9-da5e-58fe-80da-fa9c4e2286bf",
+      "raw_contents_emitted": false,
+      "receipt_hash_verified": true,
+      "request_id": "700d6c84-a4ce-4221-9f3c-e3b0cf8f43a7",
+      "stdout_hash_verified": true
+    }
+  ],
+  "checked_at_utc": "2026-09-27T11:34:22.591197+00:00",
+  "exit_code": 0,
+  "method": "PreparationEvidenceStore owner-local receipt/open_receipt/open_output/retention_index on real toy Engine SQLite and coordinator evidence",
+  "no_cloud_write": true,
+  "schema_version": "1.0"
+}

@@ -121,6 +121,7 @@ def test_unavailable_cpu_controller_is_rejected(
     broker: RootlessDockerBroker, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     broker.runtime_dir.mkdir(mode=0o700)
+    monkeypatch.setattr(Path, "read_text", lambda _path, **_kwargs: "memory pids\n")
     with socket.socket(socket.AF_UNIX) as endpoint:
         endpoint.bind(str(broker.socket_path))
         monkeypatch.setattr(broker, "_docker_json", lambda *_args: {
@@ -150,6 +151,8 @@ def test_create_flags_and_prestart_inspection_reject_extra_mount(
     assert "--read-only" in argv and "--cap-drop" in argv
     assert "--pull" in argv and argv[argv.index("--pull") + 1] == "never"
     assert "--privileged" not in argv and "--publish" not in argv
+    # Docker's default is an isolated PID namespace; --pid=private is invalid.
+    assert "--pid" not in argv
     assert "--entrypoint" in argv and argv[argv.index("--entrypoint") + 1] == "python"
     created = _created(profile, source, root, "cdr-run-test")
     broker._validate_created(created, profile, "sha256:" + "c" * 64, source,
@@ -610,3 +613,18 @@ def test_preparation_recovery_uses_exact_source_mount_not_phase_run_name(
     assert not broker._recovery_policy_matches(
         owned, replace(intended, source_path=str(tmp_path / "sources" / str(uuid.uuid4()))),
     )
+
+
+def test_official_hub_digest_is_pinned_despite_short_inspect_spelling(
+    broker: RootlessDockerBroker, profile: ApprovedProfile,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    pinned = profile.image.removeprefix("docker.io/library/")
+    facts = {"RepoDigests": [pinned], "Id": "sha256:" + "c" * 64,
+             "Os": "linux", "Architecture": "amd64"}
+    monkeypatch.setattr(broker, "_docker_json", lambda *_args: facts)
+    assert broker._image_id(profile) == "sha256:" + "c" * 64
+    facts["RepoDigests"] = ["python@sha256:" + "f" * 64]
+    with pytest.raises(BrokerError) as error:
+        broker._image_id(profile)
+    assert error.value.code == "IMAGE_NOT_APPROVED"

@@ -1,6 +1,6 @@
 ---
 id: EP-03
-status: BLOCKED
+status: VERIFIED
 depends_on: ['EP-02']
 ---
 # EP-03 — Contained execution and typed results

@@ -1,0 +1,30 @@
+{
+  "checked_at": "2026-09-27T11:17:35.082443+00:00",
+  "checks": [
+    {
+      "command": ".venv/bin/python -m py_compile scripts/ep03_live_toy.py",
+      "result": "PASS"
+    },
+    {
+      "command": ".venv/bin/ruff check scripts/ep03_live_toy.py",
+      "result": "PASS"
+    },
+    {
+      "command": ".venv/bin/mypy scripts/ep03_live_toy.py",
+      "result": "PASS"
+    },
+    {
+      "command": "offline Python check: all 4 generated toy cases compile; Git tree equals sealed source; pool has 12 valid requests",
+      "result": "PASS"
+    },
+    {
+      "command": "CLI with unlisted canonical request UUID",
+      "expected_exit_code": 2,
+      "observed_exit_code": 2,
+      "result": "PASS"
+    }
+  ],
+  "harness": "scripts/ep03_live_toy.py",
+  "live_container_executed": false,
+  "schema_version": "1.0"
+}

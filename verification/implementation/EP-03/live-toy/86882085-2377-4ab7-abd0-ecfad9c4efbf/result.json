@@ -1,0 +1,143 @@
+{
+  "capture_fault": null,
+  "capture_outputs": [
+    {
+      "complete": true,
+      "format": "raw-bytes-v1",
+      "kind": "console",
+      "media_type": "application/octet-stream",
+      "output_id": "stdout-raw",
+      "publication": "local_only",
+      "relative_path": "capture/stdout.bin",
+      "sha256": "47f548c0ad2c4447a34e2ee7c0f59897f72c3c445d09385b31bfb81fbcdf0b80",
+      "size_bytes": 28,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "utf8-safe-view-v1",
+      "kind": "console",
+      "media_type": "text/plain; charset=utf-8",
+      "output_id": "stdout-view",
+      "publication": "local_only",
+      "relative_path": "capture/stdout.txt",
+      "sha256": "47f548c0ad2c4447a34e2ee7c0f59897f72c3c445d09385b31bfb81fbcdf0b80",
+      "size_bytes": 28,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "raw-bytes-v1",
+      "kind": "console",
+      "media_type": "application/octet-stream",
+      "output_id": "stderr-raw",
+      "publication": "local_only",
+      "relative_path": "capture/stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "utf8-safe-view-v1",
+      "kind": "console",
+      "media_type": "text/plain; charset=utf-8",
+      "output_id": "stderr-view",
+      "publication": "local_only",
+      "relative_path": "capture/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "stream-observation/v1",
+      "kind": "runner_log",
+      "media_type": "application/x-ndjson",
+      "output_id": "capture-events",
+      "publication": "local_only",
+      "relative_path": "capture/events.jsonl",
+      "sha256": "25680e0ba4928633a7140af1a247e32a1f9cc1d98efacfc42db2ae8c5a7bd04a",
+      "size_bytes": 105,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "capture-metadata/v1",
+      "kind": "runner_log",
+      "media_type": "application/json",
+      "output_id": "capture-metadata",
+      "publication": "local_only",
+      "relative_path": "capture/capture.json",
+      "sha256": "9f3a0c3dae6c82ac9759c148f6fb774c440c802e8f79a50f83510976273b3a17",
+      "size_bytes": 677,
+      "truncated_reason": null
+    }
+  ],
+  "case": "memory",
+  "cleanup_recorded": true,
+  "collection_complete": true,
+  "collection_findings": [
+    "toy-assertion:FORMAT_NOT_REGISTERED"
+  ],
+  "collection_outputs": [
+    {
+      "complete": true,
+      "format": "json",
+      "kind": "report",
+      "media_type": "application/json",
+      "output_id": "toy-assertion",
+      "publication": "local_only",
+      "relative_path": "collected/toy-assertion.json",
+      "sha256": "b4dc46927abbe6a55d0cbee61387ec172819230c61ec4d6458f58a29e76433bb",
+      "size_bytes": 164,
+      "truncated_reason": null
+    }
+  ],
+  "containment": {
+    "backend": "rootless_docker",
+    "capabilities_dropped": "ALL",
+    "cgroup_driver": "systemd",
+    "cgroup_version": "2",
+    "cleanup_verified": true,
+    "cpu_nano": 1000000000,
+    "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+    "daemon_rootless": true,
+    "delegated_controllers": [
+      "cpu",
+      "memory",
+      "pids"
+    ],
+    "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "image_repo_digest": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "memory_bytes": 134217728,
+    "mounts_verified_before_start": true,
+    "network": "none",
+    "no_new_privileges": true,
+    "pids_limit": 32,
+    "read_only_root": true,
+    "read_only_source": true,
+    "run_volume_hard_limit_bytes": 67108864,
+    "server_version": "29.1.5",
+    "socket_path": "/run/user/1000/docker.sock",
+    "verified": true
+  },
+  "duration_seconds": 0.273042,
+  "ended_at": "2026-09-27T11:27:57.095403+00:00",
+  "exit_code": 0,
+  "expected_outcome": "PASSED",
+  "intent_recorded": true,
+  "observed_outcome": "PASSED",
+  "request_id": "86882085-2377-4ab7-abd0-ecfad9c4efbf",
+  "schema_version": "1.0",
+  "smoke_passed": true,
+  "termination_reason": null,
+  "toy_proof": {
+    "child_exit_code": -9,
+    "configured_memory_max": "134217728",
+    "expected_memory_max": 134217728,
+    "limit_enforced": true,
+    "oom_kills_after": 1,
+    "oom_kills_before": 0
+  }
+}

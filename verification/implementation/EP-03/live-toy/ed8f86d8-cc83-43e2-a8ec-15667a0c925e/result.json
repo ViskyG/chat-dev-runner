@@ -1,0 +1,122 @@
+{
+  "capture_fault": null,
+  "capture_outputs": [
+    {
+      "complete": true,
+      "format": "raw-bytes-v1",
+      "kind": "console",
+      "media_type": "application/octet-stream",
+      "output_id": "stdout-raw",
+      "publication": "local_only",
+      "relative_path": "capture/stdout.bin",
+      "sha256": "f2ef3a2133609e7d0ed945fa1cf3eeebab1327fa0719fa6a37ae63bfb88b463a",
+      "size_bytes": 28,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "utf8-safe-view-v1",
+      "kind": "console",
+      "media_type": "text/plain; charset=utf-8",
+      "output_id": "stdout-view",
+      "publication": "local_only",
+      "relative_path": "capture/stdout.txt",
+      "sha256": "f2ef3a2133609e7d0ed945fa1cf3eeebab1327fa0719fa6a37ae63bfb88b463a",
+      "size_bytes": 28,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "raw-bytes-v1",
+      "kind": "console",
+      "media_type": "application/octet-stream",
+      "output_id": "stderr-raw",
+      "publication": "local_only",
+      "relative_path": "capture/stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "utf8-safe-view-v1",
+      "kind": "console",
+      "media_type": "text/plain; charset=utf-8",
+      "output_id": "stderr-view",
+      "publication": "local_only",
+      "relative_path": "capture/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "stream-observation/v1",
+      "kind": "runner_log",
+      "media_type": "application/x-ndjson",
+      "output_id": "capture-events",
+      "publication": "local_only",
+      "relative_path": "capture/events.jsonl",
+      "sha256": "3a1c76486620c2890e4fff0d8cc61cfd2ddb5a6e1312e01bcefce5cb2c01d489",
+      "size_bytes": 105,
+      "truncated_reason": null
+    },
+    {
+      "complete": true,
+      "format": "capture-metadata/v1",
+      "kind": "runner_log",
+      "media_type": "application/json",
+      "output_id": "capture-metadata",
+      "publication": "local_only",
+      "relative_path": "capture/capture.json",
+      "sha256": "31164891416fde26f6546373129c0eb3c03ba5b01dd3a9ab218556b0132601e5",
+      "size_bytes": 686,
+      "truncated_reason": null
+    }
+  ],
+  "case": "cancel",
+  "cleanup_recorded": true,
+  "collection_complete": true,
+  "collection_findings": [
+    "toy-junit:OPTIONAL_OUTPUT_MISSING"
+  ],
+  "collection_outputs": [],
+  "containment": {
+    "backend": "rootless_docker",
+    "capabilities_dropped": "ALL",
+    "cgroup_driver": "systemd",
+    "cgroup_version": "2",
+    "cleanup_verified": true,
+    "cpu_nano": 1000000000,
+    "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+    "daemon_rootless": true,
+    "delegated_controllers": [
+      "cpu",
+      "memory",
+      "pids"
+    ],
+    "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "image_repo_digest": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "memory_bytes": 134217728,
+    "mounts_verified_before_start": true,
+    "network": "none",
+    "no_new_privileges": true,
+    "pids_limit": 32,
+    "read_only_root": true,
+    "read_only_source": true,
+    "run_volume_hard_limit_bytes": 67108864,
+    "server_version": "29.1.5",
+    "socket_path": "/run/user/1000/docker.sock",
+    "verified": true
+  },
+  "duration_seconds": 1.143836,
+  "ended_at": "2026-09-27T11:19:03.090334+00:00",
+  "exit_code": 137,
+  "expected_outcome": "CANCELLED",
+  "intent_recorded": true,
+  "observed_outcome": "CANCELLED",
+  "request_id": "ed8f86d8-cc83-43e2-a8ec-15667a0c925e",
+  "schema_version": "1.0",
+  "smoke_passed": true,
+  "termination_reason": "CANCELLED"
+}

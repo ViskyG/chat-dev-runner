@@ -1,6 +1,6 @@
 ---
 id: EP-04
-status: IN_PROGRESS
+status: VERIFIED
 depends_on: ['EP-01']
 ---
 # EP-04 — Native Docs transport and result delivery

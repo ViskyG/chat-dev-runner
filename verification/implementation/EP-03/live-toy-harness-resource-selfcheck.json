@@ -1,0 +1,31 @@
+{
+  "cases_compiled": [
+    "pass",
+    "fail",
+    "timeout",
+    "cancel",
+    "hostile",
+    "fork",
+    "memory",
+    "log-volume",
+    "disk-full"
+  ],
+  "checked_at": "2026-09-27T11:25:48.593087+00:00",
+  "checks": [
+    {
+      "command": ".venv/bin/ruff check scripts/ep03_live_toy.py",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/mypy scripts/ep03_live_toy.py",
+      "exit_code": 0
+    },
+    {
+      "command": "offline Python: compile generated source and verify sealed source Git tree for all 9 cases",
+      "exit_code": 0
+    }
+  ],
+  "harness": "scripts/ep03_live_toy.py",
+  "live_container_executed_by_this_check": false,
+  "schema_version": "1.0"
+}

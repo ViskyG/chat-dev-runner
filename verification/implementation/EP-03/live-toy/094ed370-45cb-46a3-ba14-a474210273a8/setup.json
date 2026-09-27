@@ -1,0 +1,15 @@
+{
+  "case": "fail",
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "profile_id": "ep03-live-python",
+  "profile_revision_sha256": "d443f1982455520a67f75e67790cc7055f2053e4ffcd81179f7bd27de5222e8f",
+  "request_id": "094ed370-45cb-46a3-ba14-a474210273a8",
+  "schema_version": "1.0",
+  "server_version": "29.1.5",
+  "snapshot_commit": "401eccae63d649fa5febf079f21a92b5e8a1c50f",
+  "snapshot_id": "735e71eb-3817-4b9e-8d18-6e3fa157dc8b",
+  "snapshot_tree": "37f94232567b8566866c2e051adc876b8ff307d7",
+  "started_at": "2026-09-27T11:18:35.566821+00:00",
+  "volume": "/home/visky/.local/share/chat-dev-runner/volumes/094ed370-45cb-46a3-ba14-a474210273a8"
+}

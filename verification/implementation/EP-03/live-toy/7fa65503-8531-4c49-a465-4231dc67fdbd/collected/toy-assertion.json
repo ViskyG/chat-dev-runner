@@ -1,0 +1,1 @@
+{"checks": {"host_home_absent": true, "host_socket_absent": true, "sibling_workspace_absent": true, "only_loopback": true, "external_route_blocked": true}, "all_blocked": true}

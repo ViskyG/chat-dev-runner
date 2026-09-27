@@ -1,0 +1,10 @@
+{
+  "case": "pass",
+  "cleanup_recorded": false,
+  "ended_at": "2026-09-27T11:16:34.506296+00:00",
+  "error_code": "CONTAINER_CLEANUP_UNCERTAIN",
+  "intent_recorded": true,
+  "request_id": "6eafcb9d-fbb0-494a-9b76-752b8958de5b",
+  "retained_temp_root": "/tmp/cdr-ep03-toy-6eafcb9d-fbb0-494a-9b76-752b8958de5b-nyu2ma_l",
+  "schema_version": "1.0"
+}
