@@ -1,0 +1,15 @@
+[Unit]
+Description=Chat-Dev Runner offline prototype (no cloud connection)
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.local/share/chat-dev-runner-kit
+ExecStart=/usr/bin/python3 %h/.local/share/chat-dev-runner-kit/scripts/serve_prototype.py
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+PrivateTmp=yes
+UMask=0077
+
+[Install]
+WantedBy=default.target

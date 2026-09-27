@@ -1,0 +1,46 @@
+{
+  "drive_workspace_bootstrap_invoked": false,
+  "euid": 1000,
+  "external_writes": false,
+  "implementation": "Injected Drive service; one create per call; global appProperties reconciliation including moved/trashed file refusal",
+  "live_drive_access": false,
+  "oauth_interactive_invoked": false,
+  "offline": true,
+  "packet": "EP-04",
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "results": {
+    "mypy": {
+      "command": [
+        ".venv/bin/mypy",
+        "runner_app/adapters/drive_upload.py"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-04/upload-mypy.txt"
+    },
+    "pytest": {
+      "command": [
+        ".venv/bin/pytest",
+        "-q",
+        "tests/test_drive_upload.py",
+        "--junitxml",
+        "verification/implementation/EP-04/upload-tests.xml"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-04/upload-pytest.txt"
+    },
+    "ruff": {
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "runner_app/adapters/drive_upload.py",
+        "tests/test_drive_upload.py"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-04/upload-ruff.txt"
+    }
+  },
+  "slice": "exact-id-google-upload",
+  "test_count": 0,
+  "time_utc": "2026-09-27T05:08:18.635858+00:00"
+}

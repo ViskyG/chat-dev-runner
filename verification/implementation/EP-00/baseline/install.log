@@ -1,0 +1,53 @@
+Obtaining file:///home/visky/Work/GPTRunner/chat-dev-runner
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Collecting jsonschema<5,>=4.21
+  Using cached jsonschema-4.26.0-py3-none-any.whl (90 kB)
+Collecting playwright<2,>=1.40
+  Downloading playwright-1.63.0-py3-none-manylinux1_x86_64.whl (48.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.2/48.2 MB 499.1 kB/s eta 0:00:00
+Collecting pytest<10,>=8
+  Downloading pytest-9.1.1-py3-none-any.whl (386 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 386.5/386.5 KB 833.4 kB/s eta 0:00:00
+Collecting attrs>=22.2.0
+  Using cached attrs-26.1.0-py3-none-any.whl (67 kB)
+Collecting jsonschema-specifications>=2023.03.6
+  Using cached jsonschema_specifications-2025.9.1-py3-none-any.whl (18 kB)
+Collecting rpds-py>=0.25.0
+  Using cached rpds_py-0.30.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (390 kB)
+Collecting referencing>=0.28.4
+  Using cached referencing-0.37.0-py3-none-any.whl (26 kB)
+Collecting greenlet<4.0.0,>=3.1.1
+  Downloading greenlet-3.5.6-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (622 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 622.8/622.8 KB 712.3 kB/s eta 0:00:00
+Collecting pyee<14,>=13
+  Downloading pyee-13.0.1-py3-none-any.whl (15 kB)
+Collecting pygments>=2.7.2
+  Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 721.6 kB/s eta 0:00:00
+Collecting exceptiongroup>=1
+  Downloading exceptiongroup-1.3.1-py3-none-any.whl (16 kB)
+Collecting pluggy<2,>=1.5
+  Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+Collecting iniconfig>=1.0.1
+  Downloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+Collecting packaging>=22
+  Using cached packaging-26.3-py3-none-any.whl (129 kB)
+Collecting tomli>=1
+  Downloading tomli-2.4.1-py3-none-any.whl (14 kB)
+Collecting typing-extensions>=4.6.0
+  Using cached typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Building wheels for collected packages: chat-dev-runner-reference
+  Building editable for chat-dev-runner-reference (pyproject.toml): started
+  Building editable for chat-dev-runner-reference (pyproject.toml): finished with status 'done'
+  Created wheel for chat-dev-runner-reference: filename=chat_dev_runner_reference-0.1.0-0.editable-py3-none-any.whl size=3122 sha256=7672bd85c9494ccf5e0062966536f169feb46327b90224ec9cd7dbda1cd5a134
+  Stored in directory: /tmp/pip-ephem-wheel-cache-27bq_nx7/wheels/ce/07/f5/ceb69cbd3e138dc3885917e5da86d7367474d255ee6f2e13b9
+Successfully built chat-dev-runner-reference
+Installing collected packages: typing-extensions, tomli, rpds-py, pygments, pluggy, packaging, iniconfig, greenlet, attrs, referencing, pyee, exceptiongroup, pytest, playwright, jsonschema-specifications, jsonschema, chat-dev-runner-reference
+Successfully installed attrs-26.1.0 chat-dev-runner-reference-0.1.0 exceptiongroup-1.3.1 greenlet-3.5.6 iniconfig-2.3.0 jsonschema-4.26.0 jsonschema-specifications-2025.9.1 packaging-26.3 playwright-1.63.0 pluggy-1.6.0 pyee-13.0.1 pygments-2.21.0 pytest-9.1.1 referencing-0.37.0 rpds-py-0.30.0 tomli-2.4.1 typing-extensions-4.16.0

@@ -1,0 +1,35 @@
+{
+  "packet": "EP-01",
+  "status": "IN_PROGRESS",
+  "pause_reason": "Explicit owner request to discuss cheaper model",
+  "full_suite": {
+    "exit_code": 0,
+    "passed": 325,
+    "log": "checkpoint-tests.log",
+    "junit": "checkpoint.junit.xml",
+    "api_runtime_acceptance": "Separate later API run:14 passed,1 failed; full325 run predates API test file"
+  },
+  "lint": {
+    "exit_code": 0,
+    "log": "checkpoint-lint-final.log"
+  },
+  "mypy": {
+    "exit_code": 0,
+    "log": "checkpoint-types.log"
+  },
+  "external_writes": false,
+  "armed": false,
+  "cloud_integrations": "NOT_CONFIGURED",
+  "prior_packet": "EP-00 VERIFIED",
+  "next_action": "Finish EP-01 API acceptance after owner resumes; see checkpoint",
+  "wheel": "Existing dist wheel is EP-00 only",
+  "focused_api": {
+    "command": ".venv/bin/python -m pytest -q tests/test_domain_api.py --basetemp=/tmp/cdr-domain-api-review-tests",
+    "exit_code": 1,
+    "passed": 14,
+    "failed": 1,
+    "evidence_kind": "Subagent executed and reported exact result; no dedicated JUnit/log retained",
+    "failure": "tests/test_domain_api.py:270: session-bootstrap.json remains after SIGTERM shutdown of real runtime",
+    "required_next_step": "Investigate Uvicorn signal handling and Runtime.close cleanup; then rerun focused API suite and full acceptance"
+  }
+}

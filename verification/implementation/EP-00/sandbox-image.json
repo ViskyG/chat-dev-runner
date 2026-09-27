@@ -1,0 +1,95 @@
+{
+  "evidence_version": "1.0",
+  "packet": "EP-00",
+  "observed_at": "2026-09-26T18:49:33.698454+00:00",
+  "environment": "official public OCI registry; metadata reads only",
+  "collector_command": "python3 (urllib.request registry GETs via stdin)",
+  "requested_tag": "docker.io/library/python:3.10-slim-bookworm",
+  "platform": "linux/amd64",
+  "sources": [
+    "https://hub.docker.com/_/python",
+    "https://github.com/docker-library/official-images/blob/master/library/python",
+    "https://docs.docker.com/engine/security/rootless/"
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "url": "https://auth.docker.io/token?service=registry.docker.io&scope=repository:library/python:pull",
+      "started_at": "2026-09-26T18:49:33.698470+00:00",
+      "headers": {
+        "Accept": "application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json"
+      },
+      "authorization": "none",
+      "http_status": 200,
+      "exit_code": 0,
+      "content_type": "application/json",
+      "docker_content_digest": null,
+      "body_sha256": "be65651754ee440b4c1dc1db2ea9b001a5bfab91d453c6b92b2b79eb9d4c3cf3",
+      "response_bytes": 5489
+    },
+    {
+      "method": "GET",
+      "url": "https://registry-1.docker.io/v2/library/python/manifests/3.10-slim-bookworm",
+      "started_at": "2026-09-26T18:49:34.243079+00:00",
+      "headers": {
+        "Accept": "application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json"
+      },
+      "authorization": "ephemeral anonymous public-registry bearer token; not persisted",
+      "http_status": 200,
+      "exit_code": 0,
+      "content_type": "application/vnd.oci.image.index.v1+json",
+      "docker_content_digest": "sha256:2559be987fd64d61badbdafd303ea58a9ccab36d6c3c08bce219e762177d2eca",
+      "body_sha256": "2559be987fd64d61badbdafd303ea58a9ccab36d6c3c08bce219e762177d2eca",
+      "response_bytes": 6546
+    },
+    {
+      "method": "GET",
+      "url": "https://registry-1.docker.io/v2/library/python/manifests/sha256:54b4fc9408ea4f5d1b1b9c63c7ef1968d46d3b927e00df8ab1f09364593f979f",
+      "started_at": "2026-09-26T18:49:34.802302+00:00",
+      "headers": {
+        "Accept": "application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json"
+      },
+      "authorization": "ephemeral anonymous public-registry bearer token; not persisted",
+      "http_status": 200,
+      "exit_code": 0,
+      "content_type": "application/vnd.oci.image.manifest.v1+json",
+      "docker_content_digest": "sha256:54b4fc9408ea4f5d1b1b9c63c7ef1968d46d3b927e00df8ab1f09364593f979f",
+      "body_sha256": "54b4fc9408ea4f5d1b1b9c63c7ef1968d46d3b927e00df8ab1f09364593f979f",
+      "response_bytes": 1752
+    },
+    {
+      "method": "GET",
+      "url": "https://registry-1.docker.io/v2/library/python/blobs/sha256:89f2d1fc03aada50d59d99f604e17a5c58fc2dc0ab33c4cf966391a207980d66",
+      "started_at": "2026-09-26T18:49:35.285735+00:00",
+      "headers": {
+        "Accept": "application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json"
+      },
+      "authorization": "ephemeral anonymous public-registry bearer token; not persisted",
+      "http_status": 200,
+      "exit_code": 0,
+      "content_type": "application/octet-stream",
+      "docker_content_digest": null,
+      "body_sha256": "89f2d1fc03aada50d59d99f604e17a5c58fc2dc0ab33c4cf966391a207980d66",
+      "response_bytes": 5505
+    }
+  ],
+  "side_effects": {
+    "image_pulls": false,
+    "container_runs": false,
+    "service_changes": false,
+    "account_changes": false
+  },
+  "readiness": "NOT_VERIFIED",
+  "readiness_reason": "Metadata pin only. The selected image has not been pulled, executed, or tested for containment on this host. Rootless runtime remains NOT_CONFIGURED.",
+  "resolution_status": "VERIFIED_REGISTRY_METADATA",
+  "index_digest": "sha256:2559be987fd64d61badbdafd303ea58a9ccab36d6c3c08bce219e762177d2eca",
+  "platform_digest": "sha256:54b4fc9408ea4f5d1b1b9c63c7ef1968d46d3b927e00df8ab1f09364593f979f",
+  "config_digest": "sha256:89f2d1fc03aada50d59d99f604e17a5c58fc2dc0ab33c4cf966391a207980d66",
+  "pinned_image": "docker.io/library/python@sha256:54b4fc9408ea4f5d1b1b9c63c7ef1968d46d3b927e00df8ab1f09364593f979f",
+  "index_image": "docker.io/library/python@sha256:2559be987fd64d61badbdafd303ea58a9ccab36d6c3c08bce219e762177d2eca",
+  "python_version": "3.10.21",
+  "manifest_media_type": "application/vnd.oci.image.manifest.v1+json",
+  "index_media_type": "application/vnd.oci.image.index.v1+json",
+  "registry_digest_checks": "All manifest/config body SHA-256 hashes match returned digests.",
+  "image_layer_count": 4
+}

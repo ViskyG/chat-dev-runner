@@ -1,0 +1,190 @@
+{
+  "mode": "PLAN_ONLY",
+  "network_calls": false,
+  "oauth_scope": "https://www.googleapis.com/auth/drive.file",
+  "entry_count": 26,
+  "entries": [
+    {
+      "key": "root",
+      "name": "Chat-Dev Runner",
+      "kind": "folder"
+    },
+    {
+      "key": "control",
+      "name": "00 Control",
+      "kind": "folder",
+      "parent": "root"
+    },
+    {
+      "key": "projects",
+      "name": "01 Projects",
+      "kind": "folder",
+      "parent": "root"
+    },
+    {
+      "key": "results",
+      "name": "02 Results",
+      "kind": "folder",
+      "parent": "root"
+    },
+    {
+      "key": "contracts",
+      "name": "03 Contracts",
+      "kind": "folder",
+      "parent": "root"
+    },
+    {
+      "key": "templates",
+      "name": "04 Templates",
+      "kind": "folder",
+      "parent": "root"
+    },
+    {
+      "key": "start-here",
+      "name": "START HERE",
+      "kind": "document",
+      "parent": "root",
+      "source": "drive-seed/00-control/START_HERE_RU.md"
+    },
+    {
+      "key": "chat-protocol",
+      "name": "CHAT PROTOCOL",
+      "kind": "document",
+      "parent": "control",
+      "source": "drive-seed/00-control/CHAT_PROTOCOL.md"
+    },
+    {
+      "key": "command",
+      "name": "COMMAND",
+      "kind": "document",
+      "parent": "control",
+      "source": "drive-seed/00-control/COMMAND.json"
+    },
+    {
+      "key": "receipt",
+      "name": "RECEIPT",
+      "kind": "document",
+      "parent": "control",
+      "source": "drive-seed/00-control/RECEIPT.json"
+    },
+    {
+      "key": "state",
+      "name": "SYSTEM STATE",
+      "kind": "document",
+      "parent": "control",
+      "source": "drive-seed/00-control/SYSTEM_STATE.json"
+    },
+    {
+      "key": "recipes",
+      "name": "COMMAND RECIPES",
+      "kind": "document",
+      "parent": "control",
+      "source": "drive-seed/00-control/COMMAND_RECIPES.md"
+    },
+    {
+      "key": "project-template",
+      "name": "PROJECT README",
+      "kind": "document",
+      "parent": "templates",
+      "source": "drive-seed/01-projects/PROJECT_README_TEMPLATE.md"
+    },
+    {
+      "key": "workspace-template",
+      "name": "WORKSPACE STATE",
+      "kind": "document",
+      "parent": "templates",
+      "source": "drive-seed/01-projects/WORKSPACE_STATE_TEMPLATE.json"
+    },
+    {
+      "key": "context-template",
+      "name": "SOURCE CONTEXT",
+      "kind": "document",
+      "parent": "templates",
+      "source": "drive-seed/01-projects/CONTEXT_TEMPLATE.md"
+    },
+    {
+      "key": "changeset-template",
+      "name": "CHANGESET",
+      "kind": "document",
+      "parent": "templates",
+      "source": "drive-seed/01-projects/CHANGESET_TEMPLATE.json"
+    },
+    {
+      "key": "result-template",
+      "name": "LATEST RESULT",
+      "kind": "document",
+      "parent": "templates",
+      "source": "drive-seed/02-results/RESULT_TEMPLATE.md"
+    },
+    {
+      "key": "output-formats",
+      "name": "OUTPUT FORMATS",
+      "kind": "document",
+      "parent": "contracts",
+      "source": "drive-seed/03-contracts/OUTPUT_FORMATS.md"
+    },
+    {
+      "key": "schema-application-log.schema",
+      "name": "application-log.schema.json",
+      "kind": "file",
+      "parent": "contracts",
+      "source": "schemas/application-log.schema.json",
+      "mime_type": "application/json"
+    },
+    {
+      "key": "schema-changeset.schema",
+      "name": "changeset.schema.json",
+      "kind": "file",
+      "parent": "contracts",
+      "source": "schemas/changeset.schema.json",
+      "mime_type": "application/json"
+    },
+    {
+      "key": "schema-command.schema",
+      "name": "command.schema.json",
+      "kind": "file",
+      "parent": "contracts",
+      "source": "schemas/command.schema.json",
+      "mime_type": "application/json"
+    },
+    {
+      "key": "schema-operation-manifest.schema",
+      "name": "operation-manifest.schema.json",
+      "kind": "file",
+      "parent": "contracts",
+      "source": "schemas/operation-manifest.schema.json",
+      "mime_type": "application/json"
+    },
+    {
+      "key": "schema-output.schema",
+      "name": "output.schema.json",
+      "kind": "file",
+      "parent": "contracts",
+      "source": "schemas/output.schema.json",
+      "mime_type": "application/json"
+    },
+    {
+      "key": "schema-receipt.schema",
+      "name": "receipt.schema.json",
+      "kind": "file",
+      "parent": "contracts",
+      "source": "schemas/receipt.schema.json",
+      "mime_type": "application/json"
+    },
+    {
+      "key": "schema-run-manifest.schema",
+      "name": "run-manifest.schema.json",
+      "kind": "file",
+      "parent": "contracts",
+      "source": "schemas/run-manifest.schema.json",
+      "mime_type": "application/json"
+    },
+    {
+      "key": "installation-index",
+      "name": "INSTALLATION INDEX",
+      "kind": "document",
+      "parent": "root",
+      "dynamic": "installation_index"
+    }
+  ]
+}

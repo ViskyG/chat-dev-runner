@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.612" timestamp="2026-09-26T23:23:30.738924+04:00" hostname="k8s-master"><testcase classname="tests.test_domain_api" name="test_immediate_admission_dedup_busy_and_cancellation_without_free_slot" time="0.246"><failure message="OverflowError: Python int too large to convert to SQLite INTEGER">api = {'client': &lt;starlette.testclient.TestClient object at 0x7cf07c030ee0&gt;, 'engine': &lt;runner_app.engine.service.Engine obj...runner_app.storage.ledger.Ledger object at 0x7cf07c031cc0&gt;, 'csrf': 'Jfb4J4DC9BgPP2Op3-5-9JHp0nQ4WhECaIDGZuVjPtc', ...}
+
+    def test_immediate_admission_dedup_busy_and_cancellation_without_free_slot(api: dict[str, Any]) -&gt; None:
+        client, headers = api["client"], api["headers"]
+        assert client.post("/api/v1/local/arm", json={}, headers=headers).status_code == 200
+        first = command(api)
+        admitted = client.post("/api/v1/operations", json=first, headers=headers)
+        assert admitted.status_code == 202
+        assert admitted.json()["status"] == "RUNNING"
+        assert api["entered"].wait(timeout=2)
+        duplicate = client.post("/api/v1/operations", json=first, headers=headers)
+        assert duplicate.status_code == 200
+        assert duplicate.json() == admitted.json()
+        refused = command(api)
+        busy = client.post("/api/v1/operations", json=refused, headers=headers)
+        assert busy.status_code == 409 and busy.json()["code"] == "BUSY"
+        assert api["ledger"].state()["reserved_capacity"] == 1
+        cancellation = command(api, action="CANCEL_OPERATION",
+                               params={"target_request_id": first["request_id"]})
+        cancelled = client.post("/api/v1/operations", json=cancellation, headers=headers)
+        assert cancelled.status_code == 202
+        assert cancelled.json()["status"] == "COMPLETED"
+        deadline = time.monotonic() + 2
+        while api["ledger"].get(first["request_id"])["status"] == "RUNNING":
+            assert time.monotonic() &lt; deadline
+            time.sleep(0.01)
+        assert api["ledger"].get(first["request_id"])["status"] == "CANCELLED"
+        assert api["calls"] == [first["request_id"]]
+        repeated_busy = client.post("/api/v1/operations", json=refused, headers=headers)
+        assert repeated_busy.status_code == 200
+        assert repeated_busy.json()["code"] == "BUSY"
+        assert api["calls"] == [first["request_id"]]
+        events = client.get("/api/v1/events")
+        assert events.status_code == 200 and "text/event-stream" in events.headers["content-type"]
+        ids = [int(line[4:]) for line in events.text.splitlines() if line.startswith("id: ")]
+        assert ids and ids == sorted(ids)
+        resumed = client.get("/api/v1/events", headers={"Last-Event-ID": str(ids[-1])})
+        assert resumed.status_code == 200
+        assert "id: " not in resumed.text
+        assert client.get("/api/v1/events", headers={"Last-Event-ID": "../secret"}).status_code == 422
+        assert client.get("/api/v1/events?after=-1").status_code == 422
+        assert client.get("/api/v1/events?after=nan").status_code == 422
+&gt;       assert client.get("/api/v1/events?after=999999999999999999999999").status_code == 422
+
+tests/test_domain_api.py:258: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.10/site-packages/httpx/_client.py:1053: in get
+    return self.request(
+.venv/lib/python3.10/site-packages/starlette/testclient.py:463: in request
+    return super().request(
+.venv/lib/python3.10/site-packages/httpx/_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+.venv/lib/python3.10/site-packages/httpx/_client.py:914: in send
+    response = self._send_handling_auth(
+.venv/lib/python3.10/site-packages/httpx/_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+.venv/lib/python3.10/site-packages/httpx/_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+.venv/lib/python3.10/site-packages/httpx/_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+.venv/lib/python3.10/site-packages/starlette/testclient.py:360: in handle_request
+    raise exc
+.venv/lib/python3.10/site-packages/starlette/testclient.py:357: in handle_request
+    portal.call(self.app, scope, receive, send)
+.venv/lib/python3.10/site-packages/anyio/from_thread.py:340: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+/usr/lib/python3.10/concurrent/futures/_base.py:458: in result
+    return self.__get_result()
+/usr/lib/python3.10/concurrent/futures/_base.py:403: in __get_result
+    raise self._exception
+.venv/lib/python3.10/site-packages/anyio/from_thread.py:265: in _call_func
+    retval = await retval_or_awaitable
+.venv/lib/python3.10/site-packages/fastapi/applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+.venv/lib/python3.10/site-packages/starlette/applications.py:96: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv/lib/python3.10/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+.venv/lib/python3.10/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+.venv/lib/python3.10/site-packages/starlette/middleware/base.py:202: in __call__
+    raise app_exc
+.venv/lib/python3.10/site-packages/starlette/middleware/base.py:149: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+.venv/lib/python3.10/site-packages/starlette/middleware/base.py:202: in __call__
+    raise app_exc
+.venv/lib/python3.10/site-packages/starlette/middleware/base.py:149: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+.venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+.venv/lib/python3.10/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+.venv/lib/python3.10/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+.venv/lib/python3.10/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.10/site-packages/starlette/routing.py:676: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv/lib/python3.10/site-packages/fastapi/routing.py:2734: in app
+    await route.handle(scope, receive, send)
+.venv/lib/python3.10/site-packages/fastapi/routing.py:1281: in handle
+    await super().handle(scope, receive, send)
+.venv/lib/python3.10/site-packages/starlette/routing.py:282: in handle
+    await self.app(scope, receive, send)
+.venv/lib/python3.10/site-packages/fastapi/routing.py:158: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+.venv/lib/python3.10/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+.venv/lib/python3.10/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+.venv/lib/python3.10/site-packages/fastapi/routing.py:145: in app
+    await response(scope, receive, send)
+.venv/lib/python3.10/site-packages/starlette/responses.py:275: in __call__
+    async with create_collapsing_task_group() as task_group:
+/usr/lib/python3.10/contextlib.py:217: in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+.venv/lib/python3.10/site-packages/starlette/_utils.py:115: in create_collapsing_task_group
+    raise exc from exc.__cause__ or context
+.venv/lib/python3.10/site-packages/starlette/responses.py:278: in wrap
+    await func()
+.venv/lib/python3.10/site-packages/starlette/responses.py:252: in stream_response
+    async for chunk in self.body_iterator:
+runner_app/api/runtime.py:230: in stream
+    rows = await asyncio.to_thread(engine.ledger.events, after=cursor, limit=100)
+/usr/lib/python3.10/asyncio/threads.py:25: in to_thread
+    return await loop.run_in_executor(None, func_call)
+/usr/lib/python3.10/concurrent/futures/thread.py:58: in run
+    result = self.fn(*self.args, **self.kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;runner_app.storage.ledger.Ledger object at 0x7cf07c031cc0&gt;
+after = 999999999999999999999999, limit = 100
+
+    def events(self, after: int = 0, limit: int = 100) -&gt; list[dict[str, Any]]:
+        if not isinstance(after, int) or after &lt; 0 or not 1 &lt;= limit &lt;= 1000:
+            raise ValueError("Invalid event cursor or page size")
+        with self._connection() as connection:
+            return [{"event_id": row["event_id"], "request_id": row["request_id"], "step_id": row["step_id"],
+                     "timestamp": row["timestamp"], "type": row["event_type"], "detail": json.loads(row["detail_json"])}
+&gt;                   for row in connection.execute("SELECT * FROM journal WHERE event_id&gt;? ORDER BY event_id LIMIT ?", (after, limit))]
+E           OverflowError: Python int too large to convert to SQLite INTEGER
+
+runner_app/storage/ledger.py:289: OverflowError</failure></testcase></testsuite></testsuites>

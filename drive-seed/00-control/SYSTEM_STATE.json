@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "state": "NOT_CONFIGURED",
+  "runner_armed": false,
+  "runner_id": null,
+  "epoch": null,
+  "capabilities_verified": [],
+  "github_identity": null,
+  "chat_repository_access": "MANUAL_REQUIRED",
+  "last_drive_check": null,
+  "note": "Template. Only the deployed runner writes current state; no secrets belong here."
+}

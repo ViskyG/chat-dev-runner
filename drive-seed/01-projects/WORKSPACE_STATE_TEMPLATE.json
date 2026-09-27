@@ -1,0 +1,15 @@
+{
+  "state": "TEMPLATE_NOT_A_WORKSPACE",
+  "project_id": null,
+  "workspace_id": null,
+  "branch": null,
+  "head": null,
+  "source_generation": null,
+  "dirty_files": null,
+  "last_run": null,
+  "last_tested_snapshot": null,
+  "result_current": null,
+  "mailboxes": {},
+  "policies": {},
+  "chat_repository_access": "MANUAL_REQUIRED"
+}

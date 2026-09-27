@@ -1,0 +1,213 @@
+{
+  "evidence_version": "1.0",
+  "packet": "EP-00",
+  "observed_at": "2026-09-26T18:48:49.526036+00:00",
+  "environment": "real local host, read-only inventory",
+  "collector_command": "python3 (standard-library inventory via stdin)",
+  "host": {
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "machine": "x86_64",
+    "python": "3.10.12",
+    "python_executable": "/usr/bin/python3",
+    "uid": 1000
+  },
+  "software": {
+    "python3": {
+      "executable": "/usr/bin/python3",
+      "version_probe": {
+        "command": [
+          "/usr/bin/python3",
+          "--version"
+        ],
+        "started_at": "2026-09-26T18:48:49.526569+00:00",
+        "duration_seconds": 0.001,
+        "exit_code": 0,
+        "stdout": "Python 3.10.12",
+        "stderr": ""
+      }
+    },
+    "git": {
+      "executable": "/usr/bin/git",
+      "version_probe": {
+        "command": [
+          "/usr/bin/git",
+          "--version"
+        ],
+        "started_at": "2026-09-26T18:48:49.527151+00:00",
+        "duration_seconds": 0.001,
+        "exit_code": 0,
+        "stdout": "git version 2.34.1",
+        "stderr": ""
+      }
+    },
+    "node": {
+      "executable": "/home/visky/.nvm/versions/node/v22.22.2/bin/node",
+      "version_probe": {
+        "command": [
+          "/home/visky/.nvm/versions/node/v22.22.2/bin/node",
+          "--version"
+        ],
+        "started_at": "2026-09-26T18:48:49.527692+00:00",
+        "duration_seconds": 0.002,
+        "exit_code": 0,
+        "stdout": "v22.22.2",
+        "stderr": ""
+      }
+    },
+    "docker": {
+      "executable": "/usr/bin/docker",
+      "version_probe": {
+        "command": [
+          "/usr/bin/docker",
+          "--version"
+        ],
+        "started_at": "2026-09-26T18:48:49.529549+00:00",
+        "duration_seconds": 0.006,
+        "exit_code": 0,
+        "stdout": "Docker version 29.1.5, build 0e6fee6",
+        "stderr": ""
+      }
+    },
+    "podman": {
+      "executable": null
+    },
+    "systemctl": {
+      "executable": "/usr/bin/systemctl",
+      "version_probe": {
+        "command": [
+          "/usr/bin/systemctl",
+          "--version"
+        ],
+        "started_at": "2026-09-26T18:48:49.535154+00:00",
+        "duration_seconds": 0.001,
+        "exit_code": 0,
+        "stdout": "systemd 249 (249.11-0ubuntu3.22)\n+PAM +AUDIT +SELINUX +APPARMOR +IMA +SMACK +SECCOMP +GCRYPT +GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 -IDN +IPTC +KMOD +LIBCRYPTSETUP +LIBFDISK +PCRE2 -PWQUALITY -P11KIT -QRENCODE +BZIP2 +LZ4 +XZ +ZLIB +ZSTD -XKBCOMMON +UTMP +SYSVINIT default-hierarchy=unified",
+        "stderr": ""
+      }
+    },
+    "newuidmap": {
+      "executable": null
+    },
+    "newgidmap": {
+      "executable": null
+    },
+    "rootlesskit": {
+      "executable": "/usr/bin/rootlesskit",
+      "version_probe": {
+        "command": [
+          "/usr/bin/rootlesskit",
+          "--version"
+        ],
+        "started_at": "2026-09-26T18:48:49.536001+00:00",
+        "duration_seconds": 0.011,
+        "exit_code": 0,
+        "stdout": "rootlesskit version 2.3.5",
+        "stderr": ""
+      }
+    },
+    "slirp4netns": {
+      "executable": "/usr/bin/slirp4netns",
+      "version_probe": {
+        "command": [
+          "/usr/bin/slirp4netns",
+          "--version"
+        ],
+        "started_at": "2026-09-26T18:48:49.546837+00:00",
+        "duration_seconds": 0.001,
+        "exit_code": 0,
+        "stdout": "slirp4netns version 1.0.1\ncommit: 6a7b16babc95b6a3056b33fb45b74a6f62262dd4\nlibslirp: 4.6.1",
+        "stderr": ""
+      }
+    }
+  },
+  "kernel": {
+    "/etc/os-release": {
+      "operation": "read_text",
+      "path": "/etc/os-release",
+      "exit_code": 0,
+      "text": "PRETTY_NAME=\"Ubuntu 22.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.5 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy"
+    },
+    "/sys/fs/cgroup/cgroup.controllers": {
+      "operation": "read_text",
+      "path": "/sys/fs/cgroup/cgroup.controllers",
+      "exit_code": 0,
+      "text": "cpuset cpu io memory hugetlb pids rdma misc"
+    },
+    "/proc/sys/kernel/unprivileged_userns_clone": {
+      "operation": "read_text",
+      "path": "/proc/sys/kernel/unprivileged_userns_clone",
+      "exit_code": 0,
+      "text": "1"
+    },
+    "/proc/sys/user/max_user_namespaces": {
+      "operation": "read_text",
+      "path": "/proc/sys/user/max_user_namespaces",
+      "exit_code": 0,
+      "text": "188374"
+    },
+    "/proc/self/uid_map": {
+      "operation": "read_text",
+      "path": "/proc/self/uid_map",
+      "exit_code": 0,
+      "text": "0          0 4294967295"
+    }
+  },
+  "sources": [
+    "https://docs.docker.com/engine/security/rootless/tips/",
+    "https://docs.docker.com/engine/security/rootless/"
+  ],
+  "side_effects": {
+    "service_or_system_changes": false,
+    "container_runs": false,
+    "image_pulls": false,
+    "cloud_writes": false
+  },
+  "user_service_manager": {
+    "command": [
+      "systemctl",
+      "--user",
+      "is-system-running"
+    ],
+    "started_at": "2026-09-26T18:48:49.547787+00:00",
+    "duration_seconds": 0.001,
+    "exit_code": 1,
+    "stdout": "degraded",
+    "stderr": ""
+  },
+  "runtime_environment": {
+    "XDG_RUNTIME_DIR": "/run/user/1000",
+    "DOCKER_HOST_present": false,
+    "DOCKER_CONTEXT_present": false,
+    "automatic_context_selection_used": false
+  },
+  "local_runtime_sockets": [
+    {
+      "runtime": "docker",
+      "endpoint": "unix:///run/user/1000/docker.sock",
+      "operation": "lstat",
+      "path": "/run/user/1000/docker.sock",
+      "exists": false,
+      "is_socket": false
+    },
+    {
+      "runtime": "podman",
+      "endpoint": "unix:///run/user/1000/podman/podman.sock",
+      "operation": "lstat",
+      "path": "/run/user/1000/podman/podman.sock",
+      "exists": false,
+      "is_socket": false
+    }
+  ],
+  "rootless_runtime_status": "NOT_CONFIGURED",
+  "rootless_runtime_reason": "No selected owner-owned local runtime socket has reported rootless security options. Existing Docker CLI is not proof of a rootless executor.",
+  "selected_python": {
+    "version": "3.10.12",
+    "requires_python": ">=3.10",
+    "reason": "Use the installed host interpreter without modifying system runtimes."
+  },
+  "verification_limits": [
+    "No container was started; cgroup limits, mount isolation and network denial require EP-03 containment smoke tests.",
+    "Only explicit local user sockets were probed; no remote Docker context was selected.",
+    "No daemon/service configuration was modified."
+  ]
+}

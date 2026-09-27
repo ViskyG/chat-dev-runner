@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="0.616" timestamp="2026-09-26T23:19:55.053730+04:00" hostname="k8s-master"><testcase classname="tests.test_domain_api" name="test_real_runtime_private_handoff_and_unavailable_execution" time="0.472" /></testsuite></testsuites>

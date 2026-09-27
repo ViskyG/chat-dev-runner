@@ -1,0 +1,6 @@
+{
+  "packet": "EP-04",
+  "kind": "baseline_reference",
+  "source": "verification/implementation/EP-02/final-summary.json",
+  "reason": "EP-02 final 431-test suite predates EP-03/EP-04 implementation; EP-04 depends on already verified EP-01. The later 604-test suite is recorded in EP-03 final-offline-summary.json."
+}

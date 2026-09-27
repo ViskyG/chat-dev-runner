@@ -1,0 +1,31 @@
+F......                                                                  [100%]
+=================================== FAILURES ===================================
+________ test_failed_project_run_is_durable_and_bound_to_exact_snapshot ________
+
+tmp_path = PosixPath('/tmp/pytest-of-visky/pytest-63/test_failed_project_run_is_dur0')
+
+    def test_failed_project_run_is_durable_and_bound_to_exact_snapshot(tmp_path: Path) -> None:
+        store, registry, ledger, request_id, snapshot_id, _, _ = _fixture(tmp_path)
+        manifest, provenance, files = _evidence(store, request_id, snapshot_id, registry)
+        assert store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                                          provenance=provenance, files=files) == manifest
+        assert ledger.get_run(manifest["run_id"])["execution"]["outcome"] == "FAILED"
+        assert registry.publication_target(manifest["run_id"], project_id="fixture",
+                                           workspace_id="area")["commit"] == manifest["snapshot"]["commit"]
+>       assert ledger.list_outputs(manifest["run_id"]) == manifest["outputs"]
+E       AssertionError: assert [{'complete':...stream', ...}] == [{'output_id'...stream', ...}]
+E         
+E         At index 0 diff: {'complete': True, 'format': 'raw-bytes-v1', 'kind': 'console', 'media_type': 'application/octet-stream', 'output_id': 'stderr-raw', 'publication': 'local_only', 'relative_path': 'capture/stderr.bin', 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'size_bytes': 0, 'truncated_reason': None} != {'output_id': 'stdout-raw', 'kind': 'console', 'format': 'raw-bytes-v1', 'media_type': 'application/octet-stream', 'relative_path': 'capture/stdout.bin', 'size_bytes': 12, 'sha256': '6354acbdc1bc70c62004aae34d799cc7493bf8292a9f40edf85...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests/test_run_evidence.py:123: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.10/site-packages/fastapi/testclient.py:1
+  /home/visky/Work/GPTRunner/chat-dev-runner/.venv/lib/python3.10/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_run_evidence.py::test_failed_project_run_is_durable_and_bound_to_exact_snapshot
+1 failed, 6 passed, 1 warning in 1.64s

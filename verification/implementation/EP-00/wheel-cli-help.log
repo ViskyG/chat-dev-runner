@@ -1,0 +1,15 @@
+usage: runner [-h] [--version] {doctor,install,configure,serve} ...
+
+Local foundation commands; inspect/dry-run never install or authenticate
+anything.
+
+positional arguments:
+  {doctor,install,configure,serve}
+    doctor              Inspect prerequisites without external probes
+    install             Report the installation plan only
+    configure           Describe local setup and authorization gates
+    serve               Run only the loopback health endpoint
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit

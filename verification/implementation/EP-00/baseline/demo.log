@@ -1,0 +1,21 @@
+{
+  "root": "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-00/baseline/toy-demo",
+  "real_local_git": true,
+  "real_local_tests": true,
+  "cloud_calls": false,
+  "user_projects_touched": false,
+  "runs": [
+    {
+      "workspace": "correct",
+      "manifest": "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-00/baseline/toy-demo/results/2f6554bd-ac6d-4c0e-a755-0ffd0bd493db/run-manifest.json",
+      "outcome": "PASSED",
+      "duplicate_executed": false
+    },
+    {
+      "workspace": "failing",
+      "manifest": "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-00/baseline/toy-demo/results/72f9a2df-aeed-4d59-950c-d3c363fb4f62/run-manifest.json",
+      "outcome": "FAILED",
+      "duplicate_executed": false
+    }
+  ]
+}

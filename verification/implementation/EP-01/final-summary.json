@@ -1,0 +1,81 @@
+{
+  "packet": "EP-01",
+  "status": "VERIFIED",
+  "date": "2026-09-26",
+  "environment": {
+    "python": "3.10.12",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "git": "git version 2.34.1",
+    "source_git_checkout": false,
+    "network": "none except loopback test process"
+  },
+  "checks": [
+    {
+      "name": "full_pytest",
+      "exit_code": 0,
+      "passed": 374,
+      "warnings": 1,
+      "log": "verification/implementation/EP-01/final-verified-tests.log",
+      "junit": "verification/implementation/EP-01/final-verified.junit.xml"
+    },
+    {
+      "name": "ruff",
+      "exit_code": 0,
+      "log": "verification/implementation/EP-01/final-verified-lint.log"
+    },
+    {
+      "name": "mypy",
+      "exit_code": 0,
+      "log": "verification/implementation/EP-01/final-verified-types.log"
+    },
+    {
+      "name": "wheel_build",
+      "exit_code": 0,
+      "log": "verification/implementation/EP-01/final-verified-wheel-build.log"
+    },
+    {
+      "name": "installed_wheel_smoke",
+      "exit_code": 0,
+      "log": "verification/implementation/EP-01/wheel-acceptance.json"
+    }
+  ],
+  "file_sha256": {
+    "codex/checkpoints/EP-01.md": "a38f824c48639dec18c59c390c9ea3ece90509954b2463e9eb7b75f577f1f1fb",
+    "deploy/README.md": "c1d3c331c624f567d5bfc1a630839bcbdf05f18d6679ae385ebe7a9ff259bf9d",
+    "docs/API_CONTRACT.md": "fa44cd9a066af3553445e49c8bc9f395694849e377624136de36ad55c260aa41",
+    "docs/DOMAIN_API.md": "5d1552dd8a1952b6f2f846ac287dc18ec879854d38388649261da3dcdf589b61",
+    "pyproject.toml": "8217d9118b5eb4ef8bc4ecafaf1ba1858d6aa3776b708fbe89e1fdbb8bbafed5",
+    "runner_app/__init__.py": "59ac8e2770a23135c259b032897e14491eeb4baf778ea2d4934cc059304c390f",
+    "runner_app/adapters/__init__.py": "b9dedb19b784c7c27508b77caf29fa15b33fc0fe95e5a1af449018b3b80f9911",
+    "runner_app/api/__init__.py": "241ac309bb342606a4f80347ebde0d72a19219d1b6287c3aad40215a9bbec4a1",
+    "runner_app/api/app.py": "42abaf1280e044f689b3206cd2e4e482a229e50d620ab73d63bce0d528906a9a",
+    "runner_app/api/auth.py": "6a95fbb21acdf835afeebe519123fff315e66c42c398f3613cb37314471c5085",
+    "runner_app/api/runtime.py": "669547ba0672fd2f96c612c7fd5a542109eb6bb25fc6d0d0c04a95e267ba247e",
+    "runner_app/cli.py": "883ac9c87725b699b4f0013cd9b33fb61c81cfc4b0ce089e9b5313b07c843f4d",
+    "runner_app/config.py": "fc545c6e1add5bb650bfbc25022182f249bc3824688e2ecd397b21fba5b9ad4b",
+    "runner_app/domain/__init__.py": "0f84c6e2d65f997f12c8edfdde6291025a6cf833c0280e5c7db715c04ee61d91",
+    "runner_app/domain/commands.py": "a34857dbe1d7ae7ab20238879cac0c59dec0b11c743a02c6e2723bd0a5cebcc6",
+    "runner_app/engine/__init__.py": "c0bc57f493dc84d41a5691e814319e36aaff67ce4d6159037ac6f685f6dd0880",
+    "runner_app/engine/runtime.py": "68418bed2b96caf46525413ccd3af56176cfb82eabe9c72292f14a8aa82b56f7",
+    "runner_app/engine/service.py": "ea3de641ac7387900a3f47edb9ad8ee8fe89840a7df362cdf2377af815fe7e00",
+    "runner_app/engine/singleton.py": "1c5400e67478aef0a3eb32613003710f7836c97fb3255f1c777a8745085e325b",
+    "runner_app/executors/__init__.py": "6fa3e8b41634c12d3cf7f609389e59b31508394173f8d1188ea780d42ac01b5f",
+    "runner_app/git/__init__.py": "516936015fec058ffece26fbff0cf2862873397b8cb432067bc0711ad3c16b56",
+    "runner_app/outputs/__init__.py": "5e59fdd2c4078eb110a68272dfa6e2593582fa2e2d1a2df91e6f9695a7be57ab",
+    "runner_app/resources.py": "d965b43796372ba6556cf9f1adb7702bfcbf33cfcbfb5d35d6fef1a30032f375",
+    "runner_app/storage/__init__.py": "617f9a894fb989304bdee884b00534ff731e78519ad1e7dea9afc5abc90e450c",
+    "runner_app/storage/database.py": "0e349ba13eafcab13579ee9f117ab32359ef4da59e182df91d154048f7f2681a",
+    "runner_app/storage/ledger.py": "153cdeada078333990d4775988b86d02c263e113f0103ad00da7a29eb0ae0cbb",
+    "runner_app/storage/paths.py": "37242f7723fa4c5df45564d1093feac6458dc3958eda68ec511500d14940407f",
+    "runner_app/web/__init__.py": "a053a52f790b52cee194293ce39584fb55926ed990118c2b0434b7744812335b",
+    "tests/test_domain_api.py": "75a4fa7c398eeb91f9b5f6b735ef18a243f4ff7fcf715e3861daf06a4ce7a570",
+    "tests/test_domain_commands.py": "4e4dba2e9f74de13be17680da1c23c8acf530f3958dacc5c93b54b216e7ca865",
+    "tests/test_domain_engine.py": "67cbeb90142c4ac80debb0213e68beae5531efc51fdee26c898398db0a4eda46",
+    "tests/test_domain_storage.py": "380dad167aeac9ed636a919426c4eb2203b48b7d72da5d85f88209728bb53747",
+    "tests/test_foundation_api.py": "fcfa83cd11e1b4da97a0731f124e6ae027af59ac10444997ded1682d05688708",
+    "tests/test_foundation_storage.py": "f28ed09bfcb3d05cf034a781418ba9c1f8d43a996f9539181e7f2941279d4884",
+    "tests/test_reference.py": "552fadd062cf006a18a654b5fb99822e435cf89d326235be4825f0c8bb960ff6",
+    "tests/test_seed.py": "cc7f089b0b5bed04e6c071170bfe0ffdc8c8db7b86fad464514a69d001789d15",
+    "verification/implementation/EP-01/wheel/chat_dev_runner-0.2.0-py3-none-any.whl": "6a3b0c3eb80b3f4ad2bd5c2de0c3a3fde780e0affbd107db5b6a50e760f5751e"
+  }
+}

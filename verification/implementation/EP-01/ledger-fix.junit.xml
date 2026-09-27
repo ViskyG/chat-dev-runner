@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="44" time="5.760" timestamp="2026-09-26T23:25:43.226746+04:00" hostname="k8s-master"><testcase classname="tests.test_domain_storage" name="test_startup_and_arming_epochs_are_durable" time="0.085" /><testcase classname="tests.test_domain_storage" name="test_concurrent_identical_requests_execute_once" time="0.185" /><testcase classname="tests.test_domain_storage" name="test_request_identity_collision_preserves_original[False]" time="0.103" /><testcase classname="tests.test_domain_storage" name="test_request_identity_collision_preserves_original[True]" time="0.115" /><testcase classname="tests.test_domain_storage" name="test_terminal_duplicate_returns_original_receipt_after_restart" time="0.102" /><testcase classname="tests.test_domain_storage" name="test_captured_command_preserves_unicode_and_newlines" time="0.077" /><testcase classname="tests.test_domain_storage" name="test_conflicting_scopes_are_terminal_busy[workspace:project/main-workspace:project/main]" time="0.119" /><testcase classname="tests.test_domain_storage" name="test_conflicting_scopes_are_terminal_busy[repo:project-workspace:project/main]" time="0.119" /><testcase classname="tests.test_domain_storage" name="test_conflicting_scopes_are_terminal_busy[workspace:project/main-repo:project]" time="0.126" /><testcase classname="tests.test_domain_storage" name="test_conflicting_scopes_are_terminal_busy[repo:project-repo:project]" time="0.117" /><testcase classname="tests.test_domain_storage" name="test_conflicting_scopes_are_terminal_busy[global:provision-global:provision]" time="0.113" /><testcase classname="tests.test_domain_storage" name="test_independent_scopes_admit_in_parallel[workspace:project/one-workspace:project/two]" time="0.095" /><testcase classname="tests.test_domain_storage" name="test_independent_scopes_admit_in_parallel[repo:project-workspace:project-two/main]" time="0.089" /><testcase classname="tests.test_domain_storage" name="test_independent_scopes_admit_in_parallel[workspace:project/main-workspace:project/main-two]" time="0.089" /><testcase classname="tests.test_domain_storage" name="test_lock_set_is_atomic_and_has_no_partial_reservation" time="0.101" /><testcase classname="tests.test_domain_storage" name="test_concurrent_competing_scopes_admit_only_one" time="0.416" /><testcase classname="tests.test_domain_storage" name="test_concurrent_global_capacity_is_not_oversubscribed" time="0.655" /><testcase classname="tests.test_domain_storage" name="test_cancellation_is_admitted_disarmed_with_every_slot_occupied" time="0.125" /><testcase classname="tests.test_domain_storage" name="test_admission_rechecks_runner_and_epoch_in_transaction[change0]" time="0.078" /><testcase classname="tests.test_domain_storage" name="test_admission_rechecks_runner_and_epoch_in_transaction[change1]" time="0.077" /><testcase classname="tests.test_domain_storage" name="test_disarm_invalidates_previously_valid_admission" time="0.092" /><testcase classname="tests.test_domain_storage" name="test_engine_rejection_takes_priority_and_is_durable" time="0.106" /><testcase classname="tests.test_domain_storage" name="test_malformed_identity_cannot_enter_database[../state]" time="0.066" /><testcase classname="tests.test_domain_storage" name="test_malformed_identity_cannot_enter_database[]" time="0.071" /><testcase classname="tests.test_domain_storage" name="test_malformed_identity_cannot_enter_database[not-a-uuid]" time="0.065" /><testcase classname="tests.test_domain_storage" name="test_malformed_identity_cannot_enter_database[None]" time="0.075" /><testcase classname="tests.test_domain_storage" name="test_malformed_identity_cannot_enter_database[42]" time="0.065" /><testcase classname="tests.test_domain_storage" name="test_crash_interrupts_running_work_and_retains_uncertain_effects" time="0.135"><failure message="runner_app.storage.ledger.LedgerError: External effect is not confirmed">ledger = &lt;runner_app.storage.ledger.Ledger object at 0x7c2a983d15d0&gt;
+database = Database(path=PosixPath('/tmp/cdr-ep01-ledger-fix/test_crash_interrupts_running_0/state/state.sqlite'), busy_timeout_ms=5000)
+
+    def test_crash_interrupts_running_work_and_retains_uncertain_effects(ledger: Ledger,
+                                                                      database: Database) -&gt; None:
+        command = make_command(ledger)
+        assert admit(ledger, command).execute
+        pending = ledger.begin_effect(command["request_id"], "publish", "git_ref",
+                                      {"branch": "fixture"})
+        confirmed = ledger.begin_effect(command["request_id"], "report", "drive_file",
+                                        {"name": "fixture-result"})
+        ledger.confirm_effect(confirmed, "provider-result-123")
+        restarted = Ledger(database, runner_id="local-runner")
+        restarted.startup()
+        interrupted = restarted.get(command["request_id"])
+        assert_receipt(interrupted["receipt"], "INTERRUPTED", "NEEDS_RECONCILIATION")
+        effects = {effect["effect_id"]: effect for effect in interrupted["effects"]}
+        assert effects[pending]["state"] == "UNKNOWN"
+        assert effects[confirmed]["state"] == "CONFIRMED"
+        assert effects[confirmed]["provider_id"] == "provider-result-123"
+        with closing(database.connect()) as connection:
+            assert connection.execute("SELECT count(*) FROM locks").fetchone()[0] == 1
+            assert connection.execute("SELECT capacity_held FROM operations").fetchone()[0] == 1
+        with pytest.raises(ValueError):
+            restarted.arm()
+        with pytest.raises(ValueError):
+            restarted.begin_effect(command["request_id"], "publish", "git_ref", {})
+        assert admit(restarted, command).execute is False
+&gt;       restarted.confirm_stopped(command["request_id"])
+
+tests/test_domain_storage.py:335: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;runner_app.storage.ledger.Ledger object at 0x7c2a983d1b70&gt;
+request_id = '265f4a5c-bcf6-4c73-b58b-a87850ba0532'
+
+    def confirm_stopped(self, request_id: str) -&gt; None:
+        """Trusted recovery calls only after verifying the owned worker is gone."""
+        with self._transaction() as connection:
+            row = connection.execute("SELECT status,reconcile_required FROM operations WHERE request_id=?", (request_id,)).fetchone()
+            if row is None or row["status"] not in {"INTERRUPTED", "FAULT", "BLOCKED"}:
+                raise LedgerError("INVALID_TRANSITION", "Only uncertain terminal operations need reconciliation")
+            if not row["reconcile_required"]:
+                return
+            effect = connection.execute(
+                "SELECT 1 FROM effects WHERE request_id=? AND state IN ('INTENDED','UNKNOWN') LIMIT 1",
+                (request_id,),
+            ).fetchone()
+            if effect:
+&gt;               raise LedgerError("NEEDS_RECONCILIATION", "External effect is not confirmed")
+E               runner_app.storage.ledger.LedgerError: External effect is not confirmed
+
+runner_app/storage/ledger.py:305: LedgerError</failure></testcase><testcase classname="tests.test_domain_storage" name="test_explicit_interruption_holds_capacity_until_workers_confirmed_stopped" time="0.108"><failure message="AssertionError: assert 'NEEDS_RECONCILIATION' == 'PROCESS_STATE_UNKNOWN'&#10;  &#10;  - PROCESS_STATE_UNKNOWN&#10;  + NEEDS_RECONCILIATION">ledger = &lt;runner_app.storage.ledger.Ledger object at 0x7c2a982f1750&gt;
+
+    def test_explicit_interruption_holds_capacity_until_workers_confirmed_stopped(ledger: Ledger) -&gt; None:
+        first = make_command(ledger)
+        second = make_command(ledger)
+        assert admit(ledger, first, ("repo:one",)).execute
+        assert admit(ledger, second, ("repo:two",)).execute
+        interrupted = ledger.finish(first["request_id"], "INTERRUPTED", code="PROCESS_STATE_UNKNOWN")
+&gt;       assert_receipt(interrupted, "INTERRUPTED", "PROCESS_STATE_UNKNOWN")
+
+tests/test_domain_storage.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+receipt = {'schema_version': '1.0', 'request_id': 'b0313bee-2798-4ea4-af88-89185c156436', 'request_digest': '128aaeb83e14deaeec9556259df266b5afcdb4d56f4ad0ab58350e637fa1b2be', 'status': 'INTERRUPTED', ...}
+status = 'INTERRUPTED', code = 'PROCESS_STATE_UNKNOWN'
+
+    def assert_receipt(receipt: dict[str, Any], status: str, code: str | None = None) -&gt; None:
+        schema = json.loads(
+            (Path(__file__).resolve().parents[1] / "schemas/receipt.schema.json").read_text()
+        )
+        jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker()).validate(
+            receipt
+        )
+        assert receipt["status"] == status
+&gt;       assert receipt["code"] == code
+E       AssertionError: assert 'NEEDS_RECONCILIATION' == 'PROCESS_STATE_UNKNOWN'
+E         
+E         - PROCESS_STATE_UNKNOWN
+E         + NEEDS_RECONCILIATION
+
+tests/test_domain_storage.py:63: AssertionError</failure></testcase><testcase classname="tests.test_domain_storage" name="test_effect_confirmation_is_idempotent_but_provider_identity_is_immutable" time="0.107" /><testcase classname="tests.test_domain_storage" name="test_effect_intent_is_frozen_and_duplicate_intent_has_one_identity" time="0.093" /><testcase classname="tests.test_domain_storage" name="test_rejection_reserves_neither_locks_nor_execution_slots" time="0.107" /><testcase classname="tests.test_domain_storage" name="test_regular_operations_cannot_claim_cancellation_capacity_exemption" time="0.065" /><testcase classname="tests.test_domain_storage" name="test_stop_confirmation_cannot_release_a_running_operation" time="0.091" /><testcase classname="tests.test_domain_storage" name="test_terminal_truth_cannot_be_rewritten" time="0.098" /><testcase classname="tests.test_domain_storage" name="test_database_guards_immutable_command_and_append_only_journal" time="0.095" /><testcase classname="tests.test_domain_storage" name="test_operation_and_event_pagination_do_not_repeat_or_skip" time="0.384" /><testcase classname="tests.test_domain_engine" name="test_concurrent_duplicates_execute_exactly_once" time="0.173" /><testcase classname="tests.test_domain_engine" name="test_busy_is_durable_and_never_launches_when_capacity_frees" time="0.162" /><testcase classname="tests.test_domain_engine" name="test_cancel_reaches_worker_with_all_slots_busy_and_while_disarmed" time="0.174" /><testcase classname="tests.test_domain_engine" name="test_cancel_cannot_cross_workspace_authority" time="0.136" /><testcase classname="tests.test_domain_engine" name="test_schema_refusal_with_safe_id_is_persisted_and_original_not_overwritten" time="0.108" /><testcase classname="tests.test_domain_engine" name="test_unavailable_handler_refuses_without_fake_success" time="0.097" /><testcase classname="tests.test_domain_engine" name="test_singleton_nonblocking_and_releasable" time="0.001" /></testsuite></testsuites>

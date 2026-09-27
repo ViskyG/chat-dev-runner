@@ -1,0 +1,137 @@
+[
+  {
+    "command": [
+      "python3",
+      "-m",
+      "venv",
+      "/tmp/cdr-wheel-acceptance-qmb3n0jx/venv"
+    ],
+    "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner",
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/wheel-clean-venv.log",
+    "duration_seconds": 1.243,
+    "environment": "clean local wheel venv; no user projects or cloud"
+  },
+  {
+    "command": [
+      "uv",
+      "pip",
+      "install",
+      "--python",
+      "/tmp/cdr-wheel-acceptance-qmb3n0jx/venv/bin/python",
+      "--require-hashes",
+      "-r",
+      "/home/visky/Work/GPTRunner/chat-dev-runner/requirements.lock"
+    ],
+    "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner",
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/wheel-clean-dependencies.log",
+    "duration_seconds": 55.453,
+    "environment": "clean local wheel venv; no user projects or cloud"
+  },
+  {
+    "command": [
+      "uv",
+      "pip",
+      "install",
+      "--python",
+      "/tmp/cdr-wheel-acceptance-qmb3n0jx/venv/bin/python",
+      "--no-deps",
+      "/home/visky/Work/GPTRunner/chat-dev-runner/dist/chat_dev_runner-0.2.0-py3-none-any.whl"
+    ],
+    "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner",
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/wheel-install.log",
+    "duration_seconds": 0.008,
+    "environment": "clean local wheel venv; no user projects or cloud"
+  },
+  {
+    "command": [
+      "/tmp/cdr-wheel-acceptance-qmb3n0jx/venv/bin/python",
+      "-I",
+      "-c",
+      "import json, pathlib, runner_app, bridge_reference.protocol as p\nfrom runner_app.resources import SCHEMA_NAMES, load_schema\nimport jsonschema\nassert \"site-packages\" in runner_app.__file__, runner_app.__file__\nassert \"site-packages\" in str(p.SCHEMAS), p.SCHEMAS\nfor name in SCHEMA_NAMES:\n    s=load_schema(name); jsonschema.Draft202012Validator.check_schema(s)\n    assert s==json.loads((p.SCHEMAS/(name+\".schema.json\")).read_text())\ntry:p.validate_schema({},\"command\")\nexcept p.Rejected as e:assert e.code==\"INVALID_SCHEMA\"\nelse:raise AssertionError(\"Reference validator not active\")\nprint(json.dumps({\"runner_import\":runner_app.__file__,\"reference_import\":p.__file__,\"schemas\":sorted(SCHEMA_NAMES),\"count\":len(SCHEMA_NAMES),\"isolated\":True}))\n"
+    ],
+    "cwd": "/tmp/cdr-wheel-acceptance-qmb3n0jx",
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/wheel-import.log",
+    "duration_seconds": 0.127,
+    "environment": "clean local wheel venv; no user projects or cloud"
+  },
+  {
+    "command": [
+      "/tmp/cdr-wheel-acceptance-qmb3n0jx/venv/bin/runner",
+      "--help"
+    ],
+    "cwd": "/tmp/cdr-wheel-acceptance-qmb3n0jx",
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/wheel-cli-help.log",
+    "duration_seconds": 0.11,
+    "environment": "clean local wheel venv; no user projects or cloud"
+  },
+  {
+    "command": [
+      "/tmp/cdr-wheel-acceptance-qmb3n0jx/venv/bin/runner",
+      "doctor",
+      "--offline"
+    ],
+    "cwd": "/tmp/cdr-wheel-acceptance-qmb3n0jx",
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/wheel-doctor.log",
+    "duration_seconds": 0.072,
+    "environment": "clean local wheel venv; no user projects or cloud"
+  },
+  {
+    "command": [
+      "/tmp/cdr-wheel-acceptance-qmb3n0jx/venv/bin/runner",
+      "install",
+      "--dry-run"
+    ],
+    "cwd": "/tmp/cdr-wheel-acceptance-qmb3n0jx",
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/wheel-install-dry-run.log",
+    "duration_seconds": 0.073,
+    "environment": "clean local wheel venv; no user projects or cloud"
+  },
+  {
+    "command": [
+      "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+      "-m",
+      "build",
+      "--wheel",
+      "--no-isolation"
+    ],
+    "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner",
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/wheel-build-final.log",
+    "environment": "real source checkout"
+  },
+  {
+    "command": [
+      "uv",
+      "pip",
+      "install",
+      "--python",
+      "/tmp/cdr-wheel-acceptance-qmb3n0jx/venv/bin/python",
+      "--no-deps",
+      "--reinstall",
+      "/home/visky/Work/GPTRunner/chat-dev-runner/dist/chat_dev_runner-0.2.0-py3-none-any.whl"
+    ],
+    "cwd": "/tmp/cdr-wheel-acceptance-qmb3n0jx",
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/wheel-install-final.log",
+    "environment": "real installed wheel, outside source checkout"
+  },
+  {
+    "command": [
+      "/tmp/cdr-wheel-acceptance-qmb3n0jx/venv/bin/python",
+      "-I",
+      "-c",
+      "import tempfile,pathlib; from runner_app.storage import Database; p=pathlib.Path(tempfile.mkdtemp())/'state.sqlite'; d=Database(p); assert d.migrate()==1; c=d.connect(); assert c.execute('PRAGMA user_version').fetchone()[0]==1; c.close(); print('Installed-wheel private SQLite migration passed')"
+    ],
+    "cwd": "/tmp/cdr-wheel-acceptance-qmb3n0jx",
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/wheel-storage-final.log",
+    "environment": "real installed wheel, outside source checkout"
+  }
+]

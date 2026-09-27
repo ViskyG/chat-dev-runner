@@ -1,0 +1,24 @@
+name: Reference kit checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  reference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[test]'
+      - run: python -m pytest -q --junitxml=verification/ci-reference.junit.xml
+      - run: python scripts/bootstrap_drive.py --plan > verification/ci-drive-plan.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reference-evidence
+          path: verification/ci-*
+# Example CI for this prototype/reference only, not cloud deployment.
+# Pin action commits and lock dependencies in EP-00 before a production release.

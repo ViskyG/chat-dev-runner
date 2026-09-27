@@ -1,0 +1,23 @@
+{
+  "root": "/tmp/cdr-reference-bnpmpv46",
+  "real_local_git": true,
+  "real_local_tests": true,
+  "cloud_calls": false,
+  "user_projects_touched": false,
+  "runs": [
+    {
+      "workspace": "correct",
+      "manifest": "/tmp/cdr-reference-bnpmpv46/results/71be88f5-27e6-40c3-a75b-fc1636bd4ee1/run-manifest.json",
+      "outcome": "PASSED",
+      "duplicate_executed": false,
+      "bundled_evidence": "verification/reference-demo/correct"
+    },
+    {
+      "workspace": "failing",
+      "manifest": "/tmp/cdr-reference-bnpmpv46/results/a341a82f-8f48-482a-ab7b-e4a79b6750f9/run-manifest.json",
+      "outcome": "FAILED",
+      "duplicate_executed": false,
+      "bundled_evidence": "verification/reference-demo/failing"
+    }
+  ]
+}

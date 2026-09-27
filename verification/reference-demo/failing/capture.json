@@ -1,0 +1,25 @@
+{
+  "outcome": "FAILED",
+  "exit_code": 1,
+  "duration_seconds": 0.764545,
+  "streams": {
+    "stdout": {
+      "observed_bytes": 0,
+      "stored_bytes": 0,
+      "complete": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_path": "stdout.bin",
+      "view_path": "stdout.txt",
+      "privacy": "local_only"
+    },
+    "stderr": {
+      "observed_bytes": 1149,
+      "stored_bytes": 1149,
+      "complete": true,
+      "sha256": "15711e312d755a5564d874f460cf519955abe58b2758a6b182b0e0f72c10d677",
+      "raw_path": "stderr.bin",
+      "view_path": "stderr.txt",
+      "privacy": "local_only"
+    }
+  }
+}

@@ -1,0 +1,147 @@
+[
+  {
+    "path": ".gitignore",
+    "change": "modified",
+    "sha256": "b6d2f47c5011a710314a63e5cf292a6095a819dd36f84dc5e63b374160a97008"
+  },
+  {
+    "path": "STATUS.json",
+    "change": "modified",
+    "sha256": "add9817f1760b429b9caae418334738f07f0182aea893bf15411aacd4c6944b3"
+  },
+  {
+    "path": "config/installation.existing.json",
+    "change": "added",
+    "sha256": "ee8e9129036f33793dc098d128982f648524ac2b3606b0f2c944675d64915836"
+  },
+  {
+    "path": "config/profile.python-quick.json",
+    "change": "modified",
+    "sha256": "568879946f5f65ee40b570a01952a6403d63ca951e5f0513cf6f0bff7a5f83d2"
+  },
+  {
+    "path": "docs/DECISIONS.md",
+    "change": "modified",
+    "sha256": "b3cb69e219f468ef5bc1563a9497ffc62bbd51a92c6ca2fe682402213a04d952"
+  },
+  {
+    "path": "docs/FOUNDATION_SETUP.md",
+    "change": "added",
+    "sha256": "989fa94e440b7a42d653f124cb39bfc4c3e2d9015e993f805d4cc27c90886edd"
+  },
+  {
+    "path": "docs/LOCAL_SETUP.md",
+    "change": "added",
+    "sha256": "b6cddfb04173739c7446c07e5da26b865a6f417ce2562a86787baa3a87800da1"
+  },
+  {
+    "path": "drive-seed/README.md",
+    "change": "modified",
+    "sha256": "49d0f319a1c4f16ea3464bafe1a932134c3e48efb7c5d47880023453bf9b10d1"
+  },
+  {
+    "path": "pyproject.toml",
+    "change": "modified",
+    "sha256": "145d7c33959d5547cdb4461756e7306329a97683389672d6427d97185fc60628"
+  },
+  {
+    "path": "requirements.lock",
+    "change": "added",
+    "sha256": "ed5d2a640fc97091553273ecd763a20469a0dd08c2602bea7dd25006369d50f0"
+  },
+  {
+    "path": "runner_app/__init__.py",
+    "change": "added",
+    "sha256": "59ac8e2770a23135c259b032897e14491eeb4baf778ea2d4934cc059304c390f"
+  },
+  {
+    "path": "runner_app/adapters/__init__.py",
+    "change": "added",
+    "sha256": "b9dedb19b784c7c27508b77caf29fa15b33fc0fe95e5a1af449018b3b80f9911"
+  },
+  {
+    "path": "runner_app/api/__init__.py",
+    "change": "added",
+    "sha256": "241ac309bb342606a4f80347ebde0d72a19219d1b6287c3aad40215a9bbec4a1"
+  },
+  {
+    "path": "runner_app/api/app.py",
+    "change": "added",
+    "sha256": "c4b33117dca4a6826ba2e3a871c1d73c620bc9f1275c84dd49db6ef932ee5260"
+  },
+  {
+    "path": "runner_app/cli.py",
+    "change": "added",
+    "sha256": "e84fb2fd79e5b84c7ca71bbce860798b463abd6cfef3dcc0532c28776900155b"
+  },
+  {
+    "path": "runner_app/config.py",
+    "change": "added",
+    "sha256": "fc545c6e1add5bb650bfbc25022182f249bc3824688e2ecd397b21fba5b9ad4b"
+  },
+  {
+    "path": "runner_app/domain/__init__.py",
+    "change": "added",
+    "sha256": "0f84c6e2d65f997f12c8edfdde6291025a6cf833c0280e5c7db715c04ee61d91"
+  },
+  {
+    "path": "runner_app/engine/__init__.py",
+    "change": "added",
+    "sha256": "c0bc57f493dc84d41a5691e814319e36aaff67ce4d6159037ac6f685f6dd0880"
+  },
+  {
+    "path": "runner_app/executors/__init__.py",
+    "change": "added",
+    "sha256": "6fa3e8b41634c12d3cf7f609389e59b31508394173f8d1188ea780d42ac01b5f"
+  },
+  {
+    "path": "runner_app/git/__init__.py",
+    "change": "added",
+    "sha256": "516936015fec058ffece26fbff0cf2862873397b8cb432067bc0711ad3c16b56"
+  },
+  {
+    "path": "runner_app/outputs/__init__.py",
+    "change": "added",
+    "sha256": "5e59fdd2c4078eb110a68272dfa6e2593582fa2e2d1a2df91e6f9695a7be57ab"
+  },
+  {
+    "path": "runner_app/resources.py",
+    "change": "added",
+    "sha256": "d965b43796372ba6556cf9f1adb7702bfcbf33cfcbfb5d35d6fef1a30032f375"
+  },
+  {
+    "path": "runner_app/storage/__init__.py",
+    "change": "added",
+    "sha256": "617f9a894fb989304bdee884b00534ff731e78519ad1e7dea9afc5abc90e450c"
+  },
+  {
+    "path": "runner_app/storage/database.py",
+    "change": "added",
+    "sha256": "07275947ea07e6a022835831a9d00db85157d633ee55d66e8e93682eb30eae3e"
+  },
+  {
+    "path": "runner_app/storage/paths.py",
+    "change": "added",
+    "sha256": "4c720dbdfab064ad799d51d55051534fb8667cb32526808d67b4ef97fec86246"
+  },
+  {
+    "path": "runner_app/web/__init__.py",
+    "change": "added",
+    "sha256": "a053a52f790b52cee194293ce39584fb55926ed990118c2b0434b7744812335b"
+  },
+  {
+    "path": "schemas/__init__.py",
+    "change": "added",
+    "sha256": "978d66b40ca6f353c0aa9b6ec84e3558e6860179eeb4b7626d515e47023ddcb3"
+  },
+  {
+    "path": "tests/test_foundation_api.py",
+    "change": "added",
+    "sha256": "cd86fb65d5d365559ced69c624814c896f985e171c98511e0c7b527f7826435f"
+  },
+  {
+    "path": "tests/test_foundation_storage.py",
+    "change": "added",
+    "sha256": "5f5b4d4088ab4bca10795c73832b9e5eb3c61a3091670c940e6fa7c7ca3f3f93"
+  }
+]

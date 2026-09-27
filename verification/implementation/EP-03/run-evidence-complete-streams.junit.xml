@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="7" time="1.636" timestamp="2026-09-27T00:42:14.946971+04:00" hostname="k8s-master"><testcase classname="tests.test_run_evidence" name="test_failed_project_run_is_durable_and_bound_to_exact_snapshot" time="0.253"><failure message="AssertionError: assert [{'complete':...stream', ...}] == [{'output_id'...stream', ...}]&#10;  &#10;  At index 0 diff: {'complete': True, 'format': 'raw-bytes-v1', 'kind': 'console', 'media_type': 'application/octet-stream', 'output_id': 'stderr-raw', 'publication': 'local_only', 'relative_path': 'capture/stderr.bin', 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'size_bytes': 0, 'truncated_reason': None} != {'output_id': 'stdout-raw', 'kind': 'console', 'format': 'raw-bytes-v1', 'media_type': 'application/octet-stream', 'relative_path': 'capture/stdout.bin', 'size_bytes': 12, 'sha256': '6354acbdc1bc70c62004aae34d799cc7493bf8292a9f40edf85...&#10;  &#10;  ...Full output truncated (2 lines hidden), use '-vv' to show">tmp_path = PosixPath('/tmp/pytest-of-visky/pytest-63/test_failed_project_run_is_dur0')
+
+    def test_failed_project_run_is_durable_and_bound_to_exact_snapshot(tmp_path: Path) -&gt; None:
+        store, registry, ledger, request_id, snapshot_id, _, _ = _fixture(tmp_path)
+        manifest, provenance, files = _evidence(store, request_id, snapshot_id, registry)
+        assert store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                                          provenance=provenance, files=files) == manifest
+        assert ledger.get_run(manifest["run_id"])["execution"]["outcome"] == "FAILED"
+        assert registry.publication_target(manifest["run_id"], project_id="fixture",
+                                           workspace_id="area")["commit"] == manifest["snapshot"]["commit"]
+&gt;       assert ledger.list_outputs(manifest["run_id"]) == manifest["outputs"]
+E       AssertionError: assert [{'complete':...stream', ...}] == [{'output_id'...stream', ...}]
+E         
+E         At index 0 diff: {'complete': True, 'format': 'raw-bytes-v1', 'kind': 'console', 'media_type': 'application/octet-stream', 'output_id': 'stderr-raw', 'publication': 'local_only', 'relative_path': 'capture/stderr.bin', 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'size_bytes': 0, 'truncated_reason': None} != {'output_id': 'stdout-raw', 'kind': 'console', 'format': 'raw-bytes-v1', 'media_type': 'application/octet-stream', 'relative_path': 'capture/stdout.bin', 'size_bytes': 12, 'sha256': '6354acbdc1bc70c62004aae34d799cc7493bf8292a9f40edf85...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests/test_run_evidence.py:123: AssertionError</failure></testcase><testcase classname="tests.test_run_evidence" name="test_cancelled_run_is_preserved_without_publication_authority" time="0.221" /><testcase classname="tests.test_run_evidence" name="test_unverified_broker_or_modified_output_cannot_be_recorded" time="0.215" /><testcase classname="tests.test_run_evidence" name="test_output_download_rechecks_bytes_and_rejects_symlink" time="0.288" /><testcase classname="tests.test_run_evidence" name="test_output_route_requires_session_and_serves_only_registered_attachment" time="0.259" /><testcase classname="tests.test_run_evidence" name="test_failed_v4_migration_preserves_v3_database" time="0.029" /><testcase classname="tests.test_run_evidence" name="test_run_cannot_change_admitted_profile_or_source" time="0.207" /></testsuite></testsuites>

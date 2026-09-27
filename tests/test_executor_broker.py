@@ -1,0 +1,280 @@
+"""EP-03 broker refusals and policy checks; no untrusted process runs on host."""
+from __future__ import annotations
+
+import os
+import socket
+import subprocess
+import uuid
+from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+
+from runner_app.executors.broker import (
+    BrokerError,
+    RootlessDockerBroker,
+    RuntimeProbe,
+    SnapshotInput,
+    _snapshot_tree,
+    _verified_run_volume,
+)
+from runner_app.executors.profiles import ApprovedProfile, ProfileMount
+
+
+@pytest.fixture
+def profile() -> ApprovedProfile:
+    return ApprovedProfile(
+        profile_id="toy", revision_sha256="a" * 64,
+        execution_backend="rootless_container",
+        image="docker.io/library/python@sha256:" + "b" * 64,
+        argv=("python", "-m", "pytest", "-q"), cwd="/src", user="0:0",
+        mounts=(
+            ProfileMount("snapshot", "/src", True),
+            ProfileMount("build", "/build", False),
+            ProfileMount("output", "/out", False),
+            ProfileMount("scratch", "/tmp", False),
+        ),
+        timeout_seconds=30, network="none", memory_mb=256, cpu_limit=1.0,
+        pids_limit=32, output_budget_mb=4, collect=(), platform="linux/amd64",
+    )
+
+
+@pytest.fixture
+def broker(profile: ApprovedProfile, tmp_path: Path) -> RootlessDockerBroker:
+    registry = SimpleNamespace(require=lambda profile_id: profile if profile_id == "toy" else None)
+    return RootlessDockerBroker(registry, docker_binary="/usr/bin/docker",
+                                runtime_dir=tmp_path / "runtime")  # type: ignore[arg-type]
+
+
+def _created(profile: ApprovedProfile, snapshot: Path, run_root: Path, name: str) -> dict[str, object]:
+    return {
+        "Id": "d" * 64, "Name": "/" + name, "Image": "sha256:" + "c" * 64,
+        "State": {"Status": "created"},
+        "Config": {
+            "Image": profile.image, "User": profile.user, "WorkingDir": profile.cwd,
+            "Entrypoint": [profile.argv[0]], "Cmd": list(profile.argv[1:]),
+            "Healthcheck": {"Test": ["NONE"]},
+            "Tty": False, "OpenStdin": False,
+            "AttachStdout": True, "AttachStderr": True,
+            "Labels": {"cdr.run-id": name.removeprefix("cdr-run-"),
+                       "cdr.profile-revision": profile.revision_sha256},
+        },
+        "HostConfig": {
+            "Privileged": False, "NetworkMode": "none", "ReadonlyRootfs": True,
+            "CgroupnsMode": "private", "PidMode": "private", "IpcMode": "private",
+            "AutoRemove": False, "Memory": profile.memory_mb * 1024 * 1024,
+            "MemorySwap": profile.memory_mb * 1024 * 1024,
+            "NanoCpus": int(profile.cpu_limit * 1_000_000_000),
+            "PidsLimit": profile.pids_limit, "CapDrop": ["ALL"],
+            "SecurityOpt": ["no-new-privileges:true"], "RestartPolicy": {"Name": "no"},
+            "LogConfig": {"Type": "none"}, "CapAdd": None, "Devices": [],
+            "DeviceRequests": [],
+        },
+        "Mounts": [
+            {"Type": "bind", "Destination": dest, "Source": str(src), "RW": writable}
+            for dest, src, writable in (
+                ("/src", snapshot, False), ("/build", run_root / "build", True),
+                ("/out", run_root / "out", True), ("/tmp", run_root / "tmp", True),
+            )
+        ],
+    }
+
+
+def test_current_host_denies_without_rootless_socket(profile: ApprovedProfile, tmp_path: Path) -> None:
+    registry = SimpleNamespace(require=lambda _profile_id: profile)
+    broker = RootlessDockerBroker(registry, docker_binary="/usr/bin/docker")  # type: ignore[arg-type]
+    probe = broker.probe()
+    if broker.socket_path.exists():
+        pytest.skip("This host has a configured rootless Docker socket; live test belongs to gate suite")
+    assert probe.available is False
+    assert probe.code == "ROOTLESS_SOCKET_MISSING"
+    run_id = str(uuid.uuid4())
+    snapshot = SnapshotInput(str(uuid.uuid4()), "a" * 40, "b" * 40, tmp_path / "snapshot")
+    with pytest.raises(BrokerError, match="Rootless container runtime") as error:
+        broker.run(profile, snapshot, tmp_path / run_id, run_id=run_id)
+    assert error.value.code == "ROOTLESS_SOCKET_MISSING"
+    assert not (tmp_path / run_id).exists()
+
+
+def test_rootful_daemon_is_rejected_even_on_user_owned_socket(
+    broker: RootlessDockerBroker, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    broker.runtime_dir.mkdir(mode=0o700)
+    with socket.socket(socket.AF_UNIX) as endpoint:
+        endpoint.bind(str(broker.socket_path))
+        monkeypatch.setattr(broker, "_docker_json", lambda *_args: {
+            "SecurityOptions": ["name=apparmor", "name=cgroupns"],
+            "CgroupVersion": "2", "CgroupDriver": "systemd", "OSType": "linux",
+        })
+        probe = broker.probe()
+    assert probe.available is False
+    assert probe.code == "ROOTFUL_DAEMON_REFUSED"
+
+
+def test_unavailable_cpu_controller_is_rejected(
+    broker: RootlessDockerBroker, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    broker.runtime_dir.mkdir(mode=0o700)
+    with socket.socket(socket.AF_UNIX) as endpoint:
+        endpoint.bind(str(broker.socket_path))
+        monkeypatch.setattr(broker, "_docker_json", lambda *_args: {
+            "SecurityOptions": ["name=rootless"], "CgroupVersion": "2",
+            "CgroupDriver": "systemd", "OSType": "linux",
+        })
+        probe = broker.probe()
+    assert probe.available is False
+    assert probe.code == "CGROUP_CONTROLLER_MISSING"
+    assert "cpu" not in probe.delegated_controllers
+
+
+def test_create_flags_and_prestart_inspection_reject_extra_mount(
+    profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    root = tmp_path / "run"
+    root.mkdir()
+    for name in ("build", "out", "tmp"):
+        (root / name).mkdir()
+    argv = broker._create_argv(profile, "sha256:" + "c" * 64, source, root, "cdr-run-test")
+    assert argv.count("--mount") == 4
+    assert "--network" in argv and argv[argv.index("--network") + 1] == "none"
+    assert argv.count("--attach") == 2
+    assert "--read-only" in argv and "--cap-drop" in argv
+    assert "--pull" in argv and argv[argv.index("--pull") + 1] == "never"
+    assert "--privileged" not in argv and "--publish" not in argv
+    assert "--entrypoint" in argv and argv[argv.index("--entrypoint") + 1] == "python"
+    created = _created(profile, source, root, "cdr-run-test")
+    broker._validate_created(created, profile, "sha256:" + "c" * 64, source,
+                             root, "cdr-run-test")
+    mounts = created["Mounts"]
+    assert isinstance(mounts, list)
+    mounts.append({"Type": "bind", "Destination": "/home", "Source": "/home", "RW": True})
+    with pytest.raises(BrokerError) as error:
+        broker._validate_created(created, profile, "sha256:" + "c" * 64, source,
+                                 root, "cdr-run-test")
+    assert error.value.code == "CONTAINER_POLICY_MISMATCH"
+
+
+def test_materialized_tree_matches_git_and_rejects_mutation(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    (repo / "entry.py").write_text("print('safe fixture')\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "entry.py"], check=True)
+    tree = subprocess.check_output(["git", "-C", str(repo), "write-tree"], text=True).strip()
+    frozen = tmp_path / "frozen"
+    frozen.mkdir()
+    target = frozen / "entry.py"
+    target.write_text((repo / "entry.py").read_text(encoding="utf-8"), encoding="utf-8")
+    target.chmod(0o444)
+    frozen.chmod(0o555)
+    assert _snapshot_tree(frozen, tree) == tree
+    target.chmod(0o644)
+    with pytest.raises(BrokerError) as error:
+        _snapshot_tree(frozen, tree)
+    assert error.value.code == "MUTABLE_SNAPSHOT"
+
+
+def test_snapshot_symlink_escape_refused(tmp_path: Path) -> None:
+    frozen = tmp_path / "frozen"
+    frozen.mkdir()
+    (frozen / "escape").symlink_to("/home")
+    frozen.chmod(0o555)
+    with pytest.raises(BrokerError) as error:
+        _snapshot_tree(frozen, "a" * 40)
+    assert error.value.code == "UNSAFE_SNAPSHOT"
+
+
+def test_docker_cli_is_pinned_to_user_socket(broker: RootlessDockerBroker) -> None:
+    command = broker._docker_argv("info")
+    assert command[:3] == ["/usr/bin/docker", "--host", f"unix://{broker.socket_path}"]
+    env = broker._docker_env()
+    assert set(env) == {"PATH", "HOME", "DOCKER_CONFIG", "XDG_RUNTIME_DIR", "LANG"}
+    assert env["HOME"] != os.environ.get("HOME")
+
+
+def test_materialized_nested_tree_and_safe_symlink_match_git(tmp_path: Path) -> None:
+    repo = tmp_path / "repo-nested"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    (repo / "pkg").mkdir()
+    (repo / "pkg" / "main.sh").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    (repo / "pkg" / "main.sh").chmod(0o755)
+    (repo / "readme").write_text("hello\n", encoding="utf-8")
+    (repo / "link").symlink_to("pkg/main.sh")
+    subprocess.run(["git", "-C", str(repo), "add", "pkg/main.sh", "readme", "link"],
+                   check=True)
+    tree = subprocess.check_output(["git", "-C", str(repo), "write-tree"], text=True).strip()
+    frozen = tmp_path / "frozen-nested"
+    frozen.mkdir()
+    (frozen / "pkg").mkdir()
+    (frozen / "pkg" / "main.sh").write_bytes((repo / "pkg" / "main.sh").read_bytes())
+    (frozen / "pkg" / "main.sh").chmod(0o555)
+    (frozen / "readme").write_bytes((repo / "readme").read_bytes())
+    (frozen / "readme").chmod(0o444)
+    (frozen / "link").symlink_to("pkg/main.sh")
+    (frozen / "pkg").chmod(0o555)
+    frozen.chmod(0o555)
+    assert _snapshot_tree(frozen, tree) == tree
+
+
+def test_prestart_policy_rejects_false_no_new_privileges(
+    profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    root = tmp_path / "run"
+    root.mkdir()
+    created = _created(profile, source, root, "cdr-run-test")
+    host = created["HostConfig"]
+    assert isinstance(host, dict)
+    host["SecurityOpt"] = ["no-new-privileges:false"]
+    with pytest.raises(BrokerError) as error:
+        broker._validate_created(created, profile, "sha256:" + "c" * 64, source,
+                                 root, "cdr-run-test")
+    assert error.value.code == "CONTAINER_POLICY_MISMATCH"
+
+
+def test_nonzero_container_uid_requires_future_idmapped_mount_support(
+    profile: ApprovedProfile,
+) -> None:
+    from dataclasses import replace
+
+    with pytest.raises(BrokerError) as error:
+        RootlessDockerBroker._validate_profile(replace(profile, user="1000:1000"))
+    assert error.value.code == "PROFILE_INVALID"
+
+
+def test_ordinary_directory_cannot_stand_in_for_hard_quota(tmp_path: Path) -> None:
+    run_id = str(uuid.uuid4())
+    volume = tmp_path / run_id
+    volume.mkdir(mode=0o700)
+    with pytest.raises(BrokerError) as error:
+        _verified_run_volume(volume, run_id, 64 * 1024 * 1024)
+    assert error.value.code == "DISK_QUOTA_UNAVAILABLE"
+
+
+def test_run_refuses_missing_quota_before_image_or_snapshot_access(
+    broker: RootlessDockerBroker, profile: ApprovedProfile, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ready = RuntimeProbe(True, "READY", broker.socket_path, "daemon", "29.1", "2",
+                         "systemd", ("cpu", "memory", "pids"))
+    monkeypatch.setattr(broker, "probe", lambda: ready)
+    monkeypatch.setattr(broker, "_image_id", lambda _profile: pytest.fail("image inspected"))
+    run_id = str(uuid.uuid4())
+    snapshot = SnapshotInput(str(uuid.uuid4()), "a" * 40, "b" * 40, tmp_path / "missing")
+    with pytest.raises(BrokerError) as error:
+        broker.run(profile, snapshot, tmp_path / run_id, run_id=run_id)
+    assert error.value.code == "DISK_QUOTA_UNAVAILABLE"
+    assert not (tmp_path / run_id).exists()
+
+
+def test_cancel_kill_race_accepts_already_exited_container(
+    broker: RootlessDockerBroker, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(broker, "_run_docker", lambda *_args, **_kwargs:
+                        subprocess.CompletedProcess([], 1, b"", b"already exited"))
+    monkeypatch.setattr(broker, "_docker_json", lambda *_args: {"State": {"Status": "exited"}})
+    broker._kill_container("d" * 64, "SIGTERM")

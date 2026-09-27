@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "checked_at": "2026-09-27T05:11:50.391080+00:00",
+  "scope": "Offline delivery preflight for registered contained run and admitted lock",
+  "commands": [
+    {
+      "command": ".venv/bin/pytest -q tests/test_run_evidence.py",
+      "exit_code": 0,
+      "result": "25 passed"
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app/storage/ledger.py tests/test_run_evidence.py",
+      "exit_code": 0,
+      "result": "All checks passed"
+    },
+    {
+      "command": ".venv/bin/mypy runner_app/storage/ledger.py",
+      "exit_code": 0,
+      "result": "Success: no issues found in 1 source file"
+    }
+  ],
+  "live_google_calls": 0,
+  "real_project_executions": 0,
+  "integrity_fields": [
+    "run_manifest_sha256: canonical sorted compact UTF-8 JSON plus terminal newline",
+    "input_manifest_sha256: immutable source snapshot manifest bytes, scope/commit/tree checked in one SQLite read transaction",
+    "source_operation_manifest_sha256: optional for terminal source result with bound operation_manifest"
+  ]
+}

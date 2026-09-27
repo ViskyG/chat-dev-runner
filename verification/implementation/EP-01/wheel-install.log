@@ -1,0 +1,5 @@
+Using Python 3.10.12 environment at: /tmp/cdr-ep01-wheel-vu5bgg4z/venv
+Resolved 1 package in 4ms
+Prepared 1 package in 3ms
+Installed 1 package in 1ms
+ + chat-dev-runner==0.2.0 (from file:///home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-01/wheel/chat_dev_runner-0.2.0-py3-none-any.whl)

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuite name="synthetic-fixture" tests="2" failures="1" errors="0" skipped="0" time="0.004">
+  <testcase classname="toy" name="test_pass" time="0.002" />
+  <testcase classname="toy" name="test_fail" time="0.002"><failure message="Synthetic example">Expected 2, observed 3. Not a real project result.</failure></testcase>
+</testsuite>

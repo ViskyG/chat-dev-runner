@@ -1,0 +1,52 @@
+........................................................................ [ 20%]
+........................................................................ [ 40%]
+.....F.................................................................. [ 60%]
+........................................................................ [ 80%]
+....................................................................     [100%]
+=================================== FAILURES ===================================
+_________ test_fault_with_uncertain_effect_retains_locks_and_capacity __________
+
+database = Database(path=PosixPath('/tmp/cdr-ep01-final/test_fault_with_uncertain_effe0/state/state.sqlite'), busy_timeout_ms=5000)
+
+    def test_fault_with_uncertain_effect_retains_locks_and_capacity(database: Database) -> None:
+        ledger = Ledger(database, max_parallel=2)
+        ledger.startup()
+        ledger.arm()
+        first = make_command(ledger)
+        assert admit(ledger, first, ("repo:project",)).execute
+        effect_id = ledger.begin_effect(first["request_id"], "publish", "git_ref",
+                                        {"branch": "feature"})
+    
+        receipt = ledger.finish(first["request_id"], "FAULT", code="HANDLER_FAILED")
+>       assert_receipt(receipt, "FAULT", "HANDLER_FAILED")
+
+tests/test_domain_storage.py:372: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+receipt = {'schema_version': '1.0', 'request_id': '4fb5bd38-4e64-4408-9682-4019f2376ae9', 'request_digest': '676430c1c70339e40c1c1834af4d776ebe2b14f8071d1591c826f27e9b904a11', 'status': 'FAULT', ...}
+status = 'FAULT', code = 'HANDLER_FAILED'
+
+    def assert_receipt(receipt: dict[str, Any], status: str, code: str | None = None) -> None:
+        schema = json.loads(
+            (Path(__file__).resolve().parents[1] / "schemas/receipt.schema.json").read_text()
+        )
+        jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker()).validate(
+            receipt
+        )
+        assert receipt["status"] == status
+>       assert receipt["code"] == code
+E       AssertionError: assert 'NEEDS_RECONCILIATION' == 'HANDLER_FAILED'
+E         
+E         - HANDLER_FAILED
+E         + NEEDS_RECONCILIATION
+
+tests/test_domain_storage.py:63: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.10/site-packages/fastapi/testclient.py:1
+  /home/visky/Work/GPTRunner/chat-dev-runner/.venv/lib/python3.10/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_domain_storage.py::test_fault_with_uncertain_effect_retains_locks_and_capacity
+1 failed, 355 passed, 1 warning in 17.57s

@@ -1,0 +1,67 @@
+[
+  {
+    "command": [
+      "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "--junitxml=/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-00/baseline/pytest.junit.xml"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 3.598,
+    "log": "verification/implementation/EP-00/baseline/pytest.log",
+    "environment": "real local trusted reference fixture; no cloud writes"
+  },
+  {
+    "command": [
+      "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+      "-m",
+      "bridge_reference.demo",
+      "--destination",
+      "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-00/baseline/toy-demo"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 0.205,
+    "log": "verification/implementation/EP-00/baseline/demo.log",
+    "environment": "real local trusted reference fixture; no cloud writes"
+  },
+  {
+    "command": [
+      "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+      "scripts/bootstrap_drive.py",
+      "--plan"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 0.021,
+    "log": "verification/implementation/EP-00/baseline/drive-plan.log",
+    "environment": "real local trusted reference fixture; no cloud writes"
+  },
+  {
+    "command": [
+      "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+      "scripts/test_ui.py"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 23.27,
+    "log": "verification/implementation/EP-00/baseline/ui.log",
+    "environment": "real local trusted reference fixture; no cloud writes"
+  },
+  {
+    "command": [
+      "./start-prototype.sh",
+      "--port",
+      "48957"
+    ],
+    "exit_code": 0,
+    "checks": {
+      "index": 200,
+      "source_paths": {
+        "/../STATUS.json": 404,
+        "/config/runner.example.json": 404,
+        "/AGENTS.md": 404
+      },
+      "host_spoof": 403
+    },
+    "environment": "real local loopback HTTP process; terminated after checks"
+  }
+]

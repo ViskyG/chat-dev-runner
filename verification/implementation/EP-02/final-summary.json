@@ -1,0 +1,136 @@
+{
+  "packet": "EP-02",
+  "status": "VERIFIED",
+  "recorded_at_utc": "2026-09-26T20:24:25.189076+00:00",
+  "environment": {
+    "python": "3.10.12",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "git": "git version 2.34.1",
+    "source_git_checkout": false,
+    "network": "none except loopback installed smoke"
+  },
+  "baseline": "verification/implementation/EP-02/baseline-reference.json",
+  "checks": [
+    {
+      "name": "full_pytest",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp=/tmp/cdr-ep02-final",
+        "--junitxml=verification/implementation/EP-02/final-verified.junit.xml"
+      ],
+      "exit_code": 0,
+      "counts": {
+        "tests": 431,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "log": "verification/implementation/EP-02/final-verified-tests.log",
+      "junit": "verification/implementation/EP-02/final-verified.junit.xml",
+      "log_sha256": "54a04d71af635d23dbdcf99eaf681862284b8f7db17e737e5de9207493aa5e37",
+      "junit_sha256": "a45cb55df56c9ce500f5be313b8b04ea6c9a8bcc52ff9567da929432938c5883"
+    },
+    {
+      "name": "ruff",
+      "argv": [
+        ".venv/bin/ruff",
+        "check",
+        "runner_app",
+        "tests/test_foundation_api.py",
+        "tests/test_foundation_storage.py",
+        "tests/test_domain_commands.py",
+        "tests/test_domain_storage.py",
+        "tests/test_domain_engine.py",
+        "tests/test_domain_api.py",
+        "tests/test_git_worktrees.py",
+        "tests/test_git_snapshots.py",
+        "tests/test_git_service.py",
+        "tests/test_git_registry_integration.py",
+        "tests/test_source_registry.py",
+        "tests/test_import_grants.py"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-02/final-verified-lint.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "name": "mypy",
+      "argv": [
+        ".venv/bin/mypy",
+        "runner_app"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-02/final-verified-types.log",
+      "log_sha256": "b1e54a4dabc8d720118d6074a4c299c7b40c262f2e4f5d8f801e29a5cdfe35a5"
+    },
+    {
+      "name": "wheel_build",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "build",
+        "--wheel",
+        "--no-isolation",
+        "--outdir",
+        "verification/implementation/EP-02/wheel"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-02/final-verified-wheel-build.log",
+      "log_sha256": "19216ff68d210025b5b5762860d6eade6e35b6f9ffdf1d1a1f6c26653de457bf"
+    },
+    {
+      "name": "installed_wheel_smoke",
+      "argv": [
+        "python3",
+        "verification/implementation/EP-02/wheel_acceptance.py",
+        "verification/implementation/EP-02/wheel/chat_dev_runner-0.2.0-py3-none-any.whl"
+      ],
+      "exit_code": 0,
+      "result": "PASS",
+      "log": "verification/implementation/EP-02/wheel-acceptance.json",
+      "log_sha256": "479174ea34c66284b0990d8a4d1ed50a0f2ee7f914155efb51680482ee979fa9"
+    }
+  ],
+  "focused_evidence": [
+    "verification/implementation/EP-02/git-worktrees-summary.json",
+    "verification/implementation/EP-02/snapshots-evidence.json",
+    "verification/implementation/EP-02/import-grants-evidence.json",
+    "verification/implementation/EP-02/service-final.junit.xml"
+  ],
+  "file_sha256": {
+    "STATUS.json": "7ab7caf45df4bcfe9138f75792a880b6a52957accfd501631eaa920575a34c6f",
+    "codex/packets/EP-02-git-snapshots.md": "959cfebefaed66e0eede73cfccd0946d9147894b61e05267ce0a13196ec3fc2d",
+    "codex/checkpoints/EP-02.md": "901235b442cb6f22cb4eca4b153faef1a202cd21ffc7cf474a0040021b91a76b",
+    "docs/SOURCE_LIFECYCLE.md": "b7edd2839d213080a358a699adb4067ec14e2189f9b7979491f8ec70d5da8447",
+    "docs/GIT_AND_PUBLICATION.md": "96b21127d5a8e0c9add2e005d959c23b880db48b195a784d88020da09dc00725",
+    "pyproject.toml": "c31c0b1f5ff8a09602977888cb5fdbdee18be3a9628e1893f39fdf2a1a1cb8fd",
+    "runner_app/git/__init__.py": "9ee141b92e670b46b487d11595e582c74d212d75bfbd93284cf43632f55fc1c4",
+    "runner_app/git/argv.py": "27e4a9c5d6f02100fb154f5c76ceb6f2d615f5e3146b75ac3b3c82e68d68b066",
+    "runner_app/git/changes.py": "ee463de1b0a359dce84cd80edd75b485e57dae2dcc097d37ccb1ce5cb5fb2bbd",
+    "runner_app/git/imports.py": "dc88a448e039dd07544ee6b0ecc324aefd9ef5dc3a448a42a094edf4586dd7c6",
+    "runner_app/git/registry.py": "9d2721567c14f8713c03cf0bbe27e81181ad83a1d27a7c3cef16a69f28562e4b",
+    "runner_app/git/service.py": "0a8845c9f19952abdb20963b48619c550bc1176d21768257d60874402c551a3e",
+    "runner_app/git/snapshots.py": "9faf5fa4b07b8ab92cb81fba4eb9e1a384092958e368f5d92ebf5a2551329e2a",
+    "runner_app/git/worktrees.py": "bfe2270bb4438eab4c8cd8ded4e7514bf8376923b056b02f1346a3d9be2ae23f",
+    "runner_app/storage/database.py": "98e941e37436db2b6a23aa87433bf31af666c279888b9502e87d66bdf415b26c",
+    "runner_app/api/runtime.py": "e482118220c0440719b8a9c5ba61c152aa4fa5468afac5e74e46557974b9eed9",
+    "runner_app/engine/runtime.py": "3921b429139de728371dbe6499462e980895078bb71bf0e6585f3411b8a07bde",
+    "runner_app/engine/service.py": "ac0d70a0c8ccf9a80d9180dab18e90b107798ed062bfef2278de07ca8eddc47a",
+    "tests/test_foundation_storage.py": "6308f1d349e3669344563c9fb32eedae2423cc17467c4b8ed758b93fe4c9a348",
+    "tests/test_git_worktrees.py": "ab5e33cd8c491295f4fed2b7959a6abb3dcb1a419f965179477326c13cf11323",
+    "tests/test_git_snapshots.py": "1c0f66bf1be90eb0769e3b25184e94affc355197cad3b9b4827db4246b06ffbc",
+    "tests/test_git_service.py": "503eb68934c2091ea722cebf13d5225f10c50b1dd020299f084c9f1c59eefda1",
+    "tests/test_git_registry_integration.py": "018923f0a67c25807578dfd59d7cca9986bc04a3758fad2ef3a960f7504306a8",
+    "tests/test_source_registry.py": "034d5141cd6abf8cc0d936e57067a14dfd40b3ac9b5819a4f926ca1c1025c15c",
+    "tests/test_import_grants.py": "4b32b60c0ecc6e300b760bc5dfbddce037f87ef5cd055de023237b867ff12060",
+    "verification/implementation/EP-02/wheel_acceptance.py": "0b891d0d83ffd1dd66ff9974c8b5a43bbc2db9ac893377b65f6167597bb4bbcd",
+    "verification/implementation/EP-02/wheel/chat_dev_runner-0.2.0-py3-none-any.whl": "822ac6c8ea52a1b94b8bd39d93c02941ec8bfbd9852d138f1ecba1cf75a70fa6"
+  },
+  "cloud_calls": false,
+  "user_projects_touched": false,
+  "project_code_executed": false,
+  "live_runner_armed": false
+}

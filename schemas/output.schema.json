@@ -1,0 +1,76 @@
+{
+  "type": "object",
+  "properties": {
+    "output_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+    },
+    "kind": {
+      "enum": [
+        "console",
+        "application_log",
+        "test_result",
+        "coverage",
+        "report",
+        "screenshot",
+        "artifact",
+        "runner_log"
+      ]
+    },
+    "format": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "media_type": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "size_bytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "truncated_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "publication": {
+      "enum": [
+        "local_only",
+        "redacted_upload",
+        "approved_upload"
+      ]
+    }
+  },
+  "required": [
+    "output_id",
+    "kind",
+    "format",
+    "media_type",
+    "relative_path",
+    "size_bytes",
+    "sha256",
+    "complete",
+    "truncated_reason",
+    "publication"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cdr:output:1",
+  "title": "Typed output, attached to an operation or a program run"
+}

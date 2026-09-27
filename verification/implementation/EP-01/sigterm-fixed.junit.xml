@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.433" timestamp="2026-09-26T23:19:19.038505+04:00" hostname="k8s-master"><testcase classname="tests.test_domain_api" name="test_real_runtime_private_handoff_and_unavailable_execution" time="0.279"><failure message="Failed: Runtime failed: 1; ; Traceback (most recent call last):&#10;  File &quot;/usr/lib/python3.10/runpy.py&quot;, line 196, in _run_module_as_main&#10;    return _run_code(code, main_globals, None,&#10;  File &quot;/usr/lib/python3.10/runpy.py&quot;, line 86, in _run_code&#10;    exec(code, run_globals)&#10;  File &quot;/home/visky/Work/GPTRunner/chat-dev-runner/runner_app/cli.py&quot;, line 122, in &lt;module&gt;&#10;    raise SystemExit(main())&#10;  File &quot;/home/visky/Work/GPTRunner/chat-dev-runner/runner_app/cli.py&quot;, line 98, in main&#10;    runtime = Runtime(config, Paths.discover())&#10;  File &quot;/home/visky/Work/GPTRunner/chat-dev-runner/runner_app/engine/runtime.py&quot;, line 44, in __init__&#10;    self.app.add_event_handler(&quot;shutdown&quot;, self.close)&#10;AttributeError: 'FastAPI' object has no attribute 'add_event_handler'. Did you mean: 'add_exception_handler'?">tmp_path = PosixPath('/tmp/cdr-ep01-sigterm-fixed/test_real_runtime_private_hand0')
+
+    def test_real_runtime_private_handoff_and_unavailable_execution(tmp_path: Path) -&gt; None:
+        environment = os.environ.copy()
+        for name, directory in (("XDG_CONFIG_HOME", "config"), ("XDG_DATA_HOME", "data"),
+                                ("XDG_CACHE_HOME", "cache"), ("XDG_RUNTIME_DIR", "runtime")):
+            environment[name] = str(tmp_path / directory)
+        environment["PYTHONDONTWRITEBYTECODE"] = "1"
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as reservation:
+            reservation.bind(("127.0.0.1", 0))
+            port = reservation.getsockname()[1]
+        bootstrap_file = tmp_path / "config/chat-dev-runner/tokens/session-bootstrap.json"
+        process = subprocess.Popen(
+            [sys.executable, "-m", "runner_app.cli", "serve", "--port", str(port)],
+            cwd=ROOT, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        )
+        secret = ""
+        try:
+            deadline = time.monotonic() + 10
+            while time.monotonic() &lt; deadline:
+                if process.poll() is not None:
+                    stdout, stderr = process.communicate()
+&gt;                   pytest.fail(f"Runtime failed: {process.returncode}; {stdout}; {stderr}")
+E                   Failed: Runtime failed: 1; ; Traceback (most recent call last):
+E                     File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+E                       return _run_code(code, main_globals, None,
+E                     File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+E                       exec(code, run_globals)
+E                     File "/home/visky/Work/GPTRunner/chat-dev-runner/runner_app/cli.py", line 122, in &lt;module&gt;
+E                       raise SystemExit(main())
+E                     File "/home/visky/Work/GPTRunner/chat-dev-runner/runner_app/cli.py", line 98, in main
+E                       runtime = Runtime(config, Paths.discover())
+E                     File "/home/visky/Work/GPTRunner/chat-dev-runner/runner_app/engine/runtime.py", line 44, in __init__
+E                       self.app.add_event_handler("shutdown", self.close)
+E                   AttributeError: 'FastAPI' object has no attribute 'add_event_handler'. Did you mean: 'add_exception_handler'?
+
+tests/test_domain_api.py:209: Failed</failure></testcase></testsuite></testsuites>

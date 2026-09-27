@@ -1,0 +1,28 @@
+........................................................F.....           [100%]
+=================================== FAILURES ===================================
+___________ test_v1_to_v3_migration_preserves_metadata_and_is_atomic ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-visky/pytest-35/test_v1_to_v3_migration_preser0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7c79ece4aa70>
+
+    def test_v1_to_v3_migration_preserves_metadata_and_is_atomic(tmp_path: Path,
+                                                                  monkeypatch: pytest.MonkeyPatch) -> None:
+        database = Database(tmp_path / "state" / "state.sqlite")
+        with monkeypatch.context() as scope:
+            scope.setattr(database_module, "SCHEMA_VERSION", 1)
+            assert database.migrate() == 1
+        assert database.migrate() == 4
+        connection = database.connect()
+        try:
+>           assert connection.execute("SELECT version FROM schema_migrations ORDER BY version").fetchall() == [
+                (1,), (2,), (3,)
+            ]
+E           assert [(1,), (2,), (3,), (4,)] == [(1,), (2,), (3,)]
+E             
+E             Left contains one more item: (4,)
+E             Use -v to get more diff
+
+tests/test_source_registry.py:62: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_source_registry.py::test_v1_to_v3_migration_preserves_metadata_and_is_atomic
+1 failed, 61 passed in 0.87s

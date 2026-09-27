@@ -1,0 +1,49 @@
+{
+  "captured_at_utc": "2026-09-27T04:46:27.286791+00:00",
+  "checks": [
+    {
+      "command": [
+        ".venv/bin/pytest",
+        "-q",
+        "tests/test_drive_google.py",
+        "tests/test_drive_writer.py"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-04/drive-google-write-tests.txt",
+      "name": "pytest"
+    },
+    {
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "runner_app/adapters/drive_google.py",
+        "tests/test_drive_google.py",
+        "runner_app/adapters/drive_writer.py",
+        "tests/test_drive_writer.py"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-04/drive-google-write-ruff.txt",
+      "name": "ruff"
+    },
+    {
+      "command": [
+        ".venv/bin/mypy",
+        "runner_app/adapters/drive_google.py",
+        "runner_app/adapters/drive_writer.py"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-04/drive-google-write-mypy.txt",
+      "name": "mypy"
+    }
+  ],
+  "component": "google_docs_single_cas_write_provider",
+  "environment": {
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "python": "3.10.12"
+  },
+  "google_docs_api_reference": "https://developers.google.com/workspace/docs/api/reference/rest/v1/documents/batchUpdate",
+  "live_canary_verified": false,
+  "live_google_calls": false,
+  "packet": "EP-04",
+  "real_write_gate": "UNVERIFIED"
+}

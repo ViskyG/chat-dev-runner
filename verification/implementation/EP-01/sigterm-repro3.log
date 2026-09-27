@@ -1,0 +1,102 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_real_runtime_private_handoff_and_unavailable_execution __________
+
+tmp_path = PosixPath('/tmp/cdr-ep01-sigterm-repro3/test_real_runtime_private_hand0')
+
+    def test_real_runtime_private_handoff_and_unavailable_execution(tmp_path: Path) -> None:
+        environment = os.environ.copy()
+        for name, directory in (("XDG_CONFIG_HOME", "config"), ("XDG_DATA_HOME", "data"),
+                                ("XDG_CACHE_HOME", "cache"), ("XDG_RUNTIME_DIR", "runtime")):
+            environment[name] = str(tmp_path / directory)
+        environment["PYTHONDONTWRITEBYTECODE"] = "1"
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as reservation:
+            reservation.bind(("127.0.0.1", 0))
+            port = reservation.getsockname()[1]
+        bootstrap_file = tmp_path / "config/chat-dev-runner/tokens/session-bootstrap.json"
+        process = subprocess.Popen(
+            [sys.executable, "-m", "runner_app.cli", "serve", "--port", str(port)],
+            cwd=ROOT, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        )
+        secret = ""
+        try:
+            deadline = time.monotonic() + 10
+            while time.monotonic() < deadline:
+                if process.poll() is not None:
+                    stdout, stderr = process.communicate()
+                    pytest.fail(f"Runtime failed: {process.returncode}; {stdout}; {stderr}")
+                connection = http.client.HTTPConnection("127.0.0.1", port, timeout=0.3)
+                try:
+                    connection.request("GET", "/api/v1/health")
+                    response = connection.getresponse()
+                    response.read()
+                    if response.status == 200 and bootstrap_file.exists():
+                        break
+                except OSError:
+                    time.sleep(0.025)
+                finally:
+                    connection.close()
+            else:
+                pytest.fail("Runtime did not start within ten seconds")
+            assert stat.S_IMODE(bootstrap_file.stat().st_mode) == 0o600
+            assert stat.S_IMODE(bootstrap_file.parent.stat().st_mode) == 0o700
+            secret = json.loads(bootstrap_file.read_text())["bootstrap"]
+            origin = f"http://127.0.0.1:{port}"
+            connection = http.client.HTTPConnection("127.0.0.1", port, timeout=2)
+            try:
+                connection.request("GET", "/api/v1/system")
+                response = connection.getresponse()
+                assert response.status == 403
+                response.read()
+                connection.request("POST", "/api/v1/local/session", json.dumps({"bootstrap": secret}),
+                                   {"Origin": origin, "Content-Type": "application/json"})
+                response = connection.getresponse()
+                assert response.status == 200
+                csrf = json.loads(response.read())["csrf_token"]
+                cookie = response.getheader("Set-Cookie").split(";", 1)[0]
+                connection.request("GET", "/api/v1/system", headers={"Cookie": cookie})
+                response = connection.getresponse()
+                body = response.read()
+                assert response.status == 200
+                system = json.loads(body)
+                assert system["armed"] is False and system["capabilities"] == []
+                assert secret.encode() not in body and csrf.encode() not in body
+                connection.request("POST", "/api/v1/local/arm", "{}", {
+                    "Origin": origin, "Content-Type": "application/json", "Cookie": cookie,
+                    "X-CSRF-Token": csrf,
+                })
+                response = connection.getresponse()
+                assert response.status == 503
+                assert json.loads(response.read())["error"] == "ACTION_UNAVAILABLE"
+                connection.request("POST", "/api/v1/local/session", json.dumps({"bootstrap": secret}),
+                                   {"Origin": origin, "Content-Type": "application/json"})
+                response = connection.getresponse()
+                assert response.status == 403
+                response.read()
+            finally:
+                connection.close()
+        finally:
+            if process.poll() is None:
+                process.terminate()
+            try:
+                stdout, stderr = process.communicate(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                stdout, stderr = process.communicate(timeout=5)
+            if secret:
+                assert secret not in stdout + stderr
+>       assert not bootstrap_file.exists()
+E       AssertionError: assert not True
+E        +  where True = exists()
+E        +    where exists = PosixPath('/tmp/cdr-ep01-sigterm-repro3/test_real_runtime_private_hand0/config/chat-dev-runner/tokens/session-bootstrap.json').exists
+
+tests/test_domain_api.py:270: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.10/site-packages/fastapi/testclient.py:1
+  /home/visky/Work/GPTRunner/chat-dev-runner/.venv/lib/python3.10/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_domain_api.py::test_real_runtime_private_handoff_and_unavailable_execution
+1 failed, 14 deselected, 1 warning in 0.68s

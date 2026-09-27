@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cdr:operation-manifest:1",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "request_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "project_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "workspace_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "enum": [
+        "RUNNING",
+        "COMPLETED",
+        "REJECTED",
+        "BLOCKED",
+        "FAULT",
+        "INTERRUPTED",
+        "CANCELLED"
+      ]
+    },
+    "run_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "uniqueItems": true
+    },
+    "publication": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "NOT_REQUESTED",
+            "PUSHED",
+            "PR_UPDATED",
+            "NO_DIFF",
+            "BLOCKED",
+            "FAILED",
+            "UNKNOWN"
+          ]
+        },
+        "repository": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "branch": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "commit": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pull_request_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "repository",
+        "branch",
+        "commit",
+        "pull_request_url",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "delivery": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "NOT_ATTEMPTED",
+            "PENDING",
+            "DELIVERED",
+            "PARTIAL",
+            "FAILED"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "output_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+          },
+          "kind": {
+            "enum": [
+              "console",
+              "application_log",
+              "test_result",
+              "coverage",
+              "report",
+              "screenshot",
+              "artifact",
+              "runner_log"
+            ]
+          },
+          "format": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "media_type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "relative_path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "truncated_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "publication": {
+            "enum": [
+              "local_only",
+              "redacted_upload",
+              "approved_upload"
+            ]
+          }
+        },
+        "required": [
+          "output_id",
+          "kind",
+          "format",
+          "media_type",
+          "relative_path",
+          "size_bytes",
+          "sha256",
+          "complete",
+          "truncated_reason",
+          "publication"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "effects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": [
+              "github_repository",
+              "git_ref",
+              "pull_request",
+              "drive_file",
+              "local_workspace"
+            ]
+          },
+          "provider_id": {
+            "type": "string"
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "enum": [
+              "INTENDED",
+              "CONFIRMED",
+              "UNKNOWN"
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "provider_id",
+          "url",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "project_id",
+    "workspace_id",
+    "status",
+    "run_ids",
+    "publication",
+    "delivery",
+    "outputs",
+    "effects",
+    "created_at"
+  ],
+  "additionalProperties": false
+}

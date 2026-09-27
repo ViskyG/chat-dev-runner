@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "request_id": "00000000-0000-0000-0000-000000000004",
+  "dispatch": "DRAFT",
+  "runner_id": "local-runner",
+  "epoch": "00000000-0000-0000-0000-000000000000",
+  "issued_at": "2026-09-26T00:00:00Z",
+  "expires_at": "2026-09-26T00:15:00Z",
+  "action": "DELIVER_VERIFY_PUBLISH",
+  "project_id": "example-lab",
+  "workspace_id": "experiment",
+  "expected_head": "1111111111111111111111111111111111111111",
+  "params": {
+    "changeset_doc_id": "LOCAL_OAUTH_CREATED_DOC_ID",
+    "changeset_revision": "CURRENT_DOCS_REVISION",
+    "profile_id": "python-quick",
+    "publication": "draft_always"
+  },
+  "intent": "DRAFT EXAMPLE ONLY: DELIVER_VERIFY_PUBLISH. Not an authorized live command."
+}

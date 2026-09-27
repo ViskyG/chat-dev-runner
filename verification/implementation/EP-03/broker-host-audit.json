@@ -1,0 +1,147 @@
+{
+  "commands": {
+    "bubblewrap_trusted_true": {
+      "argv": [
+        "bwrap",
+        "--unshare-all",
+        "--die-with-parent",
+        "--new-session",
+        "--ro-bind",
+        "/usr",
+        "/usr",
+        "--ro-bind",
+        "/lib",
+        "/lib",
+        "--ro-bind",
+        "/lib64",
+        "/lib64",
+        "--ro-bind",
+        "/bin",
+        "/bin",
+        "--proc",
+        "/proc",
+        "--dev",
+        "/dev",
+        "/usr/bin/true"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    "bubblewrap_version": {
+      "argv": [
+        "bwrap",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "bubblewrap 0.6.1\n"
+    },
+    "docker_current_cgroup": {
+      "argv": [
+        "docker",
+        "info",
+        "--format",
+        "{{.CgroupVersion}} {{.CgroupDriver}}"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "2 systemd\n"
+    },
+    "docker_current_context": {
+      "argv": [
+        "docker",
+        "context",
+        "show"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "default\n"
+    },
+    "docker_current_endpoint": {
+      "argv": [
+        "docker",
+        "context",
+        "inspect",
+        "--format",
+        "{{json .Endpoints.docker.Host}}"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "\"unix:///var/run/docker.sock\"\n"
+    },
+    "docker_current_security": {
+      "argv": [
+        "docker",
+        "info",
+        "--format",
+        "{{json .SecurityOptions}}"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "[\"name=apparmor\",\"name=seccomp,profile=builtin\",\"name=cgroupns\"]\n"
+    },
+    "docker_version": {
+      "argv": [
+        "docker",
+        "version",
+        "--format",
+        "{{json .}}"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "{\"Client\":{\"Platform\":{\"Name\":\"Docker Engine - Community\"},\"Version\":\"29.1.5\",\"ApiVersion\":\"1.52\",\"DefaultAPIVersion\":\"1.52\",\"GitCommit\":\"0e6fee6\",\"GoVersion\":\"go1.25.6\",\"Os\":\"linux\",\"Arch\":\"amd64\",\"BuildTime\":\"Fri Jan 16 12:48:49 2026\",\"Context\":\"default\"},\"Server\":{\"Platform\":{\"Name\":\"Docker Engine - Community\"},\"Version\":\"29.1.5\",\"ApiVersion\":\"1.52\",\"MinAPIVersion\":\"1.44\",\"Os\":\"linux\",\"Arch\":\"amd64\",\"Components\":[{\"Name\":\"Engine\",\"Version\":\"29.1.5\",\"Details\":{\"ApiVersion\":\"1.52\",\"Arch\":\"amd64\",\"BuildTime\":\"Fri Jan 16 12:48:49 2026\",\"Experimental\":\"false\",\"GitCommit\":\"3b01d64\",\"GoVersion\":\"go1.25.6\",\"KernelVersion\":\"6.8.0-138-generic\",\"MinAPIVersion\":\"1.44\",\"Os\":\"linux\"}},{\"Name\":\"containerd\",\"Version\":\"v2.2.1\",\"Details\":{\"GitCommit\":\"dea7da592f5d1d2b7755e3a161be07f43fad8f75\"}},{\"Name\":\"runc\",\"Version\":\"1.3.4\",\"Details\":{\"GitCommit\":\"v1.3.4-0-gd6d73eb8\"}},{\"Name\":\"docker-init\",\"Version\":\"0.19.0\",\"Details\":{\"GitCommit\":\"de40ad0\"}}],\"GitCommit\":\"3b01d64\",\"GoVersion\":\"go1.25.6\",\"KernelVersion\":\"6.8.0-138-generic\",\"BuildTime\":\"2026-01-16T12:48:49.000000000+00:00\"}}\n"
+    },
+    "unprivileged_userns": {
+      "argv": [
+        "unshare",
+        "-Urn",
+        "--",
+        "/usr/bin/true"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": ""
+    }
+  },
+  "conclusion": "BLOCKED: user-owned rootless Docker socket absent; default Docker daemon is rootful; CPU cgroup controller not delegated; no dedicated quota-limited run volume configured. No untrusted code executed.",
+  "created_at": "2026-09-26T20:39:28.933929+00:00",
+  "delegated_controllers": [
+    "memory",
+    "pids"
+  ],
+  "disk_volume_requirements": {
+    "capacity": "16 MiB to min(4x approved profile output budget, 4 GiB)",
+    "filesystem": "different device than private parent; reported total capacity is hard limit",
+    "host_reserve_bytes": 1073741824,
+    "mode": "dedicated filesystem mountpoint per run ID",
+    "ownership": "current owner, 0700, empty, parent 0700",
+    "present_on_host": false
+  },
+  "host": {
+    "gid": 1000,
+    "kernel": "6.8.0-138-generic",
+    "machine": "x86_64",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "python": "3.10.12",
+    "uid": 1000
+  },
+  "official_runtime_sources": [
+    "https://docs.docker.com/engine/security/rootless/",
+    "https://docs.docker.com/engine/security/rootless/tips/",
+    "https://docs.docker.com/reference/cli/docker/container/run/",
+    "https://docs.docker.com/engine/storage/bind-mounts/",
+    "https://github.com/containers/bubblewrap/blob/main/bwrap.xml"
+  ],
+  "rootless_broker_probe": {
+    "available": false,
+    "cgroup_driver": null,
+    "cgroup_version": null,
+    "code": "ROOTLESS_SOCKET_MISSING",
+    "daemon_id": null,
+    "delegated_controllers": [],
+    "server_version": null,
+    "socket_path": "/run/user/1000/docker.sock"
+  },
+  "schema_version": "1.0"
+}

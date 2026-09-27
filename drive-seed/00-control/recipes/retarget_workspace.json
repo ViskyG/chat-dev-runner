@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "request_id": "00000000-0000-0000-0000-000000000003",
+  "dispatch": "DRAFT",
+  "runner_id": "local-runner",
+  "epoch": "00000000-0000-0000-0000-000000000000",
+  "issued_at": "2026-09-26T00:00:00Z",
+  "expires_at": "2026-09-26T00:15:00Z",
+  "action": "RETARGET_WORKSPACE",
+  "project_id": "example-lab",
+  "workspace_id": "experiment",
+  "expected_head": "1111111111111111111111111111111111111111",
+  "params": {
+    "expected_branch": "feature/experiment",
+    "target_branch": "feature/second-experiment",
+    "target_commit": "2222222222222222222222222222222222222222"
+  },
+  "intent": "DRAFT EXAMPLE ONLY: RETARGET_WORKSPACE. Not an authorized live command."
+}

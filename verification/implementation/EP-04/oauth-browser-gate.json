@@ -1,0 +1,27 @@
+{
+  "packet": "EP-04",
+  "date": "2026-09-27",
+  "host": "k8s-master",
+  "phase": "BROWSER_INTERACTION_REQUIRED",
+  "credential_path": "~/.config/chat-dev-runner/google-oauth-client.json",
+  "credential_metadata": "regular owner-owned file mode 0600; parent app config directory mode 0700; contents not recorded",
+  "scope": "https://www.googleapis.com/auth/drive.file",
+  "token_path": "~/.config/chat-dev-runner/tokens/google-drive.json",
+  "token_at_preflight": "ABSENT",
+  "token_after_launch": "NOT_INSPECTED",
+  "oauth_process_pid_at_gate": 529072,
+  "oauth_state_marker": "/tmp/cdr-ep04-oauth-tp4n3s8y.state",
+  "oauth_process_alive_at_gate": true,
+  "local_validation": {
+    "command": ".venv/bin/pytest -q tests/test_drive_auth.py",
+    "result": "17 passed",
+    "ruff": "passed",
+    "mypy": "passed",
+    "client_preflight": "AUTHORIZATION_REQUIRED"
+  },
+  "drive_document_read": false,
+  "drive_document_write": false,
+  "canary_write": false,
+  "installation_index_validation": "NOT_STARTED",
+  "next_step": "Owner completes browser OAuth consent; after success validate exact existing Installation Index before choosing and disclosing an existing canary Doc."
+}

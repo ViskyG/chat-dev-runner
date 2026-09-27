@@ -1,0 +1,10 @@
+Offline prototype: http://127.0.0.1:48957 — Ctrl+C to stop
+127.0.0.1 - - [26/Sep/2026 22:48:43] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [26/Sep/2026 22:48:43] code 404, message File not found
+127.0.0.1 - - [26/Sep/2026 22:48:43] "GET /../STATUS.json HTTP/1.1" 404 -
+127.0.0.1 - - [26/Sep/2026 22:48:43] code 404, message File not found
+127.0.0.1 - - [26/Sep/2026 22:48:43] "GET /config/runner.example.json HTTP/1.1" 404 -
+127.0.0.1 - - [26/Sep/2026 22:48:43] code 404, message File not found
+127.0.0.1 - - [26/Sep/2026 22:48:43] "GET /AGENTS.md HTTP/1.1" 404 -
+127.0.0.1 - - [26/Sep/2026 22:48:43] code 403, message Unrecognized local host
+127.0.0.1 - - [26/Sep/2026 22:48:43] "GET / HTTP/1.1" 403 -

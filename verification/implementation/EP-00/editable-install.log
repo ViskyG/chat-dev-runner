@@ -1,0 +1,13 @@
+Obtaining file:///home/visky/Work/GPTRunner/chat-dev-runner
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: chat-dev-runner
+  Building editable for chat-dev-runner (pyproject.toml): started
+  Building editable for chat-dev-runner (pyproject.toml): finished with status 'done'
+  Created wheel for chat-dev-runner: filename=chat_dev_runner-0.2.0-0.editable-py3-none-any.whl size=3399 sha256=8b65a847bfbf010506acff1e874cc533fdc936d44421f97797844217f4068768
+  Stored in directory: /tmp/pip-ephem-wheel-cache-htrdni1p/wheels/ce/07/f5/ceb69cbd3e138dc3885917e5da86d7367474d255ee6f2e13b9
+Successfully built chat-dev-runner
+Installing collected packages: chat-dev-runner
+Successfully installed chat-dev-runner-0.2.0

@@ -1,0 +1,168 @@
+.FFFF                                                                    [100%]
+=================================== FAILURES ===================================
+___________ test_source_identity_and_generation_cas_survive_restart ____________
+
+tmp_path = PosixPath('/tmp/cdr-ep02-registry/test_source_identity_and_gener0')
+
+    def test_source_identity_and_generation_cas_survive_restart(tmp_path: Path) -> None:
+        registry, repo, workspace = fixture_registry(tmp_path)
+>       record_source(registry, repo, workspace)
+
+tests/test_source_registry.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_source_registry.py:32: in record_source
+    registry.register_workspace("fixture", "area", "Area", workspace,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <runner_app.git.registry.SourceRegistry object at 0x7d4826621d80>
+project_id = 'fixture', workspace_id = 'area', display_name = 'Area'
+worktree_path = PosixPath('/tmp/cdr-ep02-registry/test_source_identity_and_gener0/managed/fixture/workspaces/area')
+branch = 'feature/area', head = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+
+    def register_workspace(self, project_id: str, workspace_id: str, display_name: str,
+                           worktree_path: Path, *, branch: str, head: str) -> dict[str, Any]:
+        project_id, workspace_id = _slug(project_id), _slug(workspace_id)
+        if not isinstance(display_name, str) or not 1 <= len(display_name) <= 80:
+            raise SourceError("INVALID_DISPLAY_NAME", "Workspace display name is required")
+        try:
+            validate_branch(branch)
+        except Rejected:
+            raise SourceError("INVALID_BRANCH", "Workspace branch is invalid") from None
+        head = _object_id(head)
+        path = self._managed_path(worktree_path, directory=True,
+                                  expected=self.managed_root / project_id / "workspaces" / workspace_id)
+        with self._transaction() as connection:
+>           existing = connection.execute(
+                "SELECT w.display_name,w.branch,w.state,s.worktree_path,s.head,s.generation,s.archived "
+                "FROM workspaces w JOIN source_workspaces s USING(project_id,workspace_id) "
+                "WHERE w.project_id=? AND w.workspace_id=?", (project_id, workspace_id),
+            ).fetchone()
+E           sqlite3.OperationalError: no such column: w.display_name
+
+runner_app/git/registry.py:179: OperationalError
+___________ test_managed_path_symlink_and_outside_root_are_rejected ____________
+
+tmp_path = PosixPath('/tmp/cdr-ep02-registry/test_managed_path_symlink_and_0')
+
+    def test_managed_path_symlink_and_outside_root_are_rejected(tmp_path: Path) -> None:
+        registry, repo, workspace = fixture_registry(tmp_path)
+        external = tmp_path / "outside"
+        external.mkdir(mode=0o700)
+        with pytest.raises(SourceError) as error:
+            registry.register_project("fixture", "Fixture", external, origin_kind="new")
+        assert error.value.code == "OUTSIDE_MANAGED_ROOT"
+        workspace.rmdir()
+        workspace.symlink_to(external, target_is_directory=True)
+        registry.register_project("fixture", "Fixture", repo, origin_kind="new")
+        with pytest.raises(SourceError) as error:
+            registry.register_workspace("fixture", "area", "Area", workspace,
+                                        branch="feature/area", head="a" * 40)
+        assert error.value.code == "UNSAFE_SOURCE_PATH"
+>       assert registry.get_workspace("fixture", "area") is None
+
+tests/test_source_registry.py:123: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <runner_app.git.registry.SourceRegistry object at 0x7d48267bffa0>
+project_id = 'fixture', workspace_id = 'area'
+
+    def get_workspace(self, project_id: str, workspace_id: str) -> dict[str, Any] | None:
+        project_id, workspace_id = _slug(project_id), _slug(workspace_id)
+        connection = self.database.connect()
+        connection.row_factory = sqlite3.Row
+        try:
+>           row = connection.execute(
+                "SELECT w.display_name,w.branch,w.state,s.worktree_path,s.head,s.generation,"
+                "s.capture_fingerprint,s.archived FROM workspaces w "
+                "JOIN source_workspaces s USING(project_id,workspace_id) "
+                "WHERE w.project_id=? AND w.workspace_id=?", (project_id, workspace_id),
+            ).fetchone()
+E           sqlite3.OperationalError: no such column: w.display_name
+
+runner_app/git/registry.py:208: OperationalError
+______ test_snapshot_is_immutable_idempotent_and_manifest_tamper_detected ______
+
+tmp_path = PosixPath('/tmp/cdr-ep02-registry/test_snapshot_is_immutable_ide0')
+
+    def test_snapshot_is_immutable_idempotent_and_manifest_tamper_detected(tmp_path: Path) -> None:
+        registry, repo, workspace = fixture_registry(tmp_path)
+>       record_source(registry, repo, workspace)
+
+tests/test_source_registry.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_source_registry.py:32: in record_source
+    registry.register_workspace("fixture", "area", "Area", workspace,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <runner_app.git.registry.SourceRegistry object at 0x7d4826642c50>
+project_id = 'fixture', workspace_id = 'area', display_name = 'Area'
+worktree_path = PosixPath('/tmp/cdr-ep02-registry/test_snapshot_is_immutable_ide0/managed/fixture/workspaces/area')
+branch = 'feature/area', head = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+
+    def register_workspace(self, project_id: str, workspace_id: str, display_name: str,
+                           worktree_path: Path, *, branch: str, head: str) -> dict[str, Any]:
+        project_id, workspace_id = _slug(project_id), _slug(workspace_id)
+        if not isinstance(display_name, str) or not 1 <= len(display_name) <= 80:
+            raise SourceError("INVALID_DISPLAY_NAME", "Workspace display name is required")
+        try:
+            validate_branch(branch)
+        except Rejected:
+            raise SourceError("INVALID_BRANCH", "Workspace branch is invalid") from None
+        head = _object_id(head)
+        path = self._managed_path(worktree_path, directory=True,
+                                  expected=self.managed_root / project_id / "workspaces" / workspace_id)
+        with self._transaction() as connection:
+>           existing = connection.execute(
+                "SELECT w.display_name,w.branch,w.state,s.worktree_path,s.head,s.generation,s.archived "
+                "FROM workspaces w JOIN source_workspaces s USING(project_id,workspace_id) "
+                "WHERE w.project_id=? AND w.workspace_id=?", (project_id, workspace_id),
+            ).fetchone()
+E           sqlite3.OperationalError: no such column: w.display_name
+
+runner_app/git/registry.py:179: OperationalError
+__ test_snapshot_requires_current_generation_private_manifest_and_safe_paths ___
+
+tmp_path = PosixPath('/tmp/cdr-ep02-registry/test_snapshot_requires_current0')
+
+    def test_snapshot_requires_current_generation_private_manifest_and_safe_paths(tmp_path: Path) -> None:
+        registry, repo, workspace = fixture_registry(tmp_path)
+>       record_source(registry, repo, workspace)
+
+tests/test_source_registry.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_source_registry.py:32: in record_source
+    registry.register_workspace("fixture", "area", "Area", workspace,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <runner_app.git.registry.SourceRegistry object at 0x7d4826620ca0>
+project_id = 'fixture', workspace_id = 'area', display_name = 'Area'
+worktree_path = PosixPath('/tmp/cdr-ep02-registry/test_snapshot_requires_current0/managed/fixture/workspaces/area')
+branch = 'feature/area', head = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+
+    def register_workspace(self, project_id: str, workspace_id: str, display_name: str,
+                           worktree_path: Path, *, branch: str, head: str) -> dict[str, Any]:
+        project_id, workspace_id = _slug(project_id), _slug(workspace_id)
+        if not isinstance(display_name, str) or not 1 <= len(display_name) <= 80:
+            raise SourceError("INVALID_DISPLAY_NAME", "Workspace display name is required")
+        try:
+            validate_branch(branch)
+        except Rejected:
+            raise SourceError("INVALID_BRANCH", "Workspace branch is invalid") from None
+        head = _object_id(head)
+        path = self._managed_path(worktree_path, directory=True,
+                                  expected=self.managed_root / project_id / "workspaces" / workspace_id)
+        with self._transaction() as connection:
+>           existing = connection.execute(
+                "SELECT w.display_name,w.branch,w.state,s.worktree_path,s.head,s.generation,s.archived "
+                "FROM workspaces w JOIN source_workspaces s USING(project_id,workspace_id) "
+                "WHERE w.project_id=? AND w.workspace_id=?", (project_id, workspace_id),
+            ).fetchone()
+E           sqlite3.OperationalError: no such column: w.display_name
+
+runner_app/git/registry.py:179: OperationalError
+=========================== short test summary info ============================
+FAILED tests/test_source_registry.py::test_source_identity_and_generation_cas_survive_restart
+FAILED tests/test_source_registry.py::test_managed_path_symlink_and_outside_root_are_rejected
+FAILED tests/test_source_registry.py::test_snapshot_is_immutable_idempotent_and_manifest_tamper_detected
+FAILED tests/test_source_registry.py::test_snapshot_requires_current_generation_private_manifest_and_safe_paths
+4 failed, 1 passed in 0.28s

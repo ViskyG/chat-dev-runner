@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "change_id": "22222222-2222-4222-8222-222222222222",
+  "project_id": "toy-project",
+  "workspace_id": "experiment-a",
+  "base_head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "files": [
+    {
+      "op": "upsert",
+      "path": "notes.txt",
+      "expected_sha256": null,
+      "content_utf8": "New project note.\n"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="15" time="1.758" timestamp="2026-09-26T23:19:03.068487+04:00" hostname="k8s-master"><testcase classname="tests.test_domain_api" name="test_bootstrap_is_single_use_and_cookie_is_private" time="0.088" /><testcase classname="tests.test_domain_api" name="test_read_and_sse_endpoints_require_a_session[/api/v1/system]" time="0.071" /><testcase classname="tests.test_domain_api" name="test_read_and_sse_endpoints_require_a_session[/api/v1/operations]" time="0.070" /><testcase classname="tests.test_domain_api" name="test_read_and_sse_endpoints_require_a_session[/api/v1/events]" time="0.073" /><testcase classname="tests.test_domain_api" name="test_mutations_require_valid_origin_host_json_and_csrf[headers0-ORIGIN_REQUIRED-403]" time="0.070" /><testcase classname="tests.test_domain_api" name="test_mutations_require_valid_origin_host_json_and_csrf[headers1-INVALID_ORIGIN-403]" time="0.073" /><testcase classname="tests.test_domain_api" name="test_mutations_require_valid_origin_host_json_and_csrf[headers2-INVALID_CSRF-403]" time="0.070" /><testcase classname="tests.test_domain_api" name="test_mutations_require_valid_origin_host_json_and_csrf[headers3-INVALID_CSRF-403]" time="0.071" /><testcase classname="tests.test_domain_api" name="test_mutations_require_valid_origin_host_json_and_csrf[headers4-INVALID_HOST-403]" time="0.071" /><testcase classname="tests.test_domain_api" name="test_mutations_require_valid_origin_host_json_and_csrf[headers5-JSON_REQUIRED-415]" time="0.075" /><testcase classname="tests.test_domain_api" name="test_duplicate_csrf_header_is_refused" time="0.071" /><testcase classname="tests.test_domain_api" name="test_get_cannot_arm_and_invalid_json_is_terminal" time="0.072" /><testcase classname="tests.test_domain_api" name="test_body_limit_and_artifact_path_traversal" time="0.076" /><testcase classname="tests.test_domain_api" name="test_immediate_admission_dedup_busy_and_cancellation_without_free_slot" time="0.205" /><testcase classname="tests.test_domain_api" name="test_real_runtime_private_handoff_and_unavailable_execution" time="0.442"><failure message="AssertionError: assert not True&#10; +  where True = exists()&#10; +    where exists = PosixPath('/tmp/cdr-ep01-api-acceptance-pre/test_real_runtime_private_hand0/config/chat-dev-runner/tokens/session-bootstrap.json').exists">tmp_path = PosixPath('/tmp/cdr-ep01-api-acceptance-pre/test_real_runtime_private_hand0')
+
+    def test_real_runtime_private_handoff_and_unavailable_execution(tmp_path: Path) -&gt; None:
+        environment = os.environ.copy()
+        for name, directory in (("XDG_CONFIG_HOME", "config"), ("XDG_DATA_HOME", "data"),
+                                ("XDG_CACHE_HOME", "cache"), ("XDG_RUNTIME_DIR", "runtime")):
+            environment[name] = str(tmp_path / directory)
+        environment["PYTHONDONTWRITEBYTECODE"] = "1"
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as reservation:
+            reservation.bind(("127.0.0.1", 0))
+            port = reservation.getsockname()[1]
+        bootstrap_file = tmp_path / "config/chat-dev-runner/tokens/session-bootstrap.json"
+        process = subprocess.Popen(
+            [sys.executable, "-m", "runner_app.cli", "serve", "--port", str(port)],
+            cwd=ROOT, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        )
+        secret = ""
+        try:
+            deadline = time.monotonic() + 10
+            while time.monotonic() &lt; deadline:
+                if process.poll() is not None:
+                    stdout, stderr = process.communicate()
+                    pytest.fail(f"Runtime failed: {process.returncode}; {stdout}; {stderr}")
+                connection = http.client.HTTPConnection("127.0.0.1", port, timeout=0.3)
+                try:
+                    connection.request("GET", "/api/v1/health")
+                    response = connection.getresponse()
+                    response.read()
+                    if response.status == 200 and bootstrap_file.exists():
+                        break
+                except OSError:
+                    time.sleep(0.025)
+                finally:
+                    connection.close()
+            else:
+                pytest.fail("Runtime did not start within ten seconds")
+            assert stat.S_IMODE(bootstrap_file.stat().st_mode) == 0o600
+            assert stat.S_IMODE(bootstrap_file.parent.stat().st_mode) == 0o700
+            secret = json.loads(bootstrap_file.read_text())["bootstrap"]
+            origin = f"http://127.0.0.1:{port}"
+            connection = http.client.HTTPConnection("127.0.0.1", port, timeout=2)
+            try:
+                connection.request("GET", "/api/v1/system")
+                response = connection.getresponse()
+                assert response.status == 403
+                response.read()
+                connection.request("POST", "/api/v1/local/session", json.dumps({"bootstrap": secret}),
+                                   {"Origin": origin, "Content-Type": "application/json"})
+                response = connection.getresponse()
+                assert response.status == 200
+                csrf = json.loads(response.read())["csrf_token"]
+                cookie = response.getheader("Set-Cookie").split(";", 1)[0]
+                connection.request("GET", "/api/v1/system", headers={"Cookie": cookie})
+                response = connection.getresponse()
+                body = response.read()
+                assert response.status == 200
+                system = json.loads(body)
+                assert system["armed"] is False and system["capabilities"] == []
+                assert secret.encode() not in body and csrf.encode() not in body
+                connection.request("POST", "/api/v1/local/arm", "{}", {
+                    "Origin": origin, "Content-Type": "application/json", "Cookie": cookie,
+                    "X-CSRF-Token": csrf,
+                })
+                response = connection.getresponse()
+                assert response.status == 503
+                assert json.loads(response.read())["error"] == "ACTION_UNAVAILABLE"
+                connection.request("POST", "/api/v1/local/session", json.dumps({"bootstrap": secret}),
+                                   {"Origin": origin, "Content-Type": "application/json"})
+                response = connection.getresponse()
+                assert response.status == 403
+                response.read()
+            finally:
+                connection.close()
+        finally:
+            if process.poll() is None:
+                process.terminate()
+            try:
+                stdout, stderr = process.communicate(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                stdout, stderr = process.communicate(timeout=5)
+            if secret:
+                assert secret not in stdout + stderr
+&gt;       assert not bootstrap_file.exists()
+E       AssertionError: assert not True
+E        +  where True = exists()
+E        +    where exists = PosixPath('/tmp/cdr-ep01-api-acceptance-pre/test_real_runtime_private_hand0/config/chat-dev-runner/tokens/session-bootstrap.json').exists
+
+tests/test_domain_api.py:270: AssertionError</failure></testcase></testsuite></testsuites>

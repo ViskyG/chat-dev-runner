@@ -1,0 +1,6 @@
+{
+  "state": "NO_OPERATION",
+  "request_id": null,
+  "run_id": null,
+  "message": "No command has been submitted. This is an inert initial document, not a v1 execution receipt."
+}

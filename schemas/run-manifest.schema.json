@@ -1,0 +1,207 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "run_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "request_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+    },
+    "workspace_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+    },
+    "snapshot": {
+      "type": "object",
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "tree": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "source_dirty_at_capture": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "commit",
+        "tree",
+        "source_dirty_at_capture"
+      ],
+      "additionalProperties": false
+    },
+    "operation_status": {
+      "enum": [
+        "COMPLETED",
+        "BLOCKED",
+        "FAULT",
+        "INTERRUPTED",
+        "CANCELLED"
+      ]
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "outcome": {
+          "enum": [
+            "PASSED",
+            "FAILED",
+            "TIMED_OUT",
+            "CANCELLED",
+            "NOT_RUN",
+            "UNKNOWN"
+          ]
+        },
+        "exit_code": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "duration_seconds": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "outcome",
+        "exit_code",
+        "duration_seconds"
+      ],
+      "additionalProperties": false
+    },
+    "delivery": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "NOT_ATTEMPTED",
+            "PENDING",
+            "DELIVERED",
+            "PARTIAL",
+            "FAILED"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "output_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+          },
+          "kind": {
+            "enum": [
+              "console",
+              "application_log",
+              "test_result",
+              "coverage",
+              "report",
+              "screenshot",
+              "artifact",
+              "runner_log"
+            ]
+          },
+          "format": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "media_type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "relative_path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "truncated_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "publication": {
+            "enum": [
+              "local_only",
+              "redacted_upload",
+              "approved_upload"
+            ]
+          }
+        },
+        "required": [
+          "output_id",
+          "kind",
+          "format",
+          "media_type",
+          "relative_path",
+          "size_bytes",
+          "sha256",
+          "complete",
+          "truncated_reason",
+          "publication"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "schema_version",
+    "run_id",
+    "request_id",
+    "project_id",
+    "workspace_id",
+    "snapshot",
+    "operation_status",
+    "execution",
+    "delivery",
+    "outputs",
+    "created_at"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cdr:run-manifest:1"
+}

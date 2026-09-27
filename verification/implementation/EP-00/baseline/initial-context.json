@@ -1,0 +1,26 @@
+{
+  "archive": "chat-dev-runner-prototype-kit.zip",
+  "git": "not a git repository; archive contains no .git",
+  "baseline_started_utc": "2026-09-26T18:46:55Z",
+  "host_python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "archive_executable_modes": {
+    "chat-dev-runner/start-prototype.sh": "0o100755"
+  },
+  "failed_preflight_attempts": [
+    {
+      "command": "sandbox exec pwd and rg",
+      "exit": "launcher failure",
+      "reason": "mountinfo path is not absolute; require_escalated used thereafter"
+    },
+    {
+      "command": "python extraction",
+      "exit_code": 127,
+      "resolution": "used python3"
+    },
+    {
+      "command": "git status --short",
+      "exit_code": 128,
+      "reason": "archive contains no .git"
+    }
+  ]
+}

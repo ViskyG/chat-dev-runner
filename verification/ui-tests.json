@@ -1,0 +1,186 @@
+{
+  "browser": "151.0.7922.34",
+  "render_mode": "Chromium set_content; local navigation blocked by managed environment",
+  "checks": [
+    {
+      "check": "Offline demo starts with explicit simulation badge",
+      "passed": true
+    },
+    {
+      "check": "Initial project/workspace scope",
+      "passed": true
+    },
+    {
+      "check": "Light theme",
+      "passed": true
+    },
+    {
+      "check": "Output tab: console",
+      "passed": true
+    },
+    {
+      "check": "Output tab: logs",
+      "passed": true
+    },
+    {
+      "check": "Output tab: tests",
+      "passed": true
+    },
+    {
+      "check": "Output tab: artifacts",
+      "passed": true
+    },
+    {
+      "check": "Output tab: summary",
+      "passed": true
+    },
+    {
+      "check": "stderr view",
+      "passed": true
+    },
+    {
+      "check": "Structured log level filter",
+      "passed": true
+    },
+    {
+      "check": "VS Code menu lists all project worktrees",
+      "passed": true
+    },
+    {
+      "check": "Editor path targets selected worktree",
+      "passed": true
+    },
+    {
+      "check": "Dirty workspace blocks branch switch",
+      "passed": true
+    },
+    {
+      "check": "Clean workspace retarget",
+      "passed": true
+    },
+    {
+      "check": "Retarget invalidates old result",
+      "passed": true
+    },
+    {
+      "check": "Keyboard command palette",
+      "passed": true
+    },
+    {
+      "check": "Escape closes dialog",
+      "passed": true
+    },
+    {
+      "check": "Navigation: operations",
+      "passed": true
+    },
+    {
+      "check": "Navigation: results",
+      "passed": true
+    },
+    {
+      "check": "Navigation: drive",
+      "passed": true
+    },
+    {
+      "check": "Navigation: system",
+      "passed": true
+    },
+    {
+      "check": "Navigation: work",
+      "passed": true
+    },
+    {
+      "check": "Reduced motion setting",
+      "passed": true
+    },
+    {
+      "check": "Runner fault is separate synthetic infrastructure state",
+      "passed": true
+    },
+    {
+      "check": "Project ID validation",
+      "passed": true
+    },
+    {
+      "check": "New project route admitted",
+      "passed": true
+    },
+    {
+      "check": "No fabricated test during provisioning",
+      "passed": true
+    },
+    {
+      "check": "No fabricated test after provisioning",
+      "passed": true
+    },
+    {
+      "check": "Empty result state",
+      "passed": true
+    },
+    {
+      "check": "Independent workspace creation",
+      "passed": true
+    },
+    {
+      "check": "Verify route has no push/PR",
+      "passed": true
+    },
+    {
+      "check": "Busy operation is refused without queue",
+      "passed": true
+    },
+    {
+      "check": "Verify preserves edited files and current branch head",
+      "passed": true
+    },
+    {
+      "check": "Publish route has no test stage",
+      "passed": true
+    },
+    {
+      "check": "Publish reuses run instead of fabricating tests",
+      "passed": true
+    },
+    {
+      "check": "No automatic follow-up loop",
+      "passed": true
+    },
+    {
+      "check": "Explicit cancellation",
+      "passed": true
+    },
+    {
+      "check": "No horizontal page overflow 1280px",
+      "passed": true
+    },
+    {
+      "check": "No horizontal page overflow 1600px",
+      "passed": true
+    },
+    {
+      "check": "No horizontal page overflow 2560px",
+      "passed": true
+    },
+    {
+      "check": "No horizontal page overflow 390px",
+      "passed": true
+    },
+    {
+      "check": "System reduced-motion preference",
+      "passed": true
+    },
+    {
+      "check": "No browser JS errors",
+      "passed": true
+    },
+    {
+      "check": "No external network requests",
+      "passed": true
+    }
+  ],
+  "count": 44,
+  "js_errors": [],
+  "network_requests": [],
+  "cloud_actions_tested": false
+}

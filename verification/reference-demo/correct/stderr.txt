@@ -1,0 +1,7 @@
+test_empty (test_compute.TotalTests.test_empty) ... ok
+test_sum (test_compute.TotalTests.test_sum) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK

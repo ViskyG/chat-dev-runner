@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "python-quick",
+  "description": "Digest-pinned reference profile; rootless runtime, dependencies and owner approval not configured",
+  "execution_backend": "rootless_container",
+  "image": "docker.io/library/python@sha256:54b4fc9408ea4f5d1b1b9c63c7ef1968d46d3b927e00df8ab1f09364593f979f",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "--junitxml=/out/junit.xml"
+  ],
+  "timeout_seconds": 600,
+  "network": "none",
+  "memory_mb": 512,
+  "cpu_limit": 1,
+  "pids_limit": 128,
+  "capabilities": "drop_all",
+  "no_new_privileges": true,
+  "read_only_root": true,
+  "secrets": [],
+  "output_budget_mb": 64,
+  "collect": [
+    {
+      "id": "junit",
+      "kind": "test_result",
+      "path": "junit.xml",
+      "format": "junit-xml",
+      "required": false
+    },
+    {
+      "id": "app-log",
+      "kind": "application_log",
+      "path": "app.jsonl",
+      "format": "application-log/v1",
+      "required": false
+    }
+  ],
+  "approval": "Local owner approves the image, lockfile installation phase and profile before remote execution.",
+  "platform": "linux/amd64",
+  "installed": false,
+  "approved": false
+}

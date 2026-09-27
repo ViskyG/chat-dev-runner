@@ -1,0 +1,81 @@
+{
+  "packet": "EP-03",
+  "status": "BLOCKED_REAL_ROOTLESS_GATE",
+  "recorded_at_utc": "2026-09-26T21:10:14.843207+00:00",
+  "environment": {
+    "python": "3.10.12",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "source_git_checkout": false
+  },
+  "baseline": "verification/implementation/EP-03/baseline-reference.json",
+  "checks": [
+    {
+      "name": "full_offline_pytest",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp=/tmp/cdr-wrap-20260927",
+        "--junitxml=verification/implementation/wrap-20260927.junit.xml"
+      ],
+      "exit_code": 0,
+      "counts": {
+        "tests": 604,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit": "verification/implementation/wrap-20260927.junit.xml",
+      "junit_sha256": "da71cdfabe11033560314914f45ad5ba9c4562a13a6d65b520d6c53d2f377e70"
+    },
+    {
+      "name": "ruff",
+      "argv": [
+        ".venv/bin/ruff",
+        "check",
+        "runner_app",
+        "scripts/bootstrap_drive.py",
+        "tests/test_run_service.py",
+        "tests/test_run_evidence.py",
+        "tests/test_drive_docs.py",
+        "tests/test_drive_index.py",
+        "tests/test_drive_google.py",
+        "tests/test_bootstrap_drive.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "mypy",
+      "argv": [
+        ".venv/bin/mypy",
+        "runner_app"
+      ],
+      "exit_code": 0,
+      "source_files": 43
+    }
+  ],
+  "focused_evidence": [
+    "verification/implementation/EP-03/materialize-summary.json",
+    "verification/implementation/EP-03/broker-summary.json",
+    "verification/implementation/EP-03/broker-host-audit.json",
+    "verification/implementation/EP-03/outputs-final-summary.json",
+    "verification/implementation/EP-03/run-service-summary.json"
+  ],
+  "real_gate": {
+    "status": "BLOCKED",
+    "reason": "ROOTLESS_SOCKET_MISSING; no CPU cgroup delegation; no dedicated quota-limited run volume; no approved installed profile/image",
+    "project_code_executed": false
+  },
+  "external_side_effects": {
+    "google_calls": false,
+    "github_calls": false,
+    "user_projects_touched": false,
+    "bootstrap_apply": false
+  },
+  "remaining": [
+    "real passing/failing/timeout/cancel/hostile toy runs",
+    "trusted Engine handler connection after containment gate",
+    "output retention and delivery policy integration"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "commands": [
+    {
+      "argv": ".venv/bin/pytest -q tests/test_run_service.py --junitxml=verification/implementation/EP-03/run-service.junit.xml",
+      "exit_code": 0,
+      "junit": "run-service.junit.xml",
+      "log": "run-service-tests.log"
+    },
+    {
+      "argv": ".venv/bin/ruff check runner_app/executors/run_service.py tests/test_run_service.py",
+      "exit_code": 0,
+      "log": "run-service-ruff.log"
+    },
+    {
+      "argv": ".venv/bin/mypy runner_app/executors/run_service.py tests/test_run_service.py",
+      "exit_code": 0,
+      "log": "run-service-mypy.log"
+    }
+  ],
+  "component": "finite offline run orchestration",
+  "environment": {
+    "machine": "x86_64",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "python": "Python 3.10.12"
+  },
+  "gate": "Real rootless Docker runtime remains unavailable on this host; no untrusted execution claim.",
+  "packet": "EP-03",
+  "recorded_at": "2026-09-26T21:08:55.131622+00:00",
+  "scope": "Fake broker only; disposable real Git/SQLite; no project code or live rootless runtime executed.",
+  "source_sha256": {
+    "runner_app/executors/run_service.py": "c8aa846d1ebaa589f14f804ae581f37ee616a0e262474023ad55512467af94b9",
+    "tests/test_run_service.py": "51bb6ecf26da966fa3590785b325cfa66396701db011f77ff2ce1ca7af002849"
+  },
+  "tests": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 15
+  }
+}

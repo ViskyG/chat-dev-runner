@@ -1,0 +1,48 @@
+{
+  "checks": [
+    {
+      "argv": [
+        ".venv/bin/pytest",
+        "-q",
+        "tests/test_drive_poller.py"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "..............                                                           [100%]\n14 passed in 1.58s\n"
+    },
+    {
+      "argv": [
+        ".venv/bin/ruff",
+        "check",
+        "runner_app/adapters/drive_poller.py",
+        "tests/test_drive_poller.py"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "All checks passed!\n"
+    },
+    {
+      "argv": [
+        ".venv/bin/mypy",
+        "runner_app/adapters/drive_poller.py"
+      ],
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "Success: no issues found in 1 source file\n"
+    }
+  ],
+  "component": "drive-poller-frozen-slot",
+  "environment": {
+    "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "python": "3.10.12"
+  },
+  "external_effects": "none; fake Drive only",
+  "packet": "EP-04",
+  "pass": true,
+  "recorded_at_utc": "2026-09-27T04:42:42.344152+00:00",
+  "scope": [
+    "runner_app/adapters/drive_poller.py",
+    "tests/test_drive_poller.py"
+  ]
+}

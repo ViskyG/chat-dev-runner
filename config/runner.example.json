@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "runner_id": "local-runner",
+  "listen_host": "127.0.0.1",
+  "listen_port": 8765,
+  "armed": false,
+  "mode": "demo",
+  "max_parallel_executions": 2,
+  "admission": "reject_if_busy",
+  "data_root": "~/.local/share/chat-dev-runner",
+  "poll_seconds": 15,
+  "default_request_ttl_seconds": 900,
+  "root_mailbox_doc_id": null,
+  "google_scope": "https://www.googleapis.com/auth/drive",
+  "github_identity": "personal",
+  "github_owner": "SET_LOCALLY",
+  "repo_visibility": "private",
+  "branch_prefixes": [
+    "feature/",
+    "fix/",
+    "experiment/",
+    "runner/"
+  ],
+  "protected_branches": [
+    "main",
+    "master",
+    "release/*"
+  ],
+  "automatic_merge": false,
+  "force_push": false,
+  "credential_storage": "os_keyring_or_mode_0600_file",
+  "upload_policy": "redacted_outputs_only",
+  "raw_log_storage": "local_only_with_explicit_budgets",
+  "chat_access_automation": "manual_required",
+  "control_source": "runner_created_native_google_docs"
+}

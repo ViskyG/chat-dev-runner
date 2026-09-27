@@ -1,0 +1,89 @@
+{
+  "environment": {
+    "python": "3.10.12",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "cwd": "/tmp/cdr-ep02-installed-zu6wzseo",
+    "wheel": "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-02/wheel/chat_dev_runner-0.2.0-py3-none-any.whl",
+    "network": "loopback only"
+  },
+  "steps": [
+    {
+      "name": "venv",
+      "argv": [
+        "python3",
+        "-m",
+        "venv",
+        "/tmp/cdr-ep02-installed-zu6wzseo/venv"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-02/wheel-venv.log"
+    },
+    {
+      "name": "dependencies",
+      "argv": [
+        "uv",
+        "pip",
+        "install",
+        "--offline",
+        "--python",
+        "/tmp/cdr-ep02-installed-zu6wzseo/venv/bin/python",
+        "--require-hashes",
+        "-r",
+        "/home/visky/Work/GPTRunner/chat-dev-runner/requirements.lock"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-02/wheel-dependencies.log"
+    },
+    {
+      "name": "package",
+      "argv": [
+        "uv",
+        "pip",
+        "install",
+        "--offline",
+        "--python",
+        "/tmp/cdr-ep02-installed-zu6wzseo/venv/bin/python",
+        "--no-deps",
+        "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-02/wheel/chat_dev_runner-0.2.0-py3-none-any.whl"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-02/wheel-package.log"
+    },
+    {
+      "name": "isolated-import",
+      "argv": [
+        "/tmp/cdr-ep02-installed-zu6wzseo/venv/bin/python",
+        "-I",
+        "-c",
+        "import json, pathlib, sys, runner_app, bridge_reference.protocol as p\nfrom runner_app.resources import load_schema\nfrom runner_app.storage import Database\nassert pathlib.Path(runner_app.__file__).is_relative_to(pathlib.Path(sys.prefix))\nassert pathlib.Path(p.SCHEMAS).is_relative_to(pathlib.Path(sys.prefix))\nassert load_schema('command') == json.loads((p.SCHEMAS/'command.schema.json').read_text())\nstate = pathlib.Path.cwd()/'db'; state.mkdir(mode=0o700)\nassert Database(state/'state.sqlite').migrate() == 3\nfrom runner_app.git.argv import run_git\nfrom runner_app.git.registry import SourceRegistry\nfrom runner_app.git.worktrees import create_repository, create_workspace\nrepo = create_repository(state/'managed', 'wheel-fixture')\nhead = run_git(repo, ['rev-parse', 'refs/heads/main']).strip()\nworkspace = create_workspace(state/'managed', 'wheel-fixture', repo, 'first', 'feature/wheel', head)\nregistry = SourceRegistry(Database(state/'state.sqlite'), state/'managed')\nregistry.register_project('wheel-fixture', 'Wheel Fixture', repo, origin_kind='new')\nregistry.register_workspace('wheel-fixture', 'first', 'First', workspace, branch='feature/wheel', head=head)\nassert registry.get_workspace('wheel-fixture', 'first')['head'] == head\nprint(json.dumps({'installed_module': runner_app.__file__, 'schema_version': 3, 'git_head': head}))\n"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-02/wheel-isolated-import.log"
+    },
+    {
+      "name": "doctor",
+      "argv": [
+        "/tmp/cdr-ep02-installed-zu6wzseo/venv/bin/runner",
+        "doctor",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-02/wheel-doctor.log"
+    },
+    {
+      "name": "installed-runtime",
+      "argv": [
+        "/tmp/cdr-ep02-installed-zu6wzseo/venv/bin/runner",
+        "serve",
+        "--port",
+        "51915"
+      ],
+      "exit_code": -15,
+      "log": "verification/implementation/EP-02/wheel-runtime.log",
+      "health": "NOT_CONFIGURED/unarmed/local_api",
+      "session": "exchange + system read",
+      "bootstrap_cleaned": true
+    }
+  ],
+  "result": "PASS"
+}

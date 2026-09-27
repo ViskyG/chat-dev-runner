@@ -1,0 +1,55 @@
+{
+  "drive_workspace_bootstrap_invoked": false,
+  "euid": 1000,
+  "external_writes": false,
+  "implementation": "Fake-backed publisher with exact-ID installation/output validation, durable intents, final index, Docs CAS, sequence fence, and read-only lost-ACK reconciliation",
+  "live_drive_access": false,
+  "oauth_interactive_invoked": false,
+  "offline": true,
+  "packet": "EP-04",
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "reconciliation_coverage": [
+    "lost folder ACK positive readback confirms exact remote ID without replay",
+    "lost file ACK positive readback confirms exact remote ID without replay",
+    "negative lookup remains unresolved without create",
+    "desired Docs SHA-256 readback confirms lost ACK",
+    "changed Doc remains unresolved without write"
+  ],
+  "results": {
+    "mypy": {
+      "command": [
+        ".venv/bin/mypy",
+        "runner_app/adapters/drive_publish.py",
+        "runner_app/adapters/drive_upload.py"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-04/publish-mypy.txt"
+    },
+    "pytest": {
+      "command": [
+        ".venv/bin/pytest",
+        "-q",
+        "tests/test_drive_publish.py",
+        "--junitxml",
+        "verification/implementation/EP-04/publish-tests.xml"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-04/publish-pytest.txt"
+    },
+    "ruff": {
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "runner_app/adapters/drive_publish.py",
+        "runner_app/adapters/drive_upload.py",
+        "tests/test_drive_publish.py"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-04/publish-ruff.txt"
+    }
+  },
+  "slice": "fake-backed-drive-publication",
+  "test_count": 0,
+  "time_utc": "2026-09-27T05:12:08.867687+00:00"
+}

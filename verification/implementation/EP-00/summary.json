@@ -1,0 +1,65 @@
+{
+  "packet": "EP-00",
+  "status": "VERIFIED",
+  "scope": "offline foundation only; not deployable",
+  "recorded_at": "2026-09-26T18:58:29Z",
+  "baseline": {
+    "pytest_passed": 99,
+    "browser_checks_passed": 44,
+    "real_toy_git_demo": true,
+    "drive_plan_only": true,
+    "real_loopback_preview": true,
+    "commands": "baseline/commands.json"
+  },
+  "acceptance": {
+    "command": ".venv/bin/python -m pytest -q --junitxml=verification/implementation/EP-00/acceptance.junit.xml",
+    "exit_code": 0,
+    "passed": 196,
+    "log": "acceptance.log",
+    "warnings": [
+      "Starlette httpx TestClient deprecation",
+      "Concurrent pytest temp-cleanup warnings; tests passed"
+    ]
+  },
+  "lint": {
+    "command": ".venv/bin/ruff check runner_app tests/test_foundation_api.py tests/test_foundation_storage.py",
+    "exit_code": 0,
+    "log": "lint-final.log"
+  },
+  "types": {
+    "command": ".venv/bin/mypy runner_app",
+    "exit_code": 0,
+    "log": "types-final.log"
+  },
+  "packaging": "wheel-checks.json",
+  "git": "archive has no .git; no user repository changed",
+  "external_writes": false,
+  "rootless_runtime": "NOT_CONFIGURED",
+  "providers": "NOT_CONFIGURED",
+  "armed": false,
+  "image": "Digest verified through official registry metadata; not pulled/executed",
+  "failed_attempts": [
+    {
+      "step": "initial lint",
+      "exit_code": 1,
+      "log": "lint.log",
+      "resolution": "Fixed formatting and destructor handling; lint-final.log passes"
+    },
+    {
+      "step": "read wheel-import.log before process completed",
+      "exit_code": 1,
+      "resolution": "Waited for clean-wheel installation; wheel-checks.json passes"
+    },
+    {
+      "step": "storage restrictive umask test during development",
+      "exit_code": 1,
+      "resolution": "New-directory descriptor handling corrected; final 37 storage tests pass"
+    },
+    {
+      "step": "apply_patch",
+      "error": "sandbox mountinfo path is not absolute",
+      "resolution": "Equivalent edits performed with reviewed escalated local Python/shell"
+    }
+  ],
+  "next_packet": "EP-01"
+}

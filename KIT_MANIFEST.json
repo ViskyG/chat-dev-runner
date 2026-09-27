@@ -1,0 +1,16 @@
+{
+  "kit": "Chat-Dev Runner",
+  "version": "0.1.0-prototype",
+  "date": "2026-09-26",
+  "primary_entry": "runner-prototype.html",
+  "owner_guide": "docs/OWNER_GUIDE_RU.md",
+  "codex_entry": "codex/START_HERE.md",
+  "drive_entry": "drive-seed/README.md",
+  "verified_python_tests": 99,
+  "verified_browser_checks": 44,
+  "live_integrations_implemented": false,
+  "live_integrations_tested": false,
+  "deployment_performed": false,
+  "font_files_included": false,
+  "file_hashes": "SHA256SUMS"
+}

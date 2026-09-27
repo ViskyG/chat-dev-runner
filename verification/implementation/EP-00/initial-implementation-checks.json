@@ -1,0 +1,48 @@
+[
+  {
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "pip",
+      "install",
+      "--no-deps",
+      "--no-build-isolation",
+      "-e",
+      "."
+    ],
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/editable-install.log",
+    "duration_seconds": 0.532
+  },
+  {
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "build",
+      "--wheel",
+      "--no-isolation"
+    ],
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/wheel-build.log",
+    "duration_seconds": 0.232
+  },
+  {
+    "command": [
+      ".venv/bin/ruff",
+      "check",
+      "runner_app"
+    ],
+    "exit_code": 1,
+    "log": "verification/implementation/EP-00/lint.log",
+    "duration_seconds": 0.006
+  },
+  {
+    "command": [
+      ".venv/bin/mypy",
+      "runner_app"
+    ],
+    "exit_code": 0,
+    "log": "verification/implementation/EP-00/types.log",
+    "duration_seconds": 1.365
+  }
+]

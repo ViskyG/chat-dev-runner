@@ -1,0 +1,88 @@
+{
+  "baseline_reference": "verification/implementation/EP-04/baseline-reference.json",
+  "checks": [
+    {
+      "command": ".venv/bin/pytest -q --junitxml=verification/implementation/EP-04/final-pytest.xml",
+      "environment": "offline/fake and generated temporary Git fixtures; no live providers",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": "verification/implementation/EP-04/final-pytest.xml",
+      "tests": 725
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app tests scripts/bootstrap_drive.py",
+      "exit_code": 0,
+      "result": "All checks passed!"
+    },
+    {
+      "command": ".venv/bin/mypy runner_app",
+      "exit_code": 0,
+      "result": "Success: no issues found in 51 source files"
+    },
+    {
+      "command": ".venv/bin/python -m build --wheel --no-isolation --outdir /tmp/cdr-ep04-wheel",
+      "exit_code": 0,
+      "wheel": "/tmp/cdr-ep04-wheel/chat_dev_runner-0.2.0-py3-none-any.whl",
+      "wheel_sha256": "f7c3ffe308c124ac81eb4c8030ce55689e1e9293e2fa3918de81920e671e20e2"
+    },
+    {
+      "command": ".venv/bin/python wheel import/schema smoke from /tmp",
+      "exit_code": 0,
+      "result": "drive_publish/drive_registry imported from wheel; run-manifest schema loaded"
+    }
+  ],
+  "environment": {
+    "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner",
+    "git_commit": null,
+    "host": "k8s-master",
+    "machine": "x86_64",
+    "python": "3.10.12",
+    "release": "6.8.0-138-generic",
+    "source_kind": "unpacked archive without .git",
+    "system": "Linux",
+    "uid": 1000,
+    "venv_python": ".venv/bin/python"
+  },
+  "focused_evidence": [
+    "verification/implementation/EP-04/bootstrap-summary.json",
+    "verification/implementation/EP-04/drive-offline-summary.json",
+    "verification/implementation/EP-04/poller-summary.json",
+    "verification/implementation/EP-04/oauth-summary.json",
+    "verification/implementation/EP-04/drive-google-write-summary.json",
+    "verification/implementation/EP-04/upload-summary.json",
+    "verification/implementation/EP-04/context-summary.json",
+    "verification/implementation/EP-04/input-bundle-summary.json",
+    "verification/implementation/EP-04/delivery-preflight-summary.json",
+    "verification/implementation/EP-04/drive-registry-summary.json",
+    "verification/implementation/EP-04/publish-summary.json"
+  ],
+  "live_gate": {
+    "bootstrap_apply": false,
+    "cross_app_canary": "NOT_RUN",
+    "installation_index_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+    "installation_root_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+    "live_read_or_write": false,
+    "local_oauth": "NOT_CONFIGURED",
+    "ready_command_submitted": false,
+    "runner_armed": false
+  },
+  "packet": "EP-04",
+  "recorded_at_utc": "2026-09-27T05:17:42.248907+00:00",
+  "resolved_check_failures": [
+    {
+      "command": ".venv/bin/ruff check runner_app tests scripts/bootstrap_drive.py",
+      "exit_code": 1,
+      "finding": "six pre-existing import/unused-import findings in test_reference.py and test_seed.py after broad Ruff include",
+      "resolution": "Ruff --fix changed imports only; repeat lint exit 0"
+    },
+    {
+      "command": "system python3 wheel import/schema smoke from /tmp",
+      "exit_code": 1,
+      "finding": "system interpreter lacks declared jsonschema dependency",
+      "resolution": "repeat with project .venv Python, import/schema smoke exit 0"
+    }
+  ],
+  "schema_version": "1.0",
+  "status": "BLOCKED_LIVE_GATE_OFFLINE_CHECKS_PASS"
+}

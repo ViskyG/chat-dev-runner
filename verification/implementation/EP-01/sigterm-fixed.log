@@ -1,0 +1,50 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_real_runtime_private_handoff_and_unavailable_execution __________
+
+tmp_path = PosixPath('/tmp/cdr-ep01-sigterm-fixed/test_real_runtime_private_hand0')
+
+    def test_real_runtime_private_handoff_and_unavailable_execution(tmp_path: Path) -> None:
+        environment = os.environ.copy()
+        for name, directory in (("XDG_CONFIG_HOME", "config"), ("XDG_DATA_HOME", "data"),
+                                ("XDG_CACHE_HOME", "cache"), ("XDG_RUNTIME_DIR", "runtime")):
+            environment[name] = str(tmp_path / directory)
+        environment["PYTHONDONTWRITEBYTECODE"] = "1"
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as reservation:
+            reservation.bind(("127.0.0.1", 0))
+            port = reservation.getsockname()[1]
+        bootstrap_file = tmp_path / "config/chat-dev-runner/tokens/session-bootstrap.json"
+        process = subprocess.Popen(
+            [sys.executable, "-m", "runner_app.cli", "serve", "--port", str(port)],
+            cwd=ROOT, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        )
+        secret = ""
+        try:
+            deadline = time.monotonic() + 10
+            while time.monotonic() < deadline:
+                if process.poll() is not None:
+                    stdout, stderr = process.communicate()
+>                   pytest.fail(f"Runtime failed: {process.returncode}; {stdout}; {stderr}")
+E                   Failed: Runtime failed: 1; ; Traceback (most recent call last):
+E                     File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+E                       return _run_code(code, main_globals, None,
+E                     File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+E                       exec(code, run_globals)
+E                     File "/home/visky/Work/GPTRunner/chat-dev-runner/runner_app/cli.py", line 122, in <module>
+E                       raise SystemExit(main())
+E                     File "/home/visky/Work/GPTRunner/chat-dev-runner/runner_app/cli.py", line 98, in main
+E                       runtime = Runtime(config, Paths.discover())
+E                     File "/home/visky/Work/GPTRunner/chat-dev-runner/runner_app/engine/runtime.py", line 44, in __init__
+E                       self.app.add_event_handler("shutdown", self.close)
+E                   AttributeError: 'FastAPI' object has no attribute 'add_event_handler'. Did you mean: 'add_exception_handler'?
+
+tests/test_domain_api.py:209: Failed
+=============================== warnings summary ===============================
+.venv/lib/python3.10/site-packages/fastapi/testclient.py:1
+  /home/visky/Work/GPTRunner/chat-dev-runner/.venv/lib/python3.10/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_domain_api.py::test_real_runtime_private_handoff_and_unavailable_execution
+1 failed, 14 deselected, 1 warning in 0.43s

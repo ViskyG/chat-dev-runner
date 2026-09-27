@@ -1,0 +1,8 @@
+{
+  "baseline": "EP-01 final suite before EP-02 edits",
+  "command": ".venv/bin/python -m pytest -q --basetemp=/tmp/cdr-ep01-final --junitxml=verification/implementation/EP-01/final-verified.junit.xml",
+  "exit_code": 0,
+  "passed": 374,
+  "evidence": "verification/implementation/EP-01/final-verified-tests.log",
+  "cloud_calls": false
+}

@@ -1,0 +1,85 @@
+{
+  "version": "0.2.0",
+  "mode": "OFFLINE",
+  "network_calls": false,
+  "status": "NOT_CONFIGURED",
+  "armed": false,
+  "host": {
+    "python": "3.10.12",
+    "os": "Linux",
+    "machine": "x86_64",
+    "git": {
+      "status": "PRESENT",
+      "version": "git version 2.34.1",
+      "exit_code": 0
+    },
+    "node": {
+      "status": "PRESENT",
+      "version": "v22.22.2",
+      "exit_code": 0
+    },
+    "docker_cli": {
+      "status": "PRESENT",
+      "version": "Docker version 29.1.5, build 0e6fee6",
+      "exit_code": 0
+    },
+    "cgroup_v2": true
+  },
+  "paths": {
+    "config": "/home/visky/.config/chat-dev-runner",
+    "state": "/home/visky/.local/share/chat-dev-runner",
+    "cache": "/home/visky/.cache/chat-dev-runner",
+    "tokens": "/home/visky/.config/chat-dev-runner/tokens"
+  },
+  "sandbox": {
+    "status": "NOT_CONFIGURED",
+    "local_rootless_socket_present": false,
+    "probe_performed": false,
+    "host_execution_fallback": false
+  },
+  "setup": {
+    "state": "NOT_CONFIGURED",
+    "armed": false,
+    "ready_commands": 0,
+    "google": {
+      "status": "NOT_CONFIGURED",
+      "workspace_status": "EXISTS_OWNER_REPORTED",
+      "mode": "attach_existing",
+      "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+      "installation_index_document_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+      "required": [
+        "Local OAuth desktop application; credentials entered locally, never in chat",
+        "drive.file per-file access to the existing Installation Index and registered Docs",
+        "Read and validate INSTALLATION INDEX against the selected root before any writes",
+        "Explicit approval of the disposable live smoke-test writes"
+      ],
+      "bootstrap_allowed": false,
+      "probe_performed": false
+    },
+    "github": {
+      "status": "NOT_CONFIGURED",
+      "required": [
+        "Explicit owner/organization and disposable private repository namespace",
+        "Local credential reference and actual identity/capability probe",
+        "Draft PR entitlement and permitted branches/publication policy",
+        "Explicit approval of the disposable live smoke-test writes"
+      ],
+      "probe_performed": false
+    },
+    "local_policy": {
+      "permitted_import_roots": [],
+      "approved_environment_templates": [],
+      "required": [
+        "Owner-approved import roots; imports use separate managed copies",
+        "Rootless runtime, digest-pinned images, approved profiles and lockfile build phase",
+        "Credential storage: OS keyring or owner-only 0600 files under a 0700 directory"
+      ]
+    }
+  },
+  "missing_prerequisites": [
+    "Rootless execution broker and containment acceptance",
+    "Approved profiles, dependency build locks and local import policy",
+    "Google and GitHub authorization and actual integration probes",
+    "EP-01 through EP-07 implementation and release gates"
+  ]
+}

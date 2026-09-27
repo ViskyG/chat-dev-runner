@@ -1,0 +1,25 @@
+{
+  "outcome": "PASSED",
+  "exit_code": 0,
+  "duration_seconds": 0.741707,
+  "streams": {
+    "stdout": {
+      "observed_bytes": 0,
+      "stored_bytes": 0,
+      "complete": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_path": "stdout.bin",
+      "view_path": "stdout.txt",
+      "privacy": "local_only"
+    },
+    "stderr": {
+      "observed_bytes": 204,
+      "stored_bytes": 204,
+      "complete": true,
+      "sha256": "e9fba46c66a7c257b5d3bc68e5be7fca9aebe9247e5c9ff580624ae14221b048",
+      "raw_path": "stderr.bin",
+      "view_path": "stderr.txt",
+      "privacy": "local_only"
+    }
+  }
+}

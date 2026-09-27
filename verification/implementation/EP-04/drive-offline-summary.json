@@ -1,0 +1,43 @@
+{
+  "checks": [
+    {
+      "command": ".venv/bin/pytest -q tests/test_drive_index.py tests/test_drive_docs.py tests/test_drive_google.py",
+      "evidence": "verification/implementation/EP-04/drive-offline-tests.txt",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app/adapters/drive_docs.py runner_app/adapters/drive_index.py runner_app/adapters/drive_fake.py runner_app/adapters/drive_google.py tests/test_drive_index.py tests/test_drive_docs.py tests/test_drive_google.py",
+      "evidence": "verification/implementation/EP-04/drive-offline-ruff.txt",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/mypy runner_app/adapters/drive_docs.py runner_app/adapters/drive_index.py runner_app/adapters/drive_fake.py runner_app/adapters/drive_google.py",
+      "evidence": "verification/implementation/EP-04/drive-offline-mypy.txt",
+      "exit_code": 0
+    }
+  ],
+  "component": "existing-installation known-ID Drive/Docs read and fake-backed coherent intake",
+  "environment": {
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "python": "3.10.12"
+  },
+  "live_gate": "NOT_PERFORMED: no Google OAuth, no per-file live grant, no canary or external write",
+  "packet": "EP-04",
+  "recorded_at": "2026-09-26T21:09:32.953547+00:00",
+  "remaining": [
+    "OAuth client/token acquisition in owner-only local store and live app grant verification",
+    "Google Docs batchUpdate requiredRevisionId writer and result folder/artifact delivery",
+    "Authorized cross-app canary read/edit/readback with the existing installation",
+    "End-to-end poller/admission and publication smoke against authorized account"
+  ],
+  "result": "...................................                                      [100%]\n35 passed in 0.35s",
+  "source_sha256": {
+    "runner_app/adapters/drive_docs.py": "62dbb1a6e898ce45769616f656013174d9aa1ea764dc26633326bbbe9cc3966f",
+    "runner_app/adapters/drive_fake.py": "92cd93832437cc614a14e0ecb3a3e014ca9dd8b15b08387386d802d69441a142",
+    "runner_app/adapters/drive_google.py": "33c66e6e6cb3c14d7184a097cc1f15b7113ae764552231900dbf83599aa561ed",
+    "runner_app/adapters/drive_index.py": "a55001efbea1fd26c2e8e1fae36a7a2bf2d618a6549587476232e70d35e12ad2",
+    "tests/test_drive_docs.py": "004631d78e4a7cb70a8b37bbbffd70784f0e1332aef2a649251fa3b66eacadf4",
+    "tests/test_drive_google.py": "a266a7d5a894694a535358e1a3b5697052b4b94c306985ebb9319b2fdbb22a3f",
+    "tests/test_drive_index.py": "054201327116189f8aeffd1f238902538dcf72decf49de427defd2c07ee78fad"
+  }
+}

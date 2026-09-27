@@ -1,0 +1,101 @@
+{
+  "packet": "EP-04",
+  "component": "offline bootstrap safety",
+  "recorded_at_utc": "2026-09-26T21:05:06.665908+00:00",
+  "environment": {
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "python": "3.10.12",
+    "machine": "x86_64",
+    "uid": 1000
+  },
+  "commands": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_bootstrap_drive.py",
+        "tests/test_seed.py",
+        "--junitxml=verification/implementation/EP-04/bootstrap-tests.xml"
+      ],
+      "exit_code": 0,
+      "stdout": "..............................................                           [100%]\n46 passed in 2.68s",
+      "stderr": ""
+    },
+    {
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "scripts/bootstrap_drive.py",
+        "tests/test_bootstrap_drive.py"
+      ],
+      "exit_code": 0,
+      "stdout": "All checks passed!",
+      "stderr": ""
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "scripts/bootstrap_drive.py",
+        "tests/test_bootstrap_drive.py"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/bootstrap_drive.py",
+        "--plan"
+      ],
+      "exit_code": 0,
+      "plan": {
+        "mode": "PLAN_ONLY",
+        "network_calls": false,
+        "entry_count": 26
+      },
+      "stderr": ""
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/bootstrap_drive.py"
+      ],
+      "exit_code": 0,
+      "plan": {
+        "mode": "PLAN_ONLY",
+        "network_calls": false,
+        "entry_count": 26
+      },
+      "stderr": ""
+    }
+  ],
+  "source_sha256": {
+    "scripts/bootstrap_drive.py": "d14c93314e2ef2c8ff8753511c321b42ed119830d62295d7b9a9b5d4bf6469d1",
+    "tests/test_bootstrap_drive.py": "c50ce8b4e600ab9dcf139524a6f3c81612a09738e466ca8e105fc2c9fe730f89",
+    "config/installation.existing.json": "ee8e9129036f33793dc098d128982f648524ac2b3606b0f2c944675d64915836"
+  },
+  "policy": {
+    "mode": "attach_existing",
+    "bootstrap_allowed": false,
+    "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+    "installation_index_document_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA"
+  },
+  "live_access": {
+    "google_account_accessed": false,
+    "apply_invoked": false,
+    "external_writes": false,
+    "canary_verified": false
+  },
+  "scope": "Offline bootstrap guard and fake Google API retry tests only; live EP-04 gate remains unverified.",
+  "api_references": [
+    "https://developers.google.com/workspace/drive/api/guides/handle-errors",
+    "https://developers.google.com/workspace/drive/api/guides/limits",
+    "https://googleapis.github.io/google-api-python-client/docs/epy/googleapiclient.http.HttpRequest-class.html"
+  ]
+}

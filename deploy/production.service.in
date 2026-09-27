@@ -1,0 +1,20 @@
+# NOT INSTALLABLE YET. Render during EP-07 after the real runner exists and is tested.
+# Container broker unit/socket is intentionally not guessed here.
+[Unit]
+Description=Chat-Dev Runner local development bridge
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=@INSTALL_DIR@
+ExecStart=@VENV_PYTHON@ -m runner_app.cli serve --host 127.0.0.1 --port 8765 --start-unarmed
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+# Confirm these with the approved separate rootless execution broker, not by weakening it.
+# Credentials must not be placed in Environment= lines or logs.
+
+[Install]
+WantedBy=default.target

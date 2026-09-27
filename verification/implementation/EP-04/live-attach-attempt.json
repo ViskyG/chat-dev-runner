@@ -1,0 +1,33 @@
+{
+  "packet": "EP-04",
+  "observed_utc": "2026-09-27 06:22:38 UTC",
+  "host": "k8s-master",
+  "scope": "https://www.googleapis.com/auth/drive.file",
+  "local_oauth_state": "AUTHORIZED",
+  "local_auth_inspection": "TOKEN_STORED_UNVERIFIED",
+  "token_location": "~/.config/chat-dev-runner/tokens/google-drive.json",
+  "token_metadata": {
+    "owner_matches": true,
+    "file_mode": "0600",
+    "directory_mode": "0700"
+  },
+  "operation": "READ_ONLY_EXACT_ID_ATTACH_EXISTING",
+  "installation_config": "config/installation.existing.json",
+  "attachment_result": "BLOCKED",
+  "attachment_error_code": "FILE_UNAVAILABLE",
+  "exact_id_probe": {
+    "root_drive_files_get_http_status": 404,
+    "index_drive_files_get_http_status": 404,
+    "index_docs_documents_get_http_status": 404,
+    "root_drive_files_get_supportsAllDrives_http_status": 404,
+    "index_drive_files_get_supportsAllDrives_http_status": 404
+  },
+  "index_content_read": false,
+  "indexed_files_validated": false,
+  "canary_document_identified": false,
+  "drive_write": false,
+  "bootstrap_apply": false,
+  "runner_armed": false,
+  "interpretation": "Known IDs are inaccessible to this OAuth token; a 404 alone does not distinguish missing per-file app grant, a different Google account, or an invalid/removed file.",
+  "next_gate": "Verify Google account and same provisioning app identity or grant current app exact-file access, then re-run read-only attachment. Private appProperties also require the requesting app identity."
+}

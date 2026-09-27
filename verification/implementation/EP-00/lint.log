@@ -1,0 +1,101 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> runner_app/cli.py:87:13
+   |
+85 |           if args.command == "serve":
+86 |               config = Settings(listen_host=args.host, listen_port=args.port)
+87 | /             import uvicorn
+88 | |             from runner_app.api.app import create_app
+   | |_____________________________________________________^
+89 |
+90 |               uvicorn.run(create_app(config), host=config.listen_host, port=config.listen_port,
+   |
+help: Organize imports
+   |
+87 |             import uvicorn
+88 +
+89 |             from runner_app.api.app import create_app
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> runner_app/storage/__init__.py:3:1
+  |
+1 |   """Private local storage and versioned SQLite foundations."""
+2 |
+3 | / from .database import Database, MigrationError, SCHEMA_VERSION, UnsupportedSchemaVersion
+4 | | from .paths import Paths, UnsafePathError, ensure_private_directory, open_private_file
+  | |______________________________________________________________________________________^
+5 |
+6 |   __all__ = [
+  |
+help: Organize imports
+  |
+2 |
+  - from .database import Database, MigrationError, SCHEMA_VERSION, UnsupportedSchemaVersion
+3 + from .database import SCHEMA_VERSION, Database, MigrationError, UnsupportedSchemaVersion
+4 | from .paths import Paths, UnsafePathError, ensure_private_directory, open_private_file
+  |
+
+RUF022 [*] `__all__` is not sorted
+ --> runner_app/storage/__init__.py:6:11
+  |
+4 |   from .paths import Paths, UnsafePathError, ensure_private_directory, open_private_file
+5 |
+6 |   __all__ = [
+  |  ___________^
+7 | |     "Database", "MigrationError", "Paths", "SCHEMA_VERSION", "UnsafePathError",
+8 | |     "UnsupportedSchemaVersion", "ensure_private_directory", "open_private_file",
+9 | | ]
+  | |_^
+help: Apply an isort-style sorting to `__all__`
+   |
+6  | __all__ = [
+   -     "Database", "MigrationError", "Paths", "SCHEMA_VERSION", "UnsafePathError",
+   -     "UnsupportedSchemaVersion", "ensure_private_directory", "open_private_file",
+7  +     "SCHEMA_VERSION",
+8  +     "Database",
+9  +     "MigrationError",
+10 +     "Paths",
+11 +     "UnsafePathError",
+12 +     "UnsupportedSchemaVersion",
+13 +     "ensure_private_directory",
+14 +     "open_private_file",
+15 | ]
+   |
+
+ISC004 Unparenthesized implicit string concatenation in collection
+  --> runner_app/storage/database.py:21:9
+   |
+19 |   _MIGRATIONS: dict[int, tuple[str, ...]] = {
+20 |       1: (
+21 | /         "CREATE TABLE schema_migrations ("
+22 | |         "version INTEGER PRIMARY KEY, "
+23 | |         "name TEXT NOT NULL, "
+24 | |         "applied_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')))",
+   | |___________________________________________________________________________________^
+25 |           "INSERT INTO schema_migrations(version, name) VALUES (1, 'foundation')",
+26 |       ),
+   |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+S110 `try`-`except`-`pass` detected, consider logging the exception
+  --> runner_app/storage/database.py:52:9
+   |
+50 |           try:
+51 |               self.close()
+52 | /         except Exception:
+53 | |             pass
+   | |________________^
+
+BLE001 Do not catch blind exception: `Exception`
+  --> runner_app/storage/database.py:52:16
+   |
+50 |         try:
+51 |             self.close()
+52 |         except Exception:
+   |                ^^^^^^^^^
+53 |             pass
+   |
+
+Found 6 errors.
+[*] 3 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).

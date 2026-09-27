@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "request_id": "00000000-0000-0000-0000-000000000001",
+  "dispatch": "DRAFT",
+  "runner_id": "local-runner",
+  "epoch": "00000000-0000-0000-0000-000000000000",
+  "issued_at": "2026-09-26T00:00:00Z",
+  "expires_at": "2026-09-26T00:15:00Z",
+  "action": "CREATE_PROJECT",
+  "project_id": "example-lab",
+  "workspace_id": null,
+  "expected_head": null,
+  "params": {
+    "name": "Example laboratory",
+    "source": {
+      "kind": "new"
+    },
+    "template_id": "python-basic",
+    "github_identity": "personal",
+    "visibility": "private"
+  },
+  "intent": "DRAFT EXAMPLE ONLY: CREATE_PROJECT. Not an authorized live command."
+}

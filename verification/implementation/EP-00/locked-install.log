@@ -1,0 +1,36 @@
+Resolved 41 packages in 10ms
+Downloading ruff (9.9MiB)
+Downloading pydantic-core (2.0MiB)
+Downloading mypy (14.0MiB)
+ Downloaded pydantic-core
+ Downloaded ruff
+ Downloaded mypy
+Prepared 25 packages in 49.77s
+Uninstalled 1 package in 5ms
+Installed 25 packages in 12ms
+ + annotated-doc==0.0.5
+ + annotated-types==0.8.0
+ + anyio==4.15.1
+ + build==1.6.1
+ + certifi==2026.7.22
+ + click==8.5.0
+ + fastapi==0.141.1
+ + h11==0.16.0
+ + httpcore==1.0.9
+ + httpx==0.28.1
+ + idna==3.20
+ + librt==0.15.0
+ + mypy==1.20.2
+ + mypy-extensions==1.1.0
+ + pathspec==1.1.1
+ + pydantic==2.13.5
+ + pydantic-core==2.46.5
+ + pyproject-hooks==1.3.3
+ + ruff==0.16.9
+ - setuptools==59.6.0
+ + setuptools==84.0.0
+ + starlette==1.7.0
+ + types-jsonschema==4.26.0.20260518
+ + typing-inspection==0.4.4
+ + uvicorn==0.54.0
+ + wheel==0.48.0

@@ -1,0 +1,94 @@
+...........................FF...............                             [100%]
+=================================== FAILURES ===================================
+_______ test_crash_interrupts_running_work_and_retains_uncertain_effects _______
+
+ledger = <runner_app.storage.ledger.Ledger object at 0x7c2a983d15d0>
+database = Database(path=PosixPath('/tmp/cdr-ep01-ledger-fix/test_crash_interrupts_running_0/state/state.sqlite'), busy_timeout_ms=5000)
+
+    def test_crash_interrupts_running_work_and_retains_uncertain_effects(ledger: Ledger,
+                                                                      database: Database) -> None:
+        command = make_command(ledger)
+        assert admit(ledger, command).execute
+        pending = ledger.begin_effect(command["request_id"], "publish", "git_ref",
+                                      {"branch": "fixture"})
+        confirmed = ledger.begin_effect(command["request_id"], "report", "drive_file",
+                                        {"name": "fixture-result"})
+        ledger.confirm_effect(confirmed, "provider-result-123")
+        restarted = Ledger(database, runner_id="local-runner")
+        restarted.startup()
+        interrupted = restarted.get(command["request_id"])
+        assert_receipt(interrupted["receipt"], "INTERRUPTED", "NEEDS_RECONCILIATION")
+        effects = {effect["effect_id"]: effect for effect in interrupted["effects"]}
+        assert effects[pending]["state"] == "UNKNOWN"
+        assert effects[confirmed]["state"] == "CONFIRMED"
+        assert effects[confirmed]["provider_id"] == "provider-result-123"
+        with closing(database.connect()) as connection:
+            assert connection.execute("SELECT count(*) FROM locks").fetchone()[0] == 1
+            assert connection.execute("SELECT capacity_held FROM operations").fetchone()[0] == 1
+        with pytest.raises(ValueError):
+            restarted.arm()
+        with pytest.raises(ValueError):
+            restarted.begin_effect(command["request_id"], "publish", "git_ref", {})
+        assert admit(restarted, command).execute is False
+>       restarted.confirm_stopped(command["request_id"])
+
+tests/test_domain_storage.py:335: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <runner_app.storage.ledger.Ledger object at 0x7c2a983d1b70>
+request_id = '265f4a5c-bcf6-4c73-b58b-a87850ba0532'
+
+    def confirm_stopped(self, request_id: str) -> None:
+        """Trusted recovery calls only after verifying the owned worker is gone."""
+        with self._transaction() as connection:
+            row = connection.execute("SELECT status,reconcile_required FROM operations WHERE request_id=?", (request_id,)).fetchone()
+            if row is None or row["status"] not in {"INTERRUPTED", "FAULT", "BLOCKED"}:
+                raise LedgerError("INVALID_TRANSITION", "Only uncertain terminal operations need reconciliation")
+            if not row["reconcile_required"]:
+                return
+            effect = connection.execute(
+                "SELECT 1 FROM effects WHERE request_id=? AND state IN ('INTENDED','UNKNOWN') LIMIT 1",
+                (request_id,),
+            ).fetchone()
+            if effect:
+>               raise LedgerError("NEEDS_RECONCILIATION", "External effect is not confirmed")
+E               runner_app.storage.ledger.LedgerError: External effect is not confirmed
+
+runner_app/storage/ledger.py:305: LedgerError
+__ test_explicit_interruption_holds_capacity_until_workers_confirmed_stopped ___
+
+ledger = <runner_app.storage.ledger.Ledger object at 0x7c2a982f1750>
+
+    def test_explicit_interruption_holds_capacity_until_workers_confirmed_stopped(ledger: Ledger) -> None:
+        first = make_command(ledger)
+        second = make_command(ledger)
+        assert admit(ledger, first, ("repo:one",)).execute
+        assert admit(ledger, second, ("repo:two",)).execute
+        interrupted = ledger.finish(first["request_id"], "INTERRUPTED", code="PROCESS_STATE_UNKNOWN")
+>       assert_receipt(interrupted, "INTERRUPTED", "PROCESS_STATE_UNKNOWN")
+
+tests/test_domain_storage.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+receipt = {'schema_version': '1.0', 'request_id': 'b0313bee-2798-4ea4-af88-89185c156436', 'request_digest': '128aaeb83e14deaeec9556259df266b5afcdb4d56f4ad0ab58350e637fa1b2be', 'status': 'INTERRUPTED', ...}
+status = 'INTERRUPTED', code = 'PROCESS_STATE_UNKNOWN'
+
+    def assert_receipt(receipt: dict[str, Any], status: str, code: str | None = None) -> None:
+        schema = json.loads(
+            (Path(__file__).resolve().parents[1] / "schemas/receipt.schema.json").read_text()
+        )
+        jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker()).validate(
+            receipt
+        )
+        assert receipt["status"] == status
+>       assert receipt["code"] == code
+E       AssertionError: assert 'NEEDS_RECONCILIATION' == 'PROCESS_STATE_UNKNOWN'
+E         
+E         - PROCESS_STATE_UNKNOWN
+E         + NEEDS_RECONCILIATION
+
+tests/test_domain_storage.py:63: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_domain_storage.py::test_crash_interrupts_running_work_and_retains_uncertain_effects
+FAILED tests/test_domain_storage.py::test_explicit_interruption_holds_capacity_until_workers_confirmed_stopped
+2 failed, 42 passed in 5.76s

@@ -1,0 +1,47 @@
+{
+  "drive_workspace_bootstrap_invoked": false,
+  "euid": 1000,
+  "external_writes": false,
+  "live_drive_access": false,
+  "oauth_interactive_invoked": false,
+  "offline": true,
+  "packet": "EP-04",
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "results": {
+    "mypy": {
+      "command": [
+        ".venv/bin/mypy",
+        "runner_app/adapters/drive_auth.py"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-04/oauth-mypy.txt"
+    },
+    "pytest": {
+      "command": [
+        ".venv/bin/pytest",
+        "-q",
+        "tests/test_drive_auth.py",
+        "--junitxml",
+        "verification/implementation/EP-04/oauth-tests.xml"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-04/oauth-pytest.txt"
+    },
+    "ruff": {
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "runner_app/adapters/drive_auth.py",
+        "tests/test_drive_auth.py"
+      ],
+      "exit_code": 0,
+      "log": "verification/implementation/EP-04/oauth-ruff.txt"
+    }
+  },
+  "scope": "https://www.googleapis.com/auth/drive.file",
+  "slice": "owner-local-desktop-oauth",
+  "state_claim": "TOKEN_STORED_UNVERIFIED is local only; per-file grant and canary remain unverified",
+  "test_count": 14,
+  "time_utc": "2026-09-27T04:42:53.675767+00:00"
+}

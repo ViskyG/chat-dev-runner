@@ -1,0 +1,3 @@
+# Optional local installer only; implementation must lock tested dependency versions.
+google-api-python-client>=2,<3
+google-auth-oauthlib>=1,<2

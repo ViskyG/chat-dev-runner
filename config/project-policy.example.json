@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "project_id": "home-dwh",
+  "allowed_profiles": [
+    "python-quick"
+  ],
+  "allowed_operations": [
+    "CREATE_PROJECT",
+    "CREATE_WORKSPACE",
+    "RETARGET_WORKSPACE",
+    "DELIVER_VERIFY_PUBLISH",
+    "VERIFY",
+    "PUBLISH",
+    "FETCH",
+    "SYNC_WORKSPACE",
+    "EXPORT_CONTEXT",
+    "ARCHIVE_WORKSPACE",
+    "PUBLISH_REPORT",
+    "CANCEL_OPERATION"
+  ],
+  "publication_default": "draft_always",
+  "allow_remote_new_projects": true,
+  "allow_remote_profile_edits": false,
+  "allow_public_repositories": false,
+  "allow_arbitrary_paths": false,
+  "allow_remote_deletion": "only_merged_and_locally_approved",
+  "allow_merge": false,
+  "allow_workflow_file_changes": false,
+  "local_import_handles": {},
+  "secret_uploads": false
+}

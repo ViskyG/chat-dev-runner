@@ -1,0 +1,149 @@
+* Getting build dependencies for wheel...
+running egg_info
+writing chat_dev_runner.egg-info/PKG-INFO
+writing dependency_links to chat_dev_runner.egg-info/dependency_links.txt
+writing entry points to chat_dev_runner.egg-info/entry_points.txt
+writing requirements to chat_dev_runner.egg-info/requires.txt
+writing top-level names to chat_dev_runner.egg-info/top_level.txt
+reading manifest file 'chat_dev_runner.egg-info/SOURCES.txt'
+writing manifest file 'chat_dev_runner.egg-info/SOURCES.txt'
+* Building wheel...
+running bdist_wheel
+running build
+running build_py
+copying runner_app/git/argv.py -> build/lib/runner_app/git
+copying runner_app/git/service.py -> build/lib/runner_app/git
+copying runner_app/git/imports.py -> build/lib/runner_app/git
+copying runner_app/git/registry.py -> build/lib/runner_app/git
+copying runner_app/git/snapshots.py -> build/lib/runner_app/git
+copying runner_app/git/worktrees.py -> build/lib/runner_app/git
+copying runner_app/git/changes.py -> build/lib/runner_app/git
+copying runner_app/git/__init__.py -> build/lib/runner_app/git
+copying runner_app/api/runtime.py -> build/lib/runner_app/api
+copying runner_app/storage/database.py -> build/lib/runner_app/storage
+copying runner_app/engine/service.py -> build/lib/runner_app/engine
+copying runner_app/engine/runtime.py -> build/lib/runner_app/engine
+running egg_info
+writing chat_dev_runner.egg-info/PKG-INFO
+writing dependency_links to chat_dev_runner.egg-info/dependency_links.txt
+writing entry points to chat_dev_runner.egg-info/entry_points.txt
+writing requirements to chat_dev_runner.egg-info/requires.txt
+writing top-level names to chat_dev_runner.egg-info/top_level.txt
+reading manifest file 'chat_dev_runner.egg-info/SOURCES.txt'
+writing manifest file 'chat_dev_runner.egg-info/SOURCES.txt'
+installing to build/bdist.linux-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.linux-x86_64/wheel
+creating build/bdist.linux-x86_64/wheel/bridge_reference
+copying build/lib/bridge_reference/demo.py -> build/bdist.linux-x86_64/wheel/./bridge_reference
+copying build/lib/bridge_reference/ledger.py -> build/bdist.linux-x86_64/wheel/./bridge_reference
+copying build/lib/bridge_reference/execution.py -> build/bdist.linux-x86_64/wheel/./bridge_reference
+copying build/lib/bridge_reference/changes.py -> build/bdist.linux-x86_64/wheel/./bridge_reference
+copying build/lib/bridge_reference/__init__.py -> build/bdist.linux-x86_64/wheel/./bridge_reference
+copying build/lib/bridge_reference/protocol.py -> build/bdist.linux-x86_64/wheel/./bridge_reference
+creating build/bdist.linux-x86_64/wheel/runner_app
+copying build/lib/runner_app/cli.py -> build/bdist.linux-x86_64/wheel/./runner_app
+creating build/bdist.linux-x86_64/wheel/runner_app/adapters
+copying build/lib/runner_app/adapters/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/config.py -> build/bdist.linux-x86_64/wheel/./runner_app
+creating build/bdist.linux-x86_64/wheel/runner_app/git
+copying build/lib/runner_app/git/argv.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/service.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/imports.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/registry.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/snapshots.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/worktrees.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/changes.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+creating build/bdist.linux-x86_64/wheel/runner_app/executors
+copying build/lib/runner_app/executors/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+creating build/bdist.linux-x86_64/wheel/runner_app/outputs
+copying build/lib/runner_app/outputs/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/outputs
+creating build/bdist.linux-x86_64/wheel/runner_app/api
+copying build/lib/runner_app/api/runtime.py -> build/bdist.linux-x86_64/wheel/./runner_app/api
+copying build/lib/runner_app/api/auth.py -> build/bdist.linux-x86_64/wheel/./runner_app/api
+copying build/lib/runner_app/api/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/api
+copying build/lib/runner_app/api/app.py -> build/bdist.linux-x86_64/wheel/./runner_app/api
+copying build/lib/runner_app/resources.py -> build/bdist.linux-x86_64/wheel/./runner_app
+creating build/bdist.linux-x86_64/wheel/runner_app/storage
+copying build/lib/runner_app/storage/paths.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+copying build/lib/runner_app/storage/ledger.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+copying build/lib/runner_app/storage/database.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+copying build/lib/runner_app/storage/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+creating build/bdist.linux-x86_64/wheel/runner_app/web
+copying build/lib/runner_app/web/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/web
+creating build/bdist.linux-x86_64/wheel/runner_app/engine
+copying build/lib/runner_app/engine/service.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/runtime.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/singleton.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app
+creating build/bdist.linux-x86_64/wheel/runner_app/domain
+copying build/lib/runner_app/domain/commands.py -> build/bdist.linux-x86_64/wheel/./runner_app/domain
+copying build/lib/runner_app/domain/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/domain
+creating build/bdist.linux-x86_64/wheel/schemas
+copying build/lib/schemas/receipt.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/application-log.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/command.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/run-manifest.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/operation-manifest.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/output.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/__init__.py -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/changeset.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+running install_egg_info
+Copying chat_dev_runner.egg-info to build/bdist.linux-x86_64/wheel/./chat_dev_runner-0.2.0-py3.10.egg-info
+running install_scripts
+creating build/bdist.linux-x86_64/wheel/chat_dev_runner-0.2.0.dist-info/WHEEL
+creating '/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-02/wheel/.tmp-gevajc1c/chat_dev_runner-0.2.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'bridge_reference/__init__.py'
+adding 'bridge_reference/changes.py'
+adding 'bridge_reference/demo.py'
+adding 'bridge_reference/execution.py'
+adding 'bridge_reference/ledger.py'
+adding 'bridge_reference/protocol.py'
+adding 'runner_app/__init__.py'
+adding 'runner_app/cli.py'
+adding 'runner_app/config.py'
+adding 'runner_app/resources.py'
+adding 'runner_app/adapters/__init__.py'
+adding 'runner_app/api/__init__.py'
+adding 'runner_app/api/app.py'
+adding 'runner_app/api/auth.py'
+adding 'runner_app/api/runtime.py'
+adding 'runner_app/domain/__init__.py'
+adding 'runner_app/domain/commands.py'
+adding 'runner_app/engine/__init__.py'
+adding 'runner_app/engine/runtime.py'
+adding 'runner_app/engine/service.py'
+adding 'runner_app/engine/singleton.py'
+adding 'runner_app/executors/__init__.py'
+adding 'runner_app/git/__init__.py'
+adding 'runner_app/git/argv.py'
+adding 'runner_app/git/changes.py'
+adding 'runner_app/git/imports.py'
+adding 'runner_app/git/registry.py'
+adding 'runner_app/git/service.py'
+adding 'runner_app/git/snapshots.py'
+adding 'runner_app/git/worktrees.py'
+adding 'runner_app/outputs/__init__.py'
+adding 'runner_app/storage/__init__.py'
+adding 'runner_app/storage/database.py'
+adding 'runner_app/storage/ledger.py'
+adding 'runner_app/storage/paths.py'
+adding 'runner_app/web/__init__.py'
+adding 'schemas/__init__.py'
+adding 'schemas/application-log.schema.json'
+adding 'schemas/changeset.schema.json'
+adding 'schemas/command.schema.json'
+adding 'schemas/operation-manifest.schema.json'
+adding 'schemas/output.schema.json'
+adding 'schemas/receipt.schema.json'
+adding 'schemas/run-manifest.schema.json'
+adding 'chat_dev_runner-0.2.0.dist-info/METADATA'
+adding 'chat_dev_runner-0.2.0.dist-info/WHEEL'
+adding 'chat_dev_runner-0.2.0.dist-info/entry_points.txt'
+adding 'chat_dev_runner-0.2.0.dist-info/top_level.txt'
+adding 'chat_dev_runner-0.2.0.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+Successfully built chat_dev_runner-0.2.0-py3-none-any.whl

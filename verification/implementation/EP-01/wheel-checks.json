@@ -1,0 +1,63 @@
+[
+  {
+    "name": "wheel-create-venv",
+    "command": [
+      "python3",
+      "-m",
+      "venv",
+      "/tmp/cdr-ep01-wheel-vu5bgg4z/venv"
+    ],
+    "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner",
+    "exit_code": 0,
+    "duration_seconds": 1.501,
+    "log": "verification/implementation/EP-01/wheel-create-venv.log"
+  },
+  {
+    "name": "wheel-locked-deps",
+    "command": [
+      "uv",
+      "pip",
+      "install",
+      "--offline",
+      "--python",
+      "/tmp/cdr-ep01-wheel-vu5bgg4z/venv/bin/python",
+      "--require-hashes",
+      "-r",
+      "/home/visky/Work/GPTRunner/chat-dev-runner/requirements.lock"
+    ],
+    "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner",
+    "exit_code": 0,
+    "duration_seconds": 0.234,
+    "log": "verification/implementation/EP-01/wheel-locked-deps.log"
+  },
+  {
+    "name": "wheel-install",
+    "command": [
+      "uv",
+      "pip",
+      "install",
+      "--offline",
+      "--python",
+      "/tmp/cdr-ep01-wheel-vu5bgg4z/venv/bin/python",
+      "--no-deps",
+      "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-01/wheel/chat_dev_runner-0.2.0-py3-none-any.whl"
+    ],
+    "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner",
+    "exit_code": 0,
+    "duration_seconds": 0.018,
+    "log": "verification/implementation/EP-01/wheel-install.log"
+  },
+  {
+    "name": "wheel-import",
+    "command": [
+      "./venv/bin/python",
+      "-I",
+      "-c",
+      "import pathlib,json,runner_app,bridge_reference.protocol as p\nfrom runner_app.resources import load_schema\nfrom runner_app.storage import Database\nfrom runner_app.api.runtime import create_runtime_app\nfrom runner_app.api.auth import Sessions\nassert \"site-packages\" in runner_app.__file__\nassert \"site-packages\" in str(p.SCHEMAS)\nassert load_schema(\"command\")==json.loads((p.SCHEMAS/\"command.schema.json\").read_text())\np=pathlib.Path(\"state\");p.mkdir(mode=0o700)\nd=Database(p/\"state.sqlite\");assert d.migrate()==2\nprint(json.dumps({\"installed\":runner_app.__file__,\"schema_version\":2,\"source_checkout_imported\":False}))"
+    ],
+    "cwd": "/tmp/cdr-ep01-wheel-vu5bgg4z",
+    "exit_code": 1,
+    "duration_seconds": 0.432,
+    "log": "verification/implementation/EP-01/wheel-import.log"
+  }
+]

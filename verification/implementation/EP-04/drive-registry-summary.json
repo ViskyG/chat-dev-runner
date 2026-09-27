@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "checked_at": "2026-09-27T05:10:00.262947+00:00",
+  "scope": "Offline exact-ID workspace Drive registration and local output binding",
+  "commands": [
+    {
+      "command": ".venv/bin/pytest -q tests/test_drive_registry.py",
+      "exit_code": 0,
+      "result": "8 passed"
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app/adapters/drive_registry.py tests/test_drive_registry.py",
+      "exit_code": 0,
+      "result": "All checks passed"
+    },
+    {
+      "command": ".venv/bin/mypy runner_app/adapters/drive_registry.py",
+      "exit_code": 0,
+      "result": "Success: no issues found in 1 source file"
+    }
+  ],
+  "live_google_calls": 0,
+  "remote_writes": 0,
+  "invariants": [
+    "Indexed Projects root rechecked by exact ID before child validation",
+    "One no-replace private project anchor prevents conflicting project folders across workspace records",
+    "Workspace output pair bound to exact private registration and current per-file metadata"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "packet": "EP-03",
+  "recorded_at_utc": "2026-09-26T20:25:51.055493+00:00",
+  "baseline_packet": "EP-02",
+  "baseline_summary": "verification/implementation/EP-02/final-summary.json",
+  "baseline_summary_sha256": "f62bf1de8dd418079d85d04ca436799a2c240ba769fa522e13001f05db81a74b",
+  "baseline_full_suite": {
+    "name": "full_pytest",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "--basetemp=/tmp/cdr-ep02-final",
+      "--junitxml=verification/implementation/EP-02/final-verified.junit.xml"
+    ],
+    "exit_code": 0,
+    "counts": {
+      "tests": 431,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "log": "verification/implementation/EP-02/final-verified-tests.log",
+    "junit": "verification/implementation/EP-02/final-verified.junit.xml",
+    "log_sha256": "54a04d71af635d23dbdcf99eaf681862284b8f7db17e737e5de9207493aa5e37",
+    "junit_sha256": "a45cb55df56c9ce500f5be313b8b04ea6c9a8bcc52ff9567da929432938c5883"
+  },
+  "note": "Reference to completed real-process EP-02 acceptance immediately before EP-03 edits; no EP-03 production handler exists."
+}

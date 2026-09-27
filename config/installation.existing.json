@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "mode": "attach_existing",
+  "workspace_status": "EXISTS_OWNER_REPORTED",
+  "root_folder_name": "Chat-Dev Runner",
+  "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+  "installation_index_document_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+  "installation_index_url": "https://docs.google.com/document/d/1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA/edit",
+  "runner_state": "NOT_CONFIGURED",
+  "armed": false,
+  "bootstrap_allowed": false,
+  "live_validation": "NOT_PERFORMED",
+  "source": "Owner update after archive creation; seed is a reference specification"
+}

@@ -1,0 +1,25 @@
+test_empty (test_compute.TotalTests.test_empty) ... FAIL
+test_sum (test_compute.TotalTests.test_sum) ... FAIL
+
+======================================================================
+FAIL: test_empty (test_compute.TotalTests.test_empty)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cdr-reference-bnpmpv46/workspace-failing/test_compute.py", line 5, in test_empty
+    def test_empty(self): self.assertEqual(total([]), 0)
+                          ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_sum (test_compute.TotalTests.test_sum)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cdr-reference-bnpmpv46/workspace-failing/test_compute.py", line 4, in test_sum
+    def test_sum(self): self.assertEqual(total([1, 2]), 3)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 4 != 3
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (failures=2)
