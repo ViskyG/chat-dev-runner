@@ -16,10 +16,12 @@ instructions and edits one structured JSON body. No spreadsheet formula interpre
 row sorting, shared status column or ambiguous `edited=1` flag. A mailbox is a single current
 command slot, not a waiting queue. Its historical requests are frozen in SQLite and receipts.
 
-Current connector discovery exposed native Docs reading and revision-guarded batch updates,
-and also raw Drive-file replacement actions. Availability in another chat/mode is not assumed:
-EP-04 must perform read → harmless edit → readback on a disposable document. Read-only access
-is insufficient and results in an explicit integration blocker, not browser automation.
+On the owner's connected account, an EP-04 canary under the existing root passed local OAuth
+write/readback → connector revision-guarded edit → local OAuth readback. The connector's
+capabilities can differ in a new chat or after reauthorization, so the runner still
+checks the actual connection state instead of assuming access from this one result.
+The dedicated test document and exact IDs are in
+`verification/implementation/EP-04/live-existing-installation-canary.json`.
 
 ## Ownership and OAuth scope
 
@@ -31,8 +33,12 @@ revision checks. The runner first reads the existing root and Installation Index
 owner-provided IDs, then validates each indexed file before any write. Future
 CREATE_PROJECT/CREATE_WORKSPACE provisioning uses that same local client and stores exact
 IDs in private local registrations. ChatGPT edits only those registered command/change Docs. A generic document
-copied by the chat is not automatically a valid watched command. EP-04 still requires the
-cross-app edit round-trip on the actual account before live use.
+copied by the chat is not automatically a valid watched command. For pre-existing files
+created by the earlier installer, a private local exact-ID manifest pins the human-readable
+Index hash and validates that every registered ID appears in the Index text. It accepts
+missing current-app private metadata only for those explicitly mapped legacy IDs, with
+unchanged type, parent, title, capabilities and Index revision; newly created files keep
+current-app ownership checks. The manifest is owner-only and outside the source repository.
 
 The chatbot connector and local runner are independently authorized. Never save bearer tokens,
 refresh tokens or OAuth client secrets in Drive instructions. Configuration of ChatGPT's

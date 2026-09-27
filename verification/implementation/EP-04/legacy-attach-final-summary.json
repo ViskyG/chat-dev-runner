@@ -1,0 +1,62 @@
+{
+  "packet": "EP-04",
+  "recorded_at_utc": "2026-09-27 07:58:15 UTC",
+  "status": "VERIFIED_COMPONENT_AND_LIVE_CANARY",
+  "baseline_reference": "verification/implementation/EP-04/final-offline-summary.json",
+  "environment": {
+    "host": "k8s-master",
+    "python": "3.10.12",
+    "source_repository": "ViskyG/chat-dev-runner",
+    "branch": "main",
+    "base_commit": "11a63fdba7db12dbf53641fa162d49c5df641c5c"
+  },
+  "checks": [
+    {
+      "command": ".venv/bin/python -m pytest -q --junitxml=verification/implementation/EP-04/legacy-attach-final-pytest.xml",
+      "exit_code": 0,
+      "tests_passed": 791,
+      "warnings": 1,
+      "junit": "verification/implementation/EP-04/legacy-attach-final-pytest.xml",
+      "provider_mode": "offline fakes and local fixtures"
+    },
+    {
+      "command": ".venv/bin/ruff check runner_app tests scripts/bootstrap_drive.py",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/mypy runner_app",
+      "exit_code": 0,
+      "source_files": 52
+    },
+    {
+      "command": ".venv/bin/python -m build --wheel --no-isolation --outdir /tmp/cdr-ep04-legacy-wheel",
+      "exit_code": 0,
+      "wheel_sha256": "179af43ec382fb1f903275205d9ae72acdf760d42bd8076094526f9874397de0"
+    },
+    {
+      "command": "PYTHONPATH=<built-wheel> <project-venv-python> -m runner_app.cli drive-check --live (cwd=/tmp)",
+      "exit_code": 0,
+      "result": "ATTACHED; owner_manifest; 13 roles; cloud_writes=false; armed=false"
+    }
+  ],
+  "live_evidence": "verification/implementation/EP-04/live-existing-installation-canary.json",
+  "live_results": {
+    "existing_root_and_index_read": "OK",
+    "human_index_exact_id_manifest_roles": 13,
+    "cross_app_canary": "PASS",
+    "root_command": "NOT_READY",
+    "root_receipt_read": "OK",
+    "system_state_read": "OK",
+    "legacy_results_parent_read": "OK",
+    "operational_docs_written": false,
+    "bootstrap_apply": false,
+    "runner_armed": false
+  },
+  "remaining_release_gates": [
+    "EP-03 rootless host containment",
+    "EP-05 finite provisioning and GitHub workflow",
+    "EP-06 real UI",
+    "EP-07 deployment and acceptance"
+  ],
+  "token_or_credential_values_recorded": false
+}

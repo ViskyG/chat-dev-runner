@@ -1,6 +1,6 @@
 ---
 id: CDR-SOURCES
-checked: 2026-09-26
+checked: 2026-09-27
 ---
 # Primary references and verification boundaries
 
@@ -12,7 +12,8 @@ The component boundaries, default budgets, UI choices and user interaction limit
 - **S2 — Google Drive API scopes.** `drive.file` is scoped file access, not an assumed recursive
   permission over every future document placed in a folder.
   https://developers.google.com/workspace/drive/api/guides/api-specific-auth
-- **S3 — Docs documents.batchUpdate.** Atomic document batch and revision write control.
+- **S3 — Docs documents.batchUpdate.** Atomic document batch and revision write control;
+  requiredRevisionId rejects a stale base.
   https://developers.google.com/workspace/docs/api/reference/rest/v1/documents/batchUpdate
 - **S4 — Drive changes.** Start/page tokens, chronological changes and durable cursor handling.
   https://developers.google.com/workspace/drive/api/guides/manage-changes
@@ -31,18 +32,27 @@ The component boundaries, default budgets, UI choices and user interaction limit
 - **S10 — OpenAI connected apps.** Supported app integration is a product feature whose
   availability must be checked in the actual chat. This is not individual policy approval.
   https://help.openai.com/en/articles/11487775-connected-apps-in-chatgpt
+- **S11 — Drive files.create.** Create a native Doc or folder with an explicit parent ID.
+  https://developers.google.com/workspace/drive/api/reference/rest/v3/files/create
+- **S12 — Drive file metadata.** `appProperties` are private to the requesting app, while
+  `parents` identify the actual containing folder.
+  https://developers.google.com/workspace/drive/api/reference/rest/v3/files
 
 ## Direct tool inspection in this session
 
 Available Google Drive actions exposed get_document/get_document_text, revision-guarded
-batch_update_document, metadata reads, folder operations and raw file replacement. This is
-schema discovery, NOT a successful real-account code round-trip. No credential-bearing
-provider writes, project execution or repo creation were performed in the user's account.
+batch_update_document, metadata reads, folder operations and raw file replacement. On the
+owner's connected shared experiments account, a dedicated local-OAuth-created canary Doc
+was read and edited through the connector, then read back through local OAuth. Its exact
+IDs and content digest are in `verification/implementation/EP-04/live-existing-installation-canary.json`.
+No pre-existing Drive file was edited or deleted, and no project execution or runner-created
+project repository was performed.
 
 ## Unverified until deployment
 
-Google OAuth per-file access across runner-created/chat-edited Docs; real connector write
-availability in the chosen chat mode; private draft PR entitlement; GitHub new-repo token
-coverage; actual rootless runtime and isolation; real project test profiles; OS editor-open
-handler; API call quotas and polling performance. EP-00 inventories these gates; EP-04/EP-07 collect authorized live evidence before the
-release assumes availability. Do not fabricate API permission conclusions from one successful login.
+The cross-app Doc canary is verified for this account and current connector session only.
+Root COMMAND/RECEIPT operational flow, private draft PR entitlement, runner-specific GitHub
+repository permissions, actual rootless runtime and isolation, real project test profiles,
+OS editor-open handler, API quotas and polling performance remain unverified. EP-07 must
+repeat deployment-level checks before release; one successful canary does not prove every
+future document or chat session can be edited.

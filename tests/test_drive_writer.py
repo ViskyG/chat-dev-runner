@@ -317,3 +317,107 @@ def test_invalid_or_oversize_insert_text_is_rejected_without_remote_write() -> N
     ]:
         _error_code(lambda text=text: writer.replace("root-receipt", text, expected=expected), code)
     assert provider.batches == []
+
+
+def _legacy_fixture() -> tuple[IndexedFake, AttachedInstallation, DocsCASWriter]:
+    provider, attached, _ = _fixture()
+    index_id = attached.config.index_id
+    root_id = attached.config.root_id
+    index_text = "CHAT-DEV RUNNER — INSTALLATION INDEX\n"
+    provider.add(index_id, root_id, "installation-index", index_text)
+    provider.metadata[index_id]["name"] = "INSTALLATION INDEX"
+    provider.metadata[index_id]["isAppAuthorized"] = False
+    provider.metadata[index_id].pop("appProperties")
+    for file_id, name in ((RECEIPT_ID, "RECEIPT"), (STATE_ID, "SYSTEM STATE")):
+        provider.metadata[file_id]["name"] = name
+        provider.metadata[file_id]["isAppAuthorized"] = False
+        provider.metadata[file_id].pop("appProperties")
+    files = {
+        **attached.index.files,
+        "installation-index": IndexedFile(
+            "installation-index", index_id, "INSTALLATION INDEX", DOC_MIME,
+            (root_id,), {},
+        ),
+    }
+    legacy_attached = AttachedInstallation(
+        attached.config,
+        InstallationIndex(attached.index.installation_id, files, "owner_manifest"),
+        "rev-1", hashlib.sha256(index_text.encode()).hexdigest(),
+        {"receipt": provider.metadata[RECEIPT_ID],
+         "state": provider.metadata[STATE_ID],
+         "installation-index": provider.metadata[index_id]},
+    )
+    extra = RegisteredOutputDoc(
+        "workspace-result", "LATEST_RESULT", RESULT_ID, WORKSPACE_ID, "latest-result",
+    )
+    return provider, legacy_attached, DocsCASWriter(provider, legacy_attached, extra_docs=[extra])
+
+
+def test_legacy_root_receipt_and_state_use_exact_ids_but_workspace_output_stays_strict() -> None:
+    provider, _, writer = _legacy_fixture()
+    for key, desired in (("root-receipt", "new receipt\n"),
+                         ("system-state", "new state\n")):
+        observed = writer.read(key)
+        result = writer.replace(key, desired, expected=observed)
+        assert result.state == "CONFIRMED"
+    assert {item[0] for item in provider.batches} == {RECEIPT_ID, STATE_ID}
+    provider.metadata[RESULT_ID]["isAppAuthorized"] = False
+    _error_code(lambda: writer.read("workspace-result"), "OUTPUT_IDENTITY_CHANGED")
+
+
+@pytest.mark.parametrize("change,expected", [
+    ("moved", "OUTPUT_IDENTITY_CHANGED"),
+    ("trashed", "OUTPUT_IDENTITY_CHANGED"),
+    ("type", "OUTPUT_IDENTITY_CHANGED"),
+    ("renamed", "OUTPUT_IDENTITY_CHANGED"),
+    ("conflicting_properties", "OUTPUT_OWNERSHIP_CHANGED"),
+    ("partial_properties", "OUTPUT_OWNERSHIP_CHANGED"),
+    ("no_edit", "OUTPUT_NOT_WRITABLE"),
+])
+def test_legacy_root_output_rejects_drift_before_write(change: str, expected: str) -> None:
+    provider, _, writer = _legacy_fixture()
+    metadata = provider.metadata[RECEIPT_ID]
+    if change == "moved":
+        metadata["parents"] = ["other-control-folder-123"]
+    elif change == "trashed":
+        metadata["trashed"] = True
+    elif change == "type":
+        metadata["mimeType"] = "text/plain"
+    elif change == "renamed":
+        metadata["name"] = "OTHER RECEIPT"
+    elif change == "conflicting_properties":
+        metadata["appProperties"] = {"cdr_key": "command"}
+    elif change == "partial_properties":
+        metadata["appProperties"] = {"cdr_key": "receipt"}
+    else:
+        metadata["capabilities"]["canEdit"] = False
+    _error_code(lambda: writer.read("root-receipt"), expected)
+    assert provider.batches == []
+
+
+def test_legacy_root_output_refuses_stale_index_before_cas_write() -> None:
+    provider, attached, writer = _legacy_fixture()
+    observed = writer.read("root-receipt")
+    provider.set_document(attached.config.index_id, "changed Index\n")
+    _error_code(
+        lambda: writer.replace("root-receipt", "new receipt\n", expected=observed),
+        "INDEX_CHANGED",
+    )
+    assert provider.batches == []
+
+
+@pytest.mark.parametrize("key,file_id", [
+    ("root-receipt", RECEIPT_ID),
+    ("system-state", STATE_ID),
+])
+def test_google_initial_section_break_may_omit_start_index(
+    key: str, file_id: str,
+) -> None:
+    provider, _, writer = _fixture()
+    section = provider.documents[file_id]["tabs"][0]["documentTab"]["body"]["content"][0]
+    section.pop("startIndex")
+    observed = writer.read(key)
+    assert observed.body_start_index == 1
+    assert observed.snapshot.file_id == file_id
+    section["startIndex"] = 2
+    _error_code(lambda: writer.read(key), "DOC_STRUCTURE_INVALID")

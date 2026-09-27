@@ -56,7 +56,7 @@ def _entry(file_id: str, parent: str, name: str, mime: str, app_key: str,
     }
 
 
-def fixture(tmp_path: Path) -> tuple[
+def fixture(tmp_path: Path, *, legacy: bool = False) -> tuple[
     WorkspaceDriveRegistry, WorkspaceDriveRegistration, FakeReadProvider, Path,
 ]:
     installation = str(uuid4())
@@ -70,6 +70,9 @@ def fixture(tmp_path: Path) -> tuple[
         _PROJECTS_ID, "rootfolderid0000001", "01 Projects", _FOLDER,
         "projects", installation, workspace=None,
     )
+    if legacy:
+        provider.metadata[_PROJECTS_ID]["isAppAuthorized"] = False
+        provider.metadata[_PROJECTS_ID].pop("appProperties")
     provider.metadata[record.project_folder_id] = _entry(
         record.project_folder_id, _PROJECTS_ID, _PROJECT_ID, _FOLDER,
         "project:fixture", installation, workspace=None,
@@ -92,7 +95,7 @@ def fixture(tmp_path: Path) -> tuple[
         InstallationIndex(installation, {
             "projects": IndexedFile("projects", _PROJECTS_ID, "01 Projects", _FOLDER,
                                     ("rootfolderid0000001",), {}),
-        }),
+        }, "owner_manifest" if legacy else "app_properties"),
         "index-revision", "index-hash", {},
     )
     directory = tmp_path / "private-registrations"
@@ -229,3 +232,27 @@ def test_same_project_cannot_register_two_different_project_folders(tmp_path: Pa
     _code(lambda: store.register(other), "PROJECT_REGISTRATION_CONFLICT")
     assert {path.name: path.read_bytes() for path in directory.iterdir()} == before
     assert store.get(_PROJECT_ID, _WORKSPACE_ID) == record
+
+
+def test_legacy_projects_parent_allows_current_app_child_registration(tmp_path: Path) -> None:
+    store, record, provider, _ = fixture(tmp_path, legacy=True)
+    assert store.register(record) == record
+    assert store.get(_PROJECT_ID, _WORKSPACE_ID) == record
+    provider.metadata[record.command_doc_id]["isAppAuthorized"] = False
+    _code(lambda: store.get(_PROJECT_ID, _WORKSPACE_ID), "REGISTRATION_IDENTITY_CHANGED")
+
+
+def test_legacy_projects_parent_rejects_movement_and_visible_property_conflict(
+    tmp_path: Path,
+) -> None:
+    store, record, provider, directory = fixture(tmp_path, legacy=True)
+    projects = provider.metadata[_PROJECTS_ID]
+    projects["parents"] = ["other-root-folder-123"]
+    _code(lambda: store.register(record), "PROJECT_ROOT_CHANGED")
+    assert list(directory.iterdir()) == []
+    projects["parents"] = ["rootfolderid0000001"]
+    projects["appProperties"] = {"cdr_key": "results"}
+    _code(lambda: store.register(record), "PROJECT_ROOT_CHANGED")
+    projects["appProperties"] = {"cdr_key": "projects"}
+    _code(lambda: store.register(record), "PROJECT_ROOT_CHANGED")
+    assert list(directory.iterdir()) == []

@@ -14,6 +14,8 @@ from typing import Any
 from pydantic import ValidationError
 
 from runner_app import __version__
+from runner_app.adapters.drive_auth import DriveAuthError
+from runner_app.adapters.drive_docs import DriveError
 from runner_app.config import Settings, setup_requirements
 from runner_app.storage.paths import Paths
 
@@ -72,6 +74,9 @@ def parser() -> argparse.ArgumentParser:
     install.add_argument("--dry-run", action="store_true", required=True)
     configure = commands.add_parser("configure", help="Describe local setup and authorization gates")
     configure.add_argument("--show-required", action="store_true", required=True)
+    drive_check = commands.add_parser("drive-check", help="Validate the existing Drive installation")
+    drive_check.add_argument("--live", action="store_true", required=True,
+                             help="Explicitly use local OAuth for exact-ID read-only checks")
     serve = commands.add_parser("serve", help="Run the unarmed authenticated local API")
     serve.add_argument("--health-only", action="store_true", help="Stateless foundation probe")
     serve.add_argument("--host", default="127.0.0.1")
@@ -104,6 +109,10 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         if args.command == "configure":
             report = setup_requirements()
+        elif args.command == "drive-check":
+            from runner_app.adapters.drive_check import live_drive_check
+
+            report = live_drive_check()
         else:
             report = offline_report()
             if args.command == "install":
@@ -113,6 +122,11 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report, indent=2))
         return 0
     except (ValidationError, ValueError) as exc:
+        if args.command == "drive-check":
+            # Only stable adapter codes cross the CLI boundary.
+            code = exc.code if isinstance(exc, (DriveAuthError, DriveError)) else "DRIVE_CHECK_FAILED"
+            print(json.dumps({"error": code}))
+            return 2
         # Local configuration validation only; never echo credential material.
         print(json.dumps({"error": "INVALID_LOCAL_CONFIGURATION", "detail": str(exc)}))
         return 2

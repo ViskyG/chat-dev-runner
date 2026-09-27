@@ -6,11 +6,14 @@ title, imports OAuth credentials, or treats a folder grant as recursive access.
 
 from __future__ import annotations
 
+import os
 import re
+import stat
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from types import MappingProxyType
+from typing import Any, Literal
 
 from runner_app.adapters.drive_docs import (
     FILE_FIELDS,
@@ -22,6 +25,7 @@ from runner_app.adapters.drive_docs import (
 )
 from runner_app.config import DRIVE_INDEX_ID, DRIVE_ROOT_ID
 from runner_app.domain.commands import DomainError, parse_json
+from runner_app.storage.paths import UnsafePathError, _open_directory
 
 _DOC = "application/vnd.google-apps.document"
 _FOLDER = "application/vnd.google-apps.folder"
@@ -64,6 +68,13 @@ _REQUIRED_WRITABLE_DOCS = frozenset({
     "installation-index", "receipt", "state", "command",
 })
 _REQUIRED_CHILD_FOLDERS = frozenset({"root", "projects", "results", "control"})
+_LEGACY_REQUIRED = frozenset({
+    "root", "control", "projects", "results", "contracts", "templates",
+    "start-here", "chat-protocol", "command", "receipt", "state", "recipes",
+    "installation-index",
+})
+_SHA256 = re.compile(r"[0-9a-f]{64}\Z")
+_MAX_LEGACY_MANIFEST_BYTES = 65_536
 
 
 @dataclass(frozen=True)
@@ -108,6 +119,115 @@ class IndexedFile:
 class InstallationIndex:
     installation_id: str
     files: Mapping[str, IndexedFile]
+    identity_mode: Literal["app_properties", "owner_manifest"] = "app_properties"
+
+
+@dataclass(frozen=True)
+class LegacyInstallationManifest:
+    """Owner-private exact-ID map for a pre-existing, non-app-tagged installation.
+
+    This file is local authority, not parsed from a Drive Doc or a title search.
+    The Index text digest pins the reviewed human-readable document.
+    """
+
+    root_id: str
+    index_id: str
+    index_text_sha256: str
+    installation_id: str
+    files: Mapping[str, IndexedFile]
+
+    @classmethod
+    def from_mapping(
+        cls, value: Mapping[str, Any], config: ExistingInstallation,
+    ) -> LegacyInstallationManifest:
+        if (not isinstance(value, Mapping) or value.get("schema_version") != "1.0"
+                or value.get("mode") != "owner_verified_legacy"):
+            raise DriveError("LEGACY_MANIFEST_INVALID", "Owner manifest mode is invalid")
+        root_id = value.get("root_folder_id")
+        index_id = value.get("installation_index_document_id")
+        digest = value.get("installation_index_text_sha256")
+        installation_id = value.get("installation_id")
+        if root_id != config.root_id or index_id != config.index_id:
+            raise DriveError("INSTALLATION_ID_MISMATCH", "Owner manifest differs from selected installation")
+        if not isinstance(digest, str) or _SHA256.fullmatch(digest) is None:
+            raise DriveError("LEGACY_MANIFEST_INVALID", "Index text digest is invalid")
+        if not isinstance(installation_id, str) or not re.fullmatch(
+            r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+            installation_id,
+        ):
+            raise DriveError("LEGACY_MANIFEST_INVALID", "Installation identity is invalid")
+        documents = value.get("documents")
+        if not isinstance(documents, dict) or not _LEGACY_REQUIRED.issubset(documents):
+            raise DriveError("LEGACY_MANIFEST_INCOMPLETE", "Required existing roles are missing")
+        if set(documents) != _LEGACY_REQUIRED:
+            raise DriveError("LEGACY_MANIFEST_INVALID", "Owner manifest contains an unreviewed role")
+        indexed: dict[str, IndexedFile] = {}
+        seen_ids: set[str] = set()
+        for key, raw in documents.items():
+            if not isinstance(raw, dict) or set(raw) != {"id", "name", "mimeType", "parents"}:
+                raise DriveError("LEGACY_MANIFEST_INVALID", "Indexed record has invalid fields")
+            file_id, name, mime, parents = (
+                raw["id"], raw["name"], raw["mimeType"], raw["parents"]
+            )
+            if (not isinstance(file_id, str) or _ID.fullmatch(file_id) is None
+                    or not isinstance(name, str) or not name or len(name) > 256
+                    or not isinstance(mime, str) or mime != _LAYOUT[key][1]
+                    or not isinstance(parents, list)
+                    or not all(isinstance(parent, str) and _ID.fullmatch(parent)
+                               for parent in parents)):
+                raise DriveError("LEGACY_MANIFEST_INVALID", "Indexed record is invalid")
+            if file_id in seen_ids:
+                raise DriveError("DUPLICATE_INDEX_ID", "Two installation roles share one file ID")
+            seen_ids.add(file_id)
+            if key != "start-here" and name != _LAYOUT[key][0]:
+                raise DriveError("LEGACY_MANIFEST_INVALID", "Active role name differs from contract")
+            indexed[key] = IndexedFile(key, file_id, name, mime, tuple(parents), {})
+        if (indexed["root"].file_id != config.root_id
+                or indexed["installation-index"].file_id != config.index_id):
+            raise DriveError("INSTALLATION_ID_MISMATCH", "Manifest does not point at selected IDs")
+        for key, item in indexed.items():
+            parent_key = _LAYOUT[key][2]
+            if parent_key is None:
+                continue
+            parent = indexed.get(parent_key)
+            if parent is None or item.parents != (parent.file_id,):
+                raise DriveError("INDEX_PARENT_MISMATCH", "Manifest topology differs from installed layout")
+        return cls(root_id, index_id, digest, installation_id, MappingProxyType(indexed))
+
+    @classmethod
+    def from_file(
+        cls, path: Path, config: ExistingInstallation,
+    ) -> LegacyInstallationManifest:
+        """Read a 0600 regular manifest from a 0700 owner directory, no symlinks."""
+        try:
+            directory_fd = _open_directory(path.parent, create=False)
+            try:
+                fd = os.open(
+                    path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK,
+                    dir_fd=directory_fd,
+                )
+                try:
+                    before = os.fstat(fd)
+                    if (not stat.S_ISREG(before.st_mode) or before.st_uid != os.geteuid()
+                            or stat.S_IMODE(before.st_mode) != 0o600 or before.st_nlink != 1
+                            or before.st_size < 1 or before.st_size > _MAX_LEGACY_MANIFEST_BYTES):
+                        raise OSError("Unsafe manifest file")
+                    raw = os.read(fd, before.st_size + 1)
+                    after = os.fstat(fd)
+                    current = os.stat(path.name, dir_fd=directory_fd, follow_symlinks=False)
+                    if (len(raw) != before.st_size or before.st_size != after.st_size
+                            or before.st_mtime_ns != after.st_mtime_ns
+                            or before.st_ctime_ns != after.st_ctime_ns
+                            or (before.st_dev, before.st_ino) != (current.st_dev, current.st_ino)):
+                        raise OSError("Manifest changed during read")
+                finally:
+                    os.close(fd)
+            finally:
+                os.close(directory_fd)
+            value = parse_json(raw, max_bytes=_MAX_LEGACY_MANIFEST_BYTES)
+        except (OSError, UnsafePathError, DomainError) as error:
+            raise DriveError("LEGACY_MANIFEST_INVALID", "Owner-private manifest is unavailable") from error
+        return cls.from_mapping(value, config)
 
 
 @dataclass(frozen=True)
@@ -123,6 +243,7 @@ class AttachedInstallation:
             command_id=self.index.files["command"].file_id,
             parent_id=self.index.files["control"].file_id,
             receipt_id=self.index.files["receipt"].file_id,
+            legacy_attachment=self if self.index.identity_mode == "owner_manifest" else None,
         )
 
 
@@ -196,6 +317,7 @@ def _read_file(provider: ReadProvider, file_id: str, key: str) -> Mapping[str, A
 
 def _validate_metadata(
     key: str, indexed: IndexedFile, metadata: Mapping[str, Any], installation_id: str,
+    *, identity_mode: str = "app_properties",
 ) -> None:
     if metadata.get("id") != indexed.file_id:
         raise DriveError("FILE_ID_MISMATCH", "Provider returned a different file")
@@ -205,16 +327,28 @@ def _validate_metadata(
         raise DriveError("FILE_METADATA_MISMATCH", "Indexed file metadata changed")
     if key != "root" and metadata.get("parents") != list(indexed.parents):
         raise DriveError("FILE_MOVED", "Indexed file parent changed")
-    if metadata.get("isAppAuthorized") is not True:
-        raise DriveError("PER_FILE_GRANT_MISSING", "OAuth app grant for indexed file is absent")
     props = metadata.get("appProperties")
-    if not isinstance(props, dict):
-        raise DriveError(
-            "APP_IDENTITY_UNVERIFIED",
-            "OAuth app cannot see the installer-owned file properties; per-file app grant is unresolved",
-        )
-    if props.get("cdr_installation") != installation_id or props.get("cdr_key") != key:
-        raise DriveError("APP_IDENTITY_MISMATCH", "Visible app properties conflict with index")
+    if identity_mode == "app_properties":
+        if metadata.get("isAppAuthorized") is not True:
+            raise DriveError("PER_FILE_GRANT_MISSING", "OAuth app grant for indexed file is absent")
+        if not isinstance(props, dict):
+            raise DriveError(
+                "APP_IDENTITY_UNVERIFIED",
+                "OAuth app cannot see the installer-owned file properties; per-file app grant is unresolved",
+            )
+        if props.get("cdr_installation") != installation_id or props.get("cdr_key") != key:
+            raise DriveError("APP_IDENTITY_MISMATCH", "Visible app properties conflict with index")
+    elif identity_mode == "owner_manifest":
+        if not isinstance(metadata.get("isAppAuthorized"), bool):
+            raise DriveError("PER_FILE_GRANT_UNKNOWN", "App authorization status is unknown")
+        if props is not None and not isinstance(props, dict):
+            raise DriveError("APP_IDENTITY_UNVERIFIED", "Visible app properties are malformed")
+        if isinstance(props, dict) and (
+            "cdr_installation" in props or "cdr_key" in props
+        ) and (props.get("cdr_installation") != installation_id or props.get("cdr_key") != key):
+            raise DriveError("APP_IDENTITY_MISMATCH", "Visible app properties conflict with owner manifest")
+    else:
+        raise DriveError("INDEX_IDENTITY_MODE_INVALID", "Installation identity mode is invalid")
     capabilities = metadata.get("capabilities")
     if not isinstance(capabilities, dict):
         raise DriveError("CAPABILITY_UNKNOWN", "File capabilities were not returned")
@@ -224,10 +358,35 @@ def _validate_metadata(
         raise DriveError("CHILD_CREATE_CAPABILITY_MISSING", "Required folder cannot receive children")
 
 
+def _revalidate_legacy_manifest(
+    manifest: LegacyInstallationManifest, config: ExistingInstallation,
+) -> LegacyInstallationManifest:
+    """Do not let direct construction or mutation bypass the local map parser."""
+    if not isinstance(manifest, LegacyInstallationManifest) or not isinstance(manifest.files, Mapping):
+        raise DriveError("LEGACY_MANIFEST_INVALID", "Owner manifest is invalid")
+    documents: dict[str, dict[str, Any]] = {}
+    for key, item in manifest.files.items():
+        if not isinstance(key, str) or not isinstance(item, IndexedFile) or item.key != key:
+            raise DriveError("LEGACY_MANIFEST_INVALID", "Owner manifest record is invalid")
+        documents[key] = {
+            "id": item.file_id, "name": item.name, "mimeType": item.mime_type,
+            "parents": list(item.parents),
+        }
+    return LegacyInstallationManifest.from_mapping({
+        "schema_version": "1.0", "mode": "owner_verified_legacy",
+        "root_folder_id": manifest.root_id,
+        "installation_index_document_id": manifest.index_id,
+        "installation_index_text_sha256": manifest.index_text_sha256,
+        "installation_id": manifest.installation_id,
+        "documents": documents,
+    }, config)
+
+
 def attach_existing(
-    provider: ReadProvider, config: ExistingInstallation,
+    provider: ReadProvider, config: ExistingInstallation, *,
+    legacy_manifest: LegacyInstallationManifest | None = None,
 ) -> AttachedInstallation:
-    """Read exact owner-supplied IDs and validate the complete indexed layout."""
+    """Validate exact owner-supplied IDs in strict or pinned legacy mode."""
     root = _read_file(provider, config.root_id, "root")
     if (root.get("id") != config.root_id or root.get("name") != config.root_name
             or root.get("mimeType") != _FOLDER or root.get("trashed") is not False):
@@ -238,13 +397,27 @@ def attach_existing(
             or index_meta.get("trashed") is not False):
         raise DriveError("INDEX_METADATA_MISMATCH", "Owner-supplied index is incompatible")
     document = read_document(provider, config.index_id, max_bytes=MAX_INDEX_DOC_BYTES)
-    index = parse_installation_index(document.text, config)
+    if legacy_manifest is None:
+        index = parse_installation_index(document.text, config)
+    else:
+        reviewed = _revalidate_legacy_manifest(legacy_manifest, config)
+        if document.sha256 != reviewed.index_text_sha256:
+            raise DriveError("INDEX_TEXT_MISMATCH", "Reviewed Installation Index text changed")
+        for item in reviewed.files.values():
+            if re.search(r"(?<![A-Za-z0-9_-])" + re.escape(item.file_id)
+                         + r"(?![A-Za-z0-9_-])", document.text) is None:
+                raise DriveError(
+                    "INDEX_ID_NOT_REFERENCED", "Owner manifest ID is absent from Installation Index",
+                )
+        index = InstallationIndex(reviewed.installation_id, reviewed.files, "owner_manifest")
     checked: dict[str, Mapping[str, Any]] = {}
     for key, item in index.files.items():
         metadata = root if key == "root" else (
             index_meta if key == "installation-index" else _read_file(provider, item.file_id, key)
         )
-        _validate_metadata(key, item, metadata, index.installation_id)
+        _validate_metadata(
+            key, item, metadata, index.installation_id, identity_mode=index.identity_mode,
+        )
         checked[key] = metadata
     final_document = read_document(provider, config.index_id, max_bytes=MAX_INDEX_DOC_BYTES)
     if (final_document.revision_id != document.revision_id
@@ -253,12 +426,28 @@ def attach_existing(
     final_index_meta = _read_file(provider, config.index_id, "installation-index")
     _validate_metadata(
         "installation-index", index.files["installation-index"],
-        final_index_meta, index.installation_id,
+        final_index_meta, index.installation_id, identity_mode=index.identity_mode,
     )
     return AttachedInstallation(
         config=config, index=index, index_revision=document.revision_id,
         index_text_sha256=document.sha256, metadata=checked,
     )
+
+
+def recheck_attached_index(provider: ReadProvider, attached: AttachedInstallation) -> None:
+    """Fence use of a long-lived attachment against Index edits or relocation."""
+    indexed = attached.index.files.get("installation-index")
+    if indexed is None:
+        raise DriveError("INSTALLATION_NOT_ATTACHED", "Installation Index is not registered")
+    metadata = _read_file(provider, attached.config.index_id, "installation-index")
+    _validate_metadata(
+        "installation-index", indexed, metadata, attached.index.installation_id,
+        identity_mode=attached.index.identity_mode,
+    )
+    document = read_document(provider, attached.config.index_id, max_bytes=MAX_INDEX_DOC_BYTES)
+    if (document.revision_id != attached.index_revision
+            or document.sha256 != attached.index_text_sha256):
+        raise DriveError("INDEX_CHANGED", "Installation Index changed after attachment")
 
 
 def list_children_bounded(

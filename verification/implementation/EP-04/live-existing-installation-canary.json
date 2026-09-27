@@ -1,0 +1,54 @@
+{
+  "packet": "EP-04",
+  "observed_utc": "2026-09-27 07:38:24 UTC",
+  "operation": "EXISTING_INSTALLATION_ATTACH_AND_CROSS_APP_CANARY",
+  "owner_scope_update": "Dedicated shared experiments account; create and edit only our own test files, preserve all pre-existing files and other experiments.",
+  "oauth_scope": "https://www.googleapis.com/auth/drive",
+  "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+  "installation_index_document_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+  "installation_index_text_sha256": "e9f3ebc4f7a81d6ce6822eac269ac6a4104ad9b209729a18343d87424aa00075",
+  "private_legacy_manifest": {
+    "path": "~/.config/chat-dev-runner/installation-legacy.json",
+    "mode": "0600",
+    "parent_directory_mode": "0700",
+    "sha256": "b33138a7a69f18b41636f97ac4fe39983b7eebb5d8a8217901bc0dde2127ba16",
+    "indexed_roles": 13,
+    "every_role_id_present_in_index_text": true,
+    "exact_id_attach_result": "READ_ONLY_OK",
+    "identity_mode": "owner_manifest"
+  },
+  "own_test_resources_created": {
+    "folder_id": "1NIiRdK6VMRyY0Q2o5PIJ4ix6UoawW_oh",
+    "folder_name": "EP-04 Integration Test fd641028b29f",
+    "document_id": "1DvKJqROGSKWIh8fginrb9vKu6o14z7KAXmFyyEfm_s8",
+    "document_name": "EP-04 CANARY local-chat fd641028b29f",
+    "document_url": "https://docs.google.com/document/d/1DvKJqROGSKWIh8fginrb9vKu6o14z7KAXmFyyEfm_s8/edit"
+  },
+  "cross_app_round_trip": {
+    "connector_exact_id_read_after_local_create": "OK",
+    "local_oauth_revision_guarded_write_and_readback": "OK",
+    "connector_revision_guarded_write": "OK",
+    "local_oauth_readback_of_both_markers": "OK",
+    "both_markers_present_once": true,
+    "final_document_text_sha256": "bf69fe46050822608c542fcdd1e3f6a1e99e00a95d512e24c3ae4d8f3498be52"
+  },
+  "existing_drive_files_edited": 0,
+  "drive_files_deleted_or_trashed": 0,
+  "bootstrap_apply": false,
+  "runner_armed": false,
+  "credential_or_token_values_in_evidence": false,
+  "test_resources_retained_as_labeled_evidence": true,
+  "live_read_only_followup": {
+    "root_command": "NOT_READY",
+    "root_receipt": "READ_OK",
+    "root_receipt_text_sha256": "ffc7171882a4a1a309ce3a763492c08b2e0a46677617c62996af21e19ec70708",
+    "system_state": "READ_OK",
+    "system_state_text_sha256": "45d71158ff957a990690ab8c476fbced8fabd53a972d19a1e28ed2d8b6d2c525",
+    "legacy_results_parent": "EXACT_ID_READ_ONLY_OK",
+    "results_new_key_lookup": "ABSENT",
+    "index_rechecked_before_reads": true,
+    "drive_check_live": "ATTACHED; owner_manifest; 13 roles; cloud_writes=false; armed=false",
+    "operational_docs_written": false,
+    "observed_utc": "2026-09-27 07:53:41 UTC"
+  }
+}

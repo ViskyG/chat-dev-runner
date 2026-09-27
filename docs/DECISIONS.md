@@ -45,3 +45,20 @@ Attach the real adapter to the existing root and Installation Index in
 writes. Do not create a second workspace or overwrite existing documents from `drive-seed/`.
 This explicit owner instruction supersedes the bootstrap assumption for this installation.
 See `docs/LOCAL_SETUP.md`. The runner remains NOT_CONFIGURED and unarmed.
+
+## Owner Drive guidance and live compatibility (2026-09-27)
+
+The Drive account is a shared experiments account, not a personal mailbox. The owner
+permits clearly labelled files created by this runner for integration tests within
+the existing installation; preserve all pre-existing resources and other experiments,
+and do not delete or overwrite them. This does not authorize a second bootstrap or
+turn an arbitrary Drive document into a command mailbox.
+
+The existing installation was created by a different OAuth app and has a human-readable
+Index and variant names. App-private properties from that installer are not visible to
+the current app. For these legacy files only, a private local exact-ID manifest is
+pinned to the current Index text hash; every indexed ID must appear in that Index and
+the adapter checks the actual file's parent, type, name, capabilities and unchanged
+Index revision. Newly provisioned files retain strict current-app ownership checks.
+The dedicated cross-app canary is recorded in
+`verification/implementation/EP-04/live-existing-installation-canary.json`.

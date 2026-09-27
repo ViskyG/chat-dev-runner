@@ -20,7 +20,7 @@ from runner_app.adapters.drive_docs import (
     ReadProvider,
     extract_document,
 )
-from runner_app.adapters.drive_index import AttachedInstallation
+from runner_app.adapters.drive_index import AttachedInstallation, recheck_attached_index
 
 OutputKind = Literal["RECEIPT", "STATE", "LATEST_RESULT"]
 WriteState = Literal["CONFIRMED", "UNCHANGED", "UNCERTAIN"]
@@ -112,7 +112,9 @@ def _plain_body_span(document: Mapping[str, Any], snapshot: DocumentSnapshot) ->
         if not isinstance(element, dict):
             raise DriveError("DOC_STRUCTURE_INVALID", "Output Doc has invalid body element")
         if "sectionBreak" in element:
-            if (offset != 0 or element.get("startIndex") != 0
+            # Native Docs may omit the initial section break's startIndex; its
+            # implicit value is zero, while a present nonzero value is invalid.
+            if (offset != 0 or element.get("startIndex", 0) != 0
                     or element.get("endIndex") != 1):
                 raise DriveError("DOC_STRUCTURE_INVALID", "Output Doc section index is invalid")
             continue
@@ -197,7 +199,12 @@ class DocsCASWriter:
             registered[doc.key] = doc
             seen_ids.add(doc.file_id)
         self._provider = provider
+        self._attached = attached
         self._installation_id = attached.index.installation_id
+        self._legacy_root_names = (
+            {"root-receipt": index["receipt"].name, "system-state": index["state"].name}
+            if attached.index.identity_mode == "owner_manifest" else {}
+        )
         self._docs = registered
 
     def _registered(self, key: str) -> RegisteredOutputDoc:
@@ -211,6 +218,8 @@ class DocsCASWriter:
         return self._registered(key)
 
     def _read(self, registered: RegisteredOutputDoc) -> ObservedOutputDoc:
+        if registered.key in self._legacy_root_names:
+            recheck_attached_index(self._provider, self._attached)
         try:
             metadata = self._provider.get_file(registered.file_id, fields=FILE_FIELDS)
         except (OSError, PermissionError, FileNotFoundError) as error:
@@ -219,17 +228,31 @@ class DocsCASWriter:
             raise DriveError("OUTPUT_METADATA_INVALID", "Registered output metadata is invalid")
         if (metadata.get("id") != registered.file_id or metadata.get("trashed") is not False
                 or metadata.get("mimeType") != "application/vnd.google-apps.document"
-                or metadata.get("parents") != [registered.parent_id]
-                or metadata.get("isAppAuthorized") is not True):
+                or metadata.get("parents") != [registered.parent_id]):
             raise DriveError("OUTPUT_IDENTITY_CHANGED", "Registered output file identity changed")
         capabilities = metadata.get("capabilities")
         if not isinstance(capabilities, dict) or capabilities.get("canEdit") is not True:
             raise DriveError("OUTPUT_NOT_WRITABLE", "Registered output Doc is not writable")
         app_properties = metadata.get("appProperties")
-        if (not isinstance(app_properties, dict)
-                or app_properties.get("cdr_installation") != self._installation_id
-                or app_properties.get("cdr_key") != registered.app_key):
-            raise DriveError("OUTPUT_OWNERSHIP_CHANGED", "Registered output Doc ownership changed")
+        legacy_name = self._legacy_root_names.get(registered.key)
+        if legacy_name is None:
+            if metadata.get("isAppAuthorized") is not True:
+                raise DriveError("OUTPUT_IDENTITY_CHANGED", "Registered output file identity changed")
+            if (not isinstance(app_properties, dict)
+                    or app_properties.get("cdr_installation") != self._installation_id
+                    or app_properties.get("cdr_key") != registered.app_key):
+                raise DriveError("OUTPUT_OWNERSHIP_CHANGED", "Registered output Doc ownership changed")
+        else:
+            if (metadata.get("name") != legacy_name
+                    or not isinstance(metadata.get("isAppAuthorized"), bool)):
+                raise DriveError("OUTPUT_IDENTITY_CHANGED", "Indexed root output identity changed")
+            if app_properties is not None and not isinstance(app_properties, dict):
+                raise DriveError("OUTPUT_OWNERSHIP_CHANGED", "Visible root output properties are invalid")
+            if isinstance(app_properties, dict) and (
+                "cdr_installation" in app_properties or "cdr_key" in app_properties
+            ) and (app_properties.get("cdr_installation") != self._installation_id
+                   or app_properties.get("cdr_key") != registered.app_key):
+                raise DriveError("OUTPUT_OWNERSHIP_CHANGED", "Visible root output properties conflict")
         try:
             raw = self._provider.get_document(registered.file_id, include_tabs_content=True)
         except (OSError, PermissionError, FileNotFoundError) as error:
@@ -296,6 +319,8 @@ class DocsCASWriter:
             }})
         if not requests:
             raise AssertionError("Changed output text generated no Docs requests")
+        if registered.key in self._legacy_root_names:
+            recheck_attached_index(self._provider, self._attached)
         try:
             response = self._provider.batch_update_document(
                 registered.file_id, requests=requests, required_revision_id=base,

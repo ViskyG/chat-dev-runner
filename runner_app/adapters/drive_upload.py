@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from runner_app.adapters.drive_docs import DriveError
+from runner_app.adapters.drive_index import AttachedInstallation
 from runner_app.storage.paths import UnsafePathError, open_private_file
 
 FOLDER_MIME = "application/vnd.google-apps.folder"
@@ -76,7 +77,7 @@ def _validate_metadata(
     installation_id: str | None = None, key: str | None = None,
     mime_type: str | None = None, name: str | None = None,
     sha256: str | None = None, size_bytes: int | None = None,
-    md5: str | None = None,
+    md5: str | None = None, legacy_results_parent: bool = False,
 ) -> None:
     if metadata.get("id") != file_id or metadata.get("trashed") is not False:
         raise DriveUploadError("UPLOAD_FILE_IDENTITY_MISMATCH")
@@ -87,15 +88,36 @@ def _validate_metadata(
         raise DriveUploadError("UPLOAD_FILE_MOVED")
     if name is not None and metadata.get("name") != name:
         raise DriveUploadError("UPLOAD_FILE_NAME_CHANGED")
-    if metadata.get("isAppAuthorized") is not True:
-        raise DriveUploadError("UPLOAD_PER_FILE_GRANT_MISSING")
     props = metadata.get("appProperties")
-    if not isinstance(props, dict):
-        raise DriveUploadError("UPLOAD_APP_IDENTITY_MISSING")
-    if installation_id is not None and props.get("cdr_installation") != installation_id:
-        raise DriveUploadError("UPLOAD_APP_IDENTITY_MISMATCH")
-    if key is not None and props.get("cdr_key") != key:
-        raise DriveUploadError("UPLOAD_APP_IDENTITY_MISMATCH")
+    if legacy_results_parent:
+        # The indexed folder may belong to the installing OAuth app. Its
+        # current-app private properties can be absent, but visible identity
+        # must either be wholly absent or match the verified attachment.
+        if props is not None and not isinstance(props, dict):
+            raise DriveUploadError("UPLOAD_APP_IDENTITY_MISSING")
+        if isinstance(props, dict):
+            if not all(isinstance(prop, str) and isinstance(value, str)
+                       for prop, value in props.items()):
+                raise DriveUploadError("UPLOAD_APP_IDENTITY_MISSING")
+            visible = {prop for prop in props if prop.startswith("cdr_")}
+            if (visible and (visible != {"cdr_installation", "cdr_key"}
+                             or props["cdr_installation"] != installation_id
+                             or props["cdr_key"] != key)):
+                raise DriveUploadError("UPLOAD_APP_IDENTITY_MISMATCH")
+        if props is None:
+            props = {}
+        capabilities = metadata.get("capabilities")
+        if not isinstance(capabilities, dict) or capabilities.get("canAddChildren") is not True:
+            raise DriveUploadError("UPLOAD_PARENT_NOT_WRITABLE")
+    else:
+        if metadata.get("isAppAuthorized") is not True:
+            raise DriveUploadError("UPLOAD_PER_FILE_GRANT_MISSING")
+        if not isinstance(props, dict):
+            raise DriveUploadError("UPLOAD_APP_IDENTITY_MISSING")
+        if installation_id is not None and props.get("cdr_installation") != installation_id:
+            raise DriveUploadError("UPLOAD_APP_IDENTITY_MISMATCH")
+        if key is not None and props.get("cdr_key") != key:
+            raise DriveUploadError("UPLOAD_APP_IDENTITY_MISMATCH")
     if sha256 is not None:
         if props.get("cdr_sha256") != sha256:
             raise DriveUploadError("UPLOAD_CONTENT_DIGEST_MISMATCH")
@@ -141,7 +163,7 @@ def _read_source(path: Path, *, size_bytes: int, sha256: str) -> tuple[bytes, st
 
 
 def _default_media(content: bytes, media_type: str) -> Any:
-    from googleapiclient.http import MediaIoBaseUpload  # type: ignore[import-not-found]
+    from googleapiclient.http import MediaIoBaseUpload  # type: ignore
 
     return MediaIoBaseUpload(io.BytesIO(content), mimetype=media_type, resumable=False)
 
@@ -152,6 +174,7 @@ class GoogleUploadProvider:
     def __init__(
         self, drive_service: Any, *, media_factory: Callable[[bytes, str], Any] | None = None,
         page_size: int = 100, max_pages: int = 10, max_files: int = 1000,
+        attached: AttachedInstallation | None = None,
     ) -> None:
         if (page_size < 1 or page_size > 1000 or max_pages < 1 or max_pages > 100
                 or max_files < 1 or max_files > 10_000):
@@ -161,6 +184,37 @@ class GoogleUploadProvider:
         self._page_size = page_size
         self._max_pages = max_pages
         self._max_files = max_files
+        if attached is not None and not isinstance(attached, AttachedInstallation):
+            raise TypeError("A verified Drive installation attachment is required")
+        self._attached = attached
+
+    def _legacy_results_parent(self, file_id: str, installation_id: str | None
+                               ) -> tuple[str, str] | None:
+        """Return the one indexed legacy Results contract, never a general grant."""
+        attached = self._attached
+        if (attached is None or attached.index.identity_mode != "owner_manifest"
+                or installation_id != attached.index.installation_id):
+            return None
+        root = attached.index.files.get("root")
+        results = attached.index.files.get("results")
+        index = attached.index.files.get("installation-index")
+        checked = attached.metadata.get("results")
+        if (root is None or results is None or index is None
+                or not isinstance(checked, Mapping)
+                or root.file_id != attached.config.root_id
+                or index.file_id != attached.config.index_id
+                or results.file_id != file_id or results.key != "results"
+                or results.name != "02 Results" or results.mime_type != FOLDER_MIME
+                or results.parents != (root.file_id,)
+                or checked.get("id") != file_id or checked.get("name") != results.name
+                or checked.get("mimeType") != FOLDER_MIME
+                or checked.get("parents") != [root.file_id]
+                or checked.get("trashed") is not False):
+            return None
+        capabilities = checked.get("capabilities")
+        if not isinstance(capabilities, Mapping) or capabilities.get("canAddChildren") is not True:
+            return None
+        return root.file_id, results.name
 
     def _read_request(self, request: Any) -> Mapping[str, Any]:
         try:
@@ -200,18 +254,34 @@ class GoogleUploadProvider:
             not isinstance(expected_md5, str) or _MD5.fullmatch(expected_md5) is None
         ):
             raise DriveUploadError("UPLOAD_SOURCE_INVALID")
+        legacy = self._legacy_results_parent(file_id, expected_installation_id)
+        legacy_results_parent = (
+            legacy is not None and expected_parent_id == legacy[0]
+            and expected_key == "results" and expected_mime_type == FOLDER_MIME
+            and expected_name == legacy[1] and expected_sha256 is None
+            and expected_size_bytes is None and expected_md5 is None
+        )
         value = self._read_request(self._drive.files().get(fileId=file_id, fields=METADATA_FIELDS))
         _validate_metadata(
             value, file_id=file_id, parent_id=expected_parent_id,
             installation_id=expected_installation_id, key=expected_key,
             mime_type=expected_mime_type, name=expected_name,
             sha256=expected_sha256, size_bytes=expected_size_bytes, md5=expected_md5,
+            legacy_results_parent=legacy_results_parent,
         )
         return value
 
     def _parent(self, parent_id: str, installation_id: str) -> None:
-        parent = self.get_file(parent_id, expected_installation_id=installation_id,
-                               expected_mime_type=FOLDER_MIME)
+        legacy = self._legacy_results_parent(parent_id, installation_id)
+        if legacy is None:
+            parent = self.get_file(parent_id, expected_installation_id=installation_id,
+                                   expected_mime_type=FOLDER_MIME)
+        else:
+            parent = self.get_file(
+                parent_id, expected_parent_id=legacy[0],
+                expected_installation_id=installation_id, expected_key="results",
+                expected_mime_type=FOLDER_MIME, expected_name=legacy[1],
+            )
         capabilities = parent.get("capabilities")
         if not isinstance(capabilities, dict) or capabilities.get("canAddChildren") is not True:
             raise DriveUploadError("UPLOAD_PARENT_NOT_WRITABLE")
@@ -315,7 +385,7 @@ class GoogleUploadProvider:
     def create_folder(
         self, parent_id: str, installation_id: str, key: str, name: str,
     ) -> Mapping[str, Any]:
-        """Create one new folder under a verified app-owned parent; no retry."""
+        """Create one folder under a verified parent; no retry."""
         return self._create(parent_id, installation_id, key, name, FOLDER_MIME)
 
     def upload_file(

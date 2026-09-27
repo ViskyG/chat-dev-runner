@@ -69,6 +69,7 @@ class RegisteredMailbox:
     changeset_id: str | None = None
     project_id: str | None = None
     workspace_id: str | None = None
+    legacy_attachment: object | None = None
 
     def __post_init__(self) -> None:
         if not self.command_id or not self.parent_id:
@@ -77,6 +78,11 @@ class RegisteredMailbox:
             self.project_id is None or self.changeset_id is None
         ):
             raise DriveError("INVALID_MAILBOX", "Workspace mailbox needs project and changeset IDs")
+        if self.legacy_attachment is not None and (
+            self.project_id is not None or self.workspace_id is not None
+            or self.changeset_id is not None or self.receipt_id is None
+        ):
+            raise DriveError("INVALID_MAILBOX", "Legacy authority is only for the indexed root mailbox")
 
 
 @dataclass(frozen=True)
@@ -167,8 +173,30 @@ def read_document(provider: ReadProvider, file_id: str, *,
     return extract_document(document, file_id, max_bytes=max_bytes)
 
 
-def require_registered_doc(provider: ReadProvider, file_id: str, parent_id: str) -> None:
-    """Check exact native Doc metadata; never search by title or parent contents."""
+def require_registered_doc(
+    provider: ReadProvider, file_id: str, parent_id: str, *,
+    legacy_attachment: object | None = None, receipt_id: str | None = None,
+) -> None:
+    """Check exact native Doc metadata under local, never remote, authority."""
+    installation_id: str | None = None
+    if legacy_attachment is not None:
+        # The import is local because attachment also constructs RegisteredMailbox.
+        from runner_app.adapters.drive_index import AttachedInstallation
+
+        attached = legacy_attachment
+        if not isinstance(attached, AttachedInstallation) or attached.index.identity_mode != "owner_manifest":
+            raise DriveError("INVALID_MAILBOX", "Legacy mailbox is not attached to an owner manifest")
+        command = attached.index.files.get("command")
+        control = attached.index.files.get("control")
+        receipt = attached.index.files.get("receipt")
+        expected = {"command": command, "control": control, "receipt": receipt}
+        if (any(item is None or attached.metadata.get(key, {}).get("id") != item.file_id
+                for key, item in expected.items())
+                or command is None or control is None or receipt is None
+                or file_id != command.file_id or parent_id != control.file_id
+                or receipt_id != receipt.file_id or command.parents != (parent_id,)):
+            raise DriveError("INVALID_MAILBOX", "Legacy root mailbox differs from attached exact IDs")
+        installation_id = attached.index.installation_id
     try:
         metadata = provider.get_file(file_id, fields=FILE_FIELDS)
     except (OSError, PermissionError, FileNotFoundError) as error:
@@ -181,8 +209,25 @@ def require_registered_doc(provider: ReadProvider, file_id: str, parent_id: str)
         raise DriveError("FILE_TYPE_MISMATCH", "Known mailbox must remain a native Google Doc")
     if metadata.get("parents") != [parent_id]:
         raise DriveError("FILE_MOVED", "Known document parent no longer matches local registration")
-    if metadata.get("isAppAuthorized") is not True:
-        raise DriveError("PER_FILE_GRANT_MISSING", "OAuth app has no verified per-file grant")
+    if legacy_attachment is None:
+        if metadata.get("isAppAuthorized") is not True:
+            raise DriveError("PER_FILE_GRANT_MISSING", "OAuth app has no verified per-file grant")
+    else:
+        if not isinstance(installation_id, str) or metadata.get("name") != "COMMAND":
+            raise DriveError("FILE_METADATA_MISMATCH", "Indexed root command identity changed")
+        if not isinstance(metadata.get("isAppAuthorized"), bool):
+            raise DriveError("PER_FILE_GRANT_UNKNOWN", "App authorization status is unknown")
+        props = metadata.get("appProperties")
+        if props is not None and not isinstance(props, dict):
+            raise DriveError("APP_IDENTITY_UNVERIFIED", "Visible app properties are malformed")
+        if isinstance(props, dict) and (
+            "cdr_installation" in props or "cdr_key" in props
+        ) and (props.get("cdr_installation") != installation_id
+               or props.get("cdr_key") != "command"):
+            raise DriveError("APP_IDENTITY_MISMATCH", "Visible app properties conflict with root command")
+        capabilities = metadata.get("capabilities")
+        if not isinstance(capabilities, dict) or capabilities.get("canEdit") is not True:
+            raise DriveError("WRITE_CAPABILITY_MISSING", "Root command Doc is not writable")
 
 
 def _scope(command: Mapping[str, Any], mailbox: RegisteredMailbox) -> None:
@@ -207,7 +252,16 @@ def read_ready_snapshot(provider: ReadProvider, mailbox: RegisteredMailbox) -> F
     The engine still performs epoch/time/policy/admission checks atomically.
     Repeated observations are passed to that same ledger, not queued here.
     """
-    require_registered_doc(provider, mailbox.command_id, mailbox.parent_id)
+    if mailbox.legacy_attachment is not None:
+        from runner_app.adapters.drive_index import AttachedInstallation, recheck_attached_index
+
+        if not isinstance(mailbox.legacy_attachment, AttachedInstallation):
+            raise DriveError("INVALID_MAILBOX", "Legacy mailbox has no verified attachment")
+        recheck_attached_index(provider, mailbox.legacy_attachment)
+    require_registered_doc(
+        provider, mailbox.command_id, mailbox.parent_id,
+        legacy_attachment=mailbox.legacy_attachment, receipt_id=mailbox.receipt_id,
+    )
     first = read_document(provider, mailbox.command_id, max_bytes=MAX_COMMAND_DOC_BYTES)
     try:
         frozen = parse_command(first.raw_bytes)
@@ -243,7 +297,10 @@ def read_ready_snapshot(provider: ReadProvider, mailbox: RegisteredMailbox) -> F
     second = read_document(provider, mailbox.command_id, max_bytes=MAX_COMMAND_DOC_BYTES)
     if second.revision_id != first.revision_id or second.sha256 != first.sha256:
         raise DriveError("INPUT_CHANGED", "Command changed while being frozen")
-    require_registered_doc(provider, mailbox.command_id, mailbox.parent_id)
+    require_registered_doc(
+        provider, mailbox.command_id, mailbox.parent_id,
+        legacy_attachment=mailbox.legacy_attachment, receipt_id=mailbox.receipt_id,
+    )
     if change_first is not None and mailbox.changeset_id is not None:
         change_second = read_document(
             provider, mailbox.changeset_id, max_bytes=MAX_CHANGESET_BYTES,
@@ -258,6 +315,12 @@ def read_ready_snapshot(provider: ReadProvider, mailbox: RegisteredMailbox) -> F
         if (final_command.revision_id != first.revision_id
                 or final_command.sha256 != first.sha256):
             raise DriveError("INPUT_CHANGED", "Command changed during final changeset recheck")
+    if mailbox.legacy_attachment is not None:
+        from runner_app.adapters.drive_index import AttachedInstallation, recheck_attached_index
+
+        if not isinstance(mailbox.legacy_attachment, AttachedInstallation):
+            raise DriveError("INVALID_MAILBOX", "Legacy mailbox has no verified attachment")
+        recheck_attached_index(provider, mailbox.legacy_attachment)
     return FrozenDriveInput(
         command=frozen, raw_command=first.raw_bytes, command_doc_id=mailbox.command_id,
         command_revision=first.revision_id, command_text_sha256=first.sha256,

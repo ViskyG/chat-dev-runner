@@ -38,7 +38,7 @@ def setup_requirements() -> dict[str, object]:
                 "Local OAuth desktop application; credentials entered locally, never in chat",
                 "Owner-authorized full Drive scope and access to the existing Installation Index and registered Docs",
                 "Read and validate INSTALLATION INDEX against the selected root before any writes",
-                "Explicit approval of the disposable live smoke-test writes",
+                "Owner permits clearly labelled runner test files in the existing installation; preserve all pre-existing resources and other experiments",
             ],
             "bootstrap_allowed": False,
             "probe_performed": False,

@@ -12,6 +12,12 @@ from typing import Any
 
 import pytest
 
+from runner_app.adapters.drive_index import (
+    AttachedInstallation,
+    ExistingInstallation,
+    IndexedFile,
+    InstallationIndex,
+)
 from runner_app.adapters.drive_upload import (
     FOLDER_MIME,
     LIST_FIELDS,
@@ -138,11 +144,38 @@ class FakeService:
         return Request(response)
 
 
-def provider(service: FakeService, *, page_size: int = 100, max_pages: int = 10):
+def provider(
+    service: FakeService, *, page_size: int = 100, max_pages: int = 10,
+    attached: AttachedInstallation | None = None,
+):
     return GoogleUploadProvider(
         service, media_factory=lambda content, media_type: {
             "content": content, "media_type": media_type,
-        }, page_size=page_size, max_pages=max_pages,
+        }, page_size=page_size, max_pages=max_pages, attached=attached,
+    )
+
+
+def legacy_results_attachment(service: FakeService) -> AttachedInstallation:
+    """Model an exact-ID attachment after the old folder was verified."""
+    results = service.entries[PARENT]
+    results["name"] = "02 Results"
+    results["isAppAuthorized"] = False
+    results.pop("appProperties")
+    root_id = "rootfolderid00001"
+    index_id = "indexdocid00000001"
+    indexed = {
+        "root": IndexedFile("root", root_id, "Chat-Dev Runner", FOLDER_MIME, (), {}),
+        "results": IndexedFile("results", PARENT, "02 Results", FOLDER_MIME,
+                               (root_id,), {}),
+        "installation-index": IndexedFile(
+            "installation-index", index_id, "INSTALLATION INDEX",
+            "application/vnd.google-apps.document", (root_id,), {},
+        ),
+    }
+    return AttachedInstallation(
+        ExistingInstallation(root_id, index_id, "Chat-Dev Runner"),
+        InstallationIndex(INSTALLATION, indexed, "owner_manifest"),
+        "index-rev", "0" * 64, {"results": copy.deepcopy(results)},
     )
 
 
@@ -377,3 +410,113 @@ def test_get_file_checks_digest_parent_type_and_key() -> None:
     with pytest.raises(DriveUploadError) as error:
         adapter.get_file(entry["id"], expected_sha256=sha)
     assert error.value.code == "UPLOAD_CONTENT_DIGEST_MISMATCH"
+
+
+
+def test_legacy_indexed_results_accepts_exact_parent_and_creates_strict_descendant() -> None:
+    service = FakeService()
+    attached = legacy_results_attachment(service)
+    adapter = provider(service, attached=attached)
+    assert adapter.get_file(
+        PARENT, expected_parent_id=attached.config.root_id,
+        expected_installation_id=INSTALLATION, expected_key="results",
+        expected_mime_type=FOLDER_MIME, expected_name="02 Results",
+    )["id"] == PARENT
+    assert adapter.find_by_key(PARENT, INSTALLATION, KEY) is None
+    created = adapter.create_folder(PARENT, INSTALLATION, KEY, "request-001")
+    assert created["parents"] == [PARENT]
+    assert created["appProperties"] == {
+        "cdr_installation": INSTALLATION, "cdr_key": KEY,
+    }
+    assert adapter.find_by_key(PARENT, INSTALLATION, KEY)["id"] == created["id"]
+    service.entries[created["id"]]["isAppAuthorized"] = False
+    with pytest.raises(DriveUploadError) as error:
+        adapter.get_file(
+            created["id"], expected_parent_id=PARENT,
+            expected_installation_id=INSTALLATION, expected_key=KEY,
+        )
+    assert error.value.code == "UPLOAD_PER_FILE_GRANT_MISSING"
+
+
+@pytest.mark.parametrize("change,code", [
+    (lambda entry: entry.update(parents=["otherrootfolder0001"]), "UPLOAD_FILE_MOVED"),
+    (lambda entry: entry.update(name="Other Results"), "UPLOAD_FILE_NAME_CHANGED"),
+    (lambda entry: entry.update(mimeType="text/plain"), "UPLOAD_FILE_TYPE_MISMATCH"),
+    (lambda entry: entry.update(trashed=True), "UPLOAD_FILE_IDENTITY_MISMATCH"),
+    (lambda entry: entry["capabilities"].update(canAddChildren=False),
+     "UPLOAD_PARENT_NOT_WRITABLE"),
+    (lambda entry: entry.update(appProperties={"cdr_installation": INSTALLATION}),
+     "UPLOAD_APP_IDENTITY_MISMATCH"),
+    (lambda entry: entry.update(appProperties={"cdr_installation": "other",
+                                               "cdr_key": "results"}),
+     "UPLOAD_APP_IDENTITY_MISMATCH"),
+    (lambda entry: entry.update(appProperties={"cdr_installation": INSTALLATION,
+                                               "cdr_key": "other"}),
+     "UPLOAD_APP_IDENTITY_MISMATCH"),
+    (lambda entry: entry.update(appProperties={"cdr_workspace": "other"}),
+     "UPLOAD_APP_IDENTITY_MISMATCH"),
+    (lambda entry: entry.update(appProperties={"cdr_installation": INSTALLATION,
+                                               "cdr_key": "results", 7: "malformed"}),
+     "UPLOAD_APP_IDENTITY_MISSING"),
+    (lambda entry: entry.update(appProperties=["malformed"]),
+     "UPLOAD_APP_IDENTITY_MISSING"),
+])
+def test_legacy_results_drift_or_conflicting_identity_blocks_write(
+    change: Callable[[dict[str, Any]], None], code: str,
+) -> None:
+    service = FakeService()
+    attached = legacy_results_attachment(service)
+    change(service.entries[PARENT])
+    with pytest.raises(DriveUploadError) as error:
+        provider(service, attached=attached).create_folder(
+            PARENT, INSTALLATION, KEY, "request-001",
+        )
+    assert error.value.code == code
+    assert service.create_calls == []
+
+
+def test_legacy_results_accepts_complete_matching_visible_identity() -> None:
+    service = FakeService()
+    attached = legacy_results_attachment(service)
+    service.entries[PARENT]["appProperties"] = {
+        "cdr_installation": INSTALLATION, "cdr_key": "results",
+    }
+    created = provider(service, attached=attached).create_folder(
+        PARENT, INSTALLATION, KEY, "request-001",
+    )
+    assert created["parents"] == [PARENT]
+
+
+def test_legacy_results_exception_needs_verified_attachment_and_exact_call() -> None:
+    service = FakeService()
+    attached = legacy_results_attachment(service)
+    with pytest.raises(DriveUploadError) as no_attachment:
+        provider(service).create_folder(PARENT, INSTALLATION, KEY, "request-001")
+    assert no_attachment.value.code == "UPLOAD_PER_FILE_GRANT_MISSING"
+    with pytest.raises(DriveUploadError) as no_exact_contract:
+        provider(service, attached=attached).get_file(
+            PARENT, expected_installation_id=INSTALLATION,
+        )
+    assert no_exact_contract.value.code == "UPLOAD_PER_FILE_GRANT_MISSING"
+    unverified = AttachedInstallation(
+        attached.config, attached.index, attached.index_revision,
+        attached.index_text_sha256, {},
+    )
+    with pytest.raises(DriveUploadError) as no_verified_metadata:
+        provider(service, attached=unverified).create_folder(
+            PARENT, INSTALLATION, KEY, "request-001",
+        )
+    assert no_verified_metadata.value.code == "UPLOAD_PER_FILE_GRANT_MISSING"
+    unindexed = "unindexedfolder00001"
+    service.entries[unindexed] = service.file(
+        unindexed, "other", FOLDER_MIME, attached.config.root_id, "other",
+        can_add_children=True,
+    )
+    service.entries[unindexed]["isAppAuthorized"] = False
+    service.entries[unindexed].pop("appProperties")
+    with pytest.raises(DriveUploadError) as wrong_parent:
+        provider(service, attached=attached).create_folder(
+            unindexed, INSTALLATION, KEY, "request-001",
+        )
+    assert wrong_parent.value.code == "UPLOAD_PER_FILE_GRANT_MISSING"
+    assert service.create_calls == []

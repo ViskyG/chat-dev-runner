@@ -3,7 +3,11 @@
 The existing Drive installation is authoritative. Its root is
 `177IEHeBVezHIlbIijZsIvRDSbTJ42kxe`; its [INSTALLATION INDEX](https://docs.google.com/document/d/1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA/edit)
 is `1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA`.
-These IDs are owner-supplied, not a claim of successful authenticated access.
+The owner-supplied IDs have now passed authenticated exact-ID reads. A private local
+manifest at `~/.config/chat-dev-runner/installation-legacy.json` maps 13 existing
+roles to provider IDs, each present in the human-readable Index; it is stored with
+mode 0600 under a 0700 directory. The cross-app canary also passed using a new
+labelled test Doc, without modifying pre-existing files.
 Do not run `scripts/bootstrap_drive.py --apply` for this installation. The seed files specify
 structure and contracts; they do not authorize replacement of existing documents. EP-04 must
 attach by known ID, read the Installation Index, validate its root/control-document mapping,
@@ -25,8 +29,11 @@ Local setup must eventually obtain, locally:
   reference, actual identity/capability probe, and permission for draft PRs and normal pushes.
 - Approved local import roots, environment templates, pinned images and dependency build
   policy. Remote fields cannot expand local policy or supply shell commands/host paths.
-- Explicit authorization for each live integration gate's concrete external writes. Never ask
-  for credentials in chat; use a local secret store. Configured production project policy
+- The owner permits clearly labelled test files created by this runner inside the existing
+  shared experiments installation, provided no pre-existing resources or other experiments
+  are overwritten or deleted. Other live external effects still require the relevant
+  configured policy or explicit owner authorization. Never ask for credentials in chat;
+  use a local secret store. Configured production project policy
   will authorize ordinary finite publication without repetitive push confirmation dialogs.
 
 Until these probes and later packet gates pass: NOT_CONFIGURED, armed=false, no READY

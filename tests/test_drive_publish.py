@@ -184,7 +184,7 @@ class FakeFiles:
 
         def call() -> dict[str, Any]:
             matches = sorted((item for item in self.entries.values()
-                              if all(item["appProperties"].get(k) == v
+                              if all(item.get("appProperties", {}).get(k) == v
                                       for k, v in properties.items())),
                              key=lambda item: item["id"])
             offset = int(kwargs.get("pageToken") or "0")
@@ -481,6 +481,44 @@ def test_success_uploads_index_commit_marker_last_then_writes_output_docs(tmp_pa
     effects = value.ledger.operations[bundle.delivery_request_id]["effects"]
     assert effects and all(effect["state"] == "CONFIRMED" for effect in effects)
     assert len(result.confirmed_assets) == len(bundle.items) + 1
+
+
+def test_publish_under_verified_legacy_results_keeps_new_descendants_app_owned(
+    tmp_path: Path,
+) -> None:
+    value = fixture(tmp_path)
+    results = value.files.entries[RESULTS_ID]
+    results["isAppAuthorized"] = False
+    results.pop("appProperties")
+    indexed = dict(value.attached.index.files)
+    indexed["installation-index"] = IndexedFile(
+        "installation-index", value.attached.config.index_id,
+        "INSTALLATION INDEX", DOC_MIME, (value.attached.config.root_id,), {},
+    )
+    attached = replace(
+        value.attached,
+        index=InstallationIndex(INSTALLATION, indexed, "owner_manifest"),
+        metadata={"results": copy.deepcopy(results)},
+    )
+    upload = GoogleUploadProvider(
+        value.files, attached=attached,
+        media_factory=lambda content, media_type: {
+            "content": content, "media_type": media_type,
+        },
+    )
+    value.publisher = DriveDeliveryPublisher(
+        value.ledger, upload, attached, value.writer, value.registry,
+    )
+    source_id, run_id, manifest = value.add_run(created_at=_timestamp(-30))
+    result = value.publish(value.bundle(source_id, run_id, manifest))
+    assert result.status == "DELIVERED"
+    assert value.files.creates
+    assert all(item["body"]["appProperties"]["cdr_installation"] == INSTALLATION
+               for item in value.files.creates)
+    assert all(item["body"]["parents"][0] == RESULTS_ID
+               or item["body"]["parents"][0] in {
+                   created["id"] for created in value.files.creates
+               } for item in value.files.creates)
 
 
 def test_ambiguous_upload_leaves_intended_effect_and_same_request_never_replays(

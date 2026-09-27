@@ -194,17 +194,29 @@ class WorkspaceDriveRegistry:
                 or projects.get("name") != self._projects_folder_name
                 or projects.get("mimeType") != _FOLDER
                 or projects.get("parents") != [self._root_id]
-                or projects.get("trashed") is not False
-                or projects.get("isAppAuthorized") is not True):
+                or projects.get("trashed") is not False):
             raise DriveRegistryError("PROJECT_ROOT_CHANGED", "Indexed project root identity changed")
         projects_props = projects.get("appProperties")
         projects_capabilities = projects.get("capabilities")
-        if (not isinstance(projects_props, Mapping)
-                or projects_props.get("cdr_installation") != value.installation_id
-                or projects_props.get("cdr_key") != "projects"
-                or not isinstance(projects_capabilities, Mapping)
+        if (not isinstance(projects_capabilities, Mapping)
                 or projects_capabilities.get("canAddChildren") is not True):
             raise DriveRegistryError("PROJECT_ROOT_CHANGED", "Indexed project root grant changed")
+        if self._attached.index.identity_mode == "owner_manifest":
+            if (not isinstance(projects.get("isAppAuthorized"), bool)
+                    or (projects_props is not None and not isinstance(projects_props, Mapping))
+                    or (isinstance(projects_props, Mapping)
+                        and ("cdr_installation" in projects_props or "cdr_key" in projects_props)
+                        and (projects_props.get("cdr_installation") != value.installation_id
+                             or projects_props.get("cdr_key") != "projects"))):
+                raise DriveRegistryError("PROJECT_ROOT_CHANGED", "Indexed project root identity changed")
+        elif self._attached.index.identity_mode == "app_properties":
+            if (projects.get("isAppAuthorized") is not True
+                    or not isinstance(projects_props, Mapping)
+                    or projects_props.get("cdr_installation") != value.installation_id
+                    or projects_props.get("cdr_key") != "projects"):
+                raise DriveRegistryError("PROJECT_ROOT_CHANGED", "Indexed project root grant changed")
+        else:
+            raise DriveRegistryError("PROJECT_ROOT_CHANGED", "Indexed project root mode is invalid")
         indexed_ids = {item.file_id for item in self._attached.index.files.values()}
         if any(expectation.file_id in indexed_ids for expectation in self._expectations(value)):
             raise DriveRegistryError("REGISTRATION_ID_CONFLICT", "Workspace reuses an installation ID")

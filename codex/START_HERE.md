@@ -1,8 +1,9 @@
 # Codex entry point
 
 This repository is an **implementation kit**, not a deployed runner. The interactive frontend
-and `bridge_reference` are executable; live Drive intake, GitHub writes, sandbox orchestration,
-application API and service deployment are work to implement. Read `STATUS.json` first.
+and `bridge_reference` are executable; the Drive adapter and cross-app canary are verified,
+while service intake wiring, GitHub writes, host sandbox acceptance and deployment remain.
+Read `STATUS.json` first.
 
 ## Intended outcome
 A local multi-project development bridge. An explicitly authorized one-shot command from an

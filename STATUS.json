@@ -1,10 +1,10 @@
 {
-  "version": "0.3.0-EP03-EP04-offline-gates",
+  "version": "0.3.0-EP03-blocked-EP04-verified",
   "date": "2026-09-27",
   "ui": "Interactive offline HTML/CSS/JS simulation, not wired to the reference core",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
-  "live_runner": "EP-00 through EP-02 VERIFIED. EP-03 BLOCKED on real rootless host gate. EP-04 full-Drive OAuth completed; exact-ID reads of the existing root folder and INSTALLATION INDEX succeeded. Full attachment is BLOCKED because the live Index is human-readable without the required machine mapping and the current app cannot see installer-private metadata. Runner NOT_CONFIGURED/unarmed; no canary, Drive document write, or live project execution.",
+  "live_runner": "EP-00 through EP-02 and EP-04 component/live canary VERIFIED. EP-03 BLOCKED on real rootless host gate. EP-05 provisioning/GitHub workflow not started; service has no production CREATE_PROJECT handler. Runner NOT_CONFIGURED/unarmed; no READY command or live project execution.",
   "github_live_adapter": "Specified; commit/push/draft PR are REQUIRED v1 scope, not an optional future add-on",
   "credentials": "None bundled",
   "service_installation": "None performed",
@@ -21,7 +21,7 @@
     "runner_state": "NOT_CONFIGURED",
     "armed": false,
     "bootstrap_allowed": false,
-    "live_validation": "ROOT_AND_INDEX_READ_OK; MACHINE_INDEX_AND_APP_IDENTITY_UNVERIFIED; NO_WRITE",
+    "live_validation": "13_ROLE_LEGACY_ATTACH_AND_CROSS_APP_CANARY_VERIFIED; ROOT_COMMAND_NOT_READY; NO_OPERATIONAL_DOC_WRITE",
     "source": "Owner update after archive creation; seed is a reference specification"
   },
   "implementation": {
@@ -31,15 +31,16 @@
       "EP-01": "VERIFIED",
       "EP-02": "VERIFIED",
       "EP-03": "BLOCKED",
-      "EP-04": "BLOCKED"
+      "EP-04": "VERIFIED"
     },
     "armed": false,
     "deployable": false,
-    "evidence": "verification/implementation/EP-04/final-offline-summary.json",
+    "evidence": "verification/implementation/EP-04/legacy-attach-final-summary.json",
     "checkpoint": "codex/checkpoints/EP-04.md",
     "oauth_gate_evidence": "verification/implementation/EP-04/oauth-browser-gate.json",
     "oauth_live_attach_evidence": "verification/implementation/EP-04/live-attach-attempt.json",
-    "oauth_full_drive_evidence": "verification/implementation/EP-04/full-drive-oauth-transition.json"
+    "oauth_full_drive_evidence": "verification/implementation/EP-04/full-drive-oauth-transition.json",
+    "live_existing_installation_evidence": "verification/implementation/EP-04/live-existing-installation-canary.json"
   },
   "implementation_source_repository": {
     "local_git": "COMMITTED",

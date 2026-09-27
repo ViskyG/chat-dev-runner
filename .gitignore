@@ -19,6 +19,7 @@ dist/
 # Owner-local credentials and generated Git test fixtures
 **/google-oauth-client.json
 **/google-drive.json
+**/installation-legacy.json
 **/github-token.json
 **/*.pem
 **/*.p12
