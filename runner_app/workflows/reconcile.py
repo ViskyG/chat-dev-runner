@@ -14,6 +14,7 @@ from typing import Any, Protocol
 
 from runner_app.domain.commands import FrozenCommand, validate_shape
 from runner_app.engine.service import Context, OperationResult
+from runner_app.git.github_transport import FETCH_REFSPEC
 from runner_app.storage.ledger import TERMINAL, Ledger, LedgerError
 
 _NUMERIC_ID = re.compile(r"[1-9][0-9]*\Z")
@@ -23,7 +24,7 @@ _EXTERNAL_STEPS = {
     "github_repository": frozenset({"github-repository"}),
     "git_ref": frozenset({"baseline-main", "tested-git-push"}),
     "pull_request": frozenset({"draft-pull-request", "attach-run-report-link"}),
-    "local_workspace": frozenset({"local-project", "initial-workspace"}),
+    "local_workspace": frozenset({"local-project", "initial-workspace", "git-fetch"}),
 }
 _PORT_KINDS = frozenset({"github_repository", "git_ref", "pull_request", "drive_file"})
 _OPTIONAL_PORT_KINDS = frozenset({"local_workspace"})
@@ -99,6 +100,25 @@ def _positive_proof(effect: Mapping[str, Any], proof: EffectProof) -> bool:
         if (not isinstance(project_id, str)
                 or re.fullmatch(r"[a-z0-9][a-z0-9-]{0,47}", project_id) is None):
             return False
+        if effect["step_id"] == "git-fetch":
+            advertised = intent.get("advertised_heads")
+            return (re.fullmatch(r"[0-9a-f]{64}", proof.provider_id) is not None
+                    and set(intent) == {
+                        "project_id", "repository_id", "clone_url", "refspec",
+                        "advertised_heads", "before_refs_sha256",
+                    }
+                    and type(intent.get("repository_id")) is int
+                    and intent["repository_id"] > 0
+                    and isinstance(intent.get("clone_url"), str)
+                    and intent["clone_url"].startswith("https://github.com/")
+                    and intent.get("refspec") == FETCH_REFSPEC
+                    and isinstance(advertised, dict) and len(advertised) <= 256
+                    and all(isinstance(branch, str) and isinstance(oid, str)
+                            and _OBJECT_ID.fullmatch(oid) is not None
+                            for branch, oid in advertised.items())
+                    and isinstance(intent.get("before_refs_sha256"), str)
+                    and re.fullmatch(r"[0-9a-f]{64}", intent["before_refs_sha256"])
+                    is not None)
         if effect["step_id"] == "local-project":
             suffix = f"/{project_id}/repo.git"
             source_kind = intent.get("kind")

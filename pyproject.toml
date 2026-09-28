@@ -24,6 +24,7 @@ include = ["runner_app*", "bridge_reference*", "schemas"]
 [tool.setuptools.package-data]
 schemas = ["*.schema.json"]
 "runner_app.git" = ["python_quick_wheels/*.whl"]
+"runner_app.web" = ["index.html", "*.js", "*.css"]
 
 [tool.ruff]
 target-version = "py310"

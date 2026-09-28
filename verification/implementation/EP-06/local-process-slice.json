@@ -1,0 +1,242 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-06",
+  "checked_at": "2026-09-28T09:58:14.214271+00:00",
+  "mode": "real-uvicorn-isolated-unconfigured",
+  "command": [
+    "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+    "-m",
+    "runner_app.cli",
+    "serve",
+    "--port",
+    "<ephemeral>"
+  ],
+  "environment": {
+    "python": "3.10.12",
+    "system": "Linux",
+    "machine": "x86_64",
+    "xdg_roots": "fresh-owner-private-temporary",
+    "provider_config": "absent"
+  },
+  "bind_host": "127.0.0.1",
+  "bind_port": 37957,
+  "checks": [
+    {
+      "name": "Temporary root owner-only 0700",
+      "passed": true
+    },
+    {
+      "name": "No provider configuration in isolated XDG root",
+      "passed": true
+    },
+    {
+      "name": "Real loopback runner started",
+      "passed": true
+    },
+    {
+      "name": "Health starts unarmed",
+      "passed": true
+    },
+    {
+      "name": "Session handoff owner-only 0600",
+      "passed": true
+    },
+    {
+      "name": "Token directory owner-only 0700",
+      "passed": true
+    },
+    {
+      "name": "One-time handoff readable in isolated process",
+      "passed": true
+    },
+    {
+      "name": "Unauthenticated UI shows local login",
+      "passed": true
+    },
+    {
+      "name": "Authenticated browser reads real project list",
+      "passed": true
+    },
+    {
+      "name": "System reports disarmed and no queue",
+      "passed": true
+    },
+    {
+      "name": "No production action can be admitted",
+      "passed": true
+    },
+    {
+      "name": "Project registry is empty in fresh state",
+      "passed": true
+    },
+    {
+      "name": "No provider setup is misreported as connected",
+      "passed": true
+    },
+    {
+      "name": "System page renders actual disarmed state",
+      "passed": true
+    },
+    {
+      "name": "Drive page describes attach-existing workspace",
+      "passed": true
+    },
+    {
+      "name": "Session survives page reload without exposing cookie",
+      "passed": true
+    },
+    {
+      "name": "All browser traffic stays at runner loopback origin",
+      "passed": true
+    },
+    {
+      "name": "Only explicit session exchange mutates local API",
+      "passed": true
+    },
+    {
+      "name": "No browser script errors",
+      "passed": true
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/styles.css",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/app.js",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/api.js",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/model.js",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/render.js",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/local/session",
+      "same_origin": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/local/session",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/operations",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/styles.css",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/app.js",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/api.js",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/model.js",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/render.js",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/local/session",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/operations",
+      "same_origin": true
+    }
+  ],
+  "page_errors": [],
+  "provider_writes": false,
+  "health": {
+    "service": "chat-dev-runner",
+    "version": "0.2.0",
+    "status": "NOT_CONFIGURED",
+    "armed": false,
+    "capabilities": [
+      "local_api",
+      "durable_admission"
+    ]
+  },
+  "browser_version": "151.0.7922.34",
+  "system": {
+    "runner_id": "local-runner",
+    "armed": false,
+    "execution_queue": false,
+    "capabilities": [],
+    "integration_state": "NOT_CONFIGURED"
+  },
+  "project_count": 0,
+  "process_exit_code": -15,
+  "failure": null,
+  "all_passed": true
+}

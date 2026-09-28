@@ -46,6 +46,7 @@ from runner_app.workflows.create_project import (
     GitHubBaselineBootstrap,
     GitHubLocalImportBootstrap,
 )
+from runner_app.workflows.fetch import FetchWorkflow
 from runner_app.workflows.provision_resume_complete import CompleteProvisionRecoveryWorkflow
 from runner_app.workflows.provision_resume_partial import PartialProvisionRecoveryWorkflow
 from runner_app.workflows.reconcile import ReconcileWorkflow
@@ -287,6 +288,7 @@ def build_runtime_integrations(
         lambda repository: GitHubGitTransport(repository, connections.token_provider),
         config.github_imports,
     )
+    fetch = FetchWorkflow(ledger, registry, connections.github, connections.token_provider)
     create = CreateProjectWorkflow(
         ledger, source, connections.github, provisioner,
         GitHubBaselineBootstrap(registry, connections.github, connections.token_provider),
@@ -346,5 +348,5 @@ def build_runtime_integrations(
         config, attached, connections.reader, upload, connections.github,
         connections.token_provider, root_receipt, drive_registry, source, policy,
         {"CREATE_PROJECT": create, "RECONCILE": reconcile,
-         "RESUME_PROVISION": resume},
+         "RESUME_PROVISION": resume, "FETCH": fetch},
     )

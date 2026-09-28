@@ -12,13 +12,15 @@ import pytest
 from runner_app.adapters.github import GitHubRepository, make_provision_marker
 from runner_app.git.argv import GitError, run_git, run_git_input
 from runner_app.git.github_transport import (
+    FETCH_REFSPEC,
     GitHubGitTransport,
     OwnerTokenFile,
     _child_environment,
     _command,
     _credential_fds,
+    read_tracking_refs,
 )
-from runner_app.git.worktrees import create_repository
+from runner_app.git.worktrees import create_repository, create_workspace
 
 TOKEN = "fixture-secret-token"
 URL = "https://github.com/alice/notes-lab.git"
@@ -452,3 +454,68 @@ def test_baseline_reports_unsupported_default_branch_before_network(
             repo, commit, inspector=FakeInspector(observed), provision_marker=MARKER,
         )
     assert error.value.code == "DEFAULT_BRANCH_UNSUPPORTED"
+
+
+def test_fixed_github_fetch_updates_only_bare_origin_tracking_refs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Use a local Git remote behind a fake network port to exercise real ref updates."""
+    repo = _managed_repo(tmp_path)
+    initial = run_git(repo, ["rev-parse", "refs/heads/main"]).strip()
+    remote = tmp_path / "remote.git"
+    subprocess.run(["git", "clone", "--bare", str(repo), str(remote)],
+                   check=True, capture_output=True)
+    workspace = create_workspace(
+        tmp_path / "managed", "toy-project", repo, "primary", "work/primary", initial,
+    )
+    editing = tmp_path / "editing"
+    subprocess.run(["git", "clone", str(remote), str(editing)],
+                   check=True, capture_output=True)
+    (editing / "README.md").write_text("remote update\n")
+    for args in (
+        ["add", "--", "README.md"],
+        ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+         "commit", "-m", "Remote update"],
+        ["push", "origin", "main"],
+    ):
+        subprocess.run(["git", "-C", str(editing), *args],
+                       check=True, capture_output=True)
+    remote_head = subprocess.run(
+        ["git", "-C", str(remote), "rev-parse", "refs/heads/main"],
+        check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    assert remote_head != initial
+    seen: list[list[str]] = []
+
+    def fake_network(path: Path, operation: list[str], token: bytes, *,
+                     timeout: float) -> bytes:
+        assert path == repo and token == TOKEN.encode()
+        seen.append(operation)
+        if operation[0] == "ls-remote":
+            assert operation == ["ls-remote", "--refs", "--heads", URL]
+            return subprocess.run(
+                ["git", "ls-remote", "--refs", "--heads", str(remote)],
+                check=True, capture_output=True,
+            ).stdout
+        assert timeout == 300
+        assert operation == [
+            "fetch", "--atomic", "--no-tags", "--no-recurse-submodules",
+            "--no-auto-gc", "--no-write-fetch-head", "--no-progress",
+            URL, FETCH_REFSPEC,
+        ]
+        subprocess.run(
+            ["git", "-C", str(repo), *operation[:-2], str(remote), FETCH_REFSPEC],
+            check=True, capture_output=True,
+        )
+        return b""
+
+    monkeypatch.setattr("runner_app.git.github_transport._run_network_git", fake_network)
+    transport = GitHubGitTransport(_repository(), lambda: TOKEN)
+    assert transport.list_heads(repo) == {"main": remote_head}
+    assert transport.fetch_heads(repo) == {"main": remote_head}
+    assert len(seen) == 2
+    assert read_tracking_refs(repo) == {"main": remote_head}
+    assert run_git(repo, ["rev-parse", "refs/heads/main"]).strip() == initial
+    assert run_git(workspace, ["rev-parse", "HEAD"]).strip() == initial
+    assert not (workspace / "README.md").exists()
+    assert not (repo / "FETCH_HEAD").exists()

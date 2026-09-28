@@ -293,12 +293,51 @@ def test_output_route_requires_session_and_serves_only_registered_attachment(tmp
         assert response.headers["content-disposition"] == 'attachment; filename="stdout-raw.bin"'
         assert response.headers["x-content-type-options"] == "nosniff"
         assert response.headers["content-type"] == "application/octet-stream"
+        assert response.headers["content-security-policy"] == "sandbox"
         assert client.get(path, headers={"Host": "attacker.example"}).status_code == 403
         assert client.get(path + "/extra").status_code == 404
         files["stdout-raw"].write_bytes(b"tampered\n")
         changed = client.get(path)
         assert changed.status_code == 409 and changed.json()["error"] == "OUTPUT_CHANGED"
 
+
+
+def test_owner_retention_api_requires_csrf_and_preserves_young_output(tmp_path: Path) -> None:
+    store, registry, ledger, request_id, snapshot_id, _, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, request_id, snapshot_id, registry)
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    ledger.finish(request_id, "COMPLETED")
+    sessions = Sessions()
+    bootstrap = sessions.issue_bootstrap()
+    origin = "http://127.0.0.1:8765"
+    path = f"/api/v1/runs/{manifest['run_id']}/retention"
+    with TestClient(create_runtime_app(Settings(), Engine(ledger), sessions,
+                                       run_evidence=store), base_url=origin) as client:
+        assert client.get(path).status_code == 403
+        exchange = client.post("/api/v1/local/session", json={"bootstrap": bootstrap},
+                               headers={"Origin": origin})
+        assert exchange.status_code == 200
+        headers = {"Origin": origin, "X-CSRF-Token": exchange.json()["csrf_token"]}
+        current = client.get(path)
+        assert current.status_code == 200
+        assert current.json()["pinned"] is False
+        assert {row["output_id"] for row in current.json()["outputs"]} == {
+            "stdout-raw", "stderr-raw",
+        }
+        pin = path + "/pin"
+        assert client.post(pin, json={"pinned": True},
+                           headers={"Origin": origin}).status_code == 403
+        pinned = client.post(pin, json={"pinned": True}, headers=headers)
+        assert pinned.status_code == 200
+        assert pinned.json()["pinned"] is True and pinned.json()["changed"] is True
+        expire = f"/api/v1/runs/{manifest['run_id']}/outputs/stdout-raw/expire"
+        assert client.post(expire, json={}, headers=headers).json()["error"] == "RETENTION_NOT_DUE"
+        assert client.post(pin, json={"pinned": False}, headers=headers).json()["pinned"] is False
+        refused = client.post(expire, json={}, headers=headers)
+        assert refused.status_code == 409 and refused.json()["error"] == "RETENTION_NOT_DUE"
+        assert files["stdout-raw"].read_bytes() == b"test failed\n"
+        assert all(row["state"] == "AVAILABLE" for row in client.get(path).json()["outputs"])
 
 def test_failed_v4_migration_preserves_v3_database(tmp_path: Path,
                                                    monkeypatch: pytest.MonkeyPatch) -> None:

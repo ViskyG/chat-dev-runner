@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-06",
+  "wheel": "chat_dev_runner-0.2.0-py3-none-any.whl",
+  "bytes": 2167863,
+  "sha256": "2ba105e42d930d999bcc8b8d1e597c74553621c025bc14a76267766823d9781c",
+  "required_assets_present": [
+    "runner_app/api/editor.py",
+    "runner_app/api/source_view.py",
+    "runner_app/engine/connection_checks.py",
+    "runner_app/web/__init__.py",
+    "runner_app/web/api.js",
+    "runner_app/web/app.js",
+    "runner_app/web/index.html",
+    "runner_app/web/model.js",
+    "runner_app/web/render.js",
+    "runner_app/web/styles.css",
+    "runner_app/workflows/fetch.py"
+  ],
+  "missing_assets": [],
+  "suspicious_paths": [],
+  "result": "PASS"
+}

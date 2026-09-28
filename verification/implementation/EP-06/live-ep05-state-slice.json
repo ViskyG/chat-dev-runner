@@ -1,0 +1,266 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-06",
+  "checked_at": "2026-09-28T09:58:17.965215+00:00",
+  "mode": "real-owner-config-disposable-ep05-state-no-pollers",
+  "environment": {
+    "python": "3.10.12",
+    "system": "Linux",
+    "machine": "x86_64",
+    "state": "existing-disarmed-disposable-ep05-failed-run",
+    "owner_config": "present-0600-outside-repository"
+  },
+  "bind_host": "127.0.0.1",
+  "bind_port": 40533,
+  "project_id": "cdr-ep05-fail-20260928",
+  "workspace_id": "primary",
+  "run_id": "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631",
+  "snapshot_sha": "ee50998cc549b0c7e8d84295f13f52db0a9a933b",
+  "checks": [
+    {
+      "name": "Runtime attached exact existing Drive installation",
+      "passed": true
+    },
+    {
+      "name": "Runtime remains disarmed",
+      "passed": true
+    },
+    {
+      "name": "No Drive polling bridge started",
+      "passed": true
+    },
+    {
+      "name": "No workspace mailbox polling thread started",
+      "passed": true
+    },
+    {
+      "name": "Real Uvicorn served existing state on loopback",
+      "passed": true
+    },
+    {
+      "name": "Bootstrap file remains outside repository and owner-only",
+      "passed": true
+    },
+    {
+      "name": "One-time local session handoff available",
+      "passed": true
+    },
+    {
+      "name": "Browser renders registered disposable project",
+      "passed": true
+    },
+    {
+      "name": "Browser renders exact primary workspace",
+      "passed": true
+    },
+    {
+      "name": "Browser renders frozen failed run and full tested SHA",
+      "passed": true
+    },
+    {
+      "name": "Browser renders registered output identities",
+      "passed": true
+    },
+    {
+      "name": "Browser reads bounded real stdout as inert text",
+      "passed": true
+    },
+    {
+      "name": "Registered output route serves exact retained bytes",
+      "passed": true
+    },
+    {
+      "name": "Provider checks initially unknown after process start",
+      "passed": true
+    },
+    {
+      "name": "Explicit drive check returns a dated read observation",
+      "passed": true
+    },
+    {
+      "name": "Explicit github_api check returns a dated read observation",
+      "passed": true
+    },
+    {
+      "name": "Explicit git_remote check returns a dated read observation",
+      "passed": true
+    },
+    {
+      "name": "Drive and GitHub API retain independent check state",
+      "passed": true
+    },
+    {
+      "name": "Selected Git remote check is scoped to exact workspace",
+      "passed": true
+    },
+    {
+      "name": "Only session and three explicit read-check POSTs were issued",
+      "passed": true
+    },
+    {
+      "name": "Every browser request stayed on loopback origin",
+      "passed": true
+    },
+    {
+      "name": "No browser script errors",
+      "passed": true
+    }
+  ],
+  "browser_requests": [
+    {
+      "method": "GET",
+      "path": "/",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/styles.css",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/app.js",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/api.js",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/model.js",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/assets/render.js",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/local/session",
+      "same_origin": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/local/session",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/operations",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/cdr-ep05-fail-20260928/workspaces",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/runs/ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/runs/ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631/outputs",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/cdr-ep05-fail-20260928/workspaces/primary/connections",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/runs/ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631/retention",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/runs/ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631/outputs/stdout-view",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/runs/ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631/outputs/stdout-view",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/cdr-ep05-fail-20260928/workspaces/primary/connections",
+      "same_origin": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/local/check-drive",
+      "same_origin": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/local/check-github",
+      "same_origin": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/local/check-git-remote",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system",
+      "same_origin": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/cdr-ep05-fail-20260928/workspaces/primary/connections",
+      "same_origin": true
+    }
+  ],
+  "page_errors": [],
+  "provider_writes": false,
+  "drive_poller_started": false,
+  "workspace_mailbox_poller_started": false,
+  "browser_version": "151.0.7922.34",
+  "provider_read_checks": {
+    "drive": {
+      "status": "OK",
+      "code": null,
+      "checked_at": "2026-09-28T09:58:29.765099+00:00"
+    },
+    "github_api": {
+      "status": "OK",
+      "code": null,
+      "checked_at": "2026-09-28T09:58:30.383011+00:00"
+    },
+    "git_remote": {
+      "status": "OK",
+      "code": null,
+      "checked_at": "2026-09-28T09:58:33.337414+00:00"
+    }
+  },
+  "run_outcome": "FAILED",
+  "output_id": "stdout-view",
+  "output_size_bytes": 590,
+  "server_thread_stopped": true,
+  "final_armed": false,
+  "bootstrap_removed": true,
+  "failure": null,
+  "all_passed": true
+}

@@ -1,0 +1,10 @@
+{
+  "armed": false,
+  "fetch_capability_registered": true,
+  "health_status": "PARTIALLY_CONFIGURED",
+  "live_fetches": 0,
+  "mode": "real_uvicorn_process_fake_providers",
+  "origin": "loopback_ephemeral",
+  "provider_writes": 0,
+  "status": "PASS"
+}

@@ -23,8 +23,9 @@ from runner_app.api.auth import Sessions
 from runner_app.api.runtime import create_runtime_app
 from runner_app.config import Settings
 from runner_app.domain.commands import FrozenCommand, LocalPolicy
+from runner_app.engine.runtime import Runtime
 from runner_app.engine.service import Context, Engine, OperationResult
-from runner_app.storage import Database
+from runner_app.storage import Database, Paths
 from runner_app.storage.ledger import Ledger
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -76,6 +77,53 @@ def command(api: dict[str, Any], **updates: Any) -> dict[str, Any]:
     return value
 
 
+def test_ui_shell_is_public_but_api_session_is_private(api: dict[str, Any]) -> None:
+    client = api["client"]
+    client.cookies.clear()
+    index = client.get("/")
+    assert index.status_code == 200
+    assert index.headers["content-type"].startswith("text/html")
+    assert "no-store" in index.headers["cache-control"]
+    assert index.headers["x-content-type-options"] == "nosniff"
+    csp = index.headers["content-security-policy"]
+    for directive in ("script-src 'self'", "style-src 'self'", "connect-src 'self'",
+                      "frame-ancestors 'none'", "object-src 'none'"):
+        assert directive in csp
+    assert "unsafe-inline" not in csp
+    assert api["bootstrap"] not in index.text
+
+    for filename, media_type in (("app.js", "text/javascript"),
+                                 ("api.js", "text/javascript"),
+                                 ("model.js", "text/javascript"),
+                                 ("render.js", "text/javascript"),
+                                 ("styles.css", "text/css")):
+        asset = client.get(f"/assets/{filename}")
+        assert asset.status_code == 200
+        assert asset.headers["content-type"].startswith(media_type)
+        assert asset.headers["content-security-policy"] == csp
+    assert client.get("/api/v1/local/session").json()["error"] == "SESSION_REQUIRED"
+    assert client.get("/api/v1/system").json()["error"] == "SESSION_REQUIRED"
+    assert client.get("/assets/unknown.js").status_code == 403
+
+
+def test_ui_shell_rejects_forged_origin_and_host(api: dict[str, Any]) -> None:
+    client = api["client"]
+    for path in ("/", "/assets/app.js"):
+        assert client.get(path, headers={"Host": "attacker.example"}).json()["error"] == "INVALID_HOST"
+        assert client.get(path, headers={"Origin": "http://attacker.example"}).json()["error"] == "INVALID_ORIGIN"
+    assert client.get("/assets/unknown.js").status_code == 404
+    assert client.get("/assets/secret.svg").status_code == 404
+
+
+def test_existing_session_rehydrates_csrf_without_new_bootstrap(api: dict[str, Any]) -> None:
+    response = api["client"].get("/api/v1/local/session")
+    assert response.status_code == 200
+    assert response.json()["csrf_token"] == api["csrf"]
+    assert 0 < response.json()["expires_in"] <= 28_800
+    assert api["bootstrap"] not in response.text
+    assert api["client"].cookies.get("cdr_session") not in response.text
+
+
 def test_bootstrap_is_single_use_and_cookie_is_private(api: dict[str, Any]) -> None:
     cookie = api["cookie_header"].lower()
     assert "httponly" in cookie and "samesite=strict" in cookie
@@ -87,6 +135,8 @@ def test_bootstrap_is_single_use_and_cookie_is_private(api: dict[str, Any]) -> N
     assert system.status_code == 200
     assert system.json()["armed"] is False
     assert system.json()["execution_queue"] is False
+    assert system.json()["approved"]["profiles"] == ["fake-verification"]
+    assert system.json()["approved"]["templates"] == []
     assert api["bootstrap"] not in system.text
     assert api["csrf"] not in system.text
     assert api["client"].cookies.get("cdr_session") not in system.text
@@ -159,8 +209,9 @@ def test_gets_cannot_disarm_or_change_durable_state(api: dict[str, Any]) -> None
     assert client.post("/api/v1/local/arm", json={}, headers=api["headers"]).status_code == 200
     state = api["ledger"].state()
     journal = api["ledger"].events()
-    for path in ("/api/v1/local/arm", "/api/v1/local/disarm", "/api/v1/local/session"):
+    for path in ("/api/v1/local/arm", "/api/v1/local/disarm"):
         assert client.get(path).status_code == 405
+    assert client.get("/api/v1/local/session").json()["csrf_token"] == api["csrf"]
     for path in ("/api/v1/system", "/api/v1/projects", "/api/v1/operations",
                  "/api/v1/events"):
         assert client.get(path).status_code == 200
@@ -264,6 +315,52 @@ def test_sse_rejects_invalid_query_cursors(api: dict[str, Any]) -> None:
     for after in ("-1", "nan", "999999999999999999999999"):
         response = client.get(f"/api/v1/events?after={after}")
         assert response.status_code == 422
+
+
+def test_runtime_reissues_owner_only_bootstrap_without_restarting_or_revoking_session(
+    tmp_path: Path,
+) -> None:
+    paths = Paths(config_dir=tmp_path / "config", state_dir=tmp_path / "state",
+                  cache_dir=tmp_path / "cache")
+    runtime = Runtime(Settings(), paths)
+    bootstrap_file = paths.token_dir / "session-bootstrap.json"
+    first = json.loads(bootstrap_file.read_text())["bootstrap"]
+    assert stat.S_IMODE(bootstrap_file.stat().st_mode) == 0o600
+    try:
+        with TestClient(runtime.app, base_url=ORIGIN) as client:
+            exchange = client.post("/api/v1/local/session", json={"bootstrap": first},
+                                   headers={"Origin": ORIGIN})
+            assert exchange.status_code == 200
+            csrf = exchange.json()["csrf_token"]
+            deadline = time.monotonic() + 2
+            while json.loads(bootstrap_file.read_text())["bootstrap"] == first:
+                assert time.monotonic() < deadline
+                time.sleep(0.01)
+            second = json.loads(bootstrap_file.read_text())["bootstrap"]
+            assert second != first
+            assert stat.S_IMODE(bootstrap_file.stat().st_mode) == 0o600
+            assert client.get("/api/v1/local/session").json()["csrf_token"] == csrf
+            assert client.get("/api/v1/system").status_code == 200
+            assert client.post("/api/v1/local/session", json={"bootstrap": first},
+                               headers={"Origin": ORIGIN}).status_code == 403
+            assert client.post("/api/v1/local/session", json={"bootstrap": second},
+                               headers={"Origin": ORIGIN}).status_code == 200
+    finally:
+        runtime.close()
+    assert not bootstrap_file.exists()
+
+
+def test_failed_bootstrap_publication_keeps_previous_secret() -> None:
+    sessions = Sessions()
+    first = sessions.issue_bootstrap()
+
+    def fail(_secret: str) -> None:
+        raise OSError("fake publication failure")
+
+    with pytest.raises(OSError):
+        sessions.issue_bootstrap(fail)
+    _, session = sessions.exchange(first)
+    assert session.csrf
 
 
 def test_real_runtime_private_handoff_and_unavailable_execution(tmp_path: Path) -> None:

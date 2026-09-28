@@ -1,0 +1,28 @@
+{
+  "focused_pytest": {
+    "command": ".venv/bin/pytest -q tests/test_fetch_workflow.py tests/test_github_git_transport.py tests/test_reconcile_local.py tests/test_connection_checks.py tests/test_runtime_integrations.py --junitxml=verification/implementation/EP-06/fetch-focused-tests.xml",
+    "errors": 0,
+    "exit_code": 0,
+    "failures": 0,
+    "tests": 45
+  },
+  "git_version": "git version 2.34.1",
+  "live_github_fetch_performed": false,
+  "live_provider_write_performed": false,
+  "local_process": {
+    "armed": false,
+    "fetch_capability_registered": true,
+    "health_status": "PARTIALLY_CONFIGURED",
+    "live_fetches": 0,
+    "mode": "real_uvicorn_process_fake_providers",
+    "origin": "loopback_ephemeral",
+    "provider_writes": 0,
+    "status": "PASS"
+  },
+  "mypy_exit_code": 0,
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "ruff_exit_code": 0,
+  "slice": "canonical FETCH live-handler with fake-backed proof",
+  "status": "PASS"
+}

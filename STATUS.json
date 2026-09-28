@@ -1,10 +1,10 @@
 {
-  "version": "0.3.0-EP05-verified",
+  "version": "0.3.0-EP06-verified",
   "date": "2026-09-28",
-  "ui": "Interactive offline HTML/CSS/JS simulation, not wired to the reference core",
+  "ui": "EP-06 VERIFIED: packaged same-origin control centre is bound to authenticated local read models/actions; 65/65 fake-backed browser, 19/19 fresh local-process and 22/22 configured disarmed-process checks passed. Original prototype remains separate.",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
-  "live_runner": "EP-00 through EP-05 VERIFIED. UI/local and Drive-root disposable CREATE_PROJECT, real Drive-workspace passing and failing contained tests, private branch/draft PR publication, Drive delivery and independent postchecks passed. Runner is configured but disarmed; EP-06 UI binding and EP-07 host release remain.",
+  "live_runner": "EP-00 through EP-06 VERIFIED. Existing Drive installation, disposable private GitHub projects, passing/failing contained tests, draft PRs, Drive delivery and EP-06 real UI/local-process gates passed. Runner is configured but disarmed; EP-07 durable host installation and release acceptance remain.",
   "github_live_adapter": "EP-05 created three disposable private repositories under ViskyG. Passing and failing runs each published an exact tested branch and draft PR with Drive report link; the failing PR is labelled `[FAILED]`. Owner-only tokens remain outside the repository.",
   "credentials": "None bundled",
   "service_installation": "Reviewed root-owned quota helper is installed and probes READY. No durable runner service is installed; the transient loopback service is stopped and the runner is disarmed.",
@@ -25,7 +25,7 @@
     "source": "Owner update after archive creation; seed is a reference specification"
   },
   "implementation": {
-    "selected_packet": "EP-06",
+    "selected_packet": "EP-07",
     "packets": {
       "EP-00": "VERIFIED",
       "EP-01": "VERIFIED",
@@ -33,13 +33,13 @@
       "EP-03": "VERIFIED",
       "EP-04": "VERIFIED",
       "EP-05": "VERIFIED",
-      "EP-06": "NOT_STARTED",
+      "EP-06": "VERIFIED",
       "EP-07": "NOT_STARTED"
     },
     "armed": false,
     "deployable": false,
-    "evidence": "verification/implementation/EP-05/live-workspace-fail-fresh-independent-postcheck.json",
-    "checkpoint": "codex/checkpoints/EP-05.md",
+    "evidence": "verification/implementation/EP-06/full-final-summary.json",
+    "checkpoint": "codex/checkpoints/EP-06.md",
     "oauth_gate_evidence": "verification/implementation/EP-04/oauth-browser-gate.json",
     "oauth_live_attach_evidence": "verification/implementation/EP-04/live-attach-attempt.json",
     "oauth_full_drive_evidence": "verification/implementation/EP-04/full-drive-oauth-transition.json",
@@ -74,10 +74,13 @@
     "ep05_live_fail_postcheck": "verification/implementation/EP-05/live-workspace-fail-fresh-independent-postcheck.json",
     "ep05_live_fail_pr_label": "verification/implementation/EP-05/live-fail-pr-label.json",
     "ep05_final_safety_tests": "verification/implementation/EP-05/final-safety-targeted-tests.xml",
-    "ep05_final_provider_tests": "verification/implementation/EP-05/final-provider-tests.xml"
+    "ep05_final_provider_tests": "verification/implementation/EP-05/final-provider-tests.xml",
+    "ep06_browser_evidence": "verification/implementation/EP-06/browser-e2e.json",
+    "ep06_real_process_evidence": "verification/implementation/EP-06/live-ep05-state-slice.json",
+    "ep06_wheel_audit": "verification/implementation/EP-06/wheel-summary.json"
   },
   "implementation_source_repository": {
-    "local_git": "EP05_VERIFIED_MAIN",
+    "local_git": "EP06_VERIFIED_MAIN",
     "branch": "main",
     "github_remote": "ViskyG/chat-dev-runner",
     "private_repository_requested": true,

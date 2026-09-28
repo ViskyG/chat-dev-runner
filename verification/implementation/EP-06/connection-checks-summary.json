@@ -1,0 +1,24 @@
+{
+  "captured_at_utc": "2026-09-28T09:40:57.013406+00:00",
+  "environment": {
+    "python": "3.10.12",
+    "git_head": "274839920544a8956df1a89beaf700b32eef8d9c"
+  },
+  "tests": {
+    "command": ".venv/bin/python -m pytest -q tests/test_connection_checks.py --junitxml=verification/implementation/EP-06/connection-checks-tests.xml",
+    "exit_code": 0,
+    "passed": 5,
+    "xml_sha256": "35a59dd48c39177e5ab228891db9625fc464e722384e62f78a77f715661e9203"
+  },
+  "lint": {
+    "command": ".venv/bin/ruff check runner_app/engine/connection_checks.py runner_app/api/runtime.py runner_app/engine/runtime.py tests/test_connection_checks.py",
+    "exit_code": 0
+  },
+  "types": {
+    "command": ".venv/bin/mypy runner_app/engine/connection_checks.py runner_app/api/runtime.py runner_app/engine/runtime.py",
+    "exit_code": 0
+  },
+  "live_provider_writes": 0,
+  "git_probe_semantics": "ls-remote exact selected branch, no fetch or local tracking-ref update",
+  "staleness_regression": "External live HEAD change or dirty files sets workspace_snapshot_current false with unchanged registry; failed live inspection sets null."
+}

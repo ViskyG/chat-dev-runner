@@ -1,0 +1,25 @@
+{
+  "architecture": "x86_64",
+  "baseline_mode": "offline_prototype",
+  "checked_at": "2026-09-28T09:09:04.161775+00:00",
+  "cloud_actions_tested": false,
+  "initial_attempt": {
+    "command": "CHROMIUM_PATH=/usr/bin/chromium .venv/bin/python scripts/test_ui.py",
+    "exit_code": 1,
+    "reason": "BROWSER_EXECUTABLE_ABSENT"
+  },
+  "packet": "EP-06",
+  "python": "3.10.12",
+  "result_file": "verification/ui-tests.json",
+  "schema_version": "1.0",
+  "successful_attempt": {
+    "browser_version": "151.0.7922.34",
+    "checks_passed": 44,
+    "checks_total": 44,
+    "command": "CHROMIUM_PATH=/home/visky/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome .venv/bin/python scripts/test_ui.py",
+    "exit_code": 0,
+    "js_errors": 0,
+    "network_requests": 0
+  },
+  "system": "Linux"
+}

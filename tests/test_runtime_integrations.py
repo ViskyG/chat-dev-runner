@@ -117,7 +117,7 @@ def test_configured_runtime_attaches_existing_and_registers_no_write_handlers(
         assert runtime.integrations.attached.root_mailbox().command_id == records["command"]["id"]
         assert runtime.integrations.root_receipt.command_id == records["command"]["id"]
         assert set(runtime.engine.capabilities()) == {
-            "CREATE_PROJECT", "RECONCILE", "RESUME_PROVISION",
+            "CREATE_PROJECT", "FETCH", "RECONCILE", "RESUME_PROVISION",
         }
         assert records["command"]["id"] in runtime.engine.policy.mailboxes
         assert runtime.ledger.state()["armed"] is False

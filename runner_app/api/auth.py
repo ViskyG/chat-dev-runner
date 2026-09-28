@@ -9,6 +9,7 @@ import hashlib
 import secrets
 import threading
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 
 
@@ -36,9 +37,16 @@ class Sessions:
         self._sessions: dict[str, Session] = {}
         self._lock = threading.Lock()
 
-    def issue_bootstrap(self) -> str:
+    def issue_bootstrap(self, publish: Callable[[str], None] | None = None) -> str:
+        """Atomically publish a new one-time value before making it exchangeable.
+
+        A failed owner-only file write leaves the previously issued bootstrap valid.
+        Existing browser sessions are independent and remain authenticated.
+        """
         secret = secrets.token_urlsafe(32)
         with self._lock:
+            if publish is not None:
+                publish(secret)
             self._bootstrap = (_digest(secret), time.monotonic() + self.bootstrap_ttl)
         return secret
 

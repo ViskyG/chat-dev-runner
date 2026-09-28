@@ -1,0 +1,35 @@
+{
+  "captured_at_utc": "2026-09-28T09:23:37.503596+00:00",
+  "environment": {
+    "python": "3.10.12",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "git_head": "274839920544a8956df1a89beaf700b32eef8d9c"
+  },
+  "tests": {
+    "command": ".venv/bin/python -m pytest -q tests/test_domain_api.py tests/test_run_evidence.py::test_output_route_requires_session_and_serves_only_registered_attachment --junitxml=verification/implementation/EP-06/backend-shell-tests.xml",
+    "exit_code": 0,
+    "passed": 30,
+    "xml_sha256": "eb8c3c11124f21a04a962a8cbee7c220daa54d10acdbbebbcd6419bbd9a45fa7"
+  },
+  "lint": {
+    "command": ".venv/bin/ruff check runner_app/api/app.py runner_app/api/auth.py runner_app/api/runtime.py runner_app/engine/runtime.py tests/test_domain_api.py tests/test_run_evidence.py",
+    "exit_code": 0
+  },
+  "types": {
+    "command": ".venv/bin/mypy runner_app/api/app.py runner_app/api/auth.py runner_app/api/runtime.py runner_app/engine/runtime.py",
+    "exit_code": 0
+  },
+  "wheel": {
+    "command": ".venv/bin/python -m build --wheel --outdir /tmp/cdr-ep06-wheel-audit",
+    "exit_code": 0,
+    "sha256": "d54df56d076f5cd41d670372d151ccab9a7573c7ed225a7d26dbf5641c017b10",
+    "packaged_asset_sha256": {
+      "index.html": "eec399fea8c5834d9463eb1c1fe3e6a646d6806b2ee5650965bf1e66573a53d4",
+      "app.js": "ff443147d1e156954f97988c7e9f435e452028215c53c48570ffa41021087783",
+      "api.js": "08ff83236dba61ca73b1a47ad7f686a1a2c4805a25b3ff7cfc0253ca1c08b26b",
+      "model.js": "a762ecc7ee1a4d828637b1fffe1d742ae7a2c3184e4e2dac62c76c69cf98b655",
+      "render.js": "b174ad66a225cebfe64001df6230be58a758a56125c51e8b87ccc60c9d94858d",
+      "styles.css": "dddb7ff06d20c446033a06197d9c114c37b13349ba439ba56c6bc31001e29138"
+    }
+  }
+}

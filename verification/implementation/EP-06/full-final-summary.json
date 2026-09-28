@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-06",
+  "checked_at": "2026-09-28T10:05:51.638686+00:00",
+  "command": ".venv/bin/python -m pytest -q --basetemp=/tmp/cdr-ep06-full-final-20260928 --junitxml=verification/implementation/EP-06/full-final-tests.xml",
+  "exit_code": 0,
+  "tests": 1300,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 1,
+  "duration_seconds": 144.84,
+  "environment": {
+    "python": "3.10.12",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "architecture": "x86_64"
+  },
+  "junit": "verification/implementation/EP-06/full-final-tests.xml",
+  "static_checks": {
+    "ruff": "PASS",
+    "mypy_files": 89,
+    "git_diff_check": "PASS"
+  }
+}

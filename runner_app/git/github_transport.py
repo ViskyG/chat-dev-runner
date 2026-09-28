@@ -1,6 +1,7 @@
 """Owner-process HTTPS Git transport for one exact GitHub repository.
 
-Only fixed-URL bare clone, normal `ls-remote`, and exact-commit `push` are exposed. Authentication uses
+Only fixed-URL bare clone, normal `ls-remote`, tracking-ref fetch, and exact-commit
+`push` are exposed. Authentication uses
 Git askpass with anonymous memory file descriptors; the token is never placed in
 argv, the child environment, repository config, or a persistent temporary file.
 The orchestrator must verify the repository's numeric ID with GitHub REST and
@@ -9,6 +10,8 @@ journal push intent before calling this transport.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 import re
 import selectors
@@ -37,6 +40,8 @@ _REPO = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,99}\Z", re.ASCII)
 _OID = re.compile(r"(?:[0-9a-f]{40}|[0-9a-f]{64})\Z", re.ASCII)
 _MARKER = re.compile(r"cdr:v1:[0-9a-f]{64}\Z", re.ASCII)
 _MAX_OUTPUT = 1_048_576
+_MAX_HEADS = 256
+FETCH_REFSPEC = "+refs/heads/*:refs/remotes/origin/*"
 _ASKPASS = b'''#!/usr/bin/python3
 import os
 import re
@@ -271,6 +276,38 @@ class BaselineResult:
     disposition: Literal["created", "attached", "reconciled"]
 
 
+def read_tracking_refs(repo: Path) -> dict[str, str]:
+    """Read only local origin tracking refs from a managed bare repository."""
+    checked = _repo(repo)
+    _reject_network_config(checked)
+    if run_git(checked, ["rev-parse", "--is-bare-repository"]).strip() != "true":
+        raise GitError("INVALID_REPOSITORY", "Fetch requires a managed bare repository")
+    raw = run_git(checked, [
+        "for-each-ref", "--format=%(objectname)%00%(refname)%00%(symref)%00",
+        "refs/remotes/origin/",
+    ])
+    heads: dict[str, str] = {}
+    for line in raw.splitlines():
+        fields = line.split("\x00")
+        if len(fields) != 4 or fields[-1]:
+            raise GitError("GIT_TRACKING_REFS_INVALID", "Tracking ref read is malformed")
+        oid, ref, symbolic, _ = fields
+        if symbolic:
+            continue  # origin/HEAD is a local symbolic alias, not a fetched branch.
+        if not ref.startswith("refs/remotes/origin/") or not _OID.fullmatch(oid):
+            raise GitError("GIT_TRACKING_REFS_INVALID", "Tracking ref identity is invalid")
+        branch = validate_branch(ref.removeprefix("refs/remotes/origin/"))
+        if branch in heads or len(heads) >= _MAX_HEADS:
+            raise GitError("GIT_TRACKING_REFS_INVALID", "Tracking ref set is ambiguous or too large")
+        heads[branch] = oid
+    return dict(sorted(heads.items()))
+
+
+def tracking_refs_digest(heads: dict[str, str]) -> str:
+    """Stable local effect identity; never a claim that GitHub was contacted."""
+    return hashlib.sha256(json.dumps(heads, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
 class GitHubGitTransport:
     """Direct-URL bare clone, Git reads and non-force pushes for one verified repository."""
 
@@ -367,6 +404,40 @@ class GitHubGitTransport:
         if returned_ref != ref or not _OID.fullmatch(oid):
             raise GitError("GITHUB_GIT_RESPONSE_INVALID", "Remote head identity differs")
         return oid
+
+    def list_heads(self, repo: Path) -> dict[str, str]:
+        """Advertise exact private GitHub heads before a journaled fetch intent."""
+        checked = self._prepared_repo(repo)
+        raw = _run_network_git(
+            checked, ["ls-remote", "--refs", "--heads", self.url],
+            self._token(), timeout=30,
+        )
+        heads: dict[str, str] = {}
+        for line in raw.splitlines():
+            try:
+                oid, ref = line.decode("ascii").split("\t", 1)
+            except (UnicodeError, ValueError):
+                raise GitError("GITHUB_GIT_RESPONSE_INVALID", "Remote heads response is invalid") from None
+            if not ref.startswith("refs/heads/") or not _OID.fullmatch(oid):
+                raise GitError("GITHUB_GIT_RESPONSE_INVALID", "Remote head identity is invalid")
+            branch = validate_branch(ref.removeprefix("refs/heads/"))
+            if branch in heads or len(heads) >= _MAX_HEADS:
+                raise GitError("GITHUB_GIT_RESPONSE_INVALID", "Remote head set is ambiguous or too large")
+            heads[branch] = oid
+        return dict(sorted(heads.items()))
+
+    def fetch_heads(self, repo: Path) -> dict[str, str]:
+        """Fetch only GitHub heads into local origin tracking refs, never a worktree."""
+        checked = self._prepared_repo(repo)
+        read_tracking_refs(checked)  # Refuse non-bare or unsafe existing local state first.
+        _run_network_git(
+            checked,
+            ["fetch", "--atomic", "--no-tags", "--no-recurse-submodules",
+             "--no-auto-gc", "--no-write-fetch-head", "--no-progress",
+             self.url, FETCH_REFSPEC],
+            self._token(), timeout=300,
+        )
+        return read_tracking_refs(checked)
 
     def push_commit(self, repo: Path, commit: str, branch: str) -> None:
         """Push an exact local commit to a nondefault branch with normal FF rules."""

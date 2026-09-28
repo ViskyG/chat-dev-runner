@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
+import secrets
+import threading
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Protocol
@@ -12,6 +15,12 @@ from fastapi import FastAPI
 from runner_app.api.auth import Sessions
 from runner_app.api.runtime import create_runtime_app
 from runner_app.config import DRIVE_INDEX_ID, DRIVE_ROOT_ID, Settings
+from runner_app.engine.connection_checks import (
+    ConnectionChecks,
+    check_existing_drive,
+    check_github_identity,
+    check_registered_git_remote,
+)
 from runner_app.engine.execution_assembly import build_owner_execution_ports
 from runner_app.engine.full_route import ExecutionPorts, make_full_route_factory
 from runner_app.engine.integrations import (
@@ -29,12 +38,60 @@ from runner_app.storage import Database, Paths, open_private_file
 from runner_app.storage.ledger import Ledger
 from runner_app.storage.run_evidence import RunEvidenceStore
 
+_LOGGER = logging.getLogger(__name__)
+
 
 class _DriveBridge(Protocol):
     def close(self) -> None: ...
 
 
 class Runtime:
+    sessions: Sessions
+    _bootstrap_path: Path
+    _bootstrap_stop: threading.Event
+    _bootstrap_refresh: threading.Event
+    _bootstrap_thread: threading.Thread | None
+
+    def _publish_bootstrap(self, secret: str) -> None:
+        """Replace the owner-only handoff atomically, without a partial JSON read."""
+        descriptor = open_private_file(self._bootstrap_path, create=True)
+        os.close(descriptor)
+        temporary = self._bootstrap_path.with_name(
+            f".session-bootstrap-{secrets.token_hex(16)}.tmp"
+        )
+        try:
+            descriptor = open_private_file(temporary, create=True)
+            with os.fdopen(descriptor, "wb") as stream:
+                stream.write(json.dumps({
+                    "bootstrap": secret, "expires_in_seconds": self.sessions.bootstrap_ttl,
+                }).encode())
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, self._bootstrap_path)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+    def _rotate_bootstrap_loop(self) -> None:
+        while not self._bootstrap_stop.is_set():
+            interval = max(0.1, min(60.0, self.sessions.bootstrap_ttl * 0.75))
+            self._bootstrap_refresh.wait(timeout=interval)
+            self._bootstrap_refresh.clear()
+            if self._bootstrap_stop.is_set():
+                break
+            try:
+                self.sessions.issue_bootstrap(self._publish_bootstrap)
+            except (OSError, ValueError):
+                # Do not include paths, tokens or exception text in service logs.
+                _LOGGER.error("SESSION_BOOTSTRAP_ROTATION_FAILED")
+
+    def _start_bootstrap_rotation(self) -> None:
+        if self._bootstrap_thread is None:
+            thread = threading.Thread(
+                target=self._rotate_bootstrap_loop, name="cdr-bootstrap-rotation", daemon=True,
+            )
+            self._bootstrap_thread = thread
+            thread.start()
+
     def __init__(self, settings: Settings, paths: Paths, *,
                  import_roots: Sequence[Path] = (),
                  workspace_route_factory: RouteFactory | None = None,
@@ -44,6 +101,9 @@ class Runtime:
         self.drive_bridge: _DriveBridge | None = None
         self._singleton = Singleton(paths.state_dir / "runner.lock")
         self._bootstrap_path = paths.token_dir / "session-bootstrap.json"
+        self._bootstrap_stop = threading.Event()
+        self._bootstrap_refresh = threading.Event()
+        self._bootstrap_thread = None
         try:
             self.ledger = Ledger(Database(paths.database_path),
                                  max_parallel=settings.max_parallel_executions)
@@ -108,22 +168,27 @@ class Runtime:
                     route_factory=route_factory,
                 ) if self.integrations is not None else None
             )
+            connections = self.integrations
+            self.connection_checks: ConnectionChecks | None = (
+                ConnectionChecks(
+                    drive=lambda: check_existing_drive(connections),
+                    github_api=lambda: check_github_identity(connections),
+                    git_remote=lambda project_id, workspace_id: check_registered_git_remote(
+                        connections, self.source_registry, project_id, workspace_id,
+                    ),
+                ) if connections is not None else None
+            )
             self.sessions = Sessions()
-            bootstrap = self.sessions.issue_bootstrap()
-            descriptor = open_private_file(self._bootstrap_path, create=True)
-            try:
-                content = json.dumps({"bootstrap": bootstrap,
-                                      "expires_in_seconds": self.sessions.bootstrap_ttl}).encode()
-                os.ftruncate(descriptor, 0)
-                with os.fdopen(descriptor, "wb", closefd=False) as stream:
-                    stream.write(content)
-                    stream.flush()
-                    os.fsync(descriptor)
-            finally:
-                os.close(descriptor)
+            self.sessions.issue_bootstrap(self._publish_bootstrap)
             self.app: FastAPI = create_runtime_app(settings, self.engine, self.sessions,
                                                    import_grants=self.import_grants,
+                                                   source_registry=self.source_registry,
+                                                   drive_registry=(self.integrations.drive_registry
+                                                                   if self.integrations is not None
+                                                                   else None),
+                                                   connection_checks=self.connection_checks,
                                                    run_evidence=self.run_evidence,
+                                                   on_session_exchange=self._bootstrap_refresh.set,
                                                    integration_status=(
                                                        {
                                                            "state": "EXISTING_INSTALLATION_ATTACHED",
@@ -137,12 +202,18 @@ class Runtime:
                                                    ))
             # Uvicorn re-raises SIGTERM after completing its ASGI shutdown. Run cleanup
             # during the shutdown event, before that signal bypasses the CLI finally block.
+            self.app.router.add_event_handler("startup", self._start_bootstrap_rotation)
             self.app.router.add_event_handler("shutdown", self.close)
         except BaseException:
             self._singleton.close()
             raise
 
     def close(self) -> None:
+        self._bootstrap_stop.set()
+        self._bootstrap_refresh.set()
+        if self._bootstrap_thread is not None:
+            self._bootstrap_thread.join()
+            self._bootstrap_thread = None
         try:
             try:
                 if self.workspace_mailboxes is not None:

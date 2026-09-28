@@ -1719,6 +1719,59 @@ class Ledger:
             return {"items": [self._operation(connection, row) for row in rows[:limit]],
                     "next_cursor": str(rows[limit - 1]["sequence"]) if len(rows) > limit else None}
 
+    def project_fetch_snapshot(self, project_id: str) -> dict[str, Any]:
+        """Durable per-project FETCH freshness, never inferred from ls-remote."""
+        with self._connection() as connection:
+            latest = connection.execute(
+                "SELECT request_id,status,code,updated_at FROM operations "
+                "WHERE project_id=? AND action='FETCH' ORDER BY sequence DESC LIMIT 1",
+                (project_id,),
+            ).fetchone()
+            confirmed = connection.execute(
+                "SELECT o.request_id,o.result_json,e.intent_json,e.provider_id,"
+                "e.updated_at AS confirmed_at FROM operations o "
+                "JOIN effects e ON e.request_id=o.request_id "
+                "WHERE o.project_id=? AND o.action='FETCH' AND o.status='COMPLETED' "
+                "AND o.reconcile_required=0 AND e.step_id='git-fetch' "
+                "AND e.kind='local_workspace' AND e.state='CONFIRMED' "
+                "ORDER BY o.sequence DESC LIMIT 1",
+                (project_id,),
+            ).fetchone()
+        success_at: str | None = None
+        observation: dict[str, Any] | None = None
+        if confirmed is not None:
+            result = json.loads(confirmed["result_json"]) if confirmed["result_json"] else None
+            intent = json.loads(confirmed["intent_json"])
+            fetch = result.get("fetch") if isinstance(result, dict) else None
+            if (isinstance(fetch, dict) and isinstance(intent, dict)
+                    and fetch.get("kind") == "TRACKING_REFS_FETCH"
+                    and fetch.get("project_id") == project_id
+                    and fetch.get("repository_id") == intent.get("repository_id")
+                    and fetch.get("clone_url") == intent.get("clone_url")
+                    and fetch.get("refspec") == intent.get("refspec")
+                    and fetch.get("remote_tracking_refs_sha256") == confirmed["provider_id"]):
+                success_at = confirmed["confirmed_at"]
+                observation = {**fetch, "fetched_at": success_at,
+                               "request_id": confirmed["request_id"]}
+        if latest is None:
+            return {"status": "UNKNOWN", "last_checked_at": None,
+                    "last_success_at": None, "code": None, "observation": None}
+        if (confirmed is not None and success_at is not None
+                and latest["request_id"] == confirmed["request_id"]):
+            return {"status": "OK", "last_checked_at": success_at,
+                    "last_success_at": success_at, "code": None,
+                    "observation": observation}
+        if latest["status"] == "RUNNING":
+            return {"status": "UNKNOWN", "last_checked_at": None,
+                    "last_success_at": success_at, "code": None,
+                    "observation": observation}
+        code = latest["code"]
+        if not isinstance(code, str) or re.fullmatch(r"[A-Z][A-Z0-9_]{0,79}", code) is None:
+            code = "FETCH_NOT_COMPLETED"
+        return {"status": "ERROR", "last_checked_at": latest["updated_at"],
+                "last_success_at": success_at, "code": code,
+                "observation": observation}
+
     def completed_provision_project_ids(self) -> frozenset[str]:
         """Projects with a terminal successful CREATE/RESUME proof, not partial state."""
         with self._connection() as connection:

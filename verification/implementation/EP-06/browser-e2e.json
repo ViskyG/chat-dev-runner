@@ -1,0 +1,1235 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-06",
+  "checked_at": "2026-09-28T09:59:36.784058+00:00",
+  "mode": "packaged-ui-plus-fake-v1-api",
+  "browser": "151.0.7922.34",
+  "checks": [
+    {
+      "name": "Authenticated read model renders projects",
+      "scenario": "SC-04",
+      "passed": true
+    },
+    {
+      "name": "Two independent workspaces visible",
+      "scenario": "SC-04",
+      "passed": true
+    },
+    {
+      "name": "Provider checks remain individually unknown",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "Provisioning project is visibly incomplete",
+      "scenario": "SC-02",
+      "passed": true
+    },
+    {
+      "name": "No injected project markup executed",
+      "scenario": "SC-12",
+      "passed": true
+    },
+    {
+      "name": "Keyboard selects exact workspace",
+      "scenario": "SC-04",
+      "passed": true
+    },
+    {
+      "name": "Unarmed command has a specific disabled reason",
+      "scenario": "SC-10",
+      "passed": true
+    },
+    {
+      "name": "Navigate operations",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "Project failure and delivery are separate axes",
+      "scenario": "SC-06",
+      "passed": true
+    },
+    {
+      "name": "Only recorded operation steps are shown",
+      "scenario": "SC-05",
+      "passed": true
+    },
+    {
+      "name": "Interrupted create retains confirmed external effect",
+      "scenario": "SC-11",
+      "passed": true
+    },
+    {
+      "name": "Create does not invent a test stage",
+      "scenario": "SC-05",
+      "passed": true
+    },
+    {
+      "name": "Publish-only operation does not invent executor stages",
+      "scenario": "SC-05",
+      "passed": true
+    },
+    {
+      "name": "Navigate results",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "Result is tied to frozen snapshot and marked stale",
+      "scenario": "SC-08",
+      "passed": true
+    },
+    {
+      "name": "Publication updates original result without duplicate card",
+      "scenario": "SC-09",
+      "passed": true
+    },
+    {
+      "name": "Navigate drive",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "Navigate system",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "Navigate work",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "Drive document links use exact registered IDs",
+      "scenario": "SC-13",
+      "passed": true
+    },
+    {
+      "name": "VS Code menu names exact registered workspaces",
+      "scenario": "SC-04",
+      "passed": true
+    },
+    {
+      "name": "unsafe-html is inert text",
+      "scenario": "SC-12",
+      "passed": true
+    },
+    {
+      "name": "Refresh preserves open preview scroll and selection",
+      "scenario": "SC-12",
+      "passed": true
+    },
+    {
+      "name": "unsafe-svg is inert text",
+      "scenario": "SC-12",
+      "passed": true
+    },
+    {
+      "name": "Theme toggle changes document theme",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "Ctrl+K opens accessible command palette",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "Escape closes palette and returns focus",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow 1280px",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow 1600px",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow 2560px",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow 390px",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "Reduced-motion media query honoured",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "No spontaneous mutation requests",
+      "scenario": "SC-10",
+      "passed": true
+    },
+    {
+      "name": "All network stays on loopback origin",
+      "scenario": "SC-01",
+      "passed": true
+    },
+    {
+      "name": "No browser script errors",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "No unmodelled API paths",
+      "scenario": "SC-14",
+      "passed": true
+    },
+    {
+      "name": "Clean registered source enables retarget",
+      "scenario": "SC-07",
+      "passed": true
+    },
+    {
+      "name": "BUSY is terminal with no implicit retry or queue",
+      "scenario": "SC-10",
+      "passed": true
+    },
+    {
+      "name": "BUSY does not resend automatically",
+      "scenario": "SC-10",
+      "passed": true
+    },
+    {
+      "name": "Explicit retarget retry uses new canonical request",
+      "scenario": "SC-07",
+      "passed": true
+    },
+    {
+      "name": "Retarget leaves old frozen run intact",
+      "scenario": "SC-07",
+      "passed": true
+    },
+    {
+      "name": "Absolute context path refused before command",
+      "scenario": "SC-13",
+      "passed": true
+    },
+    {
+      "name": "Traversal context path refused before command",
+      "scenario": "SC-13",
+      "passed": true
+    },
+    {
+      "name": "Scoped context export uses schema-valid relative paths",
+      "scenario": "SC-13",
+      "passed": true
+    },
+    {
+      "name": "Report retry references existing run and no expected HEAD",
+      "scenario": "SC-09",
+      "passed": true
+    },
+    {
+      "name": "Project wizard offers only approved template and identity",
+      "scenario": "SC-02",
+      "passed": true
+    },
+    {
+      "name": "New project review states private scope and one operation",
+      "scenario": "SC-02",
+      "passed": true
+    },
+    {
+      "name": "New project submits one private canonical command",
+      "scenario": "SC-02",
+      "passed": true
+    },
+    {
+      "name": "Local import exchanges path for opaque handle",
+      "scenario": "SC-03",
+      "passed": true
+    },
+    {
+      "name": "GitHub import uses approved repository only",
+      "scenario": "SC-03",
+      "passed": true
+    },
+    {
+      "name": "New workspace command binds exact branch and base",
+      "scenario": "SC-04",
+      "passed": true
+    },
+    {
+      "name": "Dirty source refuses branch switch before POST",
+      "scenario": "SC-07",
+      "passed": true
+    },
+    {
+      "name": "Unauthenticated owner sees local bootstrap login",
+      "scenario": "SC-01",
+      "passed": true
+    },
+    {
+      "name": "Local session unlocks authenticated read model",
+      "scenario": "SC-01",
+      "passed": true
+    },
+    {
+      "name": "Retention dialog shows exact available output identities",
+      "scenario": "SC-12",
+      "passed": true
+    },
+    {
+      "name": "Owner pin blocks cleanup of retained evidence",
+      "scenario": "SC-12",
+      "passed": true
+    },
+    {
+      "name": "Output cleanup requires exact-ID confirmation",
+      "scenario": "SC-12",
+      "passed": true
+    },
+    {
+      "name": "Age refusal leaves output available and no tombstone",
+      "scenario": "SC-12",
+      "passed": true
+    },
+    {
+      "name": "Tombstoned output stays visible but cleanup is disabled",
+      "scenario": "SC-12",
+      "passed": true
+    },
+    {
+      "name": "Tombstoned output cannot be reopened as preview",
+      "scenario": "SC-12",
+      "passed": true
+    },
+    {
+      "name": "Only running operation exposes cancellation",
+      "scenario": "SC-11",
+      "passed": true
+    },
+    {
+      "name": "Cancellation control receives keyboard focus",
+      "scenario": "SC-11",
+      "passed": true
+    },
+    {
+      "name": "Cancel submits separate exact-target command",
+      "scenario": "SC-11",
+      "passed": true
+    },
+    {
+      "name": "Every tested browser flow stayed on loopback origin",
+      "scenario": "SC-01",
+      "passed": true
+    },
+    {
+      "name": "All fake API routes and scripts remained accounted for",
+      "scenario": "SC-14",
+      "passed": true
+    }
+  ],
+  "page_errors": [],
+  "api_requests": [
+    {
+      "method": "GET",
+      "path": "/api/v1/local/session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/operations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/notes-lab/workspaces"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/veiled-gold/workspaces"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/malicious-name/workspaces"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/new-provisioning/workspaces"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/notes-lab/workspaces/airflow-refactor/connections"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/drive-docs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/retention"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs/unsafe-html"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/operations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/notes-lab/workspaces"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/veiled-gold/workspaces"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/malicious-name/workspaces"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/new-provisioning/workspaces"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/retention"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs/unsafe-svg"
+    }
+  ],
+  "flow_requests": {
+    "armed_commands": [
+      {
+        "method": "GET",
+        "path": "/api/v1/local/session"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/source"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/local/import-handles"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      }
+    ],
+    "dirty_refusal": [
+      {
+        "method": "GET",
+        "path": "/api/v1/local/session"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/source"
+      }
+    ],
+    "owner_login": [
+      {
+        "method": "GET",
+        "path": "/api/v1/local/session"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/local/session"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      }
+    ],
+    "retention": [
+      {
+        "method": "GET",
+        "path": "/api/v1/local/session"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/retention"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/retention/pin"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/retention/pin"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs/unsafe-html/expire"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/retention"
+      }
+    ],
+    "cancellation": [
+      {
+        "method": "GET",
+        "path": "/api/v1/local/session"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/operations"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/veiled-gold/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/malicious-name/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/new-provisioning/workspaces"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/operations"
+      }
+    ]
+  },
+  "submitted_action_sequence": [
+    "RETARGET_WORKSPACE",
+    "RETARGET_WORKSPACE",
+    "EXPORT_CONTEXT",
+    "PUBLISH_REPORT",
+    "CREATE_PROJECT",
+    "CREATE_PROJECT",
+    "CREATE_PROJECT",
+    "CREATE_WORKSPACE"
+  ],
+  "unexpected_api": [],
+  "network_requests": [
+    "http://127.0.0.1:35679/",
+    "http://127.0.0.1:35679/assets/styles.css",
+    "http://127.0.0.1:35679/assets/app.js",
+    "http://127.0.0.1:35679/assets/api.js",
+    "http://127.0.0.1:35679/assets/model.js",
+    "http://127.0.0.1:35679/assets/render.js",
+    "http://127.0.0.1:35679/api/v1/local/session",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/airflow-refactor/connections",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/drive-docs",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/retention",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs/unsafe-html",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/retention",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs/unsafe-svg",
+    "http://127.0.0.1:35679/",
+    "http://127.0.0.1:35679/assets/styles.css",
+    "http://127.0.0.1:35679/assets/app.js",
+    "http://127.0.0.1:35679/assets/api.js",
+    "http://127.0.0.1:35679/assets/model.js",
+    "http://127.0.0.1:35679/assets/render.js",
+    "http://127.0.0.1:35679/api/v1/local/session",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/source",
+    "http://127.0.0.1:35679/api/v1/operations",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/operations",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/operations",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/operations",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/operations",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/local/import-handles",
+    "http://127.0.0.1:35679/api/v1/operations",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/operations",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/operations",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/",
+    "http://127.0.0.1:35679/assets/styles.css",
+    "http://127.0.0.1:35679/assets/app.js",
+    "http://127.0.0.1:35679/assets/api.js",
+    "http://127.0.0.1:35679/assets/model.js",
+    "http://127.0.0.1:35679/assets/render.js",
+    "http://127.0.0.1:35679/api/v1/local/session",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/source",
+    "http://127.0.0.1:35679/",
+    "http://127.0.0.1:35679/assets/styles.css",
+    "http://127.0.0.1:35679/assets/app.js",
+    "http://127.0.0.1:35679/assets/api.js",
+    "http://127.0.0.1:35679/assets/model.js",
+    "http://127.0.0.1:35679/assets/render.js",
+    "http://127.0.0.1:35679/api/v1/local/session",
+    "http://127.0.0.1:35679/api/v1/local/session",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/",
+    "http://127.0.0.1:35679/assets/styles.css",
+    "http://127.0.0.1:35679/assets/app.js",
+    "http://127.0.0.1:35679/assets/api.js",
+    "http://127.0.0.1:35679/assets/model.js",
+    "http://127.0.0.1:35679/assets/render.js",
+    "http://127.0.0.1:35679/api/v1/local/session",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/retention",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/retention/pin",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/retention/pin",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs/unsafe-html/expire",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/retention",
+    "http://127.0.0.1:35679/",
+    "http://127.0.0.1:35679/assets/styles.css",
+    "http://127.0.0.1:35679/assets/app.js",
+    "http://127.0.0.1:35679/assets/api.js",
+    "http://127.0.0.1:35679/assets/model.js",
+    "http://127.0.0.1:35679/assets/render.js",
+    "http://127.0.0.1:35679/api/v1/local/session",
+    "http://127.0.0.1:35679/api/v1/system",
+    "http://127.0.0.1:35679/api/v1/projects",
+    "http://127.0.0.1:35679/api/v1/operations?limit=100",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/veiled-gold/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/malicious-name/workspaces",
+    "http://127.0.0.1:35679/api/v1/projects/new-provisioning/workspaces",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111",
+    "http://127.0.0.1:35679/api/v1/runs/11111111-1111-4111-8111-111111111111/outputs",
+    "http://127.0.0.1:35679/api/v1/projects/notes-lab/workspaces/rc-dashboard/connections",
+    "http://127.0.0.1:35679/api/v1/operations"
+  ],
+  "live_external_actions": false,
+  "scenario_scope": [
+    "SC-01",
+    "SC-02",
+    "SC-03",
+    "SC-04",
+    "SC-05",
+    "SC-06",
+    "SC-07",
+    "SC-08",
+    "SC-09",
+    "SC-10",
+    "SC-11",
+    "SC-12",
+    "SC-13",
+    "SC-14"
+  ]
+}

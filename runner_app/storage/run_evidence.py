@@ -603,6 +603,23 @@ class RunEvidenceStore:
         finally:
             connection.close()
 
+    def run_retention_status(self, run_id: str) -> dict[str, Any]:
+        """Return current owner pin plus immutable output/tombstone identities."""
+        run_id = _uuid(run_id)
+        connection = self.database.connect()
+        try:
+            if connection.execute("SELECT 1 FROM runs WHERE run_id=?", (run_id,)).fetchone() is None:
+                raise EvidenceError("RUN_NOT_FOUND", "Contained run is unavailable")
+            latest = connection.execute(
+                "SELECT action FROM run_retention_pin_events WHERE run_id=? "
+                "ORDER BY event_id DESC LIMIT 1", (run_id,),
+            ).fetchone()
+            pinned = latest is not None and latest[0] == "PIN"
+        finally:
+            connection.close()
+        return {"run_id": run_id, "pinned": pinned,
+                "outputs": self.output_retention_index(run_id)}
+
     def output_retention_index(self, run_id: str) -> list[dict[str, Any]]:
         """Local index overlays immutable manifests with explicit expiry tombstones."""
         run_id = _uuid(run_id)

@@ -12,6 +12,7 @@ from typing import Any
 
 from runner_app.git import worktrees
 from runner_app.git.argv import GitError, run_git, run_git_bytes, validate_branch
+from runner_app.git.github_transport import FETCH_REFSPEC, read_tracking_refs, tracking_refs_digest
 from runner_app.git.registry import SourceRegistry
 from runner_app.git.templates import starter_files
 from runner_app.workflows.reconcile import EffectProof
@@ -25,6 +26,8 @@ class ManagedGitEffectReader:
 
     def __call__(self, target: Mapping[str, Any],
                  effect: Mapping[str, Any]) -> EffectProof | None:
+        if target.get("action") == "FETCH":
+            return self._fetch(target, effect)
         command = target.get("command")
         intent = effect.get("intent")
         project_id = target.get("project_id")
@@ -46,6 +49,45 @@ class ManagedGitEffectReader:
         if step == "initial-workspace":
             return self._workspace(target, effect, intent, project_id)
         return None
+
+    def _fetch(self, target: Mapping[str, Any],
+               effect: Mapping[str, Any]) -> EffectProof | None:
+        """Prove only the intended local tracking-ref state; never repeat fetch."""
+        command = target.get("command")
+        intent = effect.get("intent")
+        project_id = target.get("project_id")
+        if (target.get("status") not in {"BLOCKED", "FAULT", "INTERRUPTED", "CANCELLED"}
+                or not isinstance(command, dict) or command.get("action") != "FETCH"
+                or not isinstance(project_id, str)
+                or command.get("project_id") != project_id
+                or command.get("workspace_id") is not None
+                or command.get("params") != {}
+                or effect.get("kind") != "local_workspace"
+                or effect.get("step_id") != "git-fetch"
+                or effect.get("state") not in {"INTENDED", "UNKNOWN"}
+                or not isinstance(effect.get("effect_id"), str)
+                or not isinstance(intent, dict)
+                or set(intent) != {
+                    "project_id", "repository_id", "clone_url", "refspec",
+                    "advertised_heads", "before_refs_sha256",
+                }
+                or intent.get("project_id") != project_id
+                or intent.get("refspec") != FETCH_REFSPEC
+                or not isinstance(intent.get("advertised_heads"), dict)):
+            return None
+        remote = self.registry.get_project_remote(project_id)
+        if (remote is None or intent.get("repository_id") != remote.get("provider_id")
+                or intent.get("clone_url") != remote.get("clone_url")):
+            return None
+        repo = self.registry.checked_project_path(project_id)
+        tracking = read_tracking_refs(repo)
+        if any(tracking.get(branch) != oid
+               for branch, oid in intent["advertised_heads"].items()):
+            return None
+        digest = tracking_refs_digest(tracking)
+        if effect.get("provider_id") not in (None, digest):
+            return None
+        return EffectProof(effect["effect_id"], digest, dict(intent))
 
     def _registered_repo(self, project_id: str, command: Mapping[str, Any],
                          kind: str) -> Path | None:

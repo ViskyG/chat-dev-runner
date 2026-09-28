@@ -38,8 +38,12 @@ def create_app(
             "Cache-Control": "no-store",
             "X-Content-Type-Options": "nosniff",
             "Referrer-Policy": "no-referrer",
-            "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
         })
+        # Keep a route's stronger policy, e.g. sandbox on a downloaded output.
+        if "content-security-policy" not in response.headers:
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"
+            )
         return response
 
     @app.get("/api/v1/health")

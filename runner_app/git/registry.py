@@ -454,6 +454,30 @@ class SourceRegistry:
         finally:
             connection.close()
 
+    def checked_project_path(self, project_id: str) -> Path:
+        """Resolve a registered bare repository from its fixed managed slot."""
+        project_id = _slug(project_id)
+        project = self.get_project(project_id)
+        if project is None:
+            raise SourceError("PROJECT_NOT_REGISTERED", "Project identity is unknown")
+        expected = self.managed_root / project_id / "repo.git"
+        if project["repo_path"] != str(expected):
+            raise SourceError("OUTSIDE_MANAGED_ROOT", "Repository path differs from its managed slot")
+        return self._managed_path(expected, directory=True, expected=expected)
+
+    def checked_workspace_path(self, project_id: str, workspace_id: str) -> Path:
+        """Resolve a registered live worktree without trusting a caller-supplied path."""
+        project_id, workspace_id = _slug(project_id), _slug(workspace_id)
+        workspace = self.get_workspace(project_id, workspace_id)
+        if workspace is None:
+            raise SourceError("WORKSPACE_NOT_REGISTERED", "Workspace identity is unknown")
+        if workspace["state"] != "ACTIVE" or workspace["archived"]:
+            raise SourceError("WORKSPACE_UNAVAILABLE", "Workspace is not openable")
+        expected = self.managed_root / project_id / "workspaces" / workspace_id
+        if workspace["worktree_path"] != str(expected):
+            raise SourceError("OUTSIDE_MANAGED_ROOT", "Workspace path differs from its managed slot")
+        return self._managed_path(expected, directory=True, expected=expected)
+
     def get_workspace_profile(self, project_id: str, workspace_id: str
                               ) -> dict[str, str] | None:
         """Read the stored owner-side template/profile binding, if complete."""
