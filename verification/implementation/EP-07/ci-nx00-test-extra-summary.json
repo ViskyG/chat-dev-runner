@@ -1,0 +1,158 @@
+{
+  "recorded_at_utc": "2026-09-28T16:41:32.411582+00:00",
+  "claim": "Test extra repaired in isolated EP-07 branch; actual updated GitHub Actions result remains a gate.",
+  "source": {
+    "starting_commit": "f490f6a0d71ac058f753e2e0bd9d1b357bbf8006",
+    "branch": "ep07/ci-test-extra",
+    "sha256": {
+      "pyproject.toml": "26317f763f0a1e902b395910c67daa7533e676e784bc5dbbf3b6418e48695c0a",
+      "requirements.lock": "b868c7e19eefb79432e982d30c65be27ea041142bef57c33505d37a2dce3148b",
+      "requirements.production.lock": "79036fafb676757f4109d02c9a85910ac0a9f607582cc6151339e7d9c91e2cea"
+    },
+    "lock_package_counts": {
+      "before": 41,
+      "after": 60
+    },
+    "lock_added_packages": [
+      "cffi",
+      "charset-normalizer",
+      "cryptography",
+      "google-api-core",
+      "google-api-python-client",
+      "google-auth",
+      "google-auth-httplib2",
+      "googleapis-common-protos",
+      "httplib2",
+      "opentelemetry-api",
+      "proto-plus",
+      "protobuf",
+      "pyasn1",
+      "pyasn1-modules",
+      "pycparser",
+      "pyparsing",
+      "requests",
+      "uritemplate",
+      "urllib3"
+    ],
+    "existing_lock_pin_changes": []
+  },
+  "original_actions": {
+    "run_id": 36442756830,
+    "url": "https://github.com/ViskyG/chat-dev-runner/actions/runs/36442756830",
+    "head_sha": "f490f6a0d71ac058f753e2e0bd9d1b357bbf8006",
+    "artifact_id": 10978179073,
+    "artifact_zip_digest": "sha256:1c923db4273aaa6229f8e1fcb468592ce0b1f5bfa6aa3f0e39ea88d6548633c9",
+    "junit": "ci-nx00-f490-actions.junit.xml",
+    "counts": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 8,
+      "skipped": 0
+    },
+    "diagnosis": "Editable [test] install succeeded; collection stopped on Starlette TestClient lacking httpx/httpx2 and direct httplib2 import. After installing those two only, transport test also required googleapiclient."
+  },
+  "repair": {
+    "test_extra_pins": [
+      "pytest==9.1.1",
+      "httpx==0.28.1",
+      "httplib2==0.32.0",
+      "google-api-python-client==2.200.0"
+    ],
+    "runtime_module_changes": false,
+    "production_lock_changes": false,
+    "workflow_changes": false
+  },
+  "clean_python311": {
+    "runtime": "uv-managed CPython 3.11.15 in /tmp; matches Actions major/minor but lacks os.memfd_create and MFD_CLOEXEC",
+    "pip_test_install": {
+      "command": "python -m pip install -e '.[test]'",
+      "exit_code": 0,
+      "log": "ci-nx00-python311-pip-install.log"
+    },
+    "pip_check": "PASS",
+    "focused": {
+      "command": "python -m pytest -q tests/test_connection_checks.py tests/test_drive_transport.py",
+      "exit_code": 0,
+      "junit": "ci-nx00-python311-focused.junit.xml",
+      "counts": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "hash_lock": {
+      "command": "uv pip install --require-hashes -r requirements.lock; uv pip install --no-deps --no-build-isolation -e .; uv pip check",
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "compatible_packages": 61,
+      "log": "ci-nx00-python311-lock-install.log",
+      "focused_junit": "ci-nx00-python311-lock-focused.junit.xml",
+      "focused_counts": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "full": {
+      "command": "python -m pytest -q --junitxml=<temp artifact>",
+      "outcome": "FAILED",
+      "exit_code_observed": false,
+      "exit_code_note": "Wrapper returned the tail command status; JUnit and raw log record pytest failures.",
+      "junit": "ci-nx00-python311-full.junit.xml.gz",
+      "log": "ci-nx00-python311-full.log.gz",
+      "counts": {
+        "tests": 1362,
+        "failures": 13,
+        "errors": 0,
+        "skipped": 1
+      },
+      "memfd_related_failure_nodes": [
+        "tests.test_deliver_verify_publish_workflow::test_trusted_local_policy_exports_sanitized_test_result",
+        "tests.test_drive_delivery::test_only_explicit_sanitized_export_enters_immutable_bundle",
+        "tests.test_drive_delivery::test_suspicious_output_is_quarantined_until_local_review",
+        "tests.test_drive_delivery::test_mismatched_operation_or_tampered_registered_output_is_refused",
+        "tests.test_github_git_transport::test_anonymous_askpass_works_with_local_git_credential_fill_only",
+        "tests.test_prepared_verify_integration::test_durable_preparation_result_has_local_verified_download_and_retention[PASSED]",
+        "tests.test_prepared_verify_integration::test_durable_preparation_result_has_local_verified_download_and_retention[FAILED]",
+        "tests.test_run_evidence::test_failed_project_run_is_durable_and_bound_to_exact_snapshot",
+        "tests.test_run_evidence::test_output_download_rechecks_bytes_and_rejects_symlink",
+        "tests.test_run_evidence::test_output_route_requires_session_and_serves_only_registered_attachment",
+        "tests.test_run_evidence::test_open_output_stream_is_sealed_against_postcheck_file_edits",
+        "tests.test_run_evidence::test_reader_seals_output_before_retention_can_tombstone"
+      ],
+      "other_failure_node": "tests.test_provision_resume_complete::test_partial_ui_create_adopts_parallel_sibling_subset_then_fills_gaps"
+    }
+  },
+  "targeted_followup": {
+    "system_python310_memfd": "CPython 3.10.12 has os.memfd_create; 12 exact failed memfd cases passed in clean candidate venv",
+    "python310_memfd_junit": "ci-nx00-python310-memfd-focused.junit.xml",
+    "python310_memfd_counts": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "single_provision_rerun": "Passed once, underlying HANDLER_FAILED cause in broad run unproven",
+    "provision_junit": "ci-nx00-python311-provision-focused.junit.xml",
+    "provision_counts": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "offline_ci_step": {
+    "command": "python scripts/bootstrap_drive.py --plan",
+    "exit_code": 0,
+    "artifact": "ci-nx00-python311-drive-plan.json",
+    "mode": "PLAN_ONLY",
+    "network_calls": false
+  },
+  "remaining_gate": "Run updated branch on actual GitHub Actions setup-python 3.11, inspect JUnit, and investigate any persistent provision failure. Do not count this as EP-07 release acceptance.",
+  "external_effects": "None: only temporary source/venvs and branch evidence; installed service, Drive, GitHub and schemas untouched."
+}
