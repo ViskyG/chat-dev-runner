@@ -1,4 +1,4 @@
-"""Continue a reconciled, owner-local CREATE with a confirmed resource prefix.
+"""Continue a reconciled, owner-local CREATE with confirmed dependent resources.
 
 Only a fresh owner-local RESUME_PROVISION may do this. Every old effect receives
 fresh exact-ID readback before atomic cross-request adoption. The Drive adapter
@@ -43,7 +43,7 @@ RootProofPort = Callable[[str], RootPartialReceiptProof]
 
 
 class PartialProvisionRecoveryWorkflow:
-    """Full-graph no-write completion, or bounded continuation of a proven prefix."""
+    """Full-graph no-write completion, or bounded continuation of proven effects."""
 
     def __init__(self, complete: CompleteProvisionRecoveryWorkflow,
                  provisioner: DriveProjectProvisioner,
@@ -102,14 +102,18 @@ class PartialProvisionRecoveryWorkflow:
             and intent.get("confirmed_effects_sha256") == proof.confirmed_effects_sha256
         )
 
-    def _prefix_is_exact(self, project_id: str, old: Mapping[str, Any]) -> bool:
-        if (not 5 <= len(old) < len(_ORDER)
-                or set(old) != set(_ORDER[:len(old)])):
+    def _subset_is_exact(self, project_id: str, old: Mapping[str, Any]) -> bool:
+        # Parallel sibling creates may finish out of order. Require the full
+        # local base and project folder, then validate every present Drive effect
+        # against its exact parent; a child without its parent is never adopted.
+        required = set(_ORDER[:5])
+        if (not required.issubset(old) or len(old) >= len(_ORDER)
+                or not set(old).issubset(_ORDER)):
             return False
         ids: dict[str, str] = {"projects": self.complete.projects_folder_id}
         for step, field, parent, key, name, mime, workspace in _DRIVE_CREATES:
             if step not in old:
-                break
+                continue
             effect = old[step]
             parent_id = ids.get(parent)
             expected = {
@@ -126,9 +130,12 @@ class PartialProvisionRecoveryWorkflow:
                     or mime not in {DOCUMENT_MIME, FOLDER_MIME}):
                 return False
             ids[field] = effect.provider_id
+        if (any(step in old for step, _, _ in _CONTENT)
+                and not all(step in old for step, *_ in _DRIVE_CREATES)):
+            return False
         for step, field, key in _CONTENT:
             if step not in old:
-                break
+                continue
             effect = old[step]
             intent = effect.intent
             if (effect.kind != "drive_file" or ids.get(field) != effect.provider_id
@@ -196,7 +203,7 @@ class PartialProvisionRecoveryWorkflow:
             return complete._execute(
                 frozen, context, root_receipt_verified=root_origin,
             )
-        if not self._prefix_is_exact(project_id, old):
+        if not self._subset_is_exact(project_id, old):
             return OperationResult("BLOCKED", "RESUME_UNSUPPORTED_RESOURCE_PREFIX")
         params = preview.command["params"]
         if params["source"] != {"kind": "new"}:
@@ -233,8 +240,9 @@ class PartialProvisionRecoveryWorkflow:
         }
         adopted: list[str] = state["recovery"]["adopted_effect_ids"]
         try:
-            for step in _ORDER[:len(old)]:
-                adopted.append(ledger.adopt_confirmed_effect(request_id, proofs[step]))
+            for step in _ORDER:
+                if step in old:
+                    adopted.append(ledger.adopt_confirmed_effect(request_id, proofs[step]))
         except LedgerError as error:
             return OperationResult("BLOCKED", error.code, state)
         try:

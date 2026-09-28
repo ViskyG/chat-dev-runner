@@ -107,7 +107,8 @@ class FakeDriveRegistry:
 
 def _fixture(tmp_path: Path, *, complete: bool = True,
              root_origin: bool = False, partial_workspace_folder: bool = False,
-             root_interrupted_full: bool = False) -> tuple[
+             root_interrupted_full: bool = False,
+             parallel_confirmed_steps: frozenset[str] | None = None) -> tuple[
                  Ledger, dict[str, Any], CompleteProvisionRecoveryWorkflow,
                  FakeGitHubReader, FakeDriveReader,
              ]:
@@ -155,7 +156,7 @@ def _fixture(tmp_path: Path, *, complete: bool = True,
         template_profiles={"python-basic": "python-quick"},
         owner_source_ids=frozenset({OWNER.source_id}), root_command_id=ROOT_COMMAND,
     )
-    if complete or partial_workspace_folder:
+    if complete or partial_workspace_folder or parallel_confirmed_steps is not None:
         source = SourceService(ledger, registry)
         project = source.create_new_source(request_id)
         repo = Path(project["repo_path"])
@@ -178,6 +179,8 @@ def _fixture(tmp_path: Path, *, complete: bool = True,
             "fixture", "primary", template_id="python-basic", profile_id="python-quick",
         )
         for step, field, parent, key, name, mime, workspace in _DRIVE_CREATES:
+            if parallel_confirmed_steps is not None and step not in parallel_confirmed_steps:
+                continue
             parent_id = PROJECTS if parent == "projects" else getattr(registration, parent)
             file_id = getattr(registration, field)
             intent = {
@@ -190,7 +193,7 @@ def _fixture(tmp_path: Path, *, complete: bool = True,
             if partial_workspace_folder and step == "drive-workspace-folder":
                 break
             ledger.confirm_effect(effect, file_id)
-        if not partial_workspace_folder:
+        if not partial_workspace_folder and parallel_confirmed_steps is None:
             for step, field, key in _CONTENT:
                 file_id = getattr(registration, field)
                 intent = {
@@ -408,6 +411,49 @@ def test_partial_ui_create_adopts_exact_prefix_then_creates_only_missing_docs(
     ]
     assert ledger.get(target_id) == original_before
     assert github.reads == 2 and drive.reads == 6
+
+
+def test_partial_ui_create_adopts_parallel_sibling_subset_then_fills_gaps(
+    tmp_path: Path,
+) -> None:
+    confirmed = frozenset({
+        *(item[0] for item in _DRIVE_CREATES[:5]),
+        "drive-command-doc", "drive-receipt-doc",
+    })
+    ledger, original, complete, github, drive = _fixture(
+        tmp_path, parallel_confirmed_steps=confirmed,
+    )
+    provisioner = FakePartialProvisioner(complete)
+    partial = PartialProvisionRecoveryWorkflow(
+        complete, cast(Any, provisioner), lambda _registration: cast(Any, object()),
+    )
+    result = _run(ledger, original["request_id"], partial)
+    assert result["status"] == "COMPLETED", result["code"]
+    assert len([effect for effect in result["effects"] if "adoption" in effect]) == 4 + len(confirmed)
+    assert provisioner.created_steps == [
+        item[0] for item in _DRIVE_CREATES if item[0] not in confirmed
+    ] + [item[0] for item in _CONTENT]
+    assert github.reads == 2 and drive.reads == len(confirmed)
+
+
+def test_partial_ui_create_rejects_parallel_child_without_parent(
+    tmp_path: Path,
+) -> None:
+    confirmed = frozenset({
+        *(item[0] for item in _DRIVE_CREATES[:4]), "drive-command-doc",
+    })
+    ledger, original, complete, github, drive = _fixture(
+        tmp_path, parallel_confirmed_steps=confirmed,
+    )
+    provisioner = FakePartialProvisioner(complete)
+    partial = PartialProvisionRecoveryWorkflow(
+        complete, cast(Any, provisioner), lambda _registration: cast(Any, object()),
+    )
+    result = _run(ledger, original["request_id"], partial)
+    assert result["status"] == "BLOCKED"
+    assert result["code"] == "RESUME_UNSUPPORTED_RESOURCE_PREFIX"
+    assert result["effects"] == [] and provisioner.created_steps == []
+    assert github.reads == drive.reads == 0
 
 
 def test_partial_root_create_stays_blocked_after_positive_reconciliation(

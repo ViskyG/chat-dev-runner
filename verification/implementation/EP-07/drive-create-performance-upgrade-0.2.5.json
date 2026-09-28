@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "checked_at": "2026-09-28T15:15:39.031013+00:00",
+  "result": "PASS_FOR_TESTED_PERFORMANCE_WHEEL_AND_EXISTING_INSTALLATION",
+  "previous_live_create": {
+    "request_id": "7b1e0f6d-6e98-4f0a-bf71-7df7c3a1cf4d",
+    "source": "verification/implementation/EP-07/chat-origin-calculator-create-20260928.json",
+    "total_seconds": 595.5,
+    "drive_folder_to_state_content_seconds": 374.6,
+    "project_ready_to_root_receipt_seconds": 148.0
+  },
+  "implementation": {
+    "max_parallel_drive_file_requests": 4,
+    "workspace_children_start_on_confirmed_workspace_folder": true,
+    "max_parallel_registry_metadata_reads": 4,
+    "parallel_content_documents": 2,
+    "concrete_upload_reuses_verified_create_readback": true,
+    "root_receipt_reuses_verified_command_reads": true,
+    "dependency_closed_resume_for_parallel_siblings": true,
+    "drive_scope_and_existing_installation_unchanged": true
+  },
+  "verification": {
+    "focused_junit": "verification/implementation/EP-07/drive-create-perf-focused.xml",
+    "full_junit": "verification/implementation/EP-07/drive-create-perf-final-full.xml",
+    "full_passed": 1361,
+    "full_skipped": 1,
+    "full_failures": 0,
+    "full_errors": 0,
+    "ruff": "PASS",
+    "mypy": "PASS_6_CHANGED_SOURCE_FILES",
+    "root_receipt_baseline_junit": "verification/implementation/EP-07/root-receipt-perf-baseline.xml",
+    "root_receipt_initial_optimization_junit": "verification/implementation/EP-07/root-receipt-perf-after.xml",
+    "root_receipt_initial_optimization_passed": 51
+  },
+  "upgrade": {
+    "from_version": "0.2.4",
+    "to_version": "0.2.5",
+    "backup_path": "/home/visky/Work/GPTRunner/.runner-backups/pre-drive-parallel-20260928",
+    "backup_manifest_sha256": "3515e9b2387182ce2a305846ba471de9c426504f5786bd085672316b647764ad",
+    "backup_files": 463,
+    "backup_entry_count": 685,
+    "backup_database_schema_version": 9,
+    "backup_hashes_and_sqlite_integrity": "PASS",
+    "wheel_sha256": "7f3650362944f576f311443c91eac688db999ac6f6df19256c202633f797b476",
+    "installed_package": "WHEEL",
+    "installed_dependencies": "43_COMPATIBLE_PACKAGES",
+    "unit_changed": false,
+    "unit_active": true,
+    "unit_enabled": true,
+    "unit_result": "success",
+    "listener": "127.0.0.1:8765",
+    "health_version": "0.2.5",
+    "health_armed": true
+  },
+  "drive_postcheck": {
+    "mode": "EXACT_EXISTING_INSTALLATION_READ",
+    "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+    "installation_index_document_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+    "identity_mode": "owner_manifest",
+    "indexed_roles": 13,
+    "system_state_doc_id": "1UXNE8Vt-73inAKm4i949TpyGT5rb3ve9bv_521QwXS0",
+    "epoch_matches_local_ledger": true,
+    "epoch": "06b72bbe-83ca-4e2f-81bf-90a2b4bc1f7d",
+    "state": "ARMED",
+    "runner_armed": true,
+    "available_actions": [
+      "CREATE_PROJECT",
+      "CREATE_WORKSPACE",
+      "DELIVER_VERIFY_PUBLISH",
+      "FETCH"
+    ]
+  },
+  "no_extra_canary": {
+    "operations_before_and_after": 15,
+    "projects_before_and_after": 4,
+    "running": 0,
+    "reconcile_required": 0,
+    "uncertain_effects": 0
+  },
+  "performance_measurement": "New live CREATE_PROJECT duration has not been measured. The next real request will show the observed improvement.",
+  "release_status": "EP-07_IN_PROGRESS; broader release gates remain open"
+}

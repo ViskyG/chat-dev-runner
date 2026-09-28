@@ -191,7 +191,7 @@ def _resources() -> dict[str, Any]:
 
 
 def _setup(tmp_path: Path, *, drive_source: bool = True,
-           source_kind: str = "new"
+           source_kind: str = "new", owner_manifest: bool = False,
            ) -> tuple[Ledger, FakeRootDocs, RootCreateProjectReceiptPublisher, dict[str, Any]]:
     ledger = Ledger(Database(tmp_path / "state" / "ledger.sqlite"))
     ledger.startup()
@@ -207,9 +207,24 @@ def _setup(tmp_path: Path, *, drive_source: bool = True,
         "state": IndexedFile("state", _STATE, "SYSTEM STATE", _DOC, (_CONTROL,), {}),
         "control": IndexedFile("control", _CONTROL, "00 Control", _FOLDER, (_ROOT,), {}),
     }
+    index_text = "Owner-reviewed installation index\n"
+    if owner_manifest:
+        api.add(_INDEX, "INSTALLATION INDEX", "installation-index", index_text)
+        api.metadata[_INDEX]["parents"] = [_ROOT]
+        files["installation-index"] = IndexedFile(
+            "installation-index", _INDEX, "INSTALLATION INDEX", _DOC, (_ROOT,), {},
+        )
     attached = AttachedInstallation(
         ExistingInstallation(_ROOT, _INDEX, "Chat-Dev Runner"),
-        InstallationIndex(_INSTALLATION, files), "rev-1", "a" * 64, {},
+        InstallationIndex(
+            _INSTALLATION, files,
+            "owner_manifest" if owner_manifest else "app_properties",
+        ),
+        "rev-1",
+        hashlib.sha256(index_text.encode()).hexdigest() if owner_manifest else "a" * 64,
+        {key: {"id": file_id} for key, file_id in (
+            ("command", _COMMAND), ("control", _CONTROL), ("receipt", _RECEIPT),
+        )} if owner_manifest else {},
     )
     writer = DocsCASWriter(api, attached)
     assert ledger.admit(
@@ -234,12 +249,18 @@ def _code(call: Any, code: str) -> None:
     assert error.value.code == code
 
 
+def _receipt_reads(api: FakeRootDocs) -> int:
+    return api.calls.count(("documents.get", _RECEIPT))
+
+
 def test_drive_create_receipt_is_sanitized_journaled_exact_and_idempotent(
     tmp_path: Path,
 ) -> None:
     ledger, api, publisher, command = _setup(tmp_path)
     before_command = copy.deepcopy(api.documents[_COMMAND])
+    reads_before = _receipt_reads(api)
     assert publisher.publish(command["request_id"], resources=_resources()) == _RECEIPT
+    assert _receipt_reads(api) - reads_before == 3
     assert api.documents[_COMMAND] == before_command
     assert api.batch_ids == [_RECEIPT]
     text = "".join(
@@ -266,6 +287,46 @@ def test_drive_create_receipt_is_sanitized_journaled_exact_and_idempotent(
     assert api.batch_ids == [_RECEIPT]
 
 
+
+
+def test_owner_manifest_reuses_snapshot_command_metadata_reads(tmp_path: Path) -> None:
+    ledger, api, publisher, command = _setup(tmp_path, owner_manifest=True)
+    assert publisher.publish(command["request_id"], resources=_resources()) == _RECEIPT
+    # Two snapshot reads before CAS and two after; no separate COMMAND lookup.
+    assert api.calls.count(("files.get", _COMMAND)) == 4
+    assert api.batch_ids == [_RECEIPT]
+    assert _effects(ledger, command["request_id"])[0]["state"] == "CONFIRMED"
+
+
+@pytest.mark.parametrize("drift", ["parent", "type", "capability", "visible_owner"])
+def test_owner_manifest_command_drift_still_refuses_receipt(
+    tmp_path: Path, drift: str,
+) -> None:
+    ledger, api, publisher, command = _setup(tmp_path, owner_manifest=True)
+    metadata = api.metadata[_COMMAND]
+    if drift == "parent":
+        metadata["parents"] = ["othercontrolfolder01"]
+    elif drift == "type":
+        metadata["mimeType"] = _FOLDER
+    elif drift == "capability":
+        metadata["capabilities"]["canEdit"] = False
+    else:
+        metadata["appProperties"]["cdr_key"] = "other"
+    _code(lambda: publisher.publish(command["request_id"], resources=_resources()),
+          "ROOT_COMMAND_IDENTITY_CHANGED")
+    assert api.batch_ids == []
+    assert _effects(ledger, command["request_id"]) == []
+
+
+def test_owner_manifest_index_drift_stays_separate_from_command_drift(
+    tmp_path: Path,
+) -> None:
+    ledger, api, publisher, command = _setup(tmp_path, owner_manifest=True)
+    api.metadata[_INDEX]["parents"] = ["otherrootfolder00001"]
+    _code(lambda: publisher.publish(command["request_id"], resources=_resources()),
+          "ROOT_COMMAND_READ_FAILED")
+    assert api.batch_ids == []
+    assert _effects(ledger, command["request_id"]) == []
 
 
 def test_new_receipt_rejects_alias_as_repository_owner(tmp_path: Path) -> None:
@@ -356,7 +417,9 @@ def test_changed_ready_command_digest_prevents_root_receipt_write(tmp_path: Path
 def test_lost_ack_after_applied_write_confirms_by_exact_readback(tmp_path: Path) -> None:
     ledger, api, publisher, command = _setup(tmp_path)
     api.lose_ack_once = True
+    reads_before = _receipt_reads(api)
     assert publisher.publish(command["request_id"], resources=_resources()) == _RECEIPT
+    assert _receipt_reads(api) - reads_before == 4
     assert api.batch_ids == [_RECEIPT]
     effect = _effects(ledger, command["request_id"])[0]
     assert effect["state"] == "CONFIRMED"
@@ -462,7 +525,9 @@ def test_pre_dispatch_recovery_closes_root_receipt_without_project_effects(
     before_command = copy.deepcopy(api.documents[_COMMAND])
     operation = ledger.get(request_id)
     assert operation is not None and operation["steps"] == [] and operation["effects"] == []
+    reads_before = _receipt_reads(api)
     assert publisher.recover_pre_dispatch(request_id, slots) == _RECEIPT
+    assert _receipt_reads(api) - reads_before == 3
     assert api.batch_ids == [_RECEIPT]
     assert api.documents[_COMMAND] == before_command
     receipt = json.loads(_doc_text(api, _RECEIPT))
@@ -620,7 +685,9 @@ def test_partial_terminal_receipt_is_exact_sanitized_and_read_only_provable(
     original = ledger.get(request_id)
     assert original is not None
     original_receipt = original["receipt"]
+    reads_before = _receipt_reads(api)
     assert publisher.recover_terminal_partial(request_id, slots) == _RECEIPT
+    assert _receipt_reads(api) - reads_before == 3
     assert api.batch_ids == [_RECEIPT]
     assert api.documents[_COMMAND] == before_command
     remote = json.loads(_doc_text(api, _RECEIPT))

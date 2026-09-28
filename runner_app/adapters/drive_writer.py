@@ -88,6 +88,7 @@ class WriteResult:
     observed_revision: str | None = None
     observed_sha256: str | None = None
     reason: str | None = None
+    observed_text: str | None = None
 
 
 def _utf16_units(value: str) -> int:
@@ -284,6 +285,7 @@ class DocsCASWriter:
             observed_revision=observed.snapshot.revision_id if observed else None,
             observed_sha256=observed.snapshot.sha256 if observed else None,
             reason=reason,
+            observed_text=observed.snapshot.text if observed else None,
         )
 
     def replace(self, key: str, text: str, *, expected: ObservedOutputDoc) -> WriteResult:
@@ -303,6 +305,7 @@ class DocsCASWriter:
             return WriteResult(
                 "UNCHANGED", key, registered.file_id, base, desired,
                 resulting_revision=base, observed_revision=base, observed_sha256=desired,
+                observed_text=current.snapshot.text,
             )
         tab_id = current.snapshot.tab_id
         if tab_id is None:
@@ -341,4 +344,5 @@ class DocsCASWriter:
         return WriteResult(
             "CONFIRMED", key, registered.file_id, base, desired,
             resulting_revision=revision, observed_revision=revision, observed_sha256=desired,
+            observed_text=observed.snapshot.text,
         )

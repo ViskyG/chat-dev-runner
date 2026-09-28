@@ -5,6 +5,7 @@ import copy
 import stat
 from dataclasses import replace
 from pathlib import Path
+from threading import Barrier, Event
 from typing import Any
 from uuid import uuid4
 
@@ -124,6 +125,41 @@ def test_registration_is_private_idempotent_and_reloadable(tmp_path: Path) -> No
         record.command_doc_id, record.changeset_doc_id,
         record.receipt_doc_id, record.latest_result_doc_id,
     }
+
+
+def test_registration_reads_independent_ids_in_bounded_parallel(tmp_path: Path) -> None:
+    store, record, provider, _ = fixture(tmp_path)
+    original_get_file = provider.get_file
+    two_children_started = Barrier(2)
+
+    def overlapping_get_file(file_id: str, *, fields: str) -> dict[str, Any]:
+        if file_id in (record.project_folder_id, record.workspace_folder_id):
+            two_children_started.wait(timeout=2)
+        return original_get_file(file_id, fields=fields)
+
+    provider.get_file = overlapping_get_file  # type: ignore[method-assign]
+    assert store.register(record) == record
+    assert provider.calls[0] == _PROJECTS_ID
+
+
+def test_parallel_registration_keeps_first_expected_error(tmp_path: Path) -> None:
+    store, record, provider, directory = fixture(tmp_path)
+    provider.metadata[record.project_folder_id]["parents"] = ["wrongparent000001"]
+    provider.metadata[record.workspace_folder_id]["appProperties"]["cdr_workspace"] = "wrong"
+    original_get_file = provider.get_file
+    later_read_finished = Event()
+
+    def out_of_order_get_file(file_id: str, *, fields: str) -> dict[str, Any]:
+        if file_id == record.project_folder_id:
+            assert later_read_finished.wait(timeout=2)
+        result = original_get_file(file_id, fields=fields)
+        if file_id == record.workspace_folder_id:
+            later_read_finished.set()
+        return result
+
+    provider.get_file = out_of_order_get_file  # type: ignore[method-assign]
+    _code(lambda: store.register(record), "REGISTRATION_IDENTITY_CHANGED")
+    assert list(directory.iterdir()) == []
 
 
 def test_output_pair_must_match_exact_workspace_ids(tmp_path: Path) -> None:

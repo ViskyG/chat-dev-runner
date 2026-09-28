@@ -14,6 +14,7 @@ import os
 import re
 import stat
 from collections.abc import Mapping
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Protocol
@@ -32,6 +33,7 @@ _MAX_RECORD_BYTES = 16_384
 _DIR_FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
 _FILE_FLAGS = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC
 _RENAME_NOREPLACE = 1
+_MAX_PARALLEL_METADATA_READS = 4
 
 
 class DriveRegistryError(DriveError):
@@ -287,34 +289,52 @@ class WorkspaceDriveRegistry:
         else:
             raise DriveRegistryError("PROJECT_ROOT_CHANGED", "Indexed project root mode is invalid")
         indexed_ids = {item.file_id for item in self._attached.index.files.values()}
-        if any(expectation.file_id in indexed_ids for expectation in self._expectations(value)):
+        expectations = self._expectations(value)
+        if any(expected.file_id in indexed_ids for expected in expectations):
             raise DriveRegistryError("REGISTRATION_ID_CONFLICT", "Workspace reuses an installation ID")
-        for expected in self._expectations(value):
-            try:
-                metadata = self._provider.get_file(expected.file_id, fields=FILE_FIELDS)
-            except Exception:  # noqa: BLE001 - provider exceptions may contain credentials
-                raise DriveRegistryError("REGISTRATION_ACCESS_MISSING", "Registered file is unavailable") from None
-            if not isinstance(metadata, Mapping):
-                raise DriveRegistryError("REGISTRATION_METADATA_INVALID", "Registered metadata is invalid")
-            if (metadata.get("id") != expected.file_id or metadata.get("trashed") is not False
-                    or metadata.get("parents") != [expected.parent_id]
-                    or metadata.get("mimeType") != expected.mime_type
-                    or metadata.get("name") != expected.name
-                    or metadata.get("isAppAuthorized") is not True):
-                raise DriveRegistryError("REGISTRATION_IDENTITY_CHANGED", "Registered file identity changed")
-            props = metadata.get("appProperties")
-            if (not isinstance(props, Mapping)
-                    or props.get("cdr_installation") != value.installation_id
-                    or props.get("cdr_key") != expected.app_key
-                    or props.get("cdr_project") != value.project_id
-                    or (expected.workspace_scoped
-                        and props.get("cdr_workspace") != value.workspace_id)
-                    or (not expected.workspace_scoped and "cdr_workspace" in props)):
-                raise DriveRegistryError("REGISTRATION_SCOPE_CHANGED", "Registered file scope changed")
-            capabilities = metadata.get("capabilities")
-            required = "canAddChildren" if expected.mime_type == _FOLDER else "canEdit"
-            if not isinstance(capabilities, Mapping) or capabilities.get(required) is not True:
-                raise DriveRegistryError("REGISTRATION_CAPABILITY_MISSING", "Registered file grant is insufficient")
+        # Keep the installed root as a serial gate. Independent exact-ID child
+        # reads can overlap, while ordered validation preserves refusal codes.
+        with ThreadPoolExecutor(max_workers=_MAX_PARALLEL_METADATA_READS) as executor:
+            for offset in range(0, len(expectations), _MAX_PARALLEL_METADATA_READS):
+                group = expectations[offset:offset + _MAX_PARALLEL_METADATA_READS]
+                futures = [
+                    executor.submit(self._provider.get_file, expected.file_id, fields=FILE_FIELDS)
+                    for expected in group
+                ]
+                for expected, future in zip(group, futures, strict=True):
+                    try:
+                        metadata = future.result()
+                    except Exception:  # noqa: BLE001 - provider errors may contain credentials
+                        raise DriveRegistryError(
+                            "REGISTRATION_ACCESS_MISSING", "Registered file is unavailable"
+                        ) from None
+                    self._validate_expected_metadata(value, expected, metadata)
+
+    @staticmethod
+    def _validate_expected_metadata(
+        value: WorkspaceDriveRegistration, expected: _RemoteExpectation, metadata: Any,
+    ) -> None:
+        if not isinstance(metadata, Mapping):
+            raise DriveRegistryError("REGISTRATION_METADATA_INVALID", "Registered metadata is invalid")
+        if (metadata.get("id") != expected.file_id or metadata.get("trashed") is not False
+                or metadata.get("parents") != [expected.parent_id]
+                or metadata.get("mimeType") != expected.mime_type
+                or metadata.get("name") != expected.name
+                or metadata.get("isAppAuthorized") is not True):
+            raise DriveRegistryError("REGISTRATION_IDENTITY_CHANGED", "Registered file identity changed")
+        props = metadata.get("appProperties")
+        if (not isinstance(props, Mapping)
+                or props.get("cdr_installation") != value.installation_id
+                or props.get("cdr_key") != expected.app_key
+                or props.get("cdr_project") != value.project_id
+                or (expected.workspace_scoped
+                    and props.get("cdr_workspace") != value.workspace_id)
+                or (not expected.workspace_scoped and "cdr_workspace" in props)):
+            raise DriveRegistryError("REGISTRATION_SCOPE_CHANGED", "Registered file scope changed")
+        capabilities = metadata.get("capabilities")
+        required = "canAddChildren" if expected.mime_type == _FOLDER else "canEdit"
+        if not isinstance(capabilities, Mapping) or capabilities.get(required) is not True:
+            raise DriveRegistryError("REGISTRATION_CAPABILITY_MISSING", "Registered file grant is insufficient")
 
     def _read_raw(self, filename: str) -> bytes:
         descriptor = self._open_dir()

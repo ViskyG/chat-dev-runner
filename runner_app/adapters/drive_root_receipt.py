@@ -9,7 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
@@ -23,7 +23,7 @@ from runner_app.adapters.drive_docs import (
 )
 from runner_app.adapters.drive_index import AttachedInstallation
 from runner_app.adapters.drive_poller import FrozenSlotStore
-from runner_app.adapters.drive_writer import DocsCASWriter, RegisteredOutputDoc
+from runner_app.adapters.drive_writer import DocsCASWriter, RegisteredOutputDoc, WriteResult
 from runner_app.domain.commands import Provenance
 from runner_app.storage.ledger import (
     Ledger,
@@ -58,6 +58,28 @@ class RootReceiptError(ValueError):
     def __init__(self, code: str) -> None:
         self.code = code
         super().__init__(code)
+
+
+class _CommandIdentityReader:
+    """Validate the owner-manifest COMMAND on snapshot's existing metadata reads."""
+
+    def __init__(self, delegate: ReadProvider, command_id: str,
+                 validate: Callable[[Mapping[str, Any]], None]) -> None:
+        self._delegate = delegate
+        self._command_id = command_id
+        self._validate = validate
+
+    def get_file(self, file_id: str, *, fields: str = FILE_FIELDS) -> Mapping[str, Any]:
+        metadata = self._delegate.get_file(file_id, fields=fields)
+        if file_id == self._command_id:
+            self._validate(metadata)
+        return metadata
+
+    def get_document(self, file_id: str, *, include_tabs_content: bool = True
+                     ) -> Mapping[str, Any]:
+        return self._delegate.get_document(
+            file_id, include_tabs_content=include_tabs_content,
+        )
 
 
 @dataclass(frozen=True)
@@ -249,11 +271,7 @@ class RootCreateProjectReceiptPublisher:
         if writer.registration("root-receipt") != expected_output:
             raise RootReceiptError("ROOT_RECEIPT_WRITER_MISMATCH")
 
-    def _current(self, operation: Mapping[str, Any], request_id: str) -> FrozenDriveInput:
-        try:
-            metadata = self.reader.get_file(self.command_id, fields=FILE_FIELDS)
-        except Exception:  # noqa: BLE001 - provider errors may contain credentials
-            raise RootReceiptError("ROOT_COMMAND_READ_FAILED") from None
+    def _validate_command_metadata(self, metadata: Mapping[str, Any]) -> None:
         if (not isinstance(metadata, Mapping)
                 or metadata.get("id") != self.command_id
                 or metadata.get("name") != "COMMAND"
@@ -281,8 +299,25 @@ class RootCreateProjectReceiptPublisher:
                 raise RootReceiptError("ROOT_COMMAND_IDENTITY_CHANGED")
         else:
             raise RootReceiptError("ROOT_RECEIPT_INSTALLATION_INVALID")
+
+    def _current(self, operation: Mapping[str, Any], request_id: str) -> FrozenDriveInput:
+        if self.attached.index.identity_mode == "owner_manifest":
+            # The legacy snapshot already reads and validates COMMAND metadata
+            # twice. Apply our exact receipt predicate to those same reads.
+            reader: ReadProvider = _CommandIdentityReader(
+                self.reader, self.command_id, self._validate_command_metadata,
+            )
+        else:
+            try:
+                metadata = self.reader.get_file(self.command_id, fields=FILE_FIELDS)
+            except Exception:  # noqa: BLE001 - provider errors may contain credentials
+                raise RootReceiptError("ROOT_COMMAND_READ_FAILED") from None
+            self._validate_command_metadata(metadata)
+            reader = self.reader
         try:
-            frozen = read_ready_snapshot(self.reader, self.attached.root_mailbox())
+            frozen = read_ready_snapshot(reader, self.attached.root_mailbox())
+        except RootReceiptError:
+            raise
         except Exception:  # noqa: BLE001 - provider errors may contain credentials
             raise RootReceiptError("ROOT_COMMAND_READ_FAILED") from None
         if (frozen is None or frozen.command.command["action"] != "CREATE_PROJECT"
@@ -291,6 +326,22 @@ class RootCreateProjectReceiptPublisher:
                 or frozen.command.command != operation["command"]):
             raise RootReceiptError("ROOT_COMMAND_MISMATCH")
         return frozen
+
+    def _exact_receipt_readback(
+        self, result: WriteResult | None, desired: str, desired_sha256: str,
+    ) -> bool:
+        # DocsCASWriter already read the exact ID (after CAS for CONFIRMED).
+        # Reuse that observation; ambiguous outcomes get a fresh read.
+        if (result is not None and result.state in {"CONFIRMED", "UNCHANGED"}
+                and result.file_id == self.receipt_id
+                and result.desired_sha256 == desired_sha256
+                and result.observed_sha256 == desired_sha256
+                and result.observed_text == desired):
+            return True
+        readback = self.writer.read("root-receipt")
+        return (readback.snapshot.file_id == self.receipt_id
+                and readback.snapshot.sha256 == desired_sha256
+                and readback.snapshot.text == desired)
 
     def publish(self, request_id: str, *, status: str = "COMPLETED",
                 code: str | None = None,
@@ -392,13 +443,11 @@ class RootCreateProjectReceiptPublisher:
         }
         effect_id = self.ledger.begin_effect(request_id, _STEP_ID, "drive_file", intent)
         try:
-            self.writer.replace("root-receipt", desired, expected=observed)
-            readback = self.writer.read("root-receipt")
+            result = self.writer.replace("root-receipt", desired, expected=observed)
+            exact_readback = self._exact_receipt_readback(result, desired, desired_sha256)
         except Exception:  # noqa: BLE001 - leave the effect pending for exact reconciliation
             raise RootReceiptError("ROOT_RECEIPT_WRITE_UNCERTAIN") from None
-        if (readback.snapshot.file_id != self.receipt_id
-                or readback.snapshot.sha256 != desired_sha256
-                or readback.snapshot.text != desired):
+        if not exact_readback:
             raise RootReceiptError("ROOT_RECEIPT_WRITE_UNCERTAIN")
         self._current(operation, request_id)
         self.ledger.confirm_effect(effect_id, self.receipt_id)
@@ -539,16 +588,14 @@ class RootCreateProjectReceiptPublisher:
             # A lost acknowledgement can follow an applied CAS. Only an exact
             # subsequent read proves the output; this call never retries the CAS.
             try:
-                self.writer.replace("root-receipt", desired, expected=observed)
-            except Exception:  # noqa: BLE001, S110 - readback decides the ambiguous outcome
-                pass
+                result = self.writer.replace("root-receipt", desired, expected=observed)
+            except Exception:  # noqa: BLE001 - readback decides the ambiguous outcome
+                result = None
             try:
-                readback = self.writer.read("root-receipt")
+                exact_readback = self._exact_receipt_readback(result, desired, desired_sha256)
             except Exception:  # noqa: BLE001 - leave the intended effect unresolved
                 raise RootReceiptError("ROOT_RECEIPT_WRITE_UNCERTAIN") from None
-            if (readback.snapshot.file_id != self.receipt_id
-                    or readback.snapshot.sha256 != desired_sha256
-                    or readback.snapshot.text != desired):
+            if not exact_readback:
                 raise RootReceiptError("ROOT_RECEIPT_WRITE_UNCERTAIN")
             self.ledger.confirm_effect(effect_id, self.receipt_id)
 
@@ -692,16 +739,14 @@ class RootCreateProjectReceiptPublisher:
                 raise RootReceiptError(error.code) from None
             # A failed acknowledgement may still follow an applied CAS.
             try:
-                self.writer.replace("root-receipt", desired, expected=observed)
-            except Exception:  # noqa: BLE001, S110 - exact readback decides the outcome
-                pass
+                result = self.writer.replace("root-receipt", desired, expected=observed)
+            except Exception:  # noqa: BLE001 - exact readback decides the outcome
+                result = None
             try:
-                readback = self.writer.read("root-receipt")
+                exact_readback = self._exact_receipt_readback(result, desired, desired_sha256)
             except Exception:  # noqa: BLE001 - leave the intended effect unresolved
                 raise RootReceiptError("ROOT_RECEIPT_WRITE_UNCERTAIN") from None
-            if (readback.snapshot.file_id != self.receipt_id
-                    or readback.snapshot.sha256 != desired_sha256
-                    or readback.snapshot.text != desired):
+            if not exact_readback:
                 raise RootReceiptError("ROOT_RECEIPT_WRITE_UNCERTAIN")
             self.ledger.confirm_effect(effect_id, self.receipt_id)
         latest = self._current(operation, request_id)

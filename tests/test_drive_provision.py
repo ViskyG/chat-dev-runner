@@ -5,6 +5,7 @@ import copy
 import hashlib
 import json
 import re
+import threading
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, cast
@@ -51,6 +52,7 @@ class Request:
 
 class FakeDriveAPI:
     def __init__(self, *, legacy: bool = False) -> None:
+        self._lock = threading.Lock()
         self.files_by_id: dict[str, dict[str, Any]] = {}
         self.created: list[dict[str, Any]] = []
         self.lost_ack_key: str | None = None
@@ -71,7 +73,11 @@ class FakeDriveAPI:
 
     def get(self, *, fileId: str, fields: str) -> Request:
         assert "appProperties" in fields
-        return Request(lambda: copy.deepcopy(self.files_by_id[fileId]))
+        def response() -> dict[str, Any]:
+            with self._lock:
+                return copy.deepcopy(self.files_by_id[fileId])
+
+        return Request(response)
 
     def list(self, *, q: str, fields: str, pageSize: int,
              pageToken: str | None) -> Request:
@@ -79,14 +85,15 @@ class FakeDriveAPI:
         expected = dict(re.findall(r"key='(cdr_[a-z]+)' and value='([^']+)'", q))
 
         def response() -> dict[str, Any]:
-            matches = [item for item in self.files_by_id.values()
-                       if all(item.get("appProperties", {}).get(key) == value
-                              for key, value in expected.items())]
-            start = int(pageToken or "0")
-            selected = matches[start:start + pageSize]
-            following = start + len(selected)
-            return {"files": copy.deepcopy(selected),
-                    "nextPageToken": str(following) if following < len(matches) else None}
+            with self._lock:
+                matches = [item for item in self.files_by_id.values()
+                           if all(item.get("appProperties", {}).get(key) == value
+                                  for key, value in expected.items())]
+                start = int(pageToken or "0")
+                selected = matches[start:start + pageSize]
+                following = start + len(selected)
+                return {"files": copy.deepcopy(selected),
+                        "nextPageToken": str(following) if following < len(matches) else None}
 
         return Request(response)
 
@@ -95,29 +102,30 @@ class FakeDriveAPI:
         assert media_body is None and "appProperties" in fields
 
         def response() -> dict[str, Any]:
-            file_id = f"createdfileid{len(self.created) + 1:05d}"
-            metadata = {
-                **copy.deepcopy(body), "id": file_id, "trashed": False,
-                "isAppAuthorized": True,
-                "capabilities": {"canEdit": True,
-                                 "canAddChildren": body["mimeType"] == FOLDER_MIME},
-            }
-            self.files_by_id[file_id] = metadata
-            self.created.append(metadata)
-            if (self.inject_project_command_name_collision
-                    and body["appProperties"]["cdr_key"] == "project:fixture"):
-                self.files_by_id["unrelatedcommand0001"] = {
-                    "id": "unrelatedcommand0001", "name": "PROJECT COMMAND",
-                    "mimeType": DOCUMENT_MIME, "parents": [file_id],
-                    "trashed": False, "isAppAuthorized": True,
-                    "appProperties": {"cdr_installation": _INSTALLATION,
-                                      "cdr_key": "unrelated"},
-                    "capabilities": {"canEdit": True, "canAddChildren": False},
+            with self._lock:
+                file_id = f"createdfileid{len(self.created) + 1:05d}"
+                metadata = {
+                    **copy.deepcopy(body), "id": file_id, "trashed": False,
+                    "isAppAuthorized": True,
+                    "capabilities": {"canEdit": True,
+                                     "canAddChildren": body["mimeType"] == FOLDER_MIME},
                 }
-            if body["appProperties"]["cdr_key"] == self.lost_ack_key:
-                self.lost_ack_key = None
-                raise RuntimeError("sensitive fake provider exception")
-            return {"id": file_id}
+                self.files_by_id[file_id] = metadata
+                self.created.append(metadata)
+                if (self.inject_project_command_name_collision
+                        and body["appProperties"]["cdr_key"] == "project:fixture"):
+                    self.files_by_id["unrelatedcommand0001"] = {
+                        "id": "unrelatedcommand0001", "name": "PROJECT COMMAND",
+                        "mimeType": DOCUMENT_MIME, "parents": [file_id],
+                        "trashed": False, "isAppAuthorized": True,
+                        "appProperties": {"cdr_installation": _INSTALLATION,
+                                          "cdr_key": "unrelated"},
+                        "capabilities": {"canEdit": True, "canAddChildren": False},
+                    }
+                if body["appProperties"]["cdr_key"] == self.lost_ack_key:
+                    self.lost_ack_key = None
+                    raise RuntimeError("sensitive fake provider exception")
+                return {"id": file_id}
 
         return Request(response)
 
@@ -194,19 +202,23 @@ def test_provisions_ten_scoped_resources_and_reobserves_exact_ids(tmp_path: Path
                if item["appProperties"]["cdr_key"] not in {
                    "project:fixture", "project-state", "project-command", "project-receipt",
                })
-    assert record.project_state_doc_id == api.created[1]["id"]
-    assert record.project_command_doc_id == api.created[2]["id"]
-    assert record.project_receipt_doc_id == api.created[3]["id"]
-    assert record.context_doc_id == api.created[5]["id"]
+    by_key = {item["appProperties"]["cdr_key"]: item for item in api.created}
+    assert record.project_state_doc_id == by_key["project-state"]["id"]
+    assert record.project_command_doc_id == by_key["project-command"]["id"]
+    assert record.project_receipt_doc_id == by_key["project-receipt"]["id"]
+    assert record.context_doc_id == by_key["source-context"]["id"]
     assert record.project_mailbox().command_id == record.project_command_doc_id
     assert record.project_mailbox().workspace_id is None
     assert record.project_receipt_output().file_id == record.project_receipt_doc_id
     assert api.created[0]["parents"] == [_PROJECTS]
-    assert [item["mimeType"] for item in api.created] == [
-        FOLDER_MIME, DOCUMENT_MIME, DOCUMENT_MIME, DOCUMENT_MIME,
-        FOLDER_MIME, DOCUMENT_MIME, DOCUMENT_MIME, DOCUMENT_MIME,
-        DOCUMENT_MIME, DOCUMENT_MIME,
-    ]
+    assert {item["appProperties"]["cdr_key"] for item in api.created
+            if item["mimeType"] == FOLDER_MIME} == {
+                "project:fixture", "workspace:fixture/primary",
+            }
+    assert all(item["mimeType"] == DOCUMENT_MIME for item in api.created
+               if item["appProperties"]["cdr_key"] not in {
+                   "project:fixture", "workspace:fixture/primary",
+               })
     assert provisioner.provision(request_id, "fixture", "primary", "Fixture") == record
     assert len(api.created) == 10
     assert len(ledger.get(request_id)["effects"]) == 10
@@ -214,6 +226,87 @@ def test_provisions_ten_scoped_resources_and_reobserves_exact_ids(tmp_path: Path
                for item in ledger.get(request_id)["effects"])
     ledger.finish(request_id, "COMPLETED")
 
+
+
+
+def test_independent_project_children_overlap_only_after_all_intents(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ledger, _, provisioner, registry = setup(tmp_path)
+    request_id = admit(ledger, "fixture", "Fixture")
+    original = provisioner.upload.create_document
+    barrier = threading.Barrier(2)
+    arrived: list[str] = []
+    stage_steps = {
+        "drive-project-state-doc", "drive-project-command-doc",
+        "drive-project-receipt-doc", "drive-workspace-folder",
+    }
+
+    def overlapping(*args: Any, **kwargs: Any) -> Any:
+        key = args[2]
+        if key in {"project-state", "project-command"}:
+            effects = ledger.get(request_id)["effects"]
+            assert stage_steps <= {item["step_id"] for item in effects}
+            arrived.append(key)
+            barrier.wait(timeout=5)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(provisioner.upload, "create_document", overlapping)
+    record = provisioner.provision(request_id, "fixture", "primary", "Fixture")
+    assert set(arrived) == {"project-state", "project-command"}
+    assert record == registry.get("fixture", "primary")
+
+
+
+def test_workspace_child_starts_while_project_sibling_write_is_pending(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ledger, _, provisioner, registry = setup(tmp_path)
+    request_id = admit(ledger, "fixture", "Fixture")
+    original = provisioner.upload.create_document
+    project_write_started = threading.Event()
+    workspace_child_started = threading.Event()
+    release_project_write = threading.Event()
+
+    def delayed(*args: Any, **kwargs: Any) -> Any:
+        key = args[2]
+        if key == "project-state":
+            project_write_started.set()
+            assert release_project_write.wait(timeout=5)
+        elif key == "source-context":
+            assert project_write_started.wait(timeout=5)
+            workspace_child_started.set()
+            release_project_write.set()
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(provisioner.upload, "create_document", delayed)
+    record = provisioner.provision(request_id, "fixture", "primary", "Fixture")
+    assert project_write_started.is_set() and workspace_child_started.is_set()
+    assert record == registry.get("fixture", "primary")
+
+
+def test_sibling_preflight_conflict_prevents_all_sibling_writes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ledger, api, provisioner, _ = setup(tmp_path)
+    request_id = admit(ledger, "fixture", "Fixture")
+    original = provisioner.upload.find_by_key
+
+    def conflicting(*args: Any, **kwargs: Any) -> Any:
+        if args[2] == "project-command":
+            return {"id": "unownedcommand00001"}
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(provisioner.upload, "find_by_key", conflicting)
+    with pytest.raises(DriveProvisionError) as error:
+        provisioner.provision(request_id, "fixture", "primary", "Fixture")
+    assert error.value.code == "PROVISION_RESOURCE_EXISTS"
+    assert [item["appProperties"]["cdr_key"] for item in api.created] == [
+        "project:fixture",
+    ]
+    assert [item["step_id"] for item in ledger.get(request_id)["effects"]] == [
+        "drive-project-folder",
+    ]
 
 
 def test_project_command_same_name_collision_is_not_adopted(tmp_path: Path) -> None:
@@ -243,9 +336,20 @@ def test_lost_project_receipt_ack_reconciles_exact_key_without_duplicate(
     with pytest.raises(DriveUploadError) as error:
         provisioner.provision(request_id, "fixture", "primary", "Fixture")
     assert error.value.code == "UPLOAD_WRITE_UNCERTAIN"
-    assert len(api.created) == 4
-    pending = next(item for item in ledger.get(request_id)["effects"]
-                   if item["step_id"] == "drive-project-receipt-doc")
+    # The confirmed workspace folder releases its children without waiting for
+    # the failed independent project RECEIPT sibling. All futures are joined.
+    assert len(api.created) == 10
+    assert {item["appProperties"]["cdr_key"] for item in api.created} == {
+        "project:fixture", "project-state", "project-command",
+        "project-receipt", "workspace:fixture/primary", "source-context",
+        "workspace-command", "workspace-changeset", "workspace-receipt",
+        "latest-result",
+    }
+    stage_effects = {item["step_id"]: item for item in ledger.get(request_id)["effects"]}
+    assert len(stage_effects) == 10
+    assert all(item["state"] == "CONFIRMED" for step, item in stage_effects.items()
+               if step != "drive-project-receipt-doc")
+    pending = stage_effects["drive-project-receipt-doc"]
     assert pending["state"] == "INTENDED"
     record = provisioner.provision(request_id, "fixture", "primary", "Fixture")
     assert registry.get("fixture", "primary") == record
@@ -272,7 +376,7 @@ def test_lost_ack_reconciles_by_scoped_key_without_second_create(tmp_path: Path)
     with pytest.raises(DriveUploadError) as error:
         provisioner.provision(request_id, "fixture", "primary", "Fixture")
     assert error.value.code == "UPLOAD_WRITE_UNCERTAIN"
-    assert len(api.created) == 9
+    assert len(api.created) == 10
     pending = next(item for item in ledger.get(request_id)["effects"]
                    if item["step_id"] == "drive-receipt-doc")
     assert pending["state"] == "INTENDED"
@@ -351,6 +455,10 @@ class FakeStateWriter:
             state, key, self.docs[key].file_id, expected.snapshot.revision_id,
             hashlib.sha256(text.encode()).hexdigest(),
             resulting_revision=f"rev-{self.revisions[key]}" if state == "CONFIRMED" else None,
+            observed_revision=f"rev-{self.revisions[key]}" if state == "CONFIRMED" else None,
+            observed_sha256=hashlib.sha256(text.encode()).hexdigest()
+            if state == "CONFIRMED" else None,
+            observed_text=text if state == "CONFIRMED" else None,
         )
 
 
@@ -425,7 +533,10 @@ def test_lost_ack_on_project_index_content_reconciles_without_rewrite(tmp_path: 
         request_id, record, source_registry=source_registry, writer=writer,
         repository_id=12345, repository_url="https://github.com/Owner/fixture",
     )
-    assert writer.writes == ["project-state:fixture", "source-context:fixture/primary"]
+    assert set(writer.writes) == {
+        "project-state:fixture", "source-context:fixture/primary",
+    }
+    assert len(writer.writes) == 2
     assert all(item["state"] == "CONFIRMED" for item in ledger.get(request_id)["effects"])
 
 

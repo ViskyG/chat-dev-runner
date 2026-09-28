@@ -3,12 +3,13 @@
 ## Current deployment state
 
 EP-00–06 are verified. EP-07 has an installed, enabled owner-user service
-running a locked wheel from the private environment. A clean configured
+running the tested `0.2.5` wheel from the private environment. A clean configured
 start arms command intake by default; the service listens only on
 `127.0.0.1:8765`. The initial host installation and prior upgrades are recorded in
 [release-install.json](../verification/implementation/EP-07/release-install.json),
 [release-upgrade-0.2.1.json](../verification/implementation/EP-07/release-upgrade-0.2.1.json) and
-[release-upgrade-0.2.2.json](../verification/implementation/EP-07/release-upgrade-0.2.2.json).
+[release-upgrade-0.2.2.json](../verification/implementation/EP-07/release-upgrade-0.2.2.json) and
+[drive-create-performance-upgrade-0.2.5.json](../verification/implementation/EP-07/drive-create-performance-upgrade-0.2.5.json).
 The installed UI created one disposable private project; a command from this
 chat's Drive connector created a second, and the local UI added a second
 workspace to the first. The two workspaces completed separate passing and
@@ -16,7 +17,9 @@ failing contained verification/publication routes with private draft PRs and
 Drive reports. Installed `0.2.2` also completed a project-level `FETCH` command
 from this chat connector session with a matching project RECEIPT. Fresh
 separate-chat and broader host/recovery acceptance remain open, so EP-07 is
-not yet a signed daily-use release.
+not yet a signed daily-use release. The `0.2.5` update overlaps independent
+Drive provisioning and validation requests; its new live CREATE_PROJECT duration
+will be measured on the next real project request.
 
 The original `prototype/` remains a separate offline simulation. To inspect
 that prototype, stop the production service before using the same port:

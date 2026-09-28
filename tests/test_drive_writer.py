@@ -172,6 +172,7 @@ def test_exact_registered_receipt_uses_single_revision_guarded_batch_and_readbac
     assert result.base_revision == "rev-1"
     assert result.resulting_revision == provider.documents[RECEIPT_ID]["revisionId"]
     assert result.observed_sha256 == hashlib.sha256(b"new receipt\n").hexdigest()
+    assert result.observed_text == "new receipt\n"
     assert provider.batches == [(
         RECEIPT_ID,
         [
@@ -254,6 +255,7 @@ def test_lost_ack_after_applied_write_is_uncertain_even_when_readback_matches() 
     assert result.state == "UNCERTAIN"
     assert result.reason == "WRITE_ACK_UNCERTAIN"
     assert result.observed_sha256 == hashlib.sha256(b"accepted\n").hexdigest()
+    assert result.observed_text == "accepted\n"
     assert len(provider.batches) == 1
 
 
