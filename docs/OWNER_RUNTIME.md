@@ -75,6 +75,15 @@ a live Drive-origin CREATE_WORKSPACE project command remains unverified.
    chat can browse its code; the runner's GitHub publication does not depend on
    that connector grant.
 
+If a READY command has no matching RECEIPT, check
+`journalctl --user -u chat-dev-runner.service` and the exact native COMMAND
+text before assuming the poller stopped. `Drive mailbox poll: INVALID_JSON` means the saved body failed
+strict JSON parsing before admission; no operation or new RECEIPT is created.
+Repeated malformed reads back off for up to five minutes. Verify the full
+Google Docs body, including its final characters, and check the local ledger
+for the request ID. After expiry, retry only on a new user instruction with a
+fresh UUID and time window; do not silently extend the old command.
+
 For a project refresh from chat, read the fresh `SYSTEM STATE` and the exact
 registered **project** `COMMAND`/`RECEIPT` from the existing project index.
 Submit one `FETCH` request with the project ID and `workspace_id: null` using

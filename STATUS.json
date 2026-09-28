@@ -21,7 +21,7 @@
     "runner_state": "CONFIGURED_ARMED",
     "armed": true,
     "bootstrap_allowed": false,
-    "live_validation": "13_ROLE_LEGACY_ATTACH_AND_CROSS_APP_CANARY_VERIFIED; EP05_UI_CREATE_COMPLETED; EP05_DRIVE_ROOT_CREATE_RESUMED; EP05_PASSING_WORKSPACE_DRAFT_PR_DELIVERED; EP05_FAILING_WORKSPACE_DRAFT_PR_DELIVERED; PASS_AND_FAIL_PROVIDER_POSTCHECK_CONFIRMED; EP07_INSTALLED_SERVICE_EXACT_ATTACH_AND_PROVIDER_READS_OK; EP07_DEPLOYED_UI_CREATE_COMPLETED; EP07_CHAT_PROTOCOL_IN_PLACE_UPDATE_VERIFIED; EP07_CHAT_CONNECTOR_DRIVE_CREATE_COMPLETED_AND_RECEIPT_MATCHED; EP07_SECOND_WORKSPACE_EXACT_DRIVE_READBACK_AND_UI_API_PASS; EP07_DEPLOYED_PRIMARY_PASS_DRAFT_PR_AND_DRIVE_REPORT; EP07_DEPLOYED_PARALLEL_FAIL_DRAFT_PR_AND_DRIVE_REPORT; EP07_INSTALLED_022_PROJECT_FETCH_COMMAND_AND_RECEIPT_MATCHED; EP07_INSTALLED_024_DEFAULT_ON_GRACEFUL_RESTART_AND_DRIVE_SYSTEM_STATE_EPOCH_MATCHED",
+    "live_validation": "13_ROLE_LEGACY_ATTACH_AND_CROSS_APP_CANARY_VERIFIED; EP05_UI_CREATE_COMPLETED; EP05_DRIVE_ROOT_CREATE_RESUMED; EP05_PASSING_WORKSPACE_DRAFT_PR_DELIVERED; EP05_FAILING_WORKSPACE_DRAFT_PR_DELIVERED; PASS_AND_FAIL_PROVIDER_POSTCHECK_CONFIRMED; EP07_INSTALLED_SERVICE_EXACT_ATTACH_AND_PROVIDER_READS_OK; EP07_DEPLOYED_UI_CREATE_COMPLETED; EP07_CHAT_PROTOCOL_IN_PLACE_UPDATE_VERIFIED; EP07_CHAT_CONNECTOR_DRIVE_CREATE_COMPLETED_AND_RECEIPT_MATCHED; EP07_SECOND_WORKSPACE_EXACT_DRIVE_READBACK_AND_UI_API_PASS; EP07_DEPLOYED_PRIMARY_PASS_DRAFT_PR_AND_DRIVE_REPORT; EP07_DEPLOYED_PARALLEL_FAIL_DRAFT_PR_AND_DRIVE_REPORT; EP07_INSTALLED_022_PROJECT_FETCH_COMMAND_AND_RECEIPT_MATCHED; EP07_INSTALLED_024_DEFAULT_ON_GRACEFUL_RESTART_AND_DRIVE_SYSTEM_STATE_EPOCH_MATCHED; EP07_ROOT_INVALID_JSON_NO_ADMISSION_EXPIRED_DRAFT_RETIRED_PROTOCOL_12",
     "source": "Owner update after archive creation; seed is a reference specification"
   },
   "implementation": {
@@ -98,7 +98,8 @@
     "ep07_live_publish_parallel_evidence": "verification/implementation/EP-07/live-publish-parallel-20260928.jsonl",
     "ep07_upgrade_022_evidence": "verification/implementation/EP-07/release-upgrade-0.2.2.json",
     "ep07_project_fetch_roundtrip_evidence": "verification/implementation/EP-07/live-project-fetch-20260928.json",
-    "ep07_default_intake_live_evidence": "verification/implementation/EP-07/default-intake-live-20260928.json"
+    "ep07_default_intake_live_evidence": "verification/implementation/EP-07/default-intake-live-20260928.json",
+    "ep07_root_command_invalid_json_evidence": "verification/implementation/EP-07/root-command-invalid-json-20260928.json"
   },
   "implementation_source_repository": {
     "local_git": "EP07_IN_PROGRESS_MAIN",
@@ -108,5 +109,6 @@
     "note": "Source repository for this runner implementation; separate from EP-05 project provisioning.",
     "visibility": "private",
     "remote_privacy_verified": true
-  }
+  },
+  "root_command_latest_attempt": "At 17:25 +04, a new root READY command had one extra trailing brace. The armed 0.2.4 runner polled it and logged INVALID_JSON; no operation, frozen marker, admission marker or local project was created. The command expired at 17:35:45 +04 and, after owner-local verification, the exact root COMMAND was revision-guarded and atomically retired as valid expired DRAFT, without retry or new project. Live CHAT PROTOCOL version 1.2 now specifies strict full-body DRAFT/READY readback and native index replacement. Evidence: verification/implementation/EP-07/root-command-invalid-json-20260928.json."
 }

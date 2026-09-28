@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "checked_at": "2026-09-28T13:47:44.088035+00:00",
+  "result": "CAUSE_IDENTIFIED_AND_MALFORMED_READY_RETIRED",
+  "root_command_document_id": "1sfSwN2pSBtZ1JMV11u_riKvGf0iQ5dwtb9591LMVe0I",
+  "request_id": "6a7b5e6c-64fb-4980-9f89-777203301c32",
+  "project_id": "cdr-calculator-smoke-20260928-1725",
+  "before": {
+    "revision_id": "ANLCKQmcBEc6iCsTW4GjLgiHq2IIOXNpIFHD0qBorkti5zMJq0M8eJuX22tonCKVes9jKJtSq1abGjkwW4T-plgH-rqB6C9y6AplOPmPi9U",
+    "dispatch_if_final_extra_brace_removed": "READY",
+    "issued_at": "2026-09-28T17:25:45+04:00",
+    "expires_at": "2026-09-28T17:35:45+04:00",
+    "epoch_matched_runner": true,
+    "native_text_utf8_bytes": 644,
+    "strict_json": "INVALID_JSON_EXTRA_TRAILING_BRACE",
+    "valid_object_ended_at_zero_based_character": 642,
+    "trailing_character_count": 1,
+    "independent_reads": [
+      "connected Google Docs document text",
+      "installed OAuth-backed native Docs provider"
+    ],
+    "runner_journal_errors_local_time": [
+      "17:26:15",
+      "17:31:13"
+    ],
+    "poll_error_backoff_max_seconds": 300
+  },
+  "admission_postcheck": {
+    "runner_service_active": true,
+    "runner_armed": true,
+    "operation_count_for_request": 0,
+    "frozen_marker_exists": false,
+    "admission_marker_exists": false,
+    "local_project_count": 0,
+    "root_receipt_still_previous_request": true
+  },
+  "retirement": {
+    "method": "revision-guarded atomic Docs batchUpdate: READY to DRAFT plus remove one trailing brace",
+    "after_revision_id": "ANLCKQn5HtNRfsvH1jUE4UyslPYjyiZe8dy281F8DisC-D2ZNjQw1W84AQJacqR_g_zPQ64phYFeZnHuwTeZ7W7G6CEilObDY0sty2Ceigc",
+    "strict_json_valid_after": true,
+    "dispatch_after": "DRAFT",
+    "expiration_extended": false,
+    "new_command_submitted": false,
+    "runner_restart": false
+  },
+  "protocol_correction": {
+    "document_id": "1vhqcDQmSW6t0nU6Kx6cltyaZL1L-7rj2KHLSp2DJksE",
+    "version": "1.2",
+    "after_revision_id": "ANLCKQkpPO5w_qM6IKIy1zsidvpNwwJismeJsEKJEihOiRluBUh0FsNMF1AOEtk2Zqki8cCcJcSVO4CjpIhQofRUuryiKlHJvKPxxsslgSE",
+    "changes": [
+      "native-index complete-body replacement",
+      "strict full-body DRAFT parse",
+      "one strict READY readback",
+      "malformed READY recovery rule"
+    ],
+    "all_targeted_edits_verified_by_readback": true
+  },
+  "retry_rule": "A new user-authorized request requires a fresh UUID, timestamps and current epoch; do not reuse the expired request."
+}

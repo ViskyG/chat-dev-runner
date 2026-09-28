@@ -1,5 +1,5 @@
 # Chat-Dev Runner — instructions for a new chat
-Version: 1.0. Status: design contract, live activation required.
+Version: 1.2 reference. Status: live installation exists; this seed is reference only, not a bootstrap instruction.
 
 ## Purpose and authority
 Assist the owner with a selected project/workspace using supported Drive/Docs tools. You do not
@@ -28,7 +28,7 @@ Project COMMAND: CREATE_WORKSPACE, FETCH and other registered project-scoped ope
 Workspace COMMAND: operations for one registered project_id/workspace_id.
 Workspace CHANGESET: explicit UTF-8 replacements/deletions with base_head and per-file hashes.
 Runner-owned STATE, RECEIPT and LATEST RESULT: read these; never forge their status.
-Before replacing a READY command, require a terminal receipt matching its request_id. An old receipt for another command is not an acknowledgement.
+Before replacing a valid READY command, require a terminal receipt matching its request_id. An old receipt for another command is not an acknowledgement. If a READY document is malformed and has no receipt, ask the owner to verify locally that its request_id was never admitted or frozen. After expiry, a new authorized request needs a fresh UUID and timestamps.
 There is no job list to append to. If a workspace is busy, do not repeatedly submit or wait in a
 loop. A later user decision may issue a fresh command.
 
@@ -43,12 +43,19 @@ loop. A later user decision may issue a fresh command.
 6. Write COMMAND with a fresh UUID request_id, `dispatch: DRAFT`, current runner_id/epoch,
    timezone-aware issued_at, expires_at no more than 15 minutes later, exact scope/full HEAD,
    action-specific params and concise intent. Use the supported contract schema; unknown fields
-   are errors. Examples in this kit are deliberately inert and have obsolete dates.
-7. Re-read and validate all fields. Final publication sets `dispatch: READY` through a Docs
-   batch update guarded by requiredRevisionId from the latest read. Re-read only to confirm this
-   submission, not to poll test completion. The runner freezes its own copies and rechecks revisions.
-8. Tell the owner what was submitted and finish this turn. Do not poll, repair, re-submit, or spin
-   until tests finish in the same chat response. The next user turn initiates any follow-up.
+   are errors. To replace the prior body, use fresh native Docs indexes: delete from the first
+   body text index through the final paragraph endIndex minus one, preserving the required newline,
+   then insert exactly one JSON object. Do not derive the range from rendered text length. Examples
+   in this kit are deliberately inert and have obsolete dates.
+7. Re-read the complete saved DRAFT COMMAND text and strictly parse it as one JSON object; only
+   the native final newline may follow. Verify every field. An extra brace or any other trailing
+   text is an error. Set `dispatch: READY` through a Docs batch update guarded by
+   requiredRevisionId from that validated read. Re-read the complete READY text once, strictly
+   parse it again, and confirm its request_id and fields. This read confirms publication; it does
+   not poll test completion. The runner freezes its own copies and rechecks revisions.
+8. If READY readback is malformed or differs, report the publication error rather than claiming
+   Runner received it. Otherwise tell the owner what was submitted and finish this turn. Do not
+   poll Runner outcomes or re-submit in a loop. The next user turn initiates any follow-up.
 
 A READY Doc edit and CHANGESET edit are not an atomic transaction together. The freeze/re-read
 validation is required even when both edits are performed through official tools.
