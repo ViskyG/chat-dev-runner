@@ -6,10 +6,14 @@ import time
 from collections.abc import Mapping
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
+from types import SimpleNamespace
+from typing import Any, cast
 from uuid import uuid4
 
+import pytest
+
 from runner_app.adapters.drive_registry import WorkspaceDriveRegistration
+from runner_app.adapters.drive_root_receipt import RootPartialReceiptProof
 from runner_app.adapters.github import (
     GitHubBranch,
     GitHubRepository,
@@ -21,13 +25,14 @@ from runner_app.git.argv import run_git
 from runner_app.git.registry import SourceRegistry
 from runner_app.git.service import SourceService
 from runner_app.storage import Database
-from runner_app.storage.ledger import Ledger
+from runner_app.storage.ledger import Ledger, confirmed_create_effects_proof
 from runner_app.workflows.provision_resume_complete import (
     _CONTENT,
     _DRIVE_CREATES,
     CompleteProvisionRecoveryWorkflow,
 )
-from runner_app.workflows.reconcile import EffectProof
+from runner_app.workflows.provision_resume_partial import PartialProvisionRecoveryWorkflow
+from runner_app.workflows.reconcile import EffectProof, ReconcileWorkflow
 
 INSTALLATION = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
 PROJECTS = "projectsRoot123"
@@ -101,7 +106,8 @@ class FakeDriveRegistry:
 
 
 def _fixture(tmp_path: Path, *, complete: bool = True,
-             root_origin: bool = False) -> tuple[
+             root_origin: bool = False, partial_workspace_folder: bool = False,
+             root_interrupted_full: bool = False) -> tuple[
                  Ledger, dict[str, Any], CompleteProvisionRecoveryWorkflow,
                  FakeGitHubReader, FakeDriveReader,
              ]:
@@ -116,6 +122,8 @@ def _fixture(tmp_path: Path, *, complete: bool = True,
         ("repo:fixture", "global:personal", "global:drive-installation"),
     ).execute
     request_id = original["request_id"]
+    if root_origin and (partial_workspace_folder or root_interrupted_full):
+        ledger.journal(request_id, "dispatch", "STARTED", {"action": "CREATE_PROJECT"})
     marker = make_provision_marker(INSTALLATION, "fixture", request_id)
     effect = ledger.begin_effect(
         request_id, "github-repository", "github_repository",
@@ -147,7 +155,7 @@ def _fixture(tmp_path: Path, *, complete: bool = True,
         template_profiles={"python-basic": "python-quick"},
         owner_source_ids=frozenset({OWNER.source_id}), root_command_id=ROOT_COMMAND,
     )
-    if complete:
+    if complete or partial_workspace_folder:
         source = SourceService(ledger, registry)
         project = source.create_new_source(request_id)
         repo = Path(project["repo_path"])
@@ -178,24 +186,30 @@ def _fixture(tmp_path: Path, *, complete: bool = True,
                 "mime_type": mime, "project_id": "fixture", "workspace_id": workspace,
             }
             effect = ledger.begin_effect(request_id, step, "drive_file", intent)
-            ledger.confirm_effect(effect, file_id)
             drive.remote[step] = (file_id, intent)
-        for step, field, key in _CONTENT:
-            file_id = getattr(registration, field)
-            intent = {
-                "file_id": file_id, "key": key.format(project="fixture"),
-                "base_revision": "revision-1", "desired_sha256": "f" * 64,
-            }
-            effect = ledger.begin_effect(request_id, step, "drive_file", intent)
+            if partial_workspace_folder and step == "drive-workspace-folder":
+                break
             ledger.confirm_effect(effect, file_id)
-            drive.remote[step] = (file_id, intent)
-        registry.mark_project_ready("fixture", "primary")
-    ledger.finish(request_id, "BLOCKED", code="LOST_FINAL_RESPONSE")
+        if not partial_workspace_folder:
+            for step, field, key in _CONTENT:
+                file_id = getattr(registration, field)
+                intent = {
+                    "file_id": file_id, "key": key.format(project="fixture"),
+                    "base_revision": "revision-1", "desired_sha256": "f" * 64,
+                }
+                effect = ledger.begin_effect(request_id, step, "drive_file", intent)
+                ledger.confirm_effect(effect, file_id)
+                drive.remote[step] = (file_id, intent)
+            registry.mark_project_ready("fixture", "primary")
+    interrupted = partial_workspace_folder or root_interrupted_full
+    ledger.finish(request_id, "INTERRUPTED" if interrupted else "BLOCKED",
+                  code="NEEDS_RECONCILIATION" if interrupted
+                       else "LOST_FINAL_RESPONSE")
     return ledger, original, workflow, github, drive
 
 
 def _run(ledger: Ledger, target_id: str,
-         workflow: CompleteProvisionRecoveryWorkflow) -> dict[str, Any]:
+         workflow: Any) -> dict[str, Any]:
     resume = _command(ledger, "RESUME_PROVISION", target_id)
     engine = Engine(ledger, policy=LocalPolicy(), handlers={"RESUME_PROVISION": workflow})
     admission = engine.submit(json.dumps(resume).encode(), OWNER)
@@ -280,3 +294,249 @@ def test_dirty_managed_workspace_cannot_be_adopted(tmp_path: Path) -> None:
     assert result["code"] == "RESUME_IDENTITY_MISMATCH"
     assert result["effects"] == [] and drive.reads == 0
     assert github.reads == 1
+
+
+class FakePartialProvisioner:
+    """Count only the missing Drive writes after exact old-effect adoption."""
+
+    def __init__(self, complete: CompleteProvisionRecoveryWorkflow) -> None:
+        self.ledger = complete.ledger
+        self.registry = complete.drive_registry
+        self.attached = SimpleNamespace(index=SimpleNamespace(installation_id=INSTALLATION))
+        self.created_steps: list[str] = []
+        self.registration = cast(FakeDriveRegistry, self.registry).registration
+
+    def provision(self, request_id: str, project_id: str, workspace_id: str,
+                  project_name: str, *, resume_target_id: str | None = None
+                  ) -> WorkspaceDriveRegistration:
+        operation = self.ledger.get(request_id)
+        assert operation is not None
+        assert (project_id, workspace_id, project_name, resume_target_id) == (
+            "fixture", "primary", "Fixture",
+            operation["command"]["params"]["target_request_id"],
+        )
+        effects = {item["step_id"]: item for item in operation["effects"]}
+        assert all(step in effects and "adoption" in effects[step]
+                   for step in ("github-repository", "local-project", "baseline-main",
+                                "initial-workspace", *[item[0] for item in _DRIVE_CREATES[:5]]))
+        for step, field, parent, key, name, mime, workspace in _DRIVE_CREATES:
+            if step in effects:
+                continue
+            intent = {
+                "parent_id": PROJECTS if parent == "projects"
+                             else getattr(self.registration, parent),
+                "installation_id": INSTALLATION, "key": key.format(project="fixture"),
+                "name": name.format(project="fixture"), "mime_type": mime,
+                "project_id": "fixture", "workspace_id": workspace,
+            }
+            effect_id = self.ledger.begin_effect(request_id, step, "drive_file", intent)
+            self.ledger.confirm_effect(effect_id, getattr(self.registration, field))
+            self.created_steps.append(step)
+        return self.registration
+
+    def populate(self, request_id: str, _registration: WorkspaceDriveRegistration,
+                 **kwargs: Any) -> dict[str, str]:
+        operation = self.ledger.get(request_id)
+        assert operation is not None
+        assert kwargs["resume_target_id"] == operation["command"]["params"][
+            "target_request_id"]
+        for step, field, key in _CONTENT:
+            file_id = getattr(self.registration, field)
+            intent = {"file_id": file_id, "key": key.format(project="fixture"),
+                      "base_revision": "revision-1", "desired_sha256": "f" * 64}
+            effect_id = self.ledger.begin_effect(request_id, step, "drive_file", intent)
+            self.ledger.confirm_effect(effect_id, file_id)
+            self.created_steps.append(step)
+        return {"project_state_sha256": "f" * 64, "context_sha256": "f" * 64}
+
+
+def _reconcile_partial_folder(ledger: Ledger, target_id: str,
+                              drive: FakeDriveReader) -> None:
+    reconcile = ReconcileWorkflow(
+        ledger, owner_source_ids=frozenset({OWNER.source_id}), ports={
+            "github_repository": lambda _target, _effect: None,
+            "git_ref": lambda _target, _effect: None,
+            "pull_request": lambda _target, _effect: None,
+            "drive_file": drive,
+        },
+    )
+    command = _command(ledger, "RESUME_PROVISION", target_id)
+    command["action"] = "RECONCILE"
+    command["params"] = {"reconcile_version": "1.0", "target_request_id": target_id}
+    engine = Engine(ledger, policy=LocalPolicy(), handlers={"RECONCILE": reconcile})
+    admitted = engine.submit(json.dumps(command).encode(), OWNER)
+    assert admitted.execute
+    deadline = time.monotonic() + 5
+    while time.monotonic() < deadline:
+        result = ledger.get(command["request_id"])
+        assert result is not None
+        if result["status"] != "RUNNING":
+            assert result["status"] == "COMPLETED"
+            assert result["result"]["ready_for_resume"] is True
+            break
+        time.sleep(0.01)
+    else:
+        raise AssertionError("Reconciliation did not finish")
+    ledger.confirm_stopped(target_id)
+    original = ledger.get(target_id)
+    assert original is not None and original["reconcile_required"] == 0
+    assert len(original["effects"]) == 9
+    assert all(item["state"] == "CONFIRMED" for item in original["effects"])
+
+
+def test_partial_ui_create_adopts_exact_prefix_then_creates_only_missing_docs(
+    tmp_path: Path,
+) -> None:
+    ledger, original, complete, github, drive = _fixture(
+        tmp_path, partial_workspace_folder=True,
+    )
+    target_id = original["request_id"]
+    _reconcile_partial_folder(ledger, target_id, drive)
+    original_before = ledger.get(target_id)
+    assert original_before is not None
+    provisioner = FakePartialProvisioner(complete)
+    partial = PartialProvisionRecoveryWorkflow(
+        complete, cast(Any, provisioner), lambda _registration: cast(Any, object()),
+    )
+    result = _run(ledger, target_id, partial)
+    assert result["status"] == "COMPLETED", result["code"]
+    assert result["result"]["project_state"] == "READY"
+    assert len(result["effects"]) == 16
+    assert len([effect for effect in result["effects"] if "adoption" in effect]) == 9
+    assert provisioner.created_steps == [item[0] for item in _DRIVE_CREATES[5:]] + [
+        item[0] for item in _CONTENT
+    ]
+    assert ledger.get(target_id) == original_before
+    assert github.reads == 2 and drive.reads == 6
+
+
+def test_partial_root_create_stays_blocked_after_positive_reconciliation(
+    tmp_path: Path,
+) -> None:
+    ledger, original, complete, github, drive = _fixture(
+        tmp_path, root_origin=True, partial_workspace_folder=True,
+    )
+    _reconcile_partial_folder(ledger, original["request_id"], drive)
+    provisioner = FakePartialProvisioner(complete)
+    partial = PartialProvisionRecoveryWorkflow(
+        complete, cast(Any, provisioner), lambda _registration: cast(Any, object()),
+    )
+    result = _run(ledger, original["request_id"], partial)
+    assert result["status"] == "BLOCKED"
+    assert result["code"] == "RESUME_ROOT_RECEIPT_UNCONFIRMED"
+    assert result["effects"] == []
+    assert provisioner.created_steps == [] and github.reads == 0
+
+
+def test_partial_ui_create_refuses_changed_confirmed_drive_id_before_adoption(
+    tmp_path: Path,
+) -> None:
+    ledger, original, complete, _github, drive = _fixture(
+        tmp_path, partial_workspace_folder=True,
+    )
+    _reconcile_partial_folder(ledger, original["request_id"], drive)
+    file_id, intent = drive.remote["drive-project-folder"]
+    drive.remote["drive-project-folder"] = ("wrongProjectFolder123", intent)
+    provisioner = FakePartialProvisioner(complete)
+    partial = PartialProvisionRecoveryWorkflow(
+        complete, cast(Any, provisioner), lambda _registration: cast(Any, object()),
+    )
+    result = _run(ledger, original["request_id"], partial)
+    assert result["status"] == "BLOCKED"
+    assert result["code"] == "RESUME_IDENTITY_MISMATCH"
+    assert result["effects"] == [] and provisioner.created_steps == []
+    assert file_id == "projectFolder123"
+
+
+ROOT_RECEIPT = "rootReceipt123"
+
+def _terminal_marker(ledger: Ledger, target_id: str) -> RootPartialReceiptProof:
+    target = ledger.get(target_id)
+    assert target is not None and target["source_id"] == ROOT_COMMAND
+    count, effects_sha = confirmed_create_effects_proof(target["effects"])
+    intent = {
+        "command_doc_id": ROOT_COMMAND, "receipt_doc_id": ROOT_RECEIPT,
+        "request_digest": target["digest"], "status": "INTERRUPTED",
+        "code": "PROVISIONING_PARTIAL",
+        "summary": {"project_id": "fixture", "workspace_id": "primary",
+                    "template_id": "python-basic",
+                    "confirmed_effect_count": str(count)},
+        "frozen_command_revision": "revision-1",
+        "frozen_command_sha256": "b" * 64,
+        "confirmed_effect_count": count,
+        "confirmed_effects_sha256": effects_sha,
+        "observed_at": datetime.now(timezone.utc).isoformat(),
+        "base_revision": "receipt-revision-1",
+        "desired_sha256": "c" * 64,
+    }
+    effect_id = ledger.begin_terminal_root_receipt(
+        target_id, source_id=ROOT_COMMAND, digest=target["digest"], intent=intent,
+    )
+    ledger.confirm_effect(effect_id, ROOT_RECEIPT)
+    ledger.complete_terminal_root_receipt(
+        target_id, source_id=ROOT_COMMAND, digest=target["digest"],
+        receipt_doc_id=ROOT_RECEIPT, effect_id=effect_id,
+    )
+    return RootPartialReceiptProof(
+        target_id, target["digest"], ROOT_RECEIPT, "c" * 64, count, effects_sha,
+    )
+
+
+def test_partial_root_resume_requires_durable_terminal_marker_and_exact_proof(
+    tmp_path: Path,
+) -> None:
+    ledger, original, complete, _github, drive = _fixture(
+        tmp_path, root_origin=True, partial_workspace_folder=True,
+    )
+    target_id = original["request_id"]
+    _reconcile_partial_folder(ledger, target_id, drive)
+    proof = _terminal_marker(ledger, target_id)
+    provisioner = FakePartialProvisioner(complete)
+    failed = PartialProvisionRecoveryWorkflow(
+        complete, cast(Any, provisioner), lambda _registration: cast(Any, object()),
+        root_proof=lambda _request_id: RootPartialReceiptProof(
+            proof.request_id, proof.request_digest, proof.receipt_doc_id,
+            "0" * 64, proof.confirmed_effect_count, proof.confirmed_effects_sha256,
+        ),
+        root_receipt_id=ROOT_RECEIPT,
+    )
+    rejected = _run(ledger, target_id, failed)
+    assert rejected["status"] == "BLOCKED"
+    assert rejected["code"] == "RESUME_ROOT_RECEIPT_UNCONFIRMED"
+    assert rejected["effects"] == [] and provisioner.created_steps == []
+    # A fresh new request ID may be submitted after a rejected preflight.
+    partial = PartialProvisionRecoveryWorkflow(
+        complete, cast(Any, provisioner), lambda _registration: cast(Any, object()),
+        root_proof=lambda request_id: proof if request_id == target_id else pytest.fail(),
+        root_receipt_id=ROOT_RECEIPT,
+    )
+    result = _run(ledger, target_id, partial)
+    assert result["status"] == "COMPLETED", result["code"]
+    assert len(result["effects"]) == 16
+    assert len([effect for effect in result["effects"] if "adoption" in effect]) == 9
+    assert "drive-root-create-receipt" not in {
+        effect["step_id"] for effect in result["effects"]
+    }
+    assert result["result"]["project_state"] == "READY"
+
+
+def test_full_graph_root_resume_after_terminal_receipt_needs_no_new_resource(
+    tmp_path: Path,
+) -> None:
+    ledger, original, complete, _github, _drive = _fixture(
+        tmp_path, root_origin=True, root_interrupted_full=True,
+    )
+    target_id = original["request_id"]
+    ledger.confirm_stopped(target_id)
+    proof = _terminal_marker(ledger, target_id)
+    provisioner = FakePartialProvisioner(complete)
+    partial = PartialProvisionRecoveryWorkflow(
+        complete, cast(Any, provisioner), lambda _registration: cast(Any, object()),
+        root_proof=lambda request_id: proof if request_id == target_id else pytest.fail(),
+        root_receipt_id=ROOT_RECEIPT,
+    )
+    result = _run(ledger, target_id, partial)
+    assert result["status"] == "COMPLETED", result["code"]
+    assert len(result["effects"]) == 16
+    assert all("adoption" in effect for effect in result["effects"])
+    assert provisioner.created_steps == []

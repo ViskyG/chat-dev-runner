@@ -1,0 +1,71 @@
+{
+  "direct_contained_failing_test_exit_code": 1,
+  "direct_contained_failing_test_junit": {
+    "errors": "0",
+    "failures": "1",
+    "skipped": "0",
+    "tests": "1"
+  },
+  "direct_contained_preparation_exit_code": 0,
+  "direct_contained_test_exit_code": 0,
+  "direct_contained_test_junit": {
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "1"
+  },
+  "direct_smoke_boundary": "network none, rootless, read-only root, no host project execution; separate broker quota/handoff not exercised",
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "live_broker_gate": {
+    "durable_intent_phases": [
+      "PREPARATION",
+      "TEST"
+    ],
+    "evidence": "verification/implementation/EP-05/live-python-quick/6eafcb9d-fbb0-494a-9b76-752b8958de5b/summary.json",
+    "junit": {
+      "errors": 0,
+      "failures": 0,
+      "tests": 1
+    },
+    "note": "This used one restored EP-03 finite acceptance quota pair, not the production per-run provider.",
+    "preparation": "PASSED",
+    "request_id": "6eafcb9d-fbb0-494a-9b76-752b8958de5b",
+    "status": "PASSED_DISPOSABLE",
+    "test": "PASSED"
+  },
+  "observed_at_utc": "2026-09-28T05:31:40.537133+00:00",
+  "owner_directory_mode": "0700",
+  "owner_files_mode": "0600",
+  "package_build": {
+    "wheel_assets": 5,
+    "wheel_bytes": 1794661,
+    "zip_import_starter_files": 12
+  },
+  "per_run_provider": {
+    "admin_gate": "Auto-review rejected persistent passwordless sudoers rule for mount-capable root helper; explicit authorization for this exact persistent privilege change is required.",
+    "code": "runner_app/executors/volume_provider.py",
+    "helper_source": "scripts/cdr_volume_helper.py",
+    "installed": false,
+    "installer": "scripts/install_volume_helper.sh",
+    "installer_review_result": "REJECTED: persistent passwordless sudoers rule for mount-capable helper was not covered by prior general sudo authorization; no workaround attempted.",
+    "owner_grant_loader": "load_python_quick_grant(profile_dir)",
+    "policy_tests": 10,
+    "readiness": "VOLUME_HELPER_UNAVAILABLE"
+  },
+  "profile_directory": "/home/visky/Work/GPTRunner/owner-profiles",
+  "profile_revisions": {
+    "python-prepare": "602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9",
+    "python-quick": "b47160af8e5abd5ea7cc4b9624ee1a929216a5705c394fd4e287468590efd182"
+  },
+  "rootless_probe": "READY",
+  "rootless_socket": "/run/user/1000/docker.sock",
+  "runner_armed": false,
+  "schema_version": "1.0",
+  "targeted_tests": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 62
+  },
+  "wheel_count": 5
+}

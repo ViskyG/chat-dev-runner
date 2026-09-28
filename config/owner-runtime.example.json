@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "mode": "attach_existing",
+  "drive_root_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+  "drive_index_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+  "github_login": "ViskyG",
+  "github_user_id": 12452296,
+  "github_identity": "viskyg",
+  "template_profiles": {
+    "python-basic": "python-quick"
+  },
+  "execution_profile_dir": "/ABSOLUTE/OWNER-ONLY/PATH/owner-profiles",
+  "import_roots": [],
+  "github_imports": []
+}

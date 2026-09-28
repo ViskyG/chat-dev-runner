@@ -1,0 +1,7 @@
+{
+  "database_integrity": "ok",
+  "foreign_key_violations": 0,
+  "journal_mode": "wal",
+  "schema_version": "1.0",
+  "service_stopped": true
+}

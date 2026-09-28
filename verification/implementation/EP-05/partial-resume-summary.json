@@ -1,0 +1,15 @@
+{
+  "adoption": "only confirmed original resource effects; root receipt marker excluded",
+  "drive_continuation": "recheck adopted exact IDs; create missing descendants/content only",
+  "errors": 0,
+  "failures": 0,
+  "git_diff_check": "PASS",
+  "live_cloud_writes": 0,
+  "live_ledger_mutations": 0,
+  "mypy": "PASS",
+  "root_resume_gate": "confirmed terminal partial root RECEIPT exact-ID/hash readback",
+  "ruff": "PASS",
+  "skipped": 0,
+  "stage": "EP-05 reconciled partial CREATE continuation",
+  "tests": 80
+}

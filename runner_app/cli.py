@@ -101,10 +101,37 @@ def main(argv: list[str] | None = None) -> int:
                 from runner_app.engine.runtime import Runtime
 
                 runtime = Runtime(config, Paths.discover())
+                bridge = None
                 try:
+                    if runtime.integrations is not None:
+                        from runner_app.adapters.drive_poller import DrivePoller, FrozenSlotStore
+                        from runner_app.adapters.drive_system_state import SystemStatePublisher
+                        from runner_app.engine.drive_bridge import DrivePollingBridge
+
+                        integrations = runtime.integrations
+                        root = integrations.attached.root_mailbox()
+                        poller = DrivePoller(
+                            integrations.provider, root, runtime.engine,
+                            FrozenSlotStore(runtime.paths.state_dir / "drive-frozen-root"),
+                        )
+                        state_publisher = SystemStatePublisher(
+                            integrations.root_receipt.writer, integrations.attached,
+                            github_owner=integrations.config.github_login,
+                            github_identity=integrations.config.github_identity,
+                            approved_templates=runtime.engine.policy.approved_templates,
+                            approved_profiles=lambda: runtime.engine.policy.approved_profiles,
+                            available_actions=runtime.engine.capabilities,
+                        )
+                        bridge = DrivePollingBridge(poller, state_publisher=state_publisher.publish)
+                        runtime.drive_bridge = bridge
+                        bridge.start()
+                        if runtime.workspace_mailboxes is not None:
+                            runtime.workspace_mailboxes.start()
                     uvicorn.run(runtime.app, host=config.listen_host, port=config.listen_port,
                                 workers=1, proxy_headers=False, access_log=False, server_header=False)
                 finally:
+                    if bridge is not None:
+                        bridge.close()
                     runtime.close()
             return 0
         if args.command == "configure":

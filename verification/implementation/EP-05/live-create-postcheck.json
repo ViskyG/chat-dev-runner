@@ -1,0 +1,55 @@
+{
+  "attached_installation_id": "e20c0491-eed2-5596-8534-f4850af9eb46",
+  "checked_at_utc": "2026-09-28T05:04:21.371895+00:00",
+  "confirmed_effects": 16,
+  "drive_readback": {
+    "context_doc_id": {
+      "id": "1QiwfBO2J9Noj5s5I2Bpsgo0SSL8dSFWNoce6j6tGwHc",
+      "mime_type": "application/vnd.google-apps.document",
+      "name": "SOURCE CONTEXT",
+      "parents": [
+        "1JRI72sbpWgHEuY7b-lSPHfJcyVxJT7N-"
+      ],
+      "trashed": false
+    },
+    "project_folder_id": {
+      "id": "1oifPtbv_4-ApgIBk5gT--mR003Gbfcck",
+      "mime_type": "application/vnd.google-apps.folder",
+      "name": "cdr-ep05-smoke-20260928",
+      "parents": [
+        "1vuE5Vj8dJ2lRpCw4JKVKhnxdH_wzo3yg"
+      ],
+      "trashed": false
+    },
+    "project_state_doc_id": {
+      "id": "1uZkDNL79oGahq0aTiTMXUiOKAVDLNeBPQqv-mfCcumA",
+      "mime_type": "application/vnd.google-apps.document",
+      "name": "PROJECT STATE",
+      "parents": [
+        "1oifPtbv_4-ApgIBk5gT--mR003Gbfcck"
+      ],
+      "trashed": false
+    }
+  },
+  "github": {
+    "default_branch": "main",
+    "main_protected": false,
+    "main_sha": "eafcf537d0d25aba1052f89853081a8e10562812",
+    "private": true,
+    "repository_id": 1391832580,
+    "url": "https://github.com/ViskyG/cdr-ep05-smoke-20260928"
+  },
+  "local_worktree": {
+    "branch": "work/cdr-ep05-smoke-20260928",
+    "clean": true,
+    "head": "eafcf537d0d25aba1052f89853081a8e10562812",
+    "origin": "https://github.com/ViskyG/cdr-ep05-smoke-20260928.git",
+    "path": "/home/visky/Work/GPTRunner/.ep05-smoke/cdr-ep05-smoke-20260928/managed/cdr-ep05-smoke-20260928/workspaces/primary"
+  },
+  "operation_status": "COMPLETED",
+  "project_state": "READY",
+  "request_id": "c89433d1-ab2c-4a35-908e-0cf2be6989ea",
+  "runner_armed_after_smoke": false,
+  "source_state_dir": "/home/visky/Work/GPTRunner/.ep05-smoke/cdr-ep05-smoke-20260928",
+  "total_effects": 16
+}

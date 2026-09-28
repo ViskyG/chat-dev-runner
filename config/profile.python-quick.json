@@ -1,14 +1,16 @@
 {
   "schema_version": "1.0",
   "profile_id": "python-quick",
-  "description": "Digest-pinned reference profile; rootless runtime, dependencies and owner approval not configured",
+  "description": "Reference profile: offline prepared pytest from /build, pinned rootless Python 3.12 image",
   "execution_backend": "rootless_container",
-  "image": "docker.io/library/python@sha256:54b4fc9408ea4f5d1b1b9c63c7ef1968d46d3b927e00df8ab1f09364593f979f",
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
   "argv": [
     "python",
-    "-m",
-    "pytest",
+    "-c",
+    "import sys;sys.path[:0]=['/build','/src'];import pytest;raise SystemExit(pytest.main(sys.argv[1:]))",
     "-q",
+    "-p",
+    "no:cacheprovider",
     "--junitxml=/out/junit.xml"
   ],
   "timeout_seconds": 600,
@@ -27,7 +29,7 @@
       "kind": "test_result",
       "path": "junit.xml",
       "format": "junit-xml",
-      "required": false
+      "required": true
     },
     {
       "id": "app-log",
@@ -37,7 +39,7 @@
       "required": false
     }
   ],
-  "approval": "Local owner approves the image, lockfile installation phase and profile before remote execution.",
+  "approval": "Owner-local approval follows a real rootless image and offline preparation check.",
   "platform": "linux/amd64",
   "installed": false,
   "approved": false

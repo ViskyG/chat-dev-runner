@@ -1,0 +1,19 @@
+{
+  "approved_profiles": [],
+  "approved_templates": [
+    "python-basic"
+  ],
+  "available_actions": [
+    "CREATE_PROJECT"
+  ],
+  "checked_at_utc": "2026-09-28T05:34:23.701581+00:00",
+  "epoch_matches_ledger": true,
+  "github_identity": "viskyg",
+  "github_owner": "ViskyG",
+  "installation_id": "e20c0491-eed2-5596-8534-f4850af9eb46",
+  "runner_armed": false,
+  "runner_id": "local-runner",
+  "state": "DISARMED",
+  "system_state_document_id": "1UXNE8Vt-73inAKm4i949TpyGT5rb3ve9bv_521QwXS0",
+  "system_state_text_sha256": "a8ccc64926943f1390941a53b6180e97ab8763eefba7341f931f3f500b367a2a"
+}

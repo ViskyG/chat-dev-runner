@@ -12,18 +12,20 @@ from uuid import uuid4
 
 import pytest
 
+from runner_app.adapters.drive_docs import read_ready_snapshot
 from runner_app.adapters.drive_index import (
     AttachedInstallation,
     ExistingInstallation,
     IndexedFile,
     InstallationIndex,
 )
+from runner_app.adapters.drive_poller import FrozenSlotStore
 from runner_app.adapters.drive_root_receipt import (
     RootCreateProjectReceiptPublisher,
     RootReceiptError,
 )
 from runner_app.adapters.drive_writer import DocsCASWriter
-from runner_app.domain.commands import freeze
+from runner_app.domain.commands import Provenance, freeze
 from runner_app.storage import Database
 from runner_app.storage.ledger import Ledger
 
@@ -422,3 +424,307 @@ def test_partial_status_uses_only_allowlisted_safe_resources(tmp_path: Path) -> 
     text = str(api.documents[_RECEIPT])
     assert "GITHUB_PROVISION_UNKNOWN" in text
     assert "/private/" not in text and "SECRET" not in text
+
+
+def _pre_dispatch_setup(
+    tmp_path: Path, *,
+    freeze_slot: bool = True,
+) -> tuple[Ledger, FakeRootDocs, RootCreateProjectReceiptPublisher,
+           dict[str, Any], FrozenSlotStore]:
+    ledger, api, publisher, command = _setup(tmp_path)
+    slots = FrozenSlotStore(tmp_path / "frozen")
+    if freeze_slot:
+        snapshot = read_ready_snapshot(api, publisher.attached.root_mailbox())
+        assert snapshot is not None
+        slots.freeze(snapshot, Provenance("drive", _COMMAND))
+    # Simulate process restart before Engine._execute's dispatch/STARTED journal.
+    ledger.startup()
+    operation = ledger.get(command["request_id"])
+    assert operation is not None
+    assert operation["status"] == "INTERRUPTED"
+    assert operation["reconcile_required"] == 1
+    return ledger, api, publisher, command, slots
+
+
+def _doc_text(api: FakeRootDocs, file_id: str) -> str:
+    return "".join(
+        run["textRun"]["content"]
+        for item in api.documents[file_id]["tabs"][0]["documentTab"]["body"]["content"]
+        for run in item.get("paragraph", {}).get("elements", [])
+    )
+
+
+def test_pre_dispatch_recovery_closes_root_receipt_without_project_effects(
+    tmp_path: Path,
+) -> None:
+    ledger, api, publisher, command, slots = _pre_dispatch_setup(tmp_path)
+    request_id = command["request_id"]
+    before_command = copy.deepcopy(api.documents[_COMMAND])
+    operation = ledger.get(request_id)
+    assert operation is not None and operation["steps"] == [] and operation["effects"] == []
+    assert publisher.recover_pre_dispatch(request_id, slots) == _RECEIPT
+    assert api.batch_ids == [_RECEIPT]
+    assert api.documents[_COMMAND] == before_command
+    receipt = json.loads(_doc_text(api, _RECEIPT))
+    assert receipt["status"] == "INTERRUPTED"
+    assert receipt["code"] == "INTERRUPTED_BEFORE_EXECUTION"
+    assert receipt["request_digest"] == freeze(command).digest
+    assert "no project effects" in receipt["message"]
+    assert "fresh request_id" in receipt["message"]
+    assert "SECRET" not in _doc_text(api, _RECEIPT)
+    operation = ledger.get(request_id)
+    assert operation is not None
+    assert operation["code"] == "NEEDS_RECONCILIATION"
+    assert operation["reconcile_required"] == 0
+    assert operation["capacity_held"] == 0
+    assert len(operation["effects"]) == 1
+    assert operation["effects"][0]["step_id"] == "drive-root-create-receipt"
+    assert operation["effects"][0]["state"] == "CONFIRMED"
+    assert not ledger.holds_lock(request_id, f"repo:{_PROJECT}")
+    assert publisher.recover_pre_dispatch(request_id, slots) == _RECEIPT
+    assert api.batch_ids == [_RECEIPT]
+    assert ledger.arm()["armed"] is True
+
+
+def test_pre_dispatch_recovery_requires_immutable_frozen_revision(
+    tmp_path: Path,
+) -> None:
+    ledger, api, publisher, command, slots = _pre_dispatch_setup(tmp_path)
+    api.set_document(_COMMAND, json.dumps(command) + "\n")
+    _code(lambda: publisher.recover_pre_dispatch(command["request_id"], slots),
+          "ROOT_FROZEN_INPUT_MISMATCH")
+    assert api.batch_ids == []
+    assert _effects(ledger, command["request_id"]) == []
+
+
+def test_pre_dispatch_recovery_requires_existing_frozen_slot(tmp_path: Path) -> None:
+    ledger, api, publisher, command, slots = _pre_dispatch_setup(tmp_path, freeze_slot=False)
+    _code(lambda: publisher.recover_pre_dispatch(command["request_id"], slots),
+          "ROOT_FROZEN_INPUT_INVALID")
+    assert api.batch_ids == []
+    assert _effects(ledger, command["request_id"]) == []
+
+
+def test_pre_dispatch_recovery_rejects_recorded_start_or_project_effect(
+    tmp_path: Path,
+) -> None:
+    for kind in ("started", "effect"):
+        case = tmp_path / kind
+        ledger, api, publisher, command = _setup(case)
+        slots = FrozenSlotStore(case / "frozen")
+        snapshot = read_ready_snapshot(api, publisher.attached.root_mailbox())
+        assert snapshot is not None
+        slots.freeze(snapshot, Provenance("drive", _COMMAND))
+        if kind == "started":
+            ledger.journal(command["request_id"], "dispatch", "STARTED",
+                           {"action": "CREATE_PROJECT"})
+        else:
+            ledger.begin_effect(command["request_id"], "github-repository",
+                                "github_repository", {"resource": "unknown"})
+        ledger.startup()
+        code = ("PRE_DISPATCH_PROOF_FAILED" if kind == "started"
+                else "ROOT_PRE_DISPATCH_EFFECTS_PRESENT")
+        _code(lambda publisher=publisher, request_id=command["request_id"], slots=slots:
+              publisher.recover_pre_dispatch(request_id, slots), code)
+        assert api.batch_ids == []
+
+
+def test_pre_dispatch_recovery_lost_ack_uses_readback_and_never_retries(
+    tmp_path: Path,
+) -> None:
+    ledger, api, publisher, command, slots = _pre_dispatch_setup(tmp_path)
+    api.lose_ack_once = True
+    assert publisher.recover_pre_dispatch(command["request_id"], slots) == _RECEIPT
+    assert api.batch_ids == [_RECEIPT]
+    assert ledger.get(command["request_id"])["reconcile_required"] == 0
+
+
+def test_pre_dispatch_recovery_unapplied_uncertain_write_remains_blocked(
+    tmp_path: Path,
+) -> None:
+    ledger, api, publisher, command, slots = _pre_dispatch_setup(tmp_path)
+    api.fail_before_once = True
+    _code(lambda: publisher.recover_pre_dispatch(command["request_id"], slots),
+          "ROOT_RECEIPT_WRITE_UNCERTAIN")
+    operation = ledger.get(command["request_id"])
+    assert operation is not None
+    assert operation["reconcile_required"] == 1
+    assert operation["effects"][0]["state"] == "INTENDED"
+    assert api.batch_ids == [_RECEIPT]
+    _code(lambda: publisher.recover_pre_dispatch(command["request_id"], slots),
+          "ROOT_RECEIPT_WRITE_UNCERTAIN")
+    assert api.batch_ids == [_RECEIPT]
+
+
+def test_pre_dispatch_recovery_after_crash_post_write_only_reads_prior_intent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ledger, api, publisher, command, slots = _pre_dispatch_setup(tmp_path)
+    request_id = command["request_id"]
+    confirm = ledger.confirm_effect
+
+    def crash_before_confirmation(*_args: Any) -> None:
+        raise OSError("simulated process crash after receipt CAS")
+
+    monkeypatch.setattr(ledger, "confirm_effect", crash_before_confirmation)
+    with pytest.raises(OSError):
+        publisher.recover_pre_dispatch(request_id, slots)
+    assert api.batch_ids == [_RECEIPT]
+    assert _effects(ledger, request_id)[0]["state"] == "INTENDED"
+    monkeypatch.setattr(ledger, "confirm_effect", confirm)
+    ledger.startup()
+    assert _effects(ledger, request_id)[0]["state"] == "UNKNOWN"
+    assert publisher.recover_pre_dispatch(request_id, slots) == _RECEIPT
+    assert api.batch_ids == [_RECEIPT]
+    assert _effects(ledger, request_id)[0]["state"] == "CONFIRMED"
+    assert ledger.get(request_id)["reconcile_required"] == 0
+
+
+def _partial_setup(
+    tmp_path: Path, *, freeze_slot: bool = True, effect_count: int = 9,
+) -> tuple[Ledger, FakeRootDocs, RootCreateProjectReceiptPublisher,
+           dict[str, Any], FrozenSlotStore]:
+    ledger, api, publisher, command = _setup(tmp_path)
+    request_id = command["request_id"]
+    slots = FrozenSlotStore(tmp_path / "frozen")
+    if freeze_slot:
+        snapshot = read_ready_snapshot(api, publisher.attached.root_mailbox())
+        assert snapshot is not None
+        slots.freeze(snapshot, Provenance("drive", _COMMAND))
+    ledger.journal(request_id, "dispatch", "STARTED", {"action": "CREATE_PROJECT"})
+    for position in range(effect_count):
+        effect_id = ledger.begin_effect(
+            request_id, f"partial-resource-{position}", "drive_file",
+            {"installation_id": _INSTALLATION, "position": position,
+             "secret": "SECRET private intent"},
+        )
+        ledger.confirm_effect(effect_id, f"resourceid{position:03d}")
+    ledger.startup()
+    ledger.confirm_stopped(request_id)
+    operation = ledger.get(request_id)
+    assert operation is not None
+    assert operation["status"] == "INTERRUPTED"
+    assert operation["code"] == "NEEDS_RECONCILIATION"
+    assert operation["reconcile_required"] == 0
+    assert operation["capacity_held"] == 0
+    assert not ledger.holds_lock(request_id, f"repo:{_PROJECT}")
+    return ledger, api, publisher, command, slots
+
+
+def test_partial_terminal_receipt_is_exact_sanitized_and_read_only_provable(
+    tmp_path: Path,
+) -> None:
+    ledger, api, publisher, command, slots = _partial_setup(tmp_path)
+    request_id = command["request_id"]
+    before_command = copy.deepcopy(api.documents[_COMMAND])
+    original = ledger.get(request_id)
+    assert original is not None
+    original_receipt = original["receipt"]
+    assert publisher.recover_terminal_partial(request_id, slots) == _RECEIPT
+    assert api.batch_ids == [_RECEIPT]
+    assert api.documents[_COMMAND] == before_command
+    remote = json.loads(_doc_text(api, _RECEIPT))
+    assert remote["request_id"] == request_id
+    assert remote["request_digest"] == freeze(command).digest
+    assert remote["status"] == "INTERRUPTED"
+    assert remote["code"] == "PROVISIONING_PARTIAL"
+    assert "INTERRUPTED/PARTIAL" in remote["message"]
+    assert "confirmed_effect_count=9" in remote["message"]
+    assert "completion unverified" in remote["message"]
+    assert "SECRET" not in remote["message"]
+    effect = _effects(ledger, request_id)[-1]
+    assert len(_effects(ledger, request_id)) == 10
+    assert effect["step_id"] == "drive-root-create-receipt"
+    assert effect["state"] == "CONFIRMED"
+    assert effect["intent"]["confirmed_effect_count"] == 9
+    assert effect["intent"]["status"] == "INTERRUPTED"
+    assert effect["intent"]["code"] == "PROVISIONING_PARTIAL"
+    current = ledger.get(request_id)
+    assert current is not None
+    assert current["code"] == "NEEDS_RECONCILIATION"
+    assert current["receipt"] == original_receipt
+    before_calls = list(api.batch_ids)
+    proof = publisher.confirmed_partial(request_id, slots)
+    assert proof.request_id == request_id
+    assert proof.request_digest == freeze(command).digest
+    assert proof.receipt_doc_id == _RECEIPT
+    assert proof.receipt_sha256 == hashlib.sha256(_doc_text(api, _RECEIPT).encode()).hexdigest()
+    assert proof.confirmed_effect_count == 9
+    assert proof.confirmed_effects_sha256 == effect["intent"]["confirmed_effects_sha256"]
+    assert api.batch_ids == before_calls
+    assert publisher.recover_terminal_partial(request_id, slots) == _RECEIPT
+    assert api.batch_ids == before_calls
+
+
+def test_partial_terminal_lost_ack_confirms_exact_readback_once(tmp_path: Path) -> None:
+    ledger, api, publisher, command, slots = _partial_setup(tmp_path)
+    api.lose_ack_once = True
+    assert publisher.recover_terminal_partial(command["request_id"], slots) == _RECEIPT
+    assert api.batch_ids == [_RECEIPT]
+    assert publisher.confirmed_partial(command["request_id"], slots).confirmed_effect_count == 9
+    assert ledger.get(command["request_id"])["code"] == "NEEDS_RECONCILIATION"
+
+
+def test_partial_terminal_unapplied_write_is_not_replayed(tmp_path: Path) -> None:
+    ledger, api, publisher, command, slots = _partial_setup(tmp_path)
+    request_id = command["request_id"]
+    api.fail_before_once = True
+    _code(lambda: publisher.recover_terminal_partial(request_id, slots),
+          "ROOT_RECEIPT_WRITE_UNCERTAIN")
+    effects = _effects(ledger, request_id)
+    assert effects[-1]["step_id"] == "drive-root-create-receipt"
+    assert effects[-1]["state"] == "INTENDED"
+    assert api.batch_ids == [_RECEIPT]
+    _code(lambda: publisher.recover_terminal_partial(request_id, slots),
+          "ROOT_RECEIPT_WRITE_UNCERTAIN")
+    assert api.batch_ids == [_RECEIPT]
+    _code(lambda: publisher.confirmed_partial(request_id, slots),
+          "TERMINAL_ROOT_RECEIPT_UNCONFIRMED")
+
+
+def test_partial_terminal_requires_same_frozen_command_revision(tmp_path: Path) -> None:
+    ledger, api, publisher, command, slots = _partial_setup(tmp_path)
+    api.set_document(_COMMAND, json.dumps(command) + "\n")
+    _code(lambda: publisher.recover_terminal_partial(command["request_id"], slots),
+          "ROOT_FROZEN_INPUT_MISMATCH")
+    assert api.batch_ids == []
+    assert len(_effects(ledger, command["request_id"])) == 9
+
+
+def test_partial_terminal_requires_frozen_slot(tmp_path: Path) -> None:
+    ledger, api, publisher, command, slots = _partial_setup(tmp_path, freeze_slot=False)
+    _code(lambda: publisher.recover_terminal_partial(command["request_id"], slots),
+          "ROOT_FROZEN_INPUT_INVALID")
+    assert api.batch_ids == []
+    assert len(_effects(ledger, command["request_id"])) == 9
+
+
+def test_partial_terminal_proof_rejects_changed_receipt(tmp_path: Path) -> None:
+    _, api, publisher, command, slots = _partial_setup(tmp_path)
+    request_id = command["request_id"]
+    assert publisher.recover_terminal_partial(request_id, slots) == _RECEIPT
+    api.set_document(_RECEIPT, "changed receipt\n")
+    _code(lambda: publisher.confirmed_partial(request_id, slots),
+          "ROOT_RECEIPT_PROOF_CHANGED")
+
+
+def test_partial_terminal_completion_event_is_required_for_proof(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ledger, api, publisher, command, slots = _partial_setup(tmp_path)
+    request_id = command["request_id"]
+    complete = ledger.complete_terminal_root_receipt
+
+    def crash_before_completion(*_args: Any, **_kwargs: Any) -> None:
+        raise OSError("fake crash after exact root receipt confirmation")
+
+    monkeypatch.setattr(ledger, "complete_terminal_root_receipt", crash_before_completion)
+    with pytest.raises(OSError):
+        publisher.recover_terminal_partial(request_id, slots)
+    assert api.batch_ids == [_RECEIPT]
+    _code(lambda: publisher.confirmed_partial(request_id, slots),
+          "TERMINAL_ROOT_RECEIPT_UNCONFIRMED")
+    monkeypatch.setattr(ledger, "complete_terminal_root_receipt", complete)
+    assert publisher.recover_terminal_partial(request_id, slots) == _RECEIPT
+    assert api.batch_ids == [_RECEIPT]
+    assert publisher.confirmed_partial(request_id, slots).confirmed_effect_count == 9

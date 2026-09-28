@@ -59,9 +59,10 @@ records its outcome and evidence hash, copies only a verified ordinary-file `bui
 an independent test volume through nofollow descriptors, and records an immutable handoff.
 The TEST container cannot be created without that exact handoff. Its broker result must attest
 the plan, preparation run and copied tree; the broker rescans the staged bytes before create
-and start. A failed or uncertain preparation never starts TEST. These boundaries have only
-fake-backed integration evidence so far: target-host rootless acceptance is still required
-before live use. Preparation logs remain local and are not yet a published output channel.
+and start. A failed or uncertain preparation never starts TEST. The Python starter's
+offline dependency installation and JUnit test have passed a direct rootless Docker smoke
+check; the full broker path still requires live acceptance with fresh hard-quota volumes.
+Preparation logs remain local and are not yet a published output channel.
 
 ## Git and publication
 

@@ -1,0 +1,43 @@
+{
+  "build_file_count": 504,
+  "failing_junit": {
+    "errors": "0",
+    "failures": "1",
+    "skipped": "0",
+    "tests": "1"
+  },
+  "failing_junit_sha256": "a1d0b9421c7f9d370a23d466db737d696d06bc04eeecfecd47b5eae659dfffd6",
+  "failing_test": {
+    "exit_code": 1,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_tail": "",
+    "stdout_sha256": "2ab7b284ccdb1e2d39d5d6658980d640f2366982d16df57c081b72bdae3dad99",
+    "stdout_tail": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________________ test_failure _________________________________\n\n    def test_failure() -> None:\n>       assert False, \"intentional contained failure\"\nE       AssertionError: intentional contained failure\nE       assert False\n\ntests/test_app.py:2: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_app.py::test_failure - AssertionError: intentional containe...\n1 failed in 0.01s\n"
+  },
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "junit": {
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "1"
+  },
+  "junit_sha256": "60750cdadd60ea9f3689a4776e3d449a2d6f87f9e20515547c183b4da9e15d01",
+  "mode": "direct rootless Docker, no network, no host project execution; not a broker quota-volume acceptance",
+  "observed_at_utc": "2026-09-28T05:12:48.699134+00:00",
+  "preparation": {
+    "exit_code": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_tail": "",
+    "stdout_sha256": "7a389de5f0ee3a75b6da19c1565fc1a4e784cbdae9ed03c12ba07bdb3296ef54",
+    "stdout_tail": "Looking in links: /src/vendor/wheels\nProcessing ./vendor/wheels/iniconfig-2.3.0-py3-none-any.whl (from -r /src/requirements.lock (line 2))\nProcessing ./vendor/wheels/packaging-26.3-py3-none-any.whl (from -r /src/requirements.lock (line 3))\nProcessing ./vendor/wheels/pluggy-1.6.0-py3-none-any.whl (from -r /src/requirements.lock (line 4))\nProcessing ./vendor/wheels/pygments-2.21.0-py3-none-any.whl (from -r /src/requirements.lock (line 5))\nProcessing ./vendor/wheels/pytest-9.1.1-py3-none-any.whl (from -r /src/requirements.lock (line 6))\nInstalling collected packages: pytest, pygments, pluggy, packaging, iniconfig\nSuccessfully installed iniconfig-2.3.0 packaging-26.3 pluggy-1.6.0 pygments-2.21.0 pytest-9.1.1\n"
+  },
+  "schema_version": "1.0",
+  "source_template": "python-basic",
+  "test": {
+    "exit_code": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_tail": "",
+    "stdout_sha256": "4bcefcc9f6c645923b9993ccf73ad92e6b400ca25458ea14e095857fc2131342",
+    "stdout_tail": ".                                                                        [100%]\n1 passed in 0.01s\n"
+  }
+}

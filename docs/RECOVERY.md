@@ -54,7 +54,8 @@ must be read back before any claim about the final state.
 
 Schema v1 now includes owner-local `RECONCILE` and `RESUME_PROVISION`, each with a new
 request ID and exact target request ID. They are explicit Engine handlers, not automatic
-startup or retry behavior, and the default Runtime does not register them. `RECONCILE`
+startup or retry behavior. The configured owner Runtime registers them; an unconfigured
+Runtime does not expose provider handlers. `RECONCILE`
 can positively classify a previously uncertain private GitHub repository, branch,
 draft PR, scoped Drive resource, managed bare repository, or clean primary worktree.
 The configured reader rechecks the original recorded identity without replaying a
@@ -62,13 +63,20 @@ provider write. A missing resource, unmatched registry row, dirty worktree, or
 ambiguous negative search remains unresolved and retains the original operation's
 lock until owner resolution.
 
-`RESUME_PROVISION` has a narrow no-write completion route for an already complete,
-locally READY, UI-originated new project. It rechecks the original GitHub marker and
-main commit, registered local source and clean workspace, each Drive ID and document
-content hash, then atomically adopts each confirmed effect into the new request.
-It does not fill missing steps or recover a Drive-root receipt yet. Those cases
-remain `PROVISIONING_PARTIAL` until the source/Drive adapters can continue safely
-under the new request ID. Neither action reruns a test or an ambiguous side effect.
+`RESUME_PROVISION` rechecks the original GitHub marker and main commit,
+registered local source and clean workspace, and every confirmed Drive ID/content
+hash before atomically adopting each effect into the new request. A fully READY,
+UI-originated new project completes without provider writes. A reconciled,
+UI-originated new project whose confirmed effects form the original ordered prefix
+may continue: the Drive adapter re-reads adopted IDs and creates only missing
+project/workspace descendants and initial content under a fresh RESUME request.
+Original creation metadata is preserved in those Docs. A negative search never
+licenses adoption or replay of an uncertain effect. A Drive-root original can
+follow the same owner-local RESUME path only after its terminal partial root
+RECEIPT is journaled and re-read by exact document ID/hash while the frozen and
+current READY command still match. That terminal marker is never adopted as a
+project resource. An interrupted RESUME request is not automatically retried.
+Neither action reruns a test or an ambiguous side effect.
 
 `PUBLISH_REPORT` already appears in schema v1. It addresses immutable run evidence; it may retry
 transport only. Durable delivery state is not a development-task queue and does not cause

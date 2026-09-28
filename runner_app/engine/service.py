@@ -55,6 +55,9 @@ class Engine:
         self.policy = policy or LocalPolicy()
         self.import_grants = import_grants
         self.handlers = dict(handlers or {})
+        self._workspace_routes: dict[tuple[str, str], Handler] = {}
+        self._workspace_route_origins: dict[tuple[str, str], Provenance] = {}
+        self._workspace_route_profiles: dict[tuple[str, str], str] = {}
         self._workers: dict[str, tuple[threading.Thread, threading.Event]] = {}
         # Serializes only the tiny dispatch/cancel handoff, never handler execution or slot waiting.
         self._handoff = threading.RLock()
@@ -62,6 +65,60 @@ class Engine:
 
     def capabilities(self) -> list[str]:
         return sorted(self.handlers)
+
+    def register_workspace_route(self, provenance: Provenance,
+                                 profile_id: str, handler: Handler) -> None:
+        """Add one exact owner-verified Drive workspace after completed provision.
+
+        Only trusted local assembly calls this method. Policy and route become
+        visible together; a command for another workspace never reaches this
+        handler. An already-registered identity cannot silently change.
+        """
+        if (provenance.kind != "drive" or provenance.project_id is None
+                or provenance.workspace_id is None or not profile_id
+                or not callable(handler)):
+            raise ValueError("Exact Drive workspace route and profile are required")
+        key = (provenance.project_id, provenance.workspace_id)
+        with self._handoff:
+            old_mailbox = self.policy.mailboxes.get(provenance.source_id)
+            old_route = self._workspace_routes.get(key)
+            old_origin = self._workspace_route_origins.get(key)
+            old_profile = self._workspace_route_profiles.get(key)
+            existing_dispatch = self.handlers.get("DELIVER_VERIFY_PUBLISH")
+            if (old_mailbox is not None and old_mailbox != provenance
+                    or old_route is not None and old_route is not handler
+                    or old_origin is not None and old_origin != provenance
+                    or old_profile is not None and old_profile != profile_id
+                    or existing_dispatch is not None
+                    and existing_dispatch != self._dispatch_workspace_route):
+                raise ValueError("Workspace route identity has changed")
+            if old_route is handler:
+                return
+            mailboxes = dict(self.policy.mailboxes)
+            mailboxes[provenance.source_id] = provenance
+            self.policy = replace(
+                self.policy, mailboxes=mailboxes,
+                approved_profiles=self.policy.approved_profiles | {profile_id},
+                project_ids=self.policy.project_ids | {provenance.project_id},
+                workspace_pairs=self.policy.workspace_pairs | {key},
+            )
+            self._workspace_routes[key] = handler
+            self._workspace_route_origins[key] = provenance
+            self._workspace_route_profiles[key] = profile_id
+            self.handlers["DELIVER_VERIFY_PUBLISH"] = self._dispatch_workspace_route
+
+    def _dispatch_workspace_route(self, frozen: FrozenCommand,
+                                  context: Context) -> OperationResult:
+        command = frozen.command
+        project_id, workspace_id = command.get("project_id"), command.get("workspace_id")
+        if not isinstance(project_id, str) or not isinstance(workspace_id, str):
+            return OperationResult("BLOCKED", "WORKSPACE_ROUTE_NOT_REGISTERED")
+        key = (project_id, workspace_id)
+        with self._handoff:
+            route = self._workspace_routes.get(key)
+        if route is None or command.get("action") != "DELIVER_VERIFY_PUBLISH":
+            return OperationResult("BLOCKED", "WORKSPACE_ROUTE_NOT_REGISTERED")
+        return route(frozen, context)
 
     @property
     def storage_faulted(self) -> bool:

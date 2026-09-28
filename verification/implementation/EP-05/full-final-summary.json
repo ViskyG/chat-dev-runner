@@ -1,0 +1,12 @@
+{
+  "errors": 0,
+  "failures": 0,
+  "git_diff_check": "PASS",
+  "junit_sha256": "885b361f296c4349d759b2c82afbc34c8e6f0e0f6d9092fcdd121d9b6282068e",
+  "mypy": "PASS_85_FILES",
+  "ruff": "PASS",
+  "schema_version": "1.0",
+  "skipped": 1,
+  "suite": "full-final",
+  "tests": 1251
+}

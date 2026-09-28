@@ -7,7 +7,7 @@ import json
 import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from uuid import uuid4
 
 import pytest
@@ -465,3 +465,86 @@ def test_populate_rejects_untrusted_repository_url_without_doc_write(
         )
     assert error.value.code == "PROVISION_REPOSITORY_INVALID"
     assert writer.writes == []
+
+
+def test_reconciled_workspace_folder_prefix_continues_under_resume_without_duplicate(
+    tmp_path: Path,
+) -> None:
+    from runner_app.storage.ledger import EffectAdoptionProof
+    from runner_app.workflows.reconcile_drive import DriveEffectReader
+
+    ledger, api, provisioner, registry = setup(tmp_path)
+    original_id = admit(ledger, "fixture", "Fixture")
+    source_registry = _local_source_binding(ledger, tmp_path, original_id)
+    api.lost_ack_key = "workspace:fixture/primary"
+    with pytest.raises(DriveUploadError) as error:
+        provisioner.provision(original_id, "fixture", "primary", "Fixture")
+    assert error.value.code == "UPLOAD_WRITE_UNCERTAIN"
+    assert len(api.created) == 5
+    original_ids = {item["id"] for item in api.created}
+    ledger.finish(original_id, "INTERRUPTED", code="NEEDS_RECONCILIATION")
+    old = ledger.get(original_id)
+    assert old is not None and len(old["effects"]) == 7
+    reader = DriveEffectReader(provisioner.attached, provisioner.upload,
+                               cast(Any, object()))
+    unknown = next(effect for effect in old["effects"]
+                   if effect["step_id"] == "drive-workspace-folder")
+    proof = reader(old, unknown)
+    assert proof is not None
+    ledger.confirm_effect(unknown["effect_id"], proof.provider_id)
+    ledger.confirm_stopped(original_id)
+    old = ledger.get(original_id)
+    assert old is not None and not old["reconcile_required"]
+    assert all(effect["state"] == "CONFIRMED" for effect in old["effects"])
+
+    state = ledger.state()
+    now = datetime.now(timezone.utc)
+    resume = {
+        "schema_version": "1.0", "request_id": str(uuid4()), "dispatch": "READY",
+        "runner_id": state["runner_id"], "epoch": state["epoch"],
+        "issued_at": now.isoformat(),
+        "expires_at": (now + timedelta(minutes=5)).isoformat(),
+        "action": "RESUME_PROVISION", "project_id": "fixture",
+        "workspace_id": None, "expected_head": None,
+        "params": {"resume_version": "1.0", "target_request_id": original_id},
+        "intent": "Continue fake reconciled project",
+    }
+    assert ledger.admit(
+        resume, freeze(resume).digest, "local-owner",
+        ("repo:fixture", "global:owner", "global:drive-installation"),
+    ).execute
+    for effect in old["effects"]:
+        if effect["kind"] != "drive_file":
+            continue
+        readback = reader(old, {**effect, "state": "UNKNOWN"})
+        assert readback is not None
+        ledger.adopt_confirmed_effect(
+            resume["request_id"], EffectAdoptionProof(
+                effect["effect_id"], readback.provider_id, readback.observed_intent,
+            ),
+        )
+    record = provisioner.provision(
+        resume["request_id"], "fixture", "primary", "Fixture",
+        resume_target_id=original_id,
+    )
+    assert record == registry.get("fixture", "primary")
+    assert len(api.created) == 10
+    assert original_ids == {item["id"] for item in api.created[:5]}
+    assert len({item["id"] for item in api.created}) == 10
+    effects = ledger.get(resume["request_id"])["effects"]
+    assert len(effects) == 10
+    assert len([item for item in effects if "adoption" in item]) == 5
+    assert all(item["state"] == "CONFIRMED" for item in effects)
+    writer = FakeStateWriter(record)
+    content = provisioner.populate(
+        resume["request_id"], record, source_registry=source_registry,
+        writer=writer, repository_id=12345,
+        repository_url="https://github.com/Owner/fixture",
+        resume_target_id=original_id,
+    )
+    state_text = writer.contents["project-state:fixture"]
+    project_state = json.loads(state_text.split("\n", 1)[1])
+    assert project_state["created_at"] == old["received_at"]
+    assert old["received_at"] in writer.contents["source-context:fixture/primary"]
+    assert set(content) == {"project_state_sha256", "context_sha256"}
+    assert len(ledger.get(resume["request_id"])["effects"]) == 12

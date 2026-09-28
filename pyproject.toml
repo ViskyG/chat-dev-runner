@@ -12,7 +12,7 @@ dependencies = ["jsonschema==4.26.0", "fastapi==0.141.1", "uvicorn==0.54.0"]
 [project.optional-dependencies]
 test = ["pytest==9.1.1"]
 dev = ["build==1.6.1", "ruff==0.16.9", "mypy==1.20.2", "httpx==0.28.1", "types-jsonschema==4.26.0.20260518", "setuptools==84.0.0", "wheel==0.48.0"]
-bootstrap = ["google-api-python-client>=2,<3", "google-auth-oauthlib>=1,<2"]
+bootstrap = ["google-api-python-client==2.200.0", "google-auth-oauthlib==1.4.1", "google-auth-httplib2==0.4.2", "httplib2==0.32.0", "google-auth==2.58.1"]
 ui-test = ["playwright==1.63.0"]
 
 [project.scripts]
@@ -23,6 +23,7 @@ include = ["runner_app*", "bridge_reference*", "schemas"]
 
 [tool.setuptools.package-data]
 schemas = ["*.schema.json"]
+"runner_app.git" = ["python_quick_wheels/*.whl"]
 
 [tool.ruff]
 target-version = "py310"

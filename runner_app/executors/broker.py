@@ -43,6 +43,7 @@ _DOCKER_OUTPUT_LIMIT = 128 * 1024
 _COMMAND_TIMEOUT = 8.0
 _MIN_HOST_DISK_RESERVE = 1024 * 1024 * 1024
 _MAX_RUN_VOLUME_BYTES = 4 * 1024 * 1024 * 1024
+_ROOT_CONTROLLED_VOLUME_BASE = Path("/run/chat-dev-runner/volumes")
 
 
 class BrokerError(RuntimeError):
@@ -141,6 +142,25 @@ def _sha256_argv(argv: tuple[str, ...]) -> str:
     return hashlib.sha256(framed).hexdigest()
 
 
+def _trusted_volume_parent(parent: Path) -> bool:
+    """Accept an owner-private parent or the fixed root-controlled quota base."""
+    try:
+        info = parent.lstat()
+        if not stat.S_ISDIR(info.st_mode):
+            return False
+        if info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == 0o700:
+            return True
+        if parent != _ROOT_CONTROLLED_VOLUME_BASE:
+            return False
+        app = parent.parent.lstat()
+        return (info.st_uid == 0 and info.st_gid == 0
+                and stat.S_IMODE(info.st_mode) == 0o711
+                and stat.S_ISDIR(app.st_mode) and app.st_uid == 0 and app.st_gid == 0
+                and stat.S_IMODE(app.st_mode) == 0o711)
+    except OSError:
+        return False
+
+
 def _safe_path(path: Path, *, require_private_parent: bool = False) -> Path:
     if (not path.is_absolute() or ".." in path.parts
             or not _SAFE_MOUNT_PATH.fullmatch(str(path))):
@@ -156,10 +176,8 @@ def _safe_path(path: Path, *, require_private_parent: bool = False) -> Path:
             raise BrokerError("SYMLINK_MOUNT_PATH", "Container mount source traverses a symlink")
         if current == path and not stat.S_ISDIR(info.st_mode):
             raise BrokerError("UNSAFE_MOUNT_PATH", "Container mount source is not a directory")
-    if require_private_parent:
-        parent = path.parent.stat()
-        if parent.st_uid != os.getuid() or parent.st_mode & 0o077:
-            raise BrokerError("UNSAFE_RUN_ROOT", "Run parent must be owner-only")
+    if require_private_parent and not _trusted_volume_parent(path.parent):
+        raise BrokerError("UNSAFE_RUN_ROOT", "Run parent is not private or root-controlled")
     return path
 
 

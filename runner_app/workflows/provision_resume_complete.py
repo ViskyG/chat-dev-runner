@@ -109,6 +109,10 @@ class CompleteProvisionRecoveryWorkflow:
         self.root_command_id = root_command_id
 
     def __call__(self, frozen: FrozenCommand, context: Context) -> OperationResult:
+        return self._execute(frozen, context, root_receipt_verified=False)
+
+    def _execute(self, frozen: FrozenCommand, context: Context, *,
+                 root_receipt_verified: bool) -> OperationResult:
         command = frozen.command
         validate_shape(command)
         if command["action"] != "RESUME_PROVISION":
@@ -144,7 +148,7 @@ class CompleteProvisionRecoveryWorkflow:
         target = self.ledger.get(target_id)
         if target is None:
             return OperationResult("BLOCKED", "RESUME_TARGET_MISSING")
-        if target["source_id"] == self.root_command_id:
+        if target["source_id"] == self.root_command_id and not root_receipt_verified:
             return OperationResult("BLOCKED", "RESUME_ROOT_RECEIPT_UNSUPPORTED")
         original = preview.command
         params = original["params"]
@@ -153,7 +157,9 @@ class CompleteProvisionRecoveryWorkflow:
         profile_id = self.template_profiles.get(params["template_id"])
         if profile_id is None:
             return OperationResult("BLOCKED", "TEMPLATE_BINDING_MISSING")
-        old = {effect.step_id: effect for effect in preview.effects}
+        old = {effect.step_id: effect for effect in preview.effects
+               if not (root_receipt_verified
+                       and effect.step_id == "drive-root-create-receipt")}
         if set(old) != _STEPS:
             return OperationResult("BLOCKED", "RESUME_INCOMPLETE_RESOURCE_GRAPH", {
                 "target_request_id": target_id,
@@ -237,7 +243,8 @@ class CompleteProvisionRecoveryWorkflow:
 
     def _local_and_github(
         self, project_id: str, project_name: str, template_id: str,
-        profile_id: str, marker: str, old: Mapping[str, Any],
+        profile_id: str, marker: str, old: Mapping[str, Any], *,
+        allow_local_ready: bool = False,
     ) -> tuple[GitHubRepository, str]:
         project = self.registry.get_project(project_id)
         workspace = self.registry.get_workspace(project_id, "primary")
@@ -247,7 +254,9 @@ class CompleteProvisionRecoveryWorkflow:
         worktree = self.registry.managed_root / project_id / "workspaces" / "primary"
         if (project is None or workspace is None or binding is None
                 or project["display_name"] != project_name
-                or project["state"] != "READY" or project["origin_kind"] != "new"
+                or project["state"] not in ({"READY", "LOCAL_READY"} if allow_local_ready
+                                           else {"READY"})
+                or project["origin_kind"] != "new"
                 or project["origin_reference"] is not None
                 or project["repo_path"] != str(repo)
                 or workspace["worktree_path"] != str(worktree)
@@ -336,7 +345,8 @@ class CompleteProvisionRecoveryWorkflow:
 
     def _proofs(
         self, target: Mapping[str, Any], old: Mapping[str, Any],
-        repository: GitHubRepository, head: str,
+        repository: GitHubRepository, head: str, *,
+        drive_steps: tuple[str, ...] | None = None,
     ) -> dict[str, EffectAdoptionProof] | None:
         branch = self.github.branch_head(repository, "main")
         if (branch is None or branch.name != "main" or branch.sha != head
@@ -367,8 +377,10 @@ class CompleteProvisionRecoveryWorkflow:
             }),
             **local,
         }
-        for step in (*[item[0] for item in _DRIVE_CREATES],
-                     *[item[0] for item in _CONTENT]):
+        if drive_steps is None:
+            drive_steps = (*[item[0] for item in _DRIVE_CREATES],
+                           *[item[0] for item in _CONTENT])
+        for step in drive_steps:
             effect = old[step]
             synthetic = next((item for item in target["effects"]
                               if item["effect_id"] == effect.effect_id), None)

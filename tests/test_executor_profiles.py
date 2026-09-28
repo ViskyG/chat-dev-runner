@@ -59,8 +59,12 @@ def test_owner_grant_yields_immutable_bounded_profile(tmp_path: Path) -> None:
     assert profile.profile_id == "python-quick"
     assert registry.available_ids() == frozenset({"python-quick"})
     assert profile.revision_sha256 == digest
-    assert profile.image_digest == "54b4fc9408ea4f5d1b1b9c63c7ef1968d46d3b927e00df8ab1f09364593f979f"
-    assert profile.argv == ("python", "-m", "pytest", "-q", "--junitxml=/out/junit.xml")
+    assert profile.image_digest == "4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111"
+    assert profile.argv == (
+        "python", "-c",
+        "import sys;sys.path[:0]=['/build','/src'];import pytest;raise SystemExit(pytest.main(sys.argv[1:]))",
+        "-q", "-p", "no:cacheprovider", "--junitxml=/out/junit.xml",
+    )
     assert profile.cwd == "/src"
     assert profile.user == "0:0"
     assert profile.network == "none"

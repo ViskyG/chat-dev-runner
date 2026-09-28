@@ -1,0 +1,28 @@
+{
+  "code": null,
+  "confirmed_effect_count": 16,
+  "effect_count": 16,
+  "effect_steps": [
+    "github-repository",
+    "local-project",
+    "baseline-main",
+    "initial-workspace",
+    "drive-project-folder",
+    "drive-project-state-doc",
+    "drive-project-command-doc",
+    "drive-project-receipt-doc",
+    "drive-workspace-folder",
+    "drive-source-context-doc",
+    "drive-command-doc",
+    "drive-changeset-doc",
+    "drive-receipt-doc",
+    "drive-latest-result-doc",
+    "drive-project-state-content",
+    "drive-source-context-content"
+  ],
+  "project_id": "cdr-ep05-drive-20260928",
+  "request_id": "21132e11-eb5e-41b0-9822-78bc58e766b8",
+  "schema_version": "1.0",
+  "status": "COMPLETED",
+  "target_request_id": "31b77084-a76f-4190-b88e-d1ea0665c855"
+}

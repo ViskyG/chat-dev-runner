@@ -58,7 +58,8 @@ class DriveProjectProvisioner:
         self.registry = registry
 
     def _preflight(self, request_id: str, project_id: str, workspace_id: str,
-                   project_name: str) -> tuple[str, str]:
+                   project_name: str, *,
+                   resume_target_id: str | None = None) -> tuple[str, str]:
         operation = self.ledger.get(request_id)
         if operation is None or operation["status"] != "RUNNING":
             raise DriveProvisionError("PROVISION_NOT_RUNNING")
@@ -67,13 +68,17 @@ class DriveProjectProvisioner:
             validate_shape(command)
         except (ValueError, KeyError, TypeError):
             raise DriveProvisionError("PROVISION_COMMAND_INVALID") from None
-        if (command["action"] != "CREATE_PROJECT"
-                or command["request_id"] != request_id
+        if (command["request_id"] != request_id
                 or command["project_id"] != project_id
                 or command["workspace_id"] is not None
-                or command["params"]["name"] != project_name
                 or workspace_id != "primary"):
             raise DriveProvisionError("PROVISION_SCOPE_MISMATCH")
+        if resume_target_id is None:
+            if (command["action"] != "CREATE_PROJECT"
+                    or command["params"]["name"] != project_name):
+                raise DriveProvisionError("PROVISION_SCOPE_MISMATCH")
+        else:
+            self._trusted_resume_target(operation, resume_target_id, project_name)
         if (not self.ledger.holds_lock(request_id, f"repo:{project_id}")
                 or not self.ledger.holds_lock(request_id, "global:drive-installation")):
             raise DriveProvisionError("PROVISION_LOCK_MISSING")
@@ -92,6 +97,36 @@ class DriveProjectProvisioner:
             expected_name=projects.name,
         )
         return index.installation_id, projects.file_id
+
+    def _trusted_resume_target(self, operation: Mapping[str, Any],
+                               target_id: str, project_name: str) -> Mapping[str, Any]:
+        """Authorize only the original exact CREATE and an adopted Drive prefix."""
+        command = operation["command"]
+        target = self.ledger.get(target_id)
+        if (target is None or command["action"] != "RESUME_PROVISION"
+                or command["params"] != {
+                    "resume_version": "1.0", "target_request_id": target_id,
+                } or target["action"] != "CREATE_PROJECT"
+                or target["status"] not in {"BLOCKED", "FAULT", "INTERRUPTED", "CANCELLED"}
+                or target["reconcile_required"]
+                or target["project_id"] != command["project_id"]
+                or target["workspace_id"] is not None
+                or target["command"]["params"]["source"] != {"kind": "new"}
+                or target["command"]["params"]["name"] != project_name
+                or any(effect["state"] != "CONFIRMED" for effect in target["effects"])):
+            raise DriveProvisionError("PROVISION_RESUME_TARGET_INVALID")
+        adopted = [effect for effect in operation["effects"]
+                   if effect["step_id"] == "drive-project-folder"
+                   and isinstance(effect.get("adoption"), Mapping)]
+        original = [effect for effect in target["effects"]
+                    if effect["step_id"] == "drive-project-folder"]
+        if (len(adopted) != 1 or len(original) != 1
+                or adopted[0]["adoption"].get("source_effect_id")
+                    != original[0]["effect_id"]
+                or adopted[0]["provider_id"] != original[0]["provider_id"]
+                or adopted[0]["intent"] != original[0]["intent"]):
+            raise DriveProvisionError("PROVISION_RESUME_ADOPTION_MISSING")
+        return target
 
     def _file(self, request_id: str, step_id: str, parent_id: str,
               installation_id: str, key: str, name: str, mime_type: str,
@@ -164,7 +199,8 @@ class DriveProjectProvisioner:
         return str(found["id"])
 
     def provision(self, request_id: str, project_id: str, workspace_id: str,
-                  project_name: str) -> WorkspaceDriveRegistration:
+                  project_name: str, *,
+                  resume_target_id: str | None = None) -> WorkspaceDriveRegistration:
         """Create/verify ten exact resources and persist their trusted registration.
 
         Recalling this method after a lost acknowledgement performs positive
@@ -172,6 +208,7 @@ class DriveProjectProvisioner:
         """
         installation_id, projects_id = self._preflight(
             request_id, project_id, workspace_id, project_name,
+            resume_target_id=resume_target_id,
         )
         project_folder = self._file(
             request_id, "drive-project-folder", projects_id,
@@ -271,7 +308,8 @@ class DriveProjectProvisioner:
 
     def populate(self, request_id: str, registration: WorkspaceDriveRegistration, *,
                  source_registry: SourceRegistry, writer: DocsCASWriter,
-                 repository_id: int, repository_url: str) -> dict[str, str]:
+                 repository_id: int, repository_url: str,
+                 resume_target_id: str | None = None) -> dict[str, str]:
         """Write the initial project index and source context from durable facts.
 
         This is an explicit step after GitHub identity, local workspace and owner
@@ -301,8 +339,15 @@ class DriveProjectProvisioner:
         if operation is None or operation["status"] != "RUNNING":
             raise DriveProvisionError("PROVISION_NOT_RUNNING")
         project_id, workspace_id = registration.project_id, registration.workspace_id
+        create_operation = (
+            operation if resume_target_id is None
+            else self.ledger.get(resume_target_id)
+        )
+        if create_operation is None:
+            raise DriveProvisionError("PROVISION_RESUME_TARGET_INVALID")
+        create_params = create_operation["command"]["params"]
         self._preflight(request_id, project_id, workspace_id,
-                        operation["command"]["params"]["name"])
+                        create_params["name"], resume_target_id=resume_target_id)
         if self.registry.get(project_id, workspace_id) != registration:
             raise DriveProvisionError("PROVISION_REGISTRATION_CHANGED")
         project = source_registry.get_project(project_id)
@@ -310,7 +355,7 @@ class DriveProjectProvisioner:
         binding = source_registry.get_workspace_profile(project_id, workspace_id)
         if (project is None or workspace is None or workspace["archived"]
                 or binding is None
-                or binding["template_id"] != operation["command"]["params"]["template_id"]):
+                or binding["template_id"] != create_params["template_id"]):
             raise DriveProvisionError("PROVISION_SOURCE_BINDING_MISSING")
         branch, head = workspace["branch"], workspace["head"]
         if not isinstance(branch, str) or not isinstance(head, str):
@@ -318,7 +363,7 @@ class DriveProjectProvisioner:
         project_doc, context_doc = registration.state_docs()
         state = {
             "schema_version": "1.0", "kind": "project-state/v1",
-            "project_id": project_id, "display_name": operation["command"]["params"]["name"],
+            "project_id": project_id, "display_name": create_params["name"],
             "repository": {"id": repository_id, "url": repository_url,
                            "full_name": parsed.path[1:]},
             "chat_repository_access": "MANUAL_REQUIRED",
@@ -337,7 +382,7 @@ class DriveProjectProvisioner:
             "project_receipt_doc_id": registration.project_receipt_doc_id,
             "project_folder_id": registration.project_folder_id,
             "workspace_folder_id": registration.workspace_folder_id,
-            "created_at": operation["received_at"],
+            "created_at": create_operation["received_at"],
         }
         state_text = ("PROJECT STATE\n" + json.dumps(
             state, ensure_ascii=False, sort_keys=True, separators=(",", ":"),
@@ -349,7 +394,7 @@ class DriveProjectProvisioner:
             f"Branch: `{branch}`\n"
             f"Repository: {repository_url} (ID {repository_id})\n"
             f"Template/profile: `{binding['template_id']}` / `{binding['profile_id']}`\n"
-            f"Generated at: {operation['received_at']}\n\n"
+            f"Generated at: {create_operation['received_at']}\n\n"
             "## File index\n"
             "No source export has been requested yet. Use EXPORT_CONTEXT for a bounded "
             "path, size and hash inventory.\n\n"

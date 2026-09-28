@@ -1,0 +1,23 @@
+{
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "installed": true,
+  "platform": "linux/amd64",
+  "preparation_grant": {
+    "execution_profile_id": "python-quick",
+    "execution_revision_sha256": "b47160af8e5abd5ea7cc4b9624ee1a929216a5705c394fd4e287468590efd182",
+    "lockfile_path": "requirements.lock",
+    "preparation_profile_id": "python-prepare",
+    "preparation_revision_sha256": "602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9",
+    "template_id": "python-basic"
+  },
+  "profile_dir": "/home/visky/Work/GPTRunner/owner-profiles",
+  "profile_revision_sha256": {
+    "python-prepare": "602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9",
+    "python-quick": "b47160af8e5abd5ea7cc4b9624ee1a929216a5705c394fd4e287468590efd182"
+  },
+  "rootless_probe": "READY",
+  "schema_version": "1.0",
+  "starter_lockfile_sha256": "80552f69df4490903989b9a0d00f58de587ea28da165b3fc4b8a006ca54ec0c7",
+  "starter_wheel_count": 5
+}

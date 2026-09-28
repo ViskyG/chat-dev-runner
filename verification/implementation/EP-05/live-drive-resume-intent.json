@@ -1,0 +1,8 @@
+{
+  "action": "RESUME_PROVISION",
+  "issued_at": "2026-09-28T06:24:03.282619+00:00",
+  "project_id": "cdr-ep05-drive-20260928",
+  "request_id": "21132e11-eb5e-41b0-9822-78bc58e766b8",
+  "schema_version": "1.0",
+  "target_request_id": "31b77084-a76f-4190-b88e-d1ea0665c855"
+}

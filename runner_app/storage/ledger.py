@@ -6,7 +6,7 @@ import hashlib
 import json
 import re
 import sqlite3
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -20,6 +20,9 @@ TERMINAL = frozenset({"COMPLETED", "REJECTED", "BLOCKED", "FAULT", "INTERRUPTED"
 EFFECT_KINDS = frozenset({"github_repository", "git_ref", "pull_request", "drive_file", "local_workspace"})
 _EXECUTOR_UNCERTAIN_CODES = frozenset({"CONTAINER_CLEANUP_FAILED", "CONTAINER_CLEANUP_UNCERTAIN"})
 _PHASES = frozenset({"PREPARATION", "TEST"})
+_PRE_DISPATCH_ROOT_RECEIPT_STEP = "drive-root-create-receipt"
+_PRE_DISPATCH_ROOT_RECEIPT_CODE = "INTERRUPTED_BEFORE_EXECUTION"
+_TERMINAL_ROOT_RECEIPT_CODE = "PROVISIONING_PARTIAL"
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 _CONTAINER_ID = re.compile(r"[0-9a-f]{64}\Z")
 _SCOPE = re.compile(r"(?:(?:repo|global):[a-z0-9][a-z0-9-]{0,47}|workspace:[a-z0-9][a-z0-9-]{0,47}/[a-z0-9][a-z0-9-]{0,47})\Z")
@@ -153,6 +156,41 @@ def _container_state(connection: sqlite3.Connection, request_id: str
             raise ValueError("Container proof does not match its intent")
     return ({phase: detail for phase, (_, detail) in intents.items()},
             {phase: detail for phase, (_, detail) in proofs.items()})
+
+
+def confirmed_create_effects_proof(
+    effects: Sequence[Mapping[str, Any]],
+) -> tuple[int, str]:
+    """Digest exact confirmed non-receipt effects without exposing their values."""
+    records: list[dict[str, Any]] = []
+    steps: set[str] = set()
+    try:
+        for item in effects:
+            step = item["step_id"]
+            if step == _PRE_DISPATCH_ROOT_RECEIPT_STEP:
+                continue
+            intent = item["intent"]
+            if (not isinstance(step, str) or not step or step in steps
+                    or not _canonical_uuid(item["effect_id"])
+                    or item["state"] != "CONFIRMED"
+                    or item["kind"] not in EFFECT_KINDS
+                    or not isinstance(item["provider_id"], str)
+                    or not item["provider_id"]
+                    or not isinstance(intent, Mapping)):
+                raise ValueError
+            steps.add(step)
+            records.append({
+                "effect_id": item["effect_id"], "step_id": step,
+                "kind": item["kind"], "provider_id": item["provider_id"],
+                "intent_sha256": hashlib.sha256(_json(dict(intent)).encode("utf-8")).hexdigest(),
+            })
+        if not records:
+            raise ValueError
+    except (KeyError, TypeError, ValueError, OverflowError):
+        raise LedgerError("TERMINAL_ROOT_EFFECTS_UNSETTLED",
+                          "Partial create effects are not exactly confirmed") from None
+    records.sort(key=lambda record: record["effect_id"])
+    return len(records), hashlib.sha256(_json(records).encode("utf-8")).hexdigest()
 
 
 class Ledger:
@@ -486,6 +524,385 @@ class Ledger:
             )
             self._append(connection, request_id, None,
                          "WORKERS_CONFIRMED_STOPPED", {}, utcnow())
+
+    @staticmethod
+    def _pre_dispatch_root_create(
+        connection: sqlite3.Connection, request_id: str, source_id: str,
+        digest: str, *, completed: bool = False,
+    ) -> tuple[sqlite3.Row, sqlite3.Row | None]:
+        """Prove the CREATE handler never passed its durable STARTED fence."""
+        row = connection.execute(
+            "SELECT * FROM operations WHERE request_id=?", (request_id,),
+        ).fetchone()
+        expected_code = "NEEDS_RECONCILIATION"
+        if (row is None or row["status"] != "INTERRUPTED"
+                or row["code"] != expected_code
+                or row["reconcile_required"] != (0 if completed else 1)
+                or row["action"] != "CREATE_PROJECT" or row["workspace_id"] is not None
+                or row["source_id"] != source_id or row["digest"] != digest
+                or not isinstance(row["project_id"], str)
+                or hashlib.sha256(row["command_json"].encode("utf-8")).hexdigest() != digest):
+            raise LedgerError("PRE_DISPATCH_PROOF_FAILED", "Pre-dispatch target differs")
+        try:
+            command = json.loads(row["command_json"])
+            receipt = json.loads(row["receipt_json"])
+        except (TypeError, ValueError):
+            raise LedgerError("PRE_DISPATCH_PROOF_FAILED", "Frozen operation is invalid") from None
+        if (not isinstance(command, dict) or _json(command) != row["command_json"]
+                or command.get("request_id") != request_id
+                or command.get("action") != "CREATE_PROJECT"
+                or command.get("project_id") != row["project_id"]
+                or command.get("workspace_id") is not None
+                or not isinstance(receipt, dict)
+                or receipt.get("request_id") != request_id
+                or receipt.get("request_digest") != digest
+                or receipt.get("status") != "INTERRUPTED"
+                or receipt.get("code") != expected_code):
+            raise LedgerError("PRE_DISPATCH_PROOF_FAILED", "Frozen operation differs")
+        events = [item[0] for item in connection.execute(
+            "SELECT event_type FROM journal WHERE request_id=? ORDER BY event_id", (request_id,),
+        )]
+        allowed_events = {
+            "RUNNING", "INTERRUPTED", "EFFECT_INTENDED", "EFFECT_UNKNOWN",
+            "EFFECT_CONFIRMED", "PRE_DISPATCH_ROOT_RECEIPT_CONFIRMED",
+        }
+        if (events[:2] != ["RUNNING", "INTERRUPTED"]
+                or any(event not in allowed_events for event in events)
+                or events.count("RUNNING") != 1 or events.count("INTERRUPTED") != 1):
+            raise LedgerError("PRE_DISPATCH_PROOF_FAILED", "Dispatch was not proven absent")
+        effects = connection.execute(
+            "SELECT * FROM effects WHERE request_id=?", (request_id,),
+        ).fetchall()
+        steps = connection.execute(
+            "SELECT step_id FROM steps WHERE request_id=?", (request_id,),
+        ).fetchall()
+        if (len(effects) > 1 or (effects and (
+                effects[0]["step_id"] != _PRE_DISPATCH_ROOT_RECEIPT_STEP
+                or effects[0]["kind"] != "drive_file"))
+                or [step[0] for step in steps] != (
+                    [_PRE_DISPATCH_ROOT_RECEIPT_STEP] if effects else []
+                )
+                or connection.execute(
+                    "SELECT 1 FROM remote_resources WHERE request_id=? LIMIT 1", (request_id,),
+                ).fetchone() is not None
+                or connection.execute(
+                    "SELECT 1 FROM runs WHERE request_id=? LIMIT 1", (request_id,),
+                ).fetchone() is not None):
+            raise LedgerError("PRE_DISPATCH_PROOF_FAILED", "Other work may have started")
+        scopes = {item[0] for item in connection.execute(
+            "SELECT scope FROM locks WHERE request_id=?", (request_id,),
+        )}
+        if completed:
+            if row["capacity_held"] != 0 or scopes:
+                raise LedgerError("PRE_DISPATCH_PROOF_FAILED", "Recovered reservation remains")
+        elif (row["capacity_held"] != 1
+              or f"repo:{row['project_id']}" not in scopes
+              or "global:drive-installation" not in scopes):
+            raise LedgerError("PRE_DISPATCH_PROOF_FAILED", "Admission reservation is absent")
+        return row, effects[0] if effects else None
+
+    @staticmethod
+    def _terminal_root_create(
+        connection: sqlite3.Connection, request_id: str, source_id: str, digest: str,
+    ) -> tuple[sqlite3.Row, sqlite3.Row | None, int, str]:
+        """Prove a stopped Drive-root create has only confirmed partial effects."""
+        row = connection.execute(
+            "SELECT * FROM operations WHERE request_id=?", (request_id,),
+        ).fetchone()
+        if (row is None or row["status"] != "INTERRUPTED"
+                or row["code"] != "NEEDS_RECONCILIATION"
+                or row["action"] != "CREATE_PROJECT" or row["workspace_id"] is not None
+                or row["source_id"] != source_id or row["digest"] != digest
+                or row["reconcile_required"] != 0 or row["capacity_held"] != 0
+                or hashlib.sha256(row["command_json"].encode("utf-8")).hexdigest() != digest
+                or connection.execute(
+                    "SELECT 1 FROM locks WHERE request_id=? LIMIT 1", (request_id,),
+                ).fetchone() is not None
+                or connection.execute(
+                    "SELECT 1 FROM provision_resume_claims WHERE target_request_id=? LIMIT 1",
+                    (request_id,),
+                ).fetchone() is not None):
+            raise LedgerError("TERMINAL_ROOT_TARGET_INVALID", "Partial create is not settled")
+        try:
+            command = json.loads(row["command_json"])
+            receipt = json.loads(row["receipt_json"])
+        except (TypeError, ValueError):
+            raise LedgerError("TERMINAL_ROOT_TARGET_INVALID", "Partial create is invalid") from None
+        if (not isinstance(command, dict) or _json(command) != row["command_json"]
+                or command.get("request_id") != request_id
+                or command.get("action") != "CREATE_PROJECT"
+                or command.get("project_id") != row["project_id"]
+                or command.get("workspace_id") is not None
+                or not isinstance(receipt, dict)
+                or receipt.get("request_id") != request_id
+                or receipt.get("request_digest") != digest
+                or receipt.get("status") != "INTERRUPTED"
+                or receipt.get("code") != row["code"]):
+            raise LedgerError("TERMINAL_ROOT_TARGET_INVALID", "Partial create identity changed")
+        events = [item[0] for item in connection.execute(
+            "SELECT event_type FROM journal WHERE request_id=? ORDER BY event_id",
+            (request_id,),
+        )]
+        if (events.count("STARTED") != 1 or events.count("INTERRUPTED") != 1
+                or "COMPLETED" in events):
+            raise LedgerError("TERMINAL_ROOT_DISPATCH_UNPROVEN", "Started create is unproven")
+        rows = connection.execute(
+            "SELECT * FROM effects WHERE request_id=? ORDER BY effect_id", (request_id,),
+        ).fetchall()
+        root = [item for item in rows if item["step_id"] == _PRE_DISPATCH_ROOT_RECEIPT_STEP]
+        if len(root) > 1 or (root and root[0]["kind"] != "drive_file"):
+            raise LedgerError("TERMINAL_ROOT_RECEIPT_CONFLICT", "Root receipt intent differs")
+        confirmed = []
+        for item in rows:
+            if item["step_id"] == _PRE_DISPATCH_ROOT_RECEIPT_STEP:
+                continue
+            try:
+                intent = json.loads(item["intent_json"])
+            except (TypeError, ValueError):
+                raise LedgerError("TERMINAL_ROOT_EFFECTS_UNSETTLED",
+                                  "Partial effect intent is invalid") from None
+            confirmed.append({**dict(item), "intent": intent})
+        count, effects_sha256 = confirmed_create_effects_proof(confirmed)
+        return row, root[0] if root else None, count, effects_sha256
+
+    def terminal_root_create_effects(
+        self, request_id: str, *, source_id: str, digest: str,
+    ) -> tuple[int, str]:
+        """Read-only settled partial-create proof before any receipt confirmation."""
+        with self._connection() as connection:
+            _, _, count, effects_sha256 = self._terminal_root_create(
+                connection, request_id, source_id, digest,
+            )
+            return count, effects_sha256
+
+    def begin_terminal_root_receipt(
+        self, request_id: str, *, source_id: str, digest: str,
+        intent: Mapping[str, Any],
+    ) -> str:
+        """Journal one partial terminal receipt without replaying project effects."""
+        if (not isinstance(intent, Mapping)
+                or intent.get("command_doc_id") != source_id
+                or intent.get("request_digest") != digest
+                or intent.get("status") != "INTERRUPTED"
+                or intent.get("code") != _TERMINAL_ROOT_RECEIPT_CODE
+                or not isinstance(intent.get("receipt_doc_id"), str)
+                or type(intent.get("confirmed_effect_count")) is not int
+                or intent["confirmed_effect_count"] < 1
+                or not isinstance(intent.get("confirmed_effects_sha256"), str)
+                or _SHA256.fullmatch(intent["confirmed_effects_sha256"]) is None
+                or not isinstance(intent.get("desired_sha256"), str)
+                or _SHA256.fullmatch(intent["desired_sha256"]) is None
+                or not isinstance(intent.get("base_revision"), str)
+                or not intent["base_revision"]
+                or not isinstance(intent.get("frozen_command_revision"), str)
+                or not intent["frozen_command_revision"]
+                or not isinstance(intent.get("frozen_command_sha256"), str)
+                or _SHA256.fullmatch(intent["frozen_command_sha256"]) is None):
+            raise LedgerError("TERMINAL_ROOT_INTENT_INVALID", "Partial receipt intent is invalid")
+        intent_json = _json(dict(intent))
+        with self._transaction() as connection:
+            _, previous, count, effects_sha256 = self._terminal_root_create(
+                connection, request_id, source_id, digest,
+            )
+            if (intent["confirmed_effect_count"] != count
+                    or intent["confirmed_effects_sha256"] != effects_sha256):
+                raise LedgerError("TERMINAL_ROOT_EFFECTS_CHANGED", "Confirmed effects changed")
+            if previous is not None:
+                if previous["intent_json"] != intent_json:
+                    raise LedgerError("TERMINAL_ROOT_INTENT_CHANGED", "Recovery intent changed")
+                return str(previous["effect_id"])
+            timestamp, effect_id = utcnow(), str(uuid4())
+            self._append(connection, request_id, _PRE_DISPATCH_ROOT_RECEIPT_STEP,
+                         "EFFECT_INTENDED", {"effect_id": effect_id, "kind": "drive_file"},
+                         timestamp)
+            connection.execute(
+                "INSERT INTO effects(effect_id,request_id,step_id,kind,intent_json,state,created_at,updated_at) "
+                "VALUES(?,?,?,?,?,'INTENDED',?,?)",
+                (effect_id, request_id, _PRE_DISPATCH_ROOT_RECEIPT_STEP, "drive_file",
+                 intent_json, timestamp, timestamp),
+            )
+            return effect_id
+
+    def complete_terminal_root_receipt(
+        self, request_id: str, *, source_id: str, digest: str,
+        receipt_doc_id: str, effect_id: str,
+    ) -> None:
+        """Acknowledge the exact read-back terminal receipt in the local operation."""
+        with self._transaction() as connection:
+            _, effect, count, effects_sha256 = self._terminal_root_create(
+                connection, request_id, source_id, digest,
+            )
+            if (effect is None or effect["effect_id"] != effect_id
+                    or effect["state"] != "CONFIRMED"
+                    or effect["provider_id"] != receipt_doc_id):
+                raise LedgerError("TERMINAL_ROOT_RECEIPT_UNCONFIRMED",
+                                  "Partial receipt has no exact confirmation")
+            try:
+                intent = json.loads(effect["intent_json"])
+            except (TypeError, ValueError):
+                raise LedgerError("TERMINAL_ROOT_RECEIPT_UNCONFIRMED",
+                                  "Partial receipt intent is invalid") from None
+            if (not isinstance(intent, dict)
+                    or intent.get("command_doc_id") != source_id
+                    or intent.get("receipt_doc_id") != receipt_doc_id
+                    or intent.get("request_digest") != digest
+                    or intent.get("status") != "INTERRUPTED"
+                    or intent.get("code") != _TERMINAL_ROOT_RECEIPT_CODE
+                    or intent.get("confirmed_effect_count") != count
+                    or intent.get("confirmed_effects_sha256") != effects_sha256):
+                raise LedgerError("TERMINAL_ROOT_RECEIPT_UNCONFIRMED",
+                                  "Partial receipt differs from confirmed effects")
+            detail = {
+                "effect_id": effect_id, "receipt_doc_id": receipt_doc_id,
+                "confirmed_effect_count": count,
+                "confirmed_effects_sha256": effects_sha256,
+            }
+            confirmations = connection.execute(
+                "SELECT detail_json FROM journal WHERE request_id=? "
+                "AND event_type='TERMINAL_ROOT_RECEIPT_CONFIRMED'", (request_id,),
+            ).fetchall()
+            if confirmations:
+                try:
+                    recorded = json.loads(confirmations[0][0])
+                except (TypeError, ValueError):
+                    recorded = None
+                if len(confirmations) != 1 or recorded != detail:
+                    raise LedgerError("TERMINAL_ROOT_RECEIPT_CONFLICT",
+                                      "Partial receipt completion changed")
+                return
+            self._append(connection, request_id, None, "TERMINAL_ROOT_RECEIPT_CONFIRMED",
+                         detail, utcnow())
+
+    def confirmed_terminal_root_receipt(
+        self, request_id: str, *, source_id: str, digest: str,
+        receipt_doc_id: str,
+    ) -> dict[str, Any]:
+        """Read only the exact committed partial root receipt proof, never adopt it."""
+        with self._connection() as connection:
+            _, effect, count, effects_sha256 = self._terminal_root_create(
+                connection, request_id, source_id, digest,
+            )
+            if (effect is None or effect["state"] != "CONFIRMED"
+                    or effect["provider_id"] != receipt_doc_id):
+                raise LedgerError("TERMINAL_ROOT_RECEIPT_UNCONFIRMED",
+                                  "Partial receipt has no exact confirmation")
+            try:
+                intent = json.loads(effect["intent_json"])
+            except (TypeError, ValueError):
+                raise LedgerError("TERMINAL_ROOT_RECEIPT_UNCONFIRMED",
+                                  "Partial receipt intent is invalid") from None
+            if (not isinstance(intent, dict)
+                    or intent.get("command_doc_id") != source_id
+                    or intent.get("receipt_doc_id") != receipt_doc_id
+                    or intent.get("request_digest") != digest
+                    or intent.get("status") != "INTERRUPTED"
+                    or intent.get("code") != _TERMINAL_ROOT_RECEIPT_CODE
+                    or intent.get("confirmed_effect_count") != count
+                    or intent.get("confirmed_effects_sha256") != effects_sha256
+                    or not isinstance(intent.get("desired_sha256"), str)
+                    or _SHA256.fullmatch(intent["desired_sha256"]) is None):
+                raise LedgerError("TERMINAL_ROOT_RECEIPT_UNCONFIRMED",
+                                  "Partial receipt intent differs from confirmed effects")
+            confirmations = connection.execute(
+                "SELECT detail_json FROM journal WHERE request_id=? "
+                "AND event_type='TERMINAL_ROOT_RECEIPT_CONFIRMED'", (request_id,),
+            ).fetchall()
+            if len(confirmations) != 1:
+                raise LedgerError("TERMINAL_ROOT_RECEIPT_UNCONFIRMED",
+                                  "Partial receipt completion is unproven")
+            try:
+                detail = json.loads(confirmations[0][0])
+            except (TypeError, ValueError):
+                raise LedgerError("TERMINAL_ROOT_RECEIPT_UNCONFIRMED",
+                                  "Partial receipt completion is invalid") from None
+            if detail != {
+                "effect_id": effect["effect_id"], "receipt_doc_id": receipt_doc_id,
+                "confirmed_effect_count": count,
+                "confirmed_effects_sha256": effects_sha256,
+            }:
+                raise LedgerError("TERMINAL_ROOT_RECEIPT_UNCONFIRMED",
+                                  "Partial receipt completion changed")
+            return intent
+
+    def begin_pre_dispatch_root_receipt(
+        self, request_id: str, *, source_id: str, digest: str,
+        intent: Mapping[str, Any],
+    ) -> str:
+        """Journal only the terminal root receipt for a proven pre-handler crash.
+
+        The operation is terminal, so the normal RUNNING-only begin_effect cannot
+        be used. A repeated call may return only the exact same prior intent.
+        """
+        if (not isinstance(intent, Mapping)
+                or intent.get("command_doc_id") != source_id
+                or intent.get("request_digest") != digest
+                or intent.get("status") != "INTERRUPTED"
+                or intent.get("code") != _PRE_DISPATCH_ROOT_RECEIPT_CODE
+                or not isinstance(intent.get("receipt_doc_id"), str)
+                or not isinstance(intent.get("desired_sha256"), str)
+                or _SHA256.fullmatch(intent["desired_sha256"]) is None):
+            raise LedgerError("PRE_DISPATCH_INTENT_INVALID", "Recovery receipt intent is invalid")
+        intent_json = _json(dict(intent))
+        with self._transaction() as connection:
+            _, previous = self._pre_dispatch_root_create(
+                connection, request_id, source_id, digest,
+            )
+            if previous is not None:
+                if previous["intent_json"] != intent_json:
+                    raise LedgerError("PRE_DISPATCH_INTENT_CHANGED", "Recovery intent changed")
+                return str(previous["effect_id"])
+            timestamp, effect_id = utcnow(), str(uuid4())
+            self._append(connection, request_id, _PRE_DISPATCH_ROOT_RECEIPT_STEP,
+                         "EFFECT_INTENDED", {"effect_id": effect_id, "kind": "drive_file"},
+                         timestamp)
+            connection.execute(
+                "INSERT INTO effects(effect_id,request_id,step_id,kind,intent_json,state,created_at,updated_at) "
+                "VALUES(?,?,?,?,?,'INTENDED',?,?)",
+                (effect_id, request_id, _PRE_DISPATCH_ROOT_RECEIPT_STEP, "drive_file",
+                 intent_json, timestamp, timestamp),
+            )
+            return effect_id
+
+    def complete_pre_dispatch_root_receipt(
+        self, request_id: str, *, source_id: str, digest: str,
+        receipt_doc_id: str, effect_id: str,
+    ) -> None:
+        """Release retained admission only after the exact root receipt is confirmed."""
+        with self._transaction() as connection:
+            current = connection.execute(
+                "SELECT reconcile_required FROM operations WHERE request_id=?", (request_id,),
+            ).fetchone()
+            completed = current is not None and current["reconcile_required"] == 0
+            _, effect = self._pre_dispatch_root_create(
+                connection, request_id, source_id, digest, completed=completed,
+            )
+            if (effect is None or effect["effect_id"] != effect_id
+                    or effect["state"] != "CONFIRMED"
+                    or effect["provider_id"] != receipt_doc_id):
+                raise LedgerError("PRE_DISPATCH_RECEIPT_UNCONFIRMED", "Recovery receipt is unconfirmed")
+            try:
+                intent = json.loads(effect["intent_json"])
+            except (TypeError, ValueError):
+                raise LedgerError("PRE_DISPATCH_RECEIPT_UNCONFIRMED", "Recovery intent is invalid") from None
+            if (not isinstance(intent, dict)
+                    or intent.get("command_doc_id") != source_id
+                    or intent.get("receipt_doc_id") != receipt_doc_id
+                    or intent.get("request_digest") != digest
+                    or intent.get("status") != "INTERRUPTED"
+                    or intent.get("code") != _PRE_DISPATCH_ROOT_RECEIPT_CODE):
+                raise LedgerError("PRE_DISPATCH_RECEIPT_UNCONFIRMED", "Recovery intent differs")
+            if completed:
+                return
+            timestamp = utcnow()
+            connection.execute("DELETE FROM locks WHERE request_id=?", (request_id,))
+            connection.execute(
+                "UPDATE operations SET capacity_held=0,reconcile_required=0,updated_at=? "
+                "WHERE request_id=?", (timestamp, request_id),
+            )
+            self._append(connection, request_id, None,
+                         "PRE_DISPATCH_ROOT_RECEIPT_CONFIRMED",
+                         {"effect_id": effect_id, "receipt_doc_id": receipt_doc_id},
+                         timestamp)
 
     def journal(self, request_id: str, step_id: str | None, event_type: str,
                 detail: dict[str, Any]) -> dict[str, Any]:
@@ -1284,6 +1701,16 @@ class Ledger:
             rows = connection.execute("SELECT * FROM operations WHERE sequence>? ORDER BY sequence LIMIT ?", (after, limit + 1)).fetchall()
             return {"items": [self._operation(connection, row) for row in rows[:limit]],
                     "next_cursor": str(rows[limit - 1]["sequence"]) if len(rows) > limit else None}
+
+    def completed_provision_project_ids(self) -> frozenset[str]:
+        """Projects with a terminal successful CREATE/RESUME proof, not partial state."""
+        with self._connection() as connection:
+            rows = connection.execute(
+                "SELECT DISTINCT project_id FROM operations "
+                "WHERE action IN ('CREATE_PROJECT','RESUME_PROVISION') "
+                "AND status='COMPLETED' AND reconcile_required=0 AND project_id IS NOT NULL"
+            ).fetchall()
+        return frozenset(str(row[0]) for row in rows)
 
     def list_projects(self) -> list[dict[str, Any]]:
         with self._connection() as connection:

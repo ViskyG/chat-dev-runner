@@ -1,0 +1,14 @@
+{
+  "cloud_writes": 0,
+  "diff_check": "PASS",
+  "errors": 0,
+  "execution_capability_gate": "VOLUME_HELPER_UNAVAILABLE",
+  "failures": 0,
+  "lint": "PASS",
+  "live_runner_armed_by_check": false,
+  "providers": "fake-backed tests; owner profile/grant read-only check",
+  "skipped": 0,
+  "stage": "EP-05 owner execution and workspace runtime wiring",
+  "tests": 79,
+  "typecheck": "PASS"
+}

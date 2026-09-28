@@ -1,0 +1,9 @@
+{
+  "database": "disposable private /tmp SQLite WAL",
+  "integrity_check": "ok",
+  "process_exit_code": 0,
+  "rows": 400,
+  "schema_version": "1.0",
+  "threads": 4,
+  "transactions_per_thread": 100
+}

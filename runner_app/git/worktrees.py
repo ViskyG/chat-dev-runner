@@ -215,10 +215,10 @@ def create_repository(managed_root: Path, project_id: str, *,
                 relative = safe_source_path(name)
             except (ChangeError, TypeError):
                 raise GitError("TEMPLATE_INVALID", "Starter path is invalid") from None
-            if not isinstance(content, bytes) or len(content) > 262_144:
+            if not isinstance(content, bytes) or len(content) > 2_097_152:
                 raise GitError("TEMPLATE_INVALID", "Starter file bytes are invalid")
             total += len(content)
-            if total > 1_048_576:
+            if total > 4_194_304:
                 raise GitError("TEMPLATE_INVALID", "Starter exceeds byte limit")
             prepared.append((str(relative), content))
         for name, content in sorted(prepared):

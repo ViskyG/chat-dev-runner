@@ -21,6 +21,48 @@ UI fixtures may list them; live setup must only advertise locally approved, actu
 Image digests, interpreter versions and lockfiles are selected and verified in EP-00/03. Do not pin
 a guessed digest, download a floating runtime on every operation, or install into the owner's Python.
 
+## Implemented `python-basic` route
+
+The new-project starter now carries a five-wheel, hash-pinned Python 3.12 test
+wheelhouse and `requirements.lock`. The approved `python-prepare` profile runs
+`pip install --no-index --require-hashes --no-deps` in a rootless container,
+writing only to `/build`. The distinct `python-quick` profile imports pytest
+from that staged build, runs project tests with the container network disabled,
+and requires `/out/junit.xml`. Both profiles pin the same installed Python image
+by registry digest. The wheelhouse is source data in the frozen Git snapshot;
+changing a wheel or lockfile changes the snapshot and preparation identity.
+
+`python scripts/install_python_quick_profiles.py --install` validates the
+packaged wheel hashes, the explicit user-owned rootless Docker daemon and its
+installed image digest, then writes owner-private `0600` profiles and a
+preparation grant under an owner-only profile directory. `--profile-dir` may
+select another owner-private directory. Installation alone does not arm the
+runner or bypass the broker's separate hard-quota PREPARATION and TEST mounts.
+A full disposable Engine PREPARATION→TEST run using the real rootless broker,
+separate hard-quota mounts and required JUnit passed; evidence is under
+`verification/implementation/EP-05/live-python-quick/`. The permanent
+`HardQuotaVolumeProvider` allocates per-run mounts only after admission through a
+fixed root-owned helper and retains uncertain mounts for explicit reconciliation.
+Its helper installation is a separate host administration step and is not yet
+active on this host. The production runner remains unarmed.
+
+The helper accepts only 64 MiB PREPARATION and 256 MiB TEST allocations, with
+at most eight mounted phase slots. The owner releases a settled run with:
+
+```bash
+.venv/bin/python scripts/release_run_volumes.py \
+  --profile-dir /absolute/owner-private/profiles \
+  --request-id CANONICAL-REQUEST-UUID
+```
+
+This command checks the terminal ledger state, exact container removal proofs,
+immutable preparation receipt and capture, and immutable test outputs before it
+clears a mount. It never follows project symlinks. A missing proof, changed
+output, or active/reconciling operation retains the mount for investigation.
+The command may be repeated after an interrupted cleanup; it never allocates
+or executes a project. Run it after reviewing each finite operation so the
+bounded slots are reused. It does not remove frozen evidence or project Git.
+
 ## Finite setup route
 Inspect metadata without importing project Python/JS → choose approved matching template → verify
 lockfiles/source policy → prepare dependencies in a credential-free contained build environment →

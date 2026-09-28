@@ -1,0 +1,66 @@
+{
+  "armed": false,
+  "code": "NEEDS_RECONCILIATION",
+  "confirmed_effects": 9,
+  "confirmed_resource_effects": [
+    {
+      "kind": "github_repository",
+      "provider_id": "1391917494",
+      "step_id": "github-repository"
+    },
+    {
+      "kind": "local_workspace",
+      "provider_id": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/managed/cdr-ep05-drive-20260928/repo.git",
+      "step_id": "local-project"
+    },
+    {
+      "kind": "git_ref",
+      "provider_id": "a3a9ebc636461e7527c5cf78a1b41c75bc564f97",
+      "step_id": "baseline-main"
+    },
+    {
+      "kind": "local_workspace",
+      "provider_id": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/managed/cdr-ep05-drive-20260928/workspaces/primary",
+      "step_id": "initial-workspace"
+    },
+    {
+      "kind": "drive_file",
+      "provider_id": "1rEKgOQZt5NQnHofI2Iw3KFitDl4oaBjL",
+      "step_id": "drive-project-folder"
+    },
+    {
+      "kind": "drive_file",
+      "provider_id": "1B47IM110KvlSCjGAuRDR2LXsqU9TvMPmmYQL2v8Vhtk",
+      "step_id": "drive-project-state-doc"
+    },
+    {
+      "kind": "drive_file",
+      "provider_id": "13hWSyXOJse7MeXabHG8y4WBXsrA87yrnlVltSSQnQbo",
+      "step_id": "drive-project-command-doc"
+    },
+    {
+      "kind": "drive_file",
+      "provider_id": "1J_gpHfY384TXMgVD62xmGJy6G0gtCoRQ-VclCqnv6OA",
+      "step_id": "drive-project-receipt-doc"
+    },
+    {
+      "kind": "drive_file",
+      "provider_id": "1Xk0L1IV-B52osMB1K0BsVK6FakNaI03A",
+      "step_id": "drive-workspace-folder"
+    }
+  ],
+  "drive_origin_create_request_id": "31b77084-a76f-4190-b88e-d1ea0665c855",
+  "prior_pre_dispatch_receipt_effect_confirmed": true,
+  "prior_pre_dispatch_request_id": "063e7eba-e4e9-4438-8f39-6e4827343064",
+  "project_id": "cdr-ep05-drive-20260928",
+  "ready_for_resume": true,
+  "reconcile_request_id": "baadf529-827d-4972-88df-4a9d59ef3c1a",
+  "reconcile_required": 0,
+  "reconcile_status": "COMPLETED",
+  "remaining_effects": 0,
+  "repo_lock_held": false,
+  "runner_service_crash": "SIGSEGV observed by systemd during drive-workspace-folder; no automatic replay",
+  "schema_version": "1.0",
+  "status": "INTERRUPTED",
+  "workspace_folder_id": "1Xk0L1IV-B52osMB1K0BsVK6FakNaI03A"
+}

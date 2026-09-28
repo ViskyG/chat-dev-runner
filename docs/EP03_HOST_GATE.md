@@ -21,6 +21,23 @@ The volume pool is finite acceptance infrastructure, not an automatic per-projec
 quota provisioner. Live toy results and remaining gates are recorded in
 `codex/checkpoints/EP-03.md`; the production runner remains unarmed.
 
+## Later acceptance and product volume path (2026-09-28)
+
+After reboot, the finite EP-03 tmpfs pool was absent. The same 24 existing empty
+slots were remounted through one authorized local administrator interaction and
+verified as separate 64 MiB/16,384-inode filesystems. One pair then passed a
+real `python-basic` PREPARATION→TEST/JUnit run through the broker; see
+`verification/implementation/EP-05/live-python-quick/`. This pool is retained
+only as acceptance infrastructure. The product-side per-run volume provider and
+fixed root-owned helper are implemented in EP-05, but the permanent helper and
+scoped sudo rule have not been installed. The production runner is still unarmed.
+The reviewed helper source is limited to the approved 64/256 MiB sizes and
+releases only empty exact tmpfs mounts. `scripts/install_volume_helper.sh`
+is the proposed root installation step; it also installs a persistent narrow
+sudoers rule and therefore requires explicit administrator approval before use.
+The owner can retire terminal, evidence-verified volumes with
+`scripts/release_run_volumes.py`; uncertain mounts stay available for review.
+
 ## Earlier host finding (before setup, 2026-09-27)
 
 The user-owned `/run/user/1000/docker.sock` is absent. The default Docker context points to

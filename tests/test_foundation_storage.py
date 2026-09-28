@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import fcntl
 import os
 import sqlite3
 import stat
+import subprocess
+import sys
 from dataclasses import FrozenInstanceError
 from pathlib import Path
 
@@ -261,24 +264,26 @@ def test_database_and_sidecar_symlinks_are_rejected(tmp_path: Path, filename: st
 
 
 @pytest.mark.parametrize("suffix", ["-wal", "-shm", "-journal"])
-def test_sqlite_sidecar_unlinked_between_open_and_fstat_is_safe(
+def test_sqlite_sidecar_unlinked_before_stat_is_safe(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, suffix: str,
 ) -> None:
     database_path = tmp_path / "state.sqlite"
     sidecar = tmp_path / f"state.sqlite{suffix}"
     sidecar.write_bytes(b"")
     sidecar.chmod(0o600)
-    original_fstat = os.fstat
+    original_stat = os.stat
     unlinked = False
 
-    def unlink_before_fstat(descriptor: int) -> os.stat_result:
+    def unlink_before_stat(path: str | bytes | os.PathLike[str], *,
+                           dir_fd: int | None = None,
+                           follow_symlinks: bool = True) -> os.stat_result:
         nonlocal unlinked
-        if not unlinked and os.readlink(f"/proc/self/fd/{descriptor}") == str(sidecar):
+        if path == sidecar.name and dir_fd is not None and not unlinked:
             sidecar.unlink()
             unlinked = True
-        return original_fstat(descriptor)
+        return original_stat(path, dir_fd=dir_fd, follow_symlinks=follow_symlinks)
 
-    monkeypatch.setattr(os, "fstat", unlink_before_fstat)
+    monkeypatch.setattr(os, "stat", unlink_before_stat)
     connection = Database(database_path).connect()
     try:
         assert unlinked
@@ -296,18 +301,20 @@ def test_sqlite_sidecar_replaced_with_symlink_during_validation_fails(
     external = tmp_path / "external"
     external.write_bytes(b"unchanged")
     external.chmod(0o600)
-    original_fstat = os.fstat
+    original_stat = os.stat
     replaced = False
 
-    def replace_before_fstat(descriptor: int) -> os.stat_result:
+    def replace_before_stat(path: str | bytes | os.PathLike[str], *,
+                            dir_fd: int | None = None,
+                            follow_symlinks: bool = True) -> os.stat_result:
         nonlocal replaced
-        if not replaced and os.readlink(f"/proc/self/fd/{descriptor}") == str(sidecar):
+        if path == sidecar.name and dir_fd is not None and not replaced:
             sidecar.unlink()
             sidecar.symlink_to(external)
             replaced = True
-        return original_fstat(descriptor)
+        return original_stat(path, dir_fd=dir_fd, follow_symlinks=follow_symlinks)
 
-    monkeypatch.setattr(os, "fstat", replace_before_fstat)
+    monkeypatch.setattr(os, "stat", replace_before_stat)
     with pytest.raises(UnsafePathError):
         Database(tmp_path / "state.sqlite").connect()
     assert replaced
@@ -358,6 +365,43 @@ def test_unsafe_sqlite_sidecars_still_fail(
     assert external.read_bytes() == b"unchanged"
     if file_kind == "public":
         assert mode(sidecar) == 0o644
+
+
+def test_database_connect_preserves_existing_sqlite_file_locks(tmp_path: Path) -> None:
+    """Opening another connection must not cancel process-wide fcntl locks."""
+    database_path = tmp_path / "state.sqlite"
+    database = Database(database_path)
+    first = database.connect()
+    descriptors: list[int] = []
+    try:
+        first.execute("CREATE TABLE lock_probe (value INTEGER)")
+        files = ((database_path, 0), (tmp_path / "state.sqlite-shm", 4096))
+        for path, offset in files:
+            descriptor = os.open(path, os.O_RDWR | os.O_CLOEXEC)
+            descriptors.append(descriptor)
+            fcntl.lockf(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB, 1, offset)
+        second = database.connect()
+        try:
+            second.execute("INSERT INTO lock_probe VALUES (1)")
+        finally:
+            second.close()
+        probe_code = """import fcntl, os, sys
+fd = os.open(sys.argv[1], os.O_RDWR)
+try:
+    fcntl.lockf(fd, fcntl.LOCK_EX | fcntl.LOCK_NB, 1, int(sys.argv[2]))
+except BlockingIOError:
+    sys.exit(75)
+"""
+        for path, offset in files:
+            probe = subprocess.run(
+                [sys.executable, "-c", probe_code, str(path), str(offset)],
+                capture_output=True, check=False,
+            )
+            assert probe.returncode == 75, f"Lost SQLite file lock for {path.name}"
+    finally:
+        for descriptor in descriptors:
+            os.close(descriptor)
+        first.close()
 
 
 def test_sqlite_uri_filename_is_escaped(tmp_path: Path) -> None:

@@ -21,7 +21,7 @@ from runner_app.git.changes import ChangeError
 from runner_app.git.registry import SourceError
 from runner_app.git.service import SourceService
 
-from .broker import BrokerError
+from .broker import BrokerError, _trusted_volume_parent
 from .preparation_coordinator import PreparationNotReady
 from .preparation_plan import PreparationError
 from .profiles import ProfileError
@@ -75,9 +75,8 @@ def _local_volume(value: object, run_id: str) -> Path | None:
             info = current.lstat()
             if stat.S_ISLNK(info.st_mode) or not stat.S_ISDIR(info.st_mode):
                 return None
-        parent = value.parent.stat()
         volume = value.stat()
-        if (parent.st_uid != os.getuid() or parent.st_mode & 0o077
+        if (not _trusted_volume_parent(value.parent)
                 or volume.st_uid != os.getuid() or volume.st_mode & 0o077
                 or any(value.iterdir())):
             return None

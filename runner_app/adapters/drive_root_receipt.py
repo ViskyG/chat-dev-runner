@@ -10,14 +10,26 @@ import hashlib
 import json
 import re
 from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
 from bridge_reference.protocol import Rejected, validate_branch
-from runner_app.adapters.drive_docs import FILE_FIELDS, ReadProvider, read_ready_snapshot
+from runner_app.adapters.drive_docs import (
+    FILE_FIELDS,
+    FrozenDriveInput,
+    ReadProvider,
+    read_ready_snapshot,
+)
 from runner_app.adapters.drive_index import AttachedInstallation
+from runner_app.adapters.drive_poller import FrozenSlotStore
 from runner_app.adapters.drive_writer import DocsCASWriter, RegisteredOutputDoc
-from runner_app.storage.ledger import Ledger
+from runner_app.domain.commands import Provenance
+from runner_app.storage.ledger import (
+    Ledger,
+    LedgerError,
+    confirmed_create_effects_proof,
+)
 
 _ID = re.compile(r"[A-Za-z0-9_-]{8,256}\Z")
 _SLUG = re.compile(r"[a-z0-9][a-z0-9-]{0,47}\Z")
@@ -34,6 +46,8 @@ _DRIVE_FIELDS = (
     "latest_result_doc_id",
 )
 _STEP_ID = "drive-root-create-receipt"
+_PRE_DISPATCH_CODE = "INTERRUPTED_BEFORE_EXECUTION"
+_PARTIAL_CODE = "PROVISIONING_PARTIAL"
 _MAX_MESSAGE_BYTES = 4096
 _MAX_RECEIPT_BYTES = 8192
 
@@ -44,6 +58,16 @@ class RootReceiptError(ValueError):
     def __init__(self, code: str) -> None:
         self.code = code
         super().__init__(code)
+
+
+@dataclass(frozen=True)
+class RootPartialReceiptProof:
+    request_id: str
+    request_digest: str
+    receipt_doc_id: str
+    receipt_sha256: str
+    confirmed_effect_count: int
+    confirmed_effects_sha256: str
 
 
 def _mapping(value: object) -> Mapping[str, Any] | None:
@@ -167,9 +191,16 @@ def _summary(resources: Mapping[str, Any] | None, command: Mapping[str, Any],
 
 def _text(request_id: str, digest: str, status: str, code: str | None,
           observed_at: str, summary: Mapping[str, str]) -> str:
-    message = f"CREATE_PROJECT {status}; " + "; ".join(
+    heading = ("CREATE_PROJECT INTERRUPTED/PARTIAL"
+               if status == "INTERRUPTED" and code == _PARTIAL_CODE
+               else f"CREATE_PROJECT {status}")
+    message = heading + "; " + "; ".join(
         f"{key}={value}" for key, value in summary.items()
     )
+    if status == "INTERRUPTED" and code == _PRE_DISPATCH_CODE:
+        message += "; execution never started; no project effects; submit a fresh request_id"
+    if status == "INTERRUPTED" and code == _PARTIAL_CODE:
+        message += "; completion unverified; inspect original request before resume"
     if len(message.encode("utf-8")) > _MAX_MESSAGE_BYTES:
         raise RootReceiptError("ROOT_RECEIPT_TOO_LARGE")
     receipt = {
@@ -218,7 +249,7 @@ class RootCreateProjectReceiptPublisher:
         if writer.registration("root-receipt") != expected_output:
             raise RootReceiptError("ROOT_RECEIPT_WRITER_MISMATCH")
 
-    def _current(self, operation: Mapping[str, Any], request_id: str) -> None:
+    def _current(self, operation: Mapping[str, Any], request_id: str) -> FrozenDriveInput:
         try:
             metadata = self.reader.get_file(self.command_id, fields=FILE_FIELDS)
         except Exception:  # noqa: BLE001 - provider errors may contain credentials
@@ -259,6 +290,7 @@ class RootCreateProjectReceiptPublisher:
                 or frozen.command.digest != operation["digest"]
                 or frozen.command.command != operation["command"]):
             raise RootReceiptError("ROOT_COMMAND_MISMATCH")
+        return frozen
 
     def publish(self, request_id: str, *, status: str = "COMPLETED",
                 code: str | None = None,
@@ -371,3 +403,390 @@ class RootCreateProjectReceiptPublisher:
         self._current(operation, request_id)
         self.ledger.confirm_effect(effect_id, self.receipt_id)
         return self.receipt_id
+
+    @staticmethod
+    def _same_frozen_input(left: FrozenDriveInput, right: FrozenDriveInput) -> bool:
+        return (
+            left.command_doc_id == right.command_doc_id
+            and left.command_revision == right.command_revision
+            and left.command_text_sha256 == right.command_text_sha256
+            and left.raw_command == right.raw_command
+            and left.command.digest == right.command.digest
+            and left.command.command == right.command.command
+            and left.raw_changeset is None
+            and right.raw_changeset is None
+        )
+
+    def recover_pre_dispatch(self, request_id: str, slots: FrozenSlotStore) -> str:
+        """Close only a Drive-root CREATE interrupted before dispatch STARTED.
+
+        The immutable local freeze and the current READY Doc must still be
+        byte/revision-identical. A terminal receipt gets its own durable intent
+        before one CAS; a prior uncertain intent is read back, never replayed.
+        """
+        operation = self.ledger.get(request_id)
+        if operation is None or operation["source_id"] != self.command_id:
+            raise RootReceiptError("ROOT_PRE_DISPATCH_TARGET_INVALID")
+        command = operation["command"]
+        if (operation["status"] != "INTERRUPTED"
+                or command.get("action") != "CREATE_PROJECT"
+                or command.get("request_id") != request_id
+                or operation["digest"] != hashlib.sha256(
+                    json.dumps(command, sort_keys=True, ensure_ascii=False,
+                               separators=(",", ":")).encode("utf-8")
+                ).hexdigest()):
+            raise RootReceiptError("ROOT_PRE_DISPATCH_TARGET_INVALID")
+        provenance = Provenance("drive", self.command_id)
+        try:
+            frozen = slots.load_frozen(request_id, provenance)
+        except Exception:  # noqa: BLE001 - local slot errors stay behind a stable code
+            raise RootReceiptError("ROOT_FROZEN_INPUT_INVALID") from None
+        if (frozen.command.digest != operation["digest"]
+                or frozen.command.command != command
+                or frozen.command_doc_id != self.command_id):
+            raise RootReceiptError("ROOT_FROZEN_INPUT_MISMATCH")
+        current = self._current(operation, request_id)
+        if not self._same_frozen_input(frozen, current):
+            raise RootReceiptError("ROOT_FROZEN_INPUT_MISMATCH")
+
+        summary = _summary(None, command, "INTERRUPTED",
+                           trusted_github_owner=self.trusted_github_owner)
+        previous = operation["effects"]
+        if previous:
+            if (len(previous) != 1 or previous[0]["step_id"] != _STEP_ID
+                    or previous[0]["kind"] != "drive_file"):
+                raise RootReceiptError("ROOT_PRE_DISPATCH_EFFECTS_PRESENT")
+            effect = previous[0]
+            intent = effect["intent"]
+            core = {
+                "command_doc_id": self.command_id,
+                "receipt_doc_id": self.receipt_id,
+                "request_digest": operation["digest"],
+                "status": "INTERRUPTED",
+                "code": _PRE_DISPATCH_CODE,
+                "summary": summary,
+                "frozen_command_revision": frozen.command_revision,
+                "frozen_command_sha256": frozen.command_text_sha256,
+            }
+            if any(intent.get(key) != value for key, value in core.items()):
+                raise RootReceiptError("ROOT_PRE_DISPATCH_INTENT_CHANGED")
+            observed_at = intent.get("observed_at")
+            if not isinstance(observed_at, str):
+                raise RootReceiptError("ROOT_PRE_DISPATCH_INTENT_CHANGED")
+            try:
+                observed_time = datetime.fromisoformat(observed_at)
+            except ValueError:
+                raise RootReceiptError("ROOT_PRE_DISPATCH_INTENT_CHANGED") from None
+            if observed_time.tzinfo is None or observed_time.utcoffset() is None:
+                raise RootReceiptError("ROOT_PRE_DISPATCH_INTENT_CHANGED")
+        else:
+            observed_at = datetime.now(timezone.utc).isoformat()
+            core = {
+                "command_doc_id": self.command_id,
+                "receipt_doc_id": self.receipt_id,
+                "request_digest": operation["digest"],
+                "status": "INTERRUPTED",
+                "code": _PRE_DISPATCH_CODE,
+                "summary": summary,
+                "frozen_command_revision": frozen.command_revision,
+                "frozen_command_sha256": frozen.command_text_sha256,
+            }
+        desired = _text(request_id, operation["digest"], "INTERRUPTED",
+                        _PRE_DISPATCH_CODE, observed_at, summary)
+        desired_sha256 = hashlib.sha256(desired.encode("utf-8")).hexdigest()
+        if previous and intent.get("desired_sha256") != desired_sha256:
+            raise RootReceiptError("ROOT_PRE_DISPATCH_INTENT_CHANGED")
+        try:
+            observed = self.writer.read("root-receipt")
+        except Exception:  # noqa: BLE001 - provider details may contain credentials
+            raise RootReceiptError("ROOT_RECEIPT_READ_FAILED") from None
+        if observed.snapshot.file_id != self.receipt_id:
+            raise RootReceiptError("ROOT_RECEIPT_WRITER_MISMATCH")
+
+        if previous:
+            if (observed.snapshot.sha256 != desired_sha256
+                    or observed.snapshot.text != desired):
+                raise RootReceiptError("ROOT_RECEIPT_WRITE_UNCERTAIN")
+            effect_id = effect["effect_id"]
+            if effect["state"] == "CONFIRMED":
+                if effect["provider_id"] != self.receipt_id:
+                    raise RootReceiptError("ROOT_RECEIPT_EFFECT_INVALID")
+            elif effect["state"] in {"INTENDED", "UNKNOWN"}:
+                self.ledger.confirm_effect(effect_id, self.receipt_id)
+            else:
+                raise RootReceiptError("ROOT_RECEIPT_EFFECT_INVALID")
+        else:
+            if observed.snapshot.sha256 == desired_sha256:
+                raise RootReceiptError("ROOT_RECEIPT_UNJOURNALED")
+            try:
+                existing = json.loads(observed.snapshot.text)
+            except (TypeError, ValueError):
+                existing = None
+            if isinstance(existing, dict) and existing.get("request_id") == request_id:
+                raise RootReceiptError("ROOT_RECEIPT_UNJOURNALED")
+            intent = {
+                **core, "observed_at": observed_at,
+                "base_revision": observed.snapshot.revision_id,
+                "desired_sha256": desired_sha256,
+            }
+            try:
+                effect_id = self.ledger.begin_pre_dispatch_root_receipt(
+                    request_id, source_id=self.command_id,
+                    digest=operation["digest"], intent=intent,
+                )
+            except LedgerError as error:
+                raise RootReceiptError(error.code) from None
+            # A lost acknowledgement can follow an applied CAS. Only an exact
+            # subsequent read proves the output; this call never retries the CAS.
+            try:
+                self.writer.replace("root-receipt", desired, expected=observed)
+            except Exception:  # noqa: BLE001, S110 - readback decides the ambiguous outcome
+                pass
+            try:
+                readback = self.writer.read("root-receipt")
+            except Exception:  # noqa: BLE001 - leave the intended effect unresolved
+                raise RootReceiptError("ROOT_RECEIPT_WRITE_UNCERTAIN") from None
+            if (readback.snapshot.file_id != self.receipt_id
+                    or readback.snapshot.sha256 != desired_sha256
+                    or readback.snapshot.text != desired):
+                raise RootReceiptError("ROOT_RECEIPT_WRITE_UNCERTAIN")
+            self.ledger.confirm_effect(effect_id, self.receipt_id)
+
+        # A changed READY Doc cannot be acknowledged as the frozen request.
+        latest = self._current(operation, request_id)
+        if not self._same_frozen_input(frozen, latest):
+            raise RootReceiptError("ROOT_FROZEN_INPUT_MISMATCH")
+        try:
+            self.ledger.complete_pre_dispatch_root_receipt(
+                request_id, source_id=self.command_id, digest=operation["digest"],
+                receipt_doc_id=self.receipt_id, effect_id=effect_id,
+            )
+        except LedgerError as error:
+            raise RootReceiptError(error.code) from None
+        return self.receipt_id
+
+
+    def recover_terminal_partial(self, request_id: str, slots: FrozenSlotStore) -> str:
+        """Publish the original root receipt after a stopped partial CREATE.
+
+        This route never resumes provisioning. All prior non-receipt effects
+        must already be confirmed, with no held lock/reconciliation requirement.
+        A root receipt CAS is journaled once; retries only use exact readback.
+        """
+        operation = self.ledger.get(request_id)
+        if operation is None or operation["source_id"] != self.command_id:
+            raise RootReceiptError("ROOT_TERMINAL_TARGET_INVALID")
+        command = operation["command"]
+        if (operation["status"] != "INTERRUPTED"
+                or operation["code"] != "NEEDS_RECONCILIATION"
+                or operation["reconcile_required"]
+                or operation["capacity_held"]
+                or command.get("action") != "CREATE_PROJECT"
+                or command.get("request_id") != request_id
+                or operation["digest"] != hashlib.sha256(
+                    json.dumps(command, sort_keys=True, ensure_ascii=False,
+                               separators=(",", ":")).encode("utf-8")
+                ).hexdigest()):
+            raise RootReceiptError("ROOT_TERMINAL_TARGET_INVALID")
+        try:
+            count, effects_sha256 = confirmed_create_effects_proof(operation["effects"])
+            settled = self.ledger.terminal_root_create_effects(
+                request_id, source_id=self.command_id, digest=operation["digest"],
+            )
+        except LedgerError as error:
+            raise RootReceiptError(error.code) from None
+        if settled != (count, effects_sha256):
+            raise RootReceiptError("TERMINAL_ROOT_EFFECTS_CHANGED")
+        try:
+            frozen = slots.load_frozen(request_id, Provenance("drive", self.command_id))
+        except Exception:  # noqa: BLE001 - local slot details stay private
+            raise RootReceiptError("ROOT_FROZEN_INPUT_INVALID") from None
+        if (frozen.command.digest != operation["digest"]
+                or frozen.command.command != command
+                or frozen.command_doc_id != self.command_id):
+            raise RootReceiptError("ROOT_FROZEN_INPUT_MISMATCH")
+        current = self._current(operation, request_id)
+        if not self._same_frozen_input(frozen, current):
+            raise RootReceiptError("ROOT_FROZEN_INPUT_MISMATCH")
+
+        summary = _summary(None, command, "INTERRUPTED",
+                           trusted_github_owner=self.trusted_github_owner)
+        summary["confirmed_effect_count"] = str(count)
+        core = {
+            "command_doc_id": self.command_id,
+            "receipt_doc_id": self.receipt_id,
+            "request_digest": operation["digest"],
+            "status": "INTERRUPTED", "code": _PARTIAL_CODE,
+            "summary": summary,
+            "frozen_command_revision": frozen.command_revision,
+            "frozen_command_sha256": frozen.command_text_sha256,
+            "confirmed_effect_count": count,
+            "confirmed_effects_sha256": effects_sha256,
+        }
+        previous = [
+            effect for effect in operation["effects"]
+            if effect["step_id"] == _STEP_ID
+        ]
+        if len(previous) > 1:
+            raise RootReceiptError("ROOT_RECEIPT_EFFECT_DUPLICATED")
+        if previous:
+            effect = previous[0]
+            intent = effect["intent"]
+            if (effect["kind"] != "drive_file"
+                    or any(intent.get(key) != value for key, value in core.items())):
+                raise RootReceiptError("ROOT_TERMINAL_INTENT_CHANGED")
+            observed_at = intent.get("observed_at")
+            if not isinstance(observed_at, str):
+                raise RootReceiptError("ROOT_TERMINAL_INTENT_CHANGED")
+            try:
+                observed_time = datetime.fromisoformat(observed_at)
+            except ValueError:
+                raise RootReceiptError("ROOT_TERMINAL_INTENT_CHANGED") from None
+            if observed_time.tzinfo is None or observed_time.utcoffset() is None:
+                raise RootReceiptError("ROOT_TERMINAL_INTENT_CHANGED")
+        else:
+            observed_at = datetime.now(timezone.utc).isoformat()
+        desired = _text(request_id, operation["digest"], "INTERRUPTED",
+                        _PARTIAL_CODE, observed_at, summary)
+        desired_sha256 = hashlib.sha256(desired.encode("utf-8")).hexdigest()
+        if previous and intent.get("desired_sha256") != desired_sha256:
+            raise RootReceiptError("ROOT_TERMINAL_INTENT_CHANGED")
+        try:
+            observed = self.writer.read("root-receipt")
+        except Exception:  # noqa: BLE001 - provider details may contain credentials
+            raise RootReceiptError("ROOT_RECEIPT_READ_FAILED") from None
+        if observed.snapshot.file_id != self.receipt_id:
+            raise RootReceiptError("ROOT_RECEIPT_WRITER_MISMATCH")
+        if previous:
+            if (observed.snapshot.sha256 != desired_sha256
+                    or observed.snapshot.text != desired):
+                raise RootReceiptError("ROOT_RECEIPT_WRITE_UNCERTAIN")
+            effect_id = effect["effect_id"]
+            if effect["state"] == "CONFIRMED":
+                if effect["provider_id"] != self.receipt_id:
+                    raise RootReceiptError("ROOT_RECEIPT_EFFECT_INVALID")
+            elif effect["state"] in {"INTENDED", "UNKNOWN"}:
+                self.ledger.confirm_effect(effect_id, self.receipt_id)
+            else:
+                raise RootReceiptError("ROOT_RECEIPT_EFFECT_INVALID")
+        else:
+            if observed.snapshot.sha256 == desired_sha256:
+                raise RootReceiptError("ROOT_RECEIPT_UNJOURNALED")
+            try:
+                existing = json.loads(observed.snapshot.text)
+            except (TypeError, ValueError):
+                existing = None
+            if isinstance(existing, dict) and existing.get("request_id") == request_id:
+                raise RootReceiptError("ROOT_RECEIPT_UNJOURNALED")
+            intent = {
+                **core, "observed_at": observed_at,
+                "base_revision": observed.snapshot.revision_id,
+                "desired_sha256": desired_sha256,
+            }
+            try:
+                effect_id = self.ledger.begin_terminal_root_receipt(
+                    request_id, source_id=self.command_id,
+                    digest=operation["digest"], intent=intent,
+                )
+            except LedgerError as error:
+                raise RootReceiptError(error.code) from None
+            # A failed acknowledgement may still follow an applied CAS.
+            try:
+                self.writer.replace("root-receipt", desired, expected=observed)
+            except Exception:  # noqa: BLE001, S110 - exact readback decides the outcome
+                pass
+            try:
+                readback = self.writer.read("root-receipt")
+            except Exception:  # noqa: BLE001 - leave the intended effect unresolved
+                raise RootReceiptError("ROOT_RECEIPT_WRITE_UNCERTAIN") from None
+            if (readback.snapshot.file_id != self.receipt_id
+                    or readback.snapshot.sha256 != desired_sha256
+                    or readback.snapshot.text != desired):
+                raise RootReceiptError("ROOT_RECEIPT_WRITE_UNCERTAIN")
+            self.ledger.confirm_effect(effect_id, self.receipt_id)
+        latest = self._current(operation, request_id)
+        if not self._same_frozen_input(frozen, latest):
+            raise RootReceiptError("ROOT_FROZEN_INPUT_MISMATCH")
+        try:
+            self.ledger.complete_terminal_root_receipt(
+                request_id, source_id=self.command_id, digest=operation["digest"],
+                receipt_doc_id=self.receipt_id, effect_id=effect_id,
+            )
+        except LedgerError as error:
+            raise RootReceiptError(error.code) from None
+        return self.receipt_id
+
+
+    def confirmed_partial(self, request_id: str,
+                          slots: FrozenSlotStore) -> RootPartialReceiptProof:
+        """Read-only proof that the original partial root receipt is durable.
+
+        A RESUME handler may use this before adoption. It cannot create or
+        confirm an effect, change the old operation, or write either Drive Doc.
+        """
+        operation = self.ledger.get(request_id)
+        if operation is None or operation["source_id"] != self.command_id:
+            raise RootReceiptError("ROOT_TERMINAL_TARGET_INVALID")
+        command = operation["command"]
+        if (operation["status"] != "INTERRUPTED"
+                or operation["code"] != "NEEDS_RECONCILIATION"
+                or operation["reconcile_required"]
+                or operation["capacity_held"]
+                or command.get("action") != "CREATE_PROJECT"
+                or command.get("request_id") != request_id):
+            raise RootReceiptError("ROOT_TERMINAL_TARGET_INVALID")
+        try:
+            intent = self.ledger.confirmed_terminal_root_receipt(
+                request_id, source_id=self.command_id,
+                digest=operation["digest"], receipt_doc_id=self.receipt_id,
+            )
+        except LedgerError as error:
+            raise RootReceiptError(error.code) from None
+        try:
+            frozen = slots.load_frozen(request_id, Provenance("drive", self.command_id))
+        except Exception:  # noqa: BLE001 - local slot details stay private
+            raise RootReceiptError("ROOT_FROZEN_INPUT_INVALID") from None
+        if (frozen.command.digest != operation["digest"]
+                or frozen.command.command != command
+                or frozen.command_doc_id != self.command_id
+                or intent.get("frozen_command_revision") != frozen.command_revision
+                or intent.get("frozen_command_sha256") != frozen.command_text_sha256):
+            raise RootReceiptError("ROOT_FROZEN_INPUT_MISMATCH")
+        current = self._current(operation, request_id)
+        if not self._same_frozen_input(frozen, current):
+            raise RootReceiptError("ROOT_FROZEN_INPUT_MISMATCH")
+        count = intent["confirmed_effect_count"]
+        summary = _summary(None, command, "INTERRUPTED",
+                           trusted_github_owner=self.trusted_github_owner)
+        summary["confirmed_effect_count"] = str(count)
+        if intent.get("summary") != summary:
+            raise RootReceiptError("ROOT_TERMINAL_INTENT_CHANGED")
+        observed_at = intent.get("observed_at")
+        if not isinstance(observed_at, str):
+            raise RootReceiptError("ROOT_TERMINAL_INTENT_CHANGED")
+        try:
+            observed_time = datetime.fromisoformat(observed_at)
+        except ValueError:
+            raise RootReceiptError("ROOT_TERMINAL_INTENT_CHANGED") from None
+        if observed_time.tzinfo is None or observed_time.utcoffset() is None:
+            raise RootReceiptError("ROOT_TERMINAL_INTENT_CHANGED")
+        desired = _text(request_id, operation["digest"], "INTERRUPTED",
+                        _PARTIAL_CODE, observed_at, summary)
+        desired_sha256 = hashlib.sha256(desired.encode("utf-8")).hexdigest()
+        if intent.get("desired_sha256") != desired_sha256:
+            raise RootReceiptError("ROOT_TERMINAL_INTENT_CHANGED")
+        try:
+            observed = self.writer.read("root-receipt")
+        except Exception:  # noqa: BLE001 - provider details may contain credentials
+            raise RootReceiptError("ROOT_RECEIPT_READ_FAILED") from None
+        if (observed.snapshot.file_id != self.receipt_id
+                or observed.snapshot.sha256 != desired_sha256
+                or observed.snapshot.text != desired):
+            raise RootReceiptError("ROOT_RECEIPT_PROOF_CHANGED")
+        latest = self._current(operation, request_id)
+        if not self._same_frozen_input(frozen, latest):
+            raise RootReceiptError("ROOT_FROZEN_INPUT_MISMATCH")
+        return RootPartialReceiptProof(
+            request_id, operation["digest"], self.receipt_id, desired_sha256,
+            count, intent["confirmed_effects_sha256"],
+        )

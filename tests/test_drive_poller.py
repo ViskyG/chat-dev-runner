@@ -7,6 +7,7 @@ import json
 import stat
 import threading
 import time
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -17,6 +18,7 @@ from runner_app.adapters.drive_docs import RegisteredMailbox
 from runner_app.adapters.drive_fake import FakeDrive
 from runner_app.adapters.drive_poller import DrivePoller, FrozenSlotStore, PollError, PollSchedule
 from runner_app.domain.commands import LocalPolicy, Provenance
+from runner_app.engine.drive_bridge import DrivePollingBridge
 from runner_app.engine.service import Engine, OperationResult
 from runner_app.storage import Database
 from runner_app.storage.ledger import Ledger
@@ -199,6 +201,97 @@ def test_poll_schedule_backs_off_and_does_not_mark_failed_read_successful() -> N
     assert failed.failures == 16
     assert failed.next_due <= 200 + 19 * 400 + 300
     assert failed.success(failed.next_due).failures == 0
+
+
+
+def test_serving_bridge_never_freezes_disarmed_command(tmp_path: Path) -> None:
+    poller, provider, engine, ledger = fixture(tmp_path)
+    bridge = DrivePollingBridge(poller)
+    try:
+        ledger.disarm()
+        provider.calls.clear()
+        assert bridge.poll_once_if_due().kind == "DISARMED"
+        assert provider.calls == []
+        assert list((tmp_path / "frozen").iterdir()) == []
+
+        ledger.arm()
+        ready = command(ledger.state()["epoch"])
+        provider.put_document(COMMAND_ID, json.dumps(ready), revision="revision-armed")
+        observed = bridge.poll_once_if_due()
+        assert observed.kind == "SUBMITTED"
+        assert observed.request_id == ready["request_id"]
+        assert ledger.get(ready["request_id"]) is not None
+        assert bridge.poll_once_if_due().kind == "WAITING"
+    finally:
+        bridge.close()
+        engine.shutdown()
+
+
+def test_bridge_does_not_admit_until_system_state_is_published(tmp_path: Path) -> None:
+    poller, provider, engine, ledger = fixture(tmp_path)
+    provider.calls.clear()
+    now = [0.0]
+    attempts = []
+
+    def publish(state):
+        attempts.append(state["armed"])
+        if len(attempts) == 1:
+            raise PollError("STATE_WRITE_UNCERTAIN")
+
+    bridge = DrivePollingBridge(poller, state_publisher=publish, clock=lambda: now[0])
+    try:
+        first = bridge.poll_once_if_due()
+        assert first.kind == "ERROR" and first.code == "STATE_WRITE_UNCERTAIN"
+        assert provider.calls == []
+        assert ledger.list_operations()["items"] == []
+        assert bridge.poll_once_if_due().kind == "WAITING"
+
+        now[0] = 40.0
+        second = bridge.poll_once_if_due()
+        assert second.kind == "SUBMITTED"
+        assert attempts == [True, True]
+        assert provider.calls
+        assert ledger.get(second.request_id) is not None
+    finally:
+        bridge.close()
+        engine.shutdown()
+
+
+def test_bridge_republishes_capability_state_after_route_registration(tmp_path: Path) -> None:
+    poller, _, engine, _ = fixture(tmp_path)
+    now = [0.0]
+    advertised = []
+    bridge = DrivePollingBridge(
+        poller,
+        state_publisher=lambda _state: advertised.append(
+            (engine.capabilities(), sorted(engine.policy.approved_profiles))),
+        clock=lambda: now[0],
+    )
+    original_capabilities = engine.capabilities
+    try:
+        assert bridge.poll_once_if_due().kind == "SUBMITTED"
+        assert advertised == [(["VERIFY"], ["python-quick"])]
+        engine.capabilities = lambda: ["DELIVER_VERIFY_PUBLISH", "VERIFY"]
+        now[0] = 1.0
+        assert bridge.poll_once_if_due().kind == "WAITING"
+        assert advertised == [
+            (["VERIFY"], ["python-quick"]),
+            (["DELIVER_VERIFY_PUBLISH", "VERIFY"], ["python-quick"]),
+        ]
+        engine.policy = replace(
+            engine.policy,
+            approved_profiles=frozenset({"python-quick", "second-profile"}),
+        )
+        now[0] = 2.0
+        assert bridge.poll_once_if_due().kind == "WAITING"
+        assert advertised[-1] == (
+            ["DELIVER_VERIFY_PUBLISH", "VERIFY"],
+            ["python-quick", "second-profile"],
+        )
+    finally:
+        engine.capabilities = original_capabilities
+        bridge.close()
+        engine.shutdown()
 
 
 def test_unregistered_mailbox_is_refused_before_polling(tmp_path: Path) -> None:

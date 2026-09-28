@@ -1,0 +1,27 @@
+{
+  "container_intent_phases": [
+    "PREPARATION",
+    "TEST"
+  ],
+  "evidence_dir": "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-05/live-python-quick/6eafcb9d-fbb0-494a-9b76-752b8958de5b",
+  "execution_outcome": "PASSED",
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "junit": {
+    "errors": "0",
+    "failures": "0",
+    "tests": "1"
+  },
+  "junit_sha256": "1526bc17bfb10f1fcdb0967190fa5a3cec9cadc9d1c057493c26a68573175446",
+  "operation_code": null,
+  "operation_status": "COMPLETED",
+  "preparation_outcome": "PASSED",
+  "preparation_profile_sha256": "602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9",
+  "production_runner_armed": false,
+  "request_id": "6eafcb9d-fbb0-494a-9b76-752b8958de5b",
+  "retained_temp_root": "/tmp/cdr-python-quick-accept-ylk5_ij2",
+  "rootless_daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "schema_version": "1.0",
+  "success": true,
+  "temporary_acceptance_pair_only": true,
+  "test_profile_sha256": "b47160af8e5abd5ea7cc4b9624ee1a929216a5705c394fd4e287468590efd182"
+}

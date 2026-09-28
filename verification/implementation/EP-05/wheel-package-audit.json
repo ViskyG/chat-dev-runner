@@ -1,0 +1,61 @@
+{
+  "checks": [
+    {
+      "command": ".venv/bin/python -m build --wheel --no-isolation --outdir /tmp/cdr-ep05-wheel-audit",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/python -m pip install --no-deps --no-compile --target /tmp/cdr-ep05-wheel-smoke /tmp/cdr-ep05-wheel-audit/chat_dev_runner-0.2.0-py3-none-any.whl",
+      "exit_code": 0
+    },
+    {
+      "command": "PYTHONPATH=/tmp/cdr-ep05-wheel-smoke .venv/bin/python -m runner_app.cli --help [cwd=/tmp]",
+      "exit_code": 0
+    },
+    {
+      "command": "PYTHONPATH=/tmp/cdr-ep05-wheel-smoke .venv/bin/python -m bridge_reference.demo [cwd=/tmp]",
+      "exit_code": 0,
+      "result": "real local Git and tests, no cloud calls"
+    },
+    {
+      "command": "isolated installed-wheel schema and python-basic starter import [cwd=/tmp]",
+      "exit_code": 0,
+      "lockfile_sha256": "80552f69df4490903989b9a0d00f58de587ea28da165b3fc4b8a006ca54ec0c7",
+      "starter_file_count": 12,
+      "starter_wheel_count": 5
+    },
+    {
+      "command": ".venv/bin/python -m pip check",
+      "exit_code": 0
+    }
+  ],
+  "environment": {
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "python": "3.10.12"
+  },
+  "packet": "EP-05",
+  "schema_version": "1.0",
+  "wheel": {
+    "entrypoint": "runner = runner_app.cli:main",
+    "nested_starter_wheels": [
+      "runner_app/git/python_quick_wheels/iniconfig-2.3.0-py3-none-any.whl",
+      "runner_app/git/python_quick_wheels/packaging-26.3-py3-none-any.whl",
+      "runner_app/git/python_quick_wheels/pluggy-1.6.0-py3-none-any.whl",
+      "runner_app/git/python_quick_wheels/pygments-2.21.0-py3-none-any.whl",
+      "runner_app/git/python_quick_wheels/pytest-9.1.1-py3-none-any.whl"
+    ],
+    "new_runtime_modules": [
+      "runner_app/engine/drive_bridge.py",
+      "runner_app/engine/execution_assembly.py",
+      "runner_app/engine/integrations.py",
+      "runner_app/executors/volume_provider.py",
+      "runner_app/git/templates.py",
+      "runner_app/workflows/provision_resume_partial.py",
+      "schemas/command.schema.json",
+      "schemas/run-manifest.schema.json"
+    ],
+    "path": "/tmp/cdr-ep05-wheel-audit/chat_dev_runner-0.2.0-py3-none-any.whl",
+    "sha256": "77a397cd1dc4d0a857d2c24ec190144cceb7ca8ee16fce97a21455c3f97ac0da",
+    "size_bytes": 2115194
+  }
+}

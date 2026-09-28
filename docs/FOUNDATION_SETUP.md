@@ -33,11 +33,12 @@ The approved candidate base for linux/amd64 is:
 `docker.io/library/python@sha256:54b4fc9408ea4f5d1b1b9c63c7ef1968d46d3b927e00df8ab1f09364593f979f`.
 Registry metadata identified Python 3.10.21 from `python:3.10-slim-bookworm`; the immutable
 manifest and config hashes were verified. See `sandbox-image.json` for request/digest evidence.
-No image was pulled or executed. This is the selected base, not a qualified test environment:
-pytest/dependencies still need an approved locked contained build in EP-03. The profile is
-uninstalled and unapproved. No rootless runtime socket is configured on this host. Existing
-rootful Docker is not an execution fallback. Runtime containment and release gates remain
-blocked until the owner configures a compatible rootless execution broker.
+At EP-00 this image was not pulled or executed. Later host setup installed a separate
+Python 3.12 Alpine image by exact digest on the user-owned rootless Docker daemon. The
+`python-basic` starter and `python-prepare`/`python-quick` profiles now implement the
+hash-locked offline dependency route described in `docs/ENVIRONMENTS.md`; see the EP-05
+Python quick evidence. The full finite broker path still requires fresh hard-quota
+PREPARATION and TEST volumes and explicit runner wiring. Rootful Docker is never a fallback.
 
 Primary documentation checked during selection: [FastAPI manual deployment](https://fastapi.tiangolo.com/deployment/manually/),
 [PyPA package metadata](https://packaging.python.org/en/latest/specifications/pyproject-toml/),

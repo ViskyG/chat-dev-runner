@@ -1,0 +1,10 @@
+{
+  "confirmed_effect_count": 9,
+  "confirmed_effects_sha256": "23a4e6d3f4f45f2c271a157c876a637efccc4bf8d8d28cbd3b47949b4aa4395a",
+  "receipt_doc_id": "12MHUurW7bbIQO25m1ye9W_YHXCn807r8LOBc89hlQNQ",
+  "receipt_sha256": "bef4b312ac5cd5664178d72ffac3ba8437aa1f1f65f3b9edce89602f03942996",
+  "request_id": "31b77084-a76f-4190-b88e-d1ea0665c855",
+  "result": "EXACT_READBACK_CONFIRMED",
+  "runner_armed": false,
+  "schema_version": "1.0"
+}

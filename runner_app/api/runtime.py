@@ -6,7 +6,7 @@ import json
 import os
 import re
 import uuid
-from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterator, Mapping
 from typing import Any
 
 from fastapi import FastAPI, Query, Request
@@ -63,10 +63,12 @@ def _status(code: str | None) -> int:
 
 def create_runtime_app(settings: Settings, engine: Engine, sessions: Sessions, *,
                        import_grants: ImportGrants | None = None,
-                       run_evidence: RunEvidenceStore | None = None) -> FastAPI:
+                       run_evidence: RunEvidenceStore | None = None,
+                       integration_status: Mapping[str, Any] | None = None) -> FastAPI:
     def runtime_health() -> dict[str, Any]:
         return {"service": "chat-dev-runner", "version": __version__,
-                "status": "NOT_CONFIGURED", "armed": engine.ledger.state()["armed"],
+                "status": "PARTIALLY_CONFIGURED" if integration_status else "NOT_CONFIGURED",
+                "armed": engine.ledger.state()["armed"],
                 "capabilities": ["local_api", "durable_admission", *engine.capabilities()]}
 
     app = create_app(settings, health_provider=runtime_health)
@@ -142,8 +144,12 @@ def create_runtime_app(settings: Settings, engine: Engine, sessions: Sessions, *
 
     @app.get(prefix + "system")
     def system() -> dict[str, Any]:
+        integrations = setup_requirements()
+        if integration_status is not None:
+            integrations["state"] = "PARTIALLY_CONFIGURED"
+            integrations["ep05"] = dict(integration_status)
         return {"schema_version": "1.0", **engine.ledger.state(),
-                "capabilities": engine.capabilities(), "integrations": setup_requirements(),
+                "capabilities": engine.capabilities(), "integrations": integrations,
                 "execution_queue": False}
 
     @app.post(prefix + "local/import-handles")

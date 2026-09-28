@@ -1,0 +1,53 @@
+{
+  "checks": {
+    "git_diff_check": {
+      "exit_code": 0
+    },
+    "mypy": {
+      "exit_code": 0,
+      "files": 4
+    },
+    "pytest": {
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": "verification/implementation/EP-05/runtime-integration-tests.xml",
+      "skipped": 0,
+      "tests": 64
+    },
+    "ruff": {
+      "exit_code": 0
+    }
+  },
+  "cold_start": {
+    "armed": false,
+    "attached_existing": true,
+    "capabilities": [
+      "CREATE_PROJECT",
+      "RECONCILE",
+      "RESUME_PROVISION"
+    ],
+    "cloud_writes": false,
+    "drive_identity_mode": "owner_manifest",
+    "drive_index_matches": true,
+    "drive_root_matches": true,
+    "exit_code": 0,
+    "github_login": "ViskyG"
+  },
+  "default_state_root": {
+    "changed": false,
+    "status": "BLOCKED_LOCAL_STATE_UNSAFE"
+  },
+  "git_head": "2c4c2b3f7730de826b5c98468d4f805b24fcdfc6",
+  "host": "k8s-master",
+  "owner_config": {
+    "contents_recorded": false,
+    "mode": "0o600",
+    "outside_repository": true,
+    "path": "/home/visky/.config/chat-dev-runner/owner-runtime.json"
+  },
+  "packet": "EP-05",
+  "private_state_root": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner",
+  "python": "3.10.12",
+  "timestamp_utc": "2026-09-28T05:13:15.714415+00:00"
+}

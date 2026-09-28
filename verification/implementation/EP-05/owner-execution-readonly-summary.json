@@ -1,0 +1,11 @@
+{
+  "cloud_writes": 0,
+  "fixed_helper_installed": false,
+  "owner_config": "LOADED",
+  "profile_grant": "VALID",
+  "profile_ids": [
+    "python-prepare",
+    "python-quick"
+  ],
+  "runner_armed_by_check": false
+}

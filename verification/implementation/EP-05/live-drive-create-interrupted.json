@@ -1,0 +1,18 @@
+{
+  "admission_marker_exists": false,
+  "cloud_project_create_confirmed": false,
+  "code": "NEEDS_RECONCILIATION",
+  "effect_count": 0,
+  "frozen_slot_exists": true,
+  "github_repository": "ABSENT",
+  "managed_project_exists": false,
+  "observed_at_utc": "2026-09-28T05:28:01.120119+00:00",
+  "project_id": "cdr-ep05-drive-20260928",
+  "reconcile_required": true,
+  "request_id": "063e7eba-e4e9-4438-8f39-6e4827343064",
+  "root_command_dispatch": "READY",
+  "root_command_id": "1sfSwN2pSBtZ1JMV11u_riKvGf0iQ5dwtb9591LMVe0I",
+  "runner_armed": false,
+  "status": "INTERRUPTED",
+  "step_count": 0
+}

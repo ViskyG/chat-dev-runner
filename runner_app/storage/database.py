@@ -9,12 +9,19 @@ from __future__ import annotations
 
 import os
 import sqlite3
+import threading
 from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import quote
 
-from .paths import UnsafePathError, _absolute, _check_private, _open_directory, _open_file_at
+from .paths import UnsafePathError, _absolute, _check_private, _open_directory
+
+# SQLite's POSIX byte-range locks belong to the process, not to one descriptor.
+# Closing a separate validation fd for the database or its -shm sidecar can
+# release locks held by another SQLite connection in this process. See
+# https://www.sqlite.org/howtocorrupt.html#posix_advisory_locks_canceled_by_a_separate_thread_doing_close
+_CREATE_LOCK = threading.Lock()
 
 SCHEMA_VERSION = 9
 _MIGRATIONS: dict[int, tuple[str, ...]] = {
@@ -416,29 +423,50 @@ class _Connection(sqlite3.Connection):
             self.close()
 
 
+def _validate_existing_file(directory_fd: int, filename: str) -> bool:
+    """Inspect a pinned directory entry without disturbing SQLite locks."""
+    try:
+        info = os.stat(filename, dir_fd=directory_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        return False
+    except OSError as error:
+        raise UnsafePathError("Unsafe SQLite file") from error
+    _check_private(info, directory=False)
+    return True
+
+
+def _ensure_database_file(directory_fd: int, filename: str) -> None:
+    # The process-local lock ensures no sibling Database.connect() can start
+    # SQLite while this initial creation descriptor is still open. Thereafter
+    # all checks use stat, so existing SQLite locks are never disturbed.
+    with _CREATE_LOCK:
+        if _validate_existing_file(directory_fd, filename):
+            return
+        flags = os.O_RDWR | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK
+        try:
+            descriptor = os.open(filename, flags | os.O_CREAT | os.O_EXCL, 0o600,
+                                 dir_fd=directory_fd)
+        except FileExistsError:
+            # Another process created it; inspect the resulting entry below.
+            pass
+        except OSError as error:
+            raise UnsafePathError("Unsafe SQLite database file") from error
+        else:
+            try:
+                os.fchmod(descriptor, 0o600)
+                _check_private(os.fstat(descriptor), directory=False)
+            finally:
+                os.close(descriptor)
+        if not _validate_existing_file(directory_fd, filename):
+            raise UnsafePathError("SQLite database file disappeared")
+
+
 def _validate_sidecars(directory_fd: int, filename: str) -> None:
     for suffix in ("-wal", "-shm", "-journal"):
-        name = filename + suffix
-        try:
-            descriptor = _open_file_at(directory_fd, name, create=False, allow_unlinked=True)
-        except FileNotFoundError:
-            continue
-        except OSError as error:
-            raise UnsafePathError("Unsafe SQLite sidecar file") from error
-        try:
-            # SQLite may replace the name after our open. Check the current
-            # directory entry as well as the opened object; a vanished entry
-            # is normal when SQLite closes its final WAL connection.
-            try:
-                current = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
-            except FileNotFoundError:
-                pass
-            else:
-                _check_private(current, directory=False)
-        except OSError as error:
-            raise UnsafePathError("Unsafe SQLite sidecar file") from error
-        finally:
-            os.close(descriptor)
+        # A sidecar can vanish normally when SQLite closes the final WAL
+        # connection. Its current directory entry must still be private if it
+        # exists. Opening it just for validation would release fcntl locks.
+        _validate_existing_file(directory_fd, filename + suffix)
 
 
 def _version(connection: sqlite3.Connection) -> int:
@@ -472,12 +500,12 @@ class Database:
         directory_fd = _open_directory(self.path.parent)
         connection: _Connection | None = None
         try:
-            try:
-                file_fd = _open_file_at(directory_fd, self.path.name, create=True)
-            except OSError as error:
-                raise UnsafePathError("Unsafe SQLite database file") from error
-            os.close(file_fd)
+            _ensure_database_file(directory_fd, self.path.name)
             _validate_sidecars(directory_fd, self.path.name)
+            # The 0700 directory is pinned by directory_fd. SQLite opens
+            # through that descriptor so an ancestor rename cannot redirect
+            # it after metadata validation; no extra fd for an existing
+            # database or sidecar is closed while SQLite locks are active.
             uri = f"file:/proc/self/fd/{directory_fd}/{quote(self.path.name, safe='')}?mode=rw"
             connection = sqlite3.connect(
                 uri, uri=True, timeout=self.busy_timeout_ms / 1000,

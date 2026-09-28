@@ -90,11 +90,17 @@ def test_python_basic_source_starter_is_committed_and_runs_in_workspace(tmp_path
     head, repo = create_project_workspace(ledger, registry, service)
     tracked = set(run_git(repo, ["ls-tree", "-r", "--name-only", head]).splitlines())
     assert tracked == {
-        ".gitignore", "README.md", "pyproject.toml", "src/__init__.py",
-        "src/app.py", "tests/test_app.py",
+        ".gitignore", "README.md", "pyproject.toml", "requirements.lock",
+        "src/__init__.py", "src/app.py", "tests/test_app.py",
+        "vendor/wheels/iniconfig-2.3.0-py3-none-any.whl",
+        "vendor/wheels/packaging-26.3-py3-none-any.whl",
+        "vendor/wheels/pluggy-1.6.0-py3-none-any.whl",
+        "vendor/wheels/pygments-2.21.0-py3-none-any.whl",
+        "vendor/wheels/pytest-9.1.1-py3-none-any.whl",
     }
     area = registry.get_workspace("fixture", "area")
     assert area is not None
+    assert b"--hash=sha256:" in (Path(area["worktree_path"]) / "requirements.lock").read_bytes()
     completed = subprocess.run(
         [sys.executable, "-m", "pytest", "-q", "tests/test_app.py"],
         cwd=Path(area["worktree_path"]), capture_output=True, text=True,
