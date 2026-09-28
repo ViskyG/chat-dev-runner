@@ -44,7 +44,9 @@ Attach the real adapter to the existing root and Installation Index in
 `config/installation.existing.json`; validate per-file authorization and index mappings before
 writes. Do not create a second workspace or overwrite existing documents from `drive-seed/`.
 This explicit owner instruction supersedes the bootstrap assumption for this installation.
-See `docs/LOCAL_SETUP.md`. The runner remains NOT_CONFIGURED and unarmed.
+See `docs/LOCAL_SETUP.md`. At the time of this update the runner was
+NOT_CONFIGURED and unarmed. EP-04/05 subsequently attached and configured the owner
+runtime; the current ledger is disarmed and EP-07 durable service installation remains open.
 
 ## Owner Drive guidance and live compatibility (2026-09-27)
 

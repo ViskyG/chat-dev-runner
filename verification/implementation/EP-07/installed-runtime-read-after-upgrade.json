@@ -1,0 +1,32 @@
+{
+  "armed": false,
+  "attached_existing_index": true,
+  "attached_existing_root": true,
+  "capabilities": [
+    "CREATE_PROJECT",
+    "CREATE_WORKSPACE",
+    "DELIVER_VERIFY_PUBLISH",
+    "FETCH",
+    "RECONCILE",
+    "RESUME_PROVISION"
+  ],
+  "checked_at": "2026-09-28T11:39:21.686049+00:00",
+  "execution_readiness": "READY",
+  "installed_version": "0.2.1",
+  "packet": "EP-07",
+  "provider_checks": {
+    "drive": {
+      "code": null,
+      "http": 200,
+      "status": "OK"
+    },
+    "github": {
+      "code": null,
+      "http": 200,
+      "status": "OK"
+    }
+  },
+  "result": "PASS",
+  "schema_version": "1.0",
+  "session_or_bootstrap_persisted": false
+}

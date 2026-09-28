@@ -345,7 +345,8 @@ class FakeStateWriter:
         self.revisions[key] += 1
         self.writes.append(key)
         state = "UNCERTAIN" if self.lose_ack_key == key else "CONFIRMED"
-        self.lose_ack_key = None
+        if state == "UNCERTAIN":
+            self.lose_ack_key = None
         return WriteResult(
             state, key, self.docs[key].file_id, expected.snapshot.revision_id,
             hashlib.sha256(text.encode()).hexdigest(),
@@ -548,3 +549,113 @@ def test_reconciled_workspace_folder_prefix_continues_under_resume_without_dupli
     assert old["received_at"] in writer.contents["source-context:fixture/primary"]
     assert set(content) == {"project_state_sha256", "context_sha256"}
     assert len(ledger.get(resume["request_id"])["effects"]) == 12
+
+
+def _additional_workspace_fixture(tmp_path: Path) -> tuple[
+    Ledger, FakeDriveAPI, DriveProjectProvisioner, WorkspaceDriveRegistry,
+    SourceRegistry, FakeStateWriter, str,
+]:
+    ledger, api, provisioner, registry = setup(tmp_path)
+    create_id = admit(ledger, "fixture", "Fixture")
+    source_registry = _local_source_binding(ledger, tmp_path, create_id)
+    source_registry.bind_project_remote(
+        "fixture", provider_id=12345, node_id="repo-node-12345",
+        owner="Owner", name="fixture",
+        html_url="https://github.com/Owner/fixture",
+        clone_url="https://github.com/Owner/fixture.git",
+        provision_marker="cdr:v1:" + "a" * 64,
+    )
+    primary = provisioner.provision(create_id, "fixture", "primary", "Fixture")
+    initial_writer = FakeStateWriter(primary)
+    provisioner.populate(
+        create_id, primary, source_registry=source_registry, writer=initial_writer,
+        repository_id=12345, repository_url="https://github.com/Owner/fixture",
+    )
+    source_registry.mark_project_ready("fixture", "primary")
+    ledger.finish(create_id, "COMPLETED")
+    base = source_registry.get_workspace("fixture", "primary")
+    assert base is not None
+    now = datetime.now(timezone.utc)
+    state = ledger.state()
+    command = {
+        "schema_version": "1.0", "request_id": str(uuid4()), "dispatch": "READY",
+        "runner_id": state["runner_id"], "epoch": state["epoch"],
+        "issued_at": now.isoformat(),
+        "expires_at": (now + timedelta(minutes=5)).isoformat(),
+        "action": "CREATE_WORKSPACE", "project_id": "fixture",
+        "workspace_id": "experiment", "expected_head": base["head"],
+        "params": {"name": "Experiment", "branch": "feature/experiment",
+                   "base_commit": base["head"], "profile_id": "python-quick"},
+        "intent": "Create an independent fake-backed area",
+    }
+    assert ledger.admit(
+        command, freeze(command).digest, "local-owner",
+        ("repo:fixture", "global:drive-installation"),
+    ).execute
+    return ledger, api, provisioner, registry, source_registry, initial_writer, command["request_id"]
+
+
+def test_additional_workspace_uses_existing_project_folder_and_cas_state(tmp_path: Path) -> None:
+    ledger, api, provisioner, registry, sources, initial_writer, request_id = (
+        _additional_workspace_fixture(tmp_path)
+    )
+    source = SourceService(ledger, sources)
+    workspace = source.create_workspace_source(request_id)
+    assert workspace["branch"] == "feature/experiment"
+    sources.bind_workspace_profile(
+        "fixture", "experiment", template_id="python-basic", profile_id="python-quick",
+    )
+    record = provisioner.provision_workspace(request_id, "fixture", "experiment")
+    assert record == registry.get("fixture", "experiment")
+    assert record.project_folder_id == registry.get("fixture", "primary").project_folder_id
+    assert record.project_state_doc_id == registry.get("fixture", "primary").project_state_doc_id
+    assert len(api.created) == 16
+    assert all(item["parents"] == [record.workspace_folder_id]
+               for item in api.created[-5:])
+    writer = FakeStateWriter(record)
+    writer.contents["project-state:fixture"] = initial_writer.contents["project-state:fixture"]
+    result = provisioner.populate_workspace(
+        request_id, record, source_registry=sources, writer=cast(Any, writer),
+    )
+    state = json.loads(writer.contents["project-state:fixture"].split("\n", 1)[1])
+    assert [item["workspace_id"] for item in state["workspaces"]] == ["primary", "experiment"]
+    assert state["workspaces"][1]["command_doc_id"] == record.command_doc_id
+    assert state["workspaces"][1]["context_doc_id"] == record.context_doc_id
+    assert result["project_state_sha256"] == hashlib.sha256(
+        writer.contents["project-state:fixture"].encode(),
+    ).hexdigest()
+    assert provisioner.provision_workspace(request_id, "fixture", "experiment") == record
+    assert provisioner.populate_workspace(
+        request_id, record, source_registry=sources, writer=cast(Any, writer),
+    ) == result
+    assert writer.writes == ["source-context:fixture/experiment", "project-state:fixture"]
+    assert len(api.created) == 16
+    assert all(effect["state"] == "CONFIRMED" for effect in ledger.get(request_id)["effects"])
+
+
+def test_additional_workspace_state_lost_ack_requires_exact_positive_read(tmp_path: Path) -> None:
+    ledger, _, provisioner, _, sources, initial_writer, request_id = (
+        _additional_workspace_fixture(tmp_path)
+    )
+    SourceService(ledger, sources).create_workspace_source(request_id)
+    sources.bind_workspace_profile(
+        "fixture", "experiment", template_id="python-basic", profile_id="python-quick",
+    )
+    record = provisioner.provision_workspace(request_id, "fixture", "experiment")
+    writer = FakeStateWriter(record)
+    writer.contents["project-state:fixture"] = initial_writer.contents["project-state:fixture"]
+    writer.lose_ack_key = "project-state:fixture"
+    with pytest.raises(DriveProvisionError) as error:
+        provisioner.populate_workspace(
+            request_id, record, source_registry=sources, writer=cast(Any, writer),
+        )
+    assert error.value.code == "PROVISION_DOC_UNCERTAIN"
+    before = list(writer.writes)
+    proof = provisioner.populate_workspace(
+        request_id, record, source_registry=sources, writer=cast(Any, writer),
+    )
+    assert proof["project_state_sha256"] == hashlib.sha256(
+        writer.contents["project-state:fixture"].encode(),
+    ).hexdigest()
+    assert writer.writes == before
+    assert all(effect["state"] == "CONFIRMED" for effect in ledger.get(request_id)["effects"])

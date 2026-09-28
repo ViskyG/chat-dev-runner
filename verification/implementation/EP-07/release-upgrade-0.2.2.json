@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "result": "PASS",
+  "checked_at": "2026-09-28T12:20:29.597383+00:00",
+  "version": "0.2.2",
+  "environment": {
+    "host": "k8s-master",
+    "python": "3.10.12",
+    "service_manager": "systemd user",
+    "service_active": "active",
+    "service_enabled": "enabled"
+  },
+  "pre_upgrade_backup": {
+    "path": "/home/visky/Work/GPTRunner/.runner-backups/pre-project-mailbox-20260928",
+    "manifest_sha256": "b61723e07af6c7a2bac29aee9c7c8803b2905c34bc2f6fb50cd556a3fea7f02e",
+    "files": 416,
+    "database_schema_version": 9,
+    "manifest_hash_verified": true,
+    "file_hashes_verified": 416,
+    "sqlite_integrity": "ok"
+  },
+  "wheel": "/home/visky/Work/GPTRunner/.runner-install/wheels/chat_dev_runner-0.2.2-py3-none-any.whl",
+  "wheel_sha256": "fd6cc31512667b31d330fb87ddee5c641915a36db8738cbcf4fa808de30ecf08",
+  "production_lock_sha256": "79036fafb676757f4109d02c9a85910ac0a9f607582cc6151339e7d9c91e2cea",
+  "commands": [
+    {
+      "command": "uv build --wheel --out-dir /home/visky/Work/GPTRunner/.runner-install/wheels",
+      "exit_code": 0
+    },
+    {
+      "command": "uv pip install --python /home/visky/Work/GPTRunner/.runner-install/venv/bin/python --force-reinstall --no-deps <0.2.2 wheel>",
+      "exit_code": 0
+    },
+    {
+      "command": "uv pip check --python /home/visky/Work/GPTRunner/.runner-install/venv/bin/python",
+      "exit_code": 0,
+      "compatible_packages": 43
+    },
+    {
+      "command": "XDG_DATA_HOME=/home/visky/Work/GPTRunner/.runner-data runner install --user",
+      "exit_code": 0,
+      "starts_unarmed": true
+    },
+    {
+      "command": "service_gate.py",
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "focused_verification": {
+    "project_mailbox": "49 passed",
+    "state_refresh_fix": "19 passed",
+    "ruff": "PASS",
+    "mypy_production": "PASS",
+    "full_suite_after_0_2_1_before_0_2_2": "1332 passed, 1 skipped",
+    "full_suite_after_0_2_2": "NOT_RUN_NARROW_CHANGE"
+  },
+  "source_evidence": [
+    "verification/implementation/EP-07/live-project-fetch-20260928.json",
+    "verification/implementation/EP-07/service-gate.json"
+  ],
+  "final_state": {
+    "existing_drive_root_attached": true,
+    "existing_drive_index_attached": true,
+    "armed": false,
+    "available_drive_actions": [
+      "CREATE_PROJECT",
+      "CREATE_WORKSPACE",
+      "DELIVER_VERIFY_PUBLISH",
+      "FETCH"
+    ],
+    "project_fetch_receipt_confirmed": true
+  }
+}

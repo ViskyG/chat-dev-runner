@@ -1,0 +1,27 @@
+# Managed by Chat-Dev Runner user installer; do not hand-edit this file.
+# Only a user service. No public listener, provider token or project command is in this unit.
+[Unit]
+Description=Chat-Dev Runner local development bridge
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=@STATE_DIR@
+Environment=@XDG_CONFIG_HOME@
+Environment=@XDG_DATA_HOME@
+Environment=@XDG_CACHE_HOME@
+@RUNTIME_ENV@
+ExecStart=@VENV_PYTHON@ -m runner_app.cli serve --host 127.0.0.1 --port @PORT@ --start-unarmed
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillMode=control-group
+UMask=0077
+PrivateTmp=yes
+# The unprivileged orchestrator invokes only the installed, fixed sudo quota helper.
+# NoNewPrivileges=yes here would make that reviewed helper unusable. Project
+# containers separately enforce no-new-privileges:true in the rootless broker.
+NoNewPrivileges=no
+
+[Install]
+WantedBy=default.target

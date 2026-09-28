@@ -11,7 +11,7 @@ import json
 import math
 import os
 import stat
-from collections.abc import Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -103,7 +103,7 @@ def _scope_matches(command: Mapping[str, Any], provenance: Provenance) -> bool:
         return action in ROOT_ACTIONS and command["workspace_id"] is None
     if provenance.workspace_id is None:
         return (action in PROJECT_ACTIONS and command["project_id"] == provenance.project_id
-                and command["workspace_id"] is None)
+                and (action == "CREATE_WORKSPACE" or command["workspace_id"] is None))
     return (action in WORKSPACE_ACTIONS and command["project_id"] == provenance.project_id
             and command["workspace_id"] == provenance.workspace_id)
 
@@ -444,11 +444,14 @@ class FrozenSlotStore:
 
 class DrivePoller:
     def __init__(self, provider: ReadProvider, mailbox: RegisteredMailbox,
-                 engine: Engine, slots: FrozenSlotStore) -> None:
+                 engine: Engine, slots: FrozenSlotStore, *,
+                 on_observed: Callable[[FrozenDriveInput, Provenance], None] | None = None,
+                 ) -> None:
         self.provider = provider
         self.mailbox = mailbox
         self.engine = engine
         self.slots = slots
+        self.on_observed = on_observed
         self.provenance = Provenance(
             "drive", mailbox.command_id, mailbox.project_id, mailbox.workspace_id)
         if engine.policy.mailboxes.get(mailbox.command_id) != self.provenance:
@@ -460,11 +463,17 @@ class DrivePoller:
             return PollResult("IDLE")
         request_id, created = self.slots.freeze(snapshot, self.provenance)
         if not created:
+            recorded = self.slots.admission_recorded(request_id, self.provenance)
+            if recorded and self.on_observed is not None:
+                # A terminal operation may finish after its first observation.
+                # Revisit only its receipt output; never submit it a second time.
+                self.on_observed(snapshot, self.provenance)
             return PollResult(
-                "ALREADY_OBSERVED" if self.slots.admission_recorded(request_id, self.provenance)
-                else "NEEDS_RECONCILIATION", request_id)
+                "ALREADY_OBSERVED" if recorded else "NEEDS_RECONCILIATION", request_id)
         # The durable freeze precedes immediate EP-01 admission. A crash in this
         # interval is never replayed automatically after restart or another poll.
         admission = self.engine.submit(snapshot.raw_command, self.provenance)
         self.slots.record_admission(request_id, admission, self.provenance)
+        if self.on_observed is not None:
+            self.on_observed(snapshot, self.provenance)
         return PollResult("SUBMITTED", request_id, admission)

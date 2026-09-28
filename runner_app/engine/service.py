@@ -56,6 +56,7 @@ class Engine:
         self.import_grants = import_grants
         self.handlers = dict(handlers or {})
         self._workspace_routes: dict[tuple[str, str], Handler] = {}
+        self._project_mailbox_origins: dict[str, Provenance] = {}
         self._workspace_route_origins: dict[tuple[str, str], Provenance] = {}
         self._workspace_route_profiles: dict[tuple[str, str], str] = {}
         self._workers: dict[str, tuple[threading.Thread, threading.Event]] = {}
@@ -65,6 +66,37 @@ class Engine:
 
     def capabilities(self) -> list[str]:
         return sorted(self.handlers)
+
+    def register_project_mailbox(self, provenance: Provenance,
+                                 profile_id: str) -> None:
+        """Make one exact project COMMAND authoritative after local provision.
+
+        CREATE_WORKSPACE and FETCH handlers are already owner-configured.
+        This only binds a verified Drive source to the existing project/profile.
+        """
+        if (provenance.kind != "drive" or provenance.project_id is None
+                or provenance.workspace_id is not None or not profile_id
+                or not {"CREATE_WORKSPACE", "FETCH"} <= self.handlers.keys()):
+            raise ValueError("Exact project mailbox and configured actions are required")
+        with self._handoff:
+            old = self._project_mailbox_origins.get(provenance.project_id)
+            registered = self.policy.mailboxes.get(provenance.source_id)
+            if (old is not None and old != provenance
+                    or registered is not None and registered != provenance
+                    or any(value.source_id == provenance.source_id
+                           and project_id != provenance.project_id
+                           for project_id, value in self._project_mailbox_origins.items())):
+                raise ValueError("Project mailbox identity has changed")
+            if old == provenance:
+                return
+            mailboxes = dict(self.policy.mailboxes)
+            mailboxes[provenance.source_id] = provenance
+            self.policy = replace(
+                self.policy, mailboxes=mailboxes,
+                approved_profiles=self.policy.approved_profiles | {profile_id},
+                project_ids=self.policy.project_ids | {provenance.project_id},
+            )
+            self._project_mailbox_origins[provenance.project_id] = provenance
 
     def register_workspace_route(self, provenance: Provenance,
                                  profile_id: str, handler: Handler) -> None:
@@ -234,6 +266,10 @@ class Engine:
         if rejection is None and not cancel and not reconcile:
             if action in _REPOSITORY_ACTIONS:
                 scopes = (f"repo:{project}",)
+                if action == "CREATE_WORKSPACE":
+                    # A new area also creates descendants of the shared Drive
+                    # project folder and revises its project-state document.
+                    scopes += ("global:drive-installation",)
                 if action in {"CREATE_PROJECT", "RESUME_PROVISION"}:
                     # Account repository creation and shared Drive mutation both
                     # require the original owner identity and installation locks.

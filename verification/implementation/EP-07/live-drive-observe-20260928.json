@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-09-28T11:10:58.985951+00:00",
+  "disarmed_after": true,
+  "drive_workspace_registered": true,
+  "final_armed": false,
+  "mode": "OBSERVE",
+  "operation_code": null,
+  "operation_status": "COMPLETED",
+  "packet": "EP-07",
+  "project_id": "cdr-ep07-drive-20260928",
+  "project_state": "READY",
+  "repository_private": true,
+  "request_id": "5e1f5317-8113-438e-942d-7c17e2611be0",
+  "result": "PASS",
+  "schema_version": "1.0"
+}

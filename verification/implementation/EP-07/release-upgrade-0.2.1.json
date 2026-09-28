@@ -1,0 +1,72 @@
+{
+  "checked_at": "2026-09-28T11:40:08.023686+00:00",
+  "commands": [
+    {
+      "command": "uv build --wheel --out-dir /home/visky/Work/GPTRunner/.runner-install/wheels",
+      "exit_code": 0
+    },
+    {
+      "command": "uv pip install --python /home/visky/Work/GPTRunner/.runner-install/venv/bin/python --force-reinstall --no-deps <0.2.1 wheel>",
+      "exit_code": 0
+    },
+    {
+      "command": "uv pip check --python /home/visky/Work/GPTRunner/.runner-install/venv/bin/python",
+      "compatible_packages": 43,
+      "exit_code": 0
+    },
+    {
+      "command": "XDG_DATA_HOME=/home/visky/Work/GPTRunner/.runner-data runner install --user",
+      "enabled": true,
+      "exit_code": 0,
+      "started": true,
+      "unit_changed": false
+    },
+    {
+      "command": "service_gate.py",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "installed runtime read after upgrade",
+      "drive": "OK",
+      "execution_readiness": "READY",
+      "exit_code": 0,
+      "github": "OK"
+    }
+  ],
+  "environment": "owner Linux x86_64; Python 3.10.12; user systemd",
+  "final_state": {
+    "armed": false,
+    "create_workspace_capability": true,
+    "deliver_verify_publish_capability": true,
+    "existing_drive_index_attached": true,
+    "existing_drive_root_attached": true,
+    "listener": [
+      "127.0.0.1:8765"
+    ],
+    "service_active": true,
+    "service_enabled": true
+  },
+  "packet": "EP-07",
+  "pre_upgrade_backup": "/home/visky/Work/GPTRunner/.runner-backups/pre-workspace-upgrade-20260928",
+  "pre_upgrade_manifest_sha256": "addcb2956bccfeeff2b08b63c9c69cf22a79e4afb58fa555d8c7551f54301781",
+  "production_lock_sha256": "79036fafb676757f4109d02c9a85910ac0a9f607582cc6151339e7d9c91e2cea",
+  "result": "PASS",
+  "schema_version": "1.0",
+  "source_evidence": [
+    "pre-workspace-upgrade-backup.json",
+    "full-after-workspace-summary.json",
+    "service-gate.json",
+    "installed-runtime-read-after-upgrade.json",
+    "live-multiworkspace-readback-20260928.json"
+  ],
+  "tests": {
+    "focused_after_refinement": "34 passed",
+    "full_suite_before_secondary_route_refinement": "1332 passed, 1 skipped",
+    "mypy": "PASS",
+    "ruff": "PASS"
+  },
+  "version": "0.2.1",
+  "wheel": "/home/visky/Work/GPTRunner/.runner-install/wheels/chat_dev_runner-0.2.1-py3-none-any.whl",
+  "wheel_sha256": "48e5d2d432c2c3f140add5b85f185c764be63cb40810b4be84f5e07b628e7354"
+}

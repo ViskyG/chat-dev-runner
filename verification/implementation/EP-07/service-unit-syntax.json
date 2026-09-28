@@ -1,0 +1,28 @@
+{
+  "checks": [
+    {
+      "case": "default",
+      "exit_code": 0,
+      "loopback_only": true,
+      "private_tmp_retained": true,
+      "starts_unarmed": true,
+      "unit_diagnostics": []
+    },
+    {
+      "case": "escaped_path",
+      "exit_code": 0,
+      "loopback_only": true,
+      "private_tmp_retained": true,
+      "starts_unarmed": true,
+      "unit_diagnostics": []
+    }
+  ],
+  "current_runtime_module_origin": "/home/visky/Work/GPTRunner/chat-dev-runner/runner_app/__init__.py",
+  "current_runtime_package_status": "EDITABLE_SOURCE",
+  "live_service_installed_by_this_check": false,
+  "provider_writes": false,
+  "template_sha256": "79fc1010b1137ba741c38eebab4de4fd9f0f305f8efcb67c7e3d332be07dbfd1",
+  "tool": "systemd-analyze verify",
+  "wheel_sha256": "1bbf6c80b4c41086e94d5ffdb8f6bc5552bff401b8af51583ba261c70df9a5cd",
+  "wheel_template_present": true
+}

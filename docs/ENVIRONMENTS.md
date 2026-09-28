@@ -16,10 +16,12 @@ existing template ID; it cannot create a new privileged execution capability.
 | node-basic | package.json plus approved lockfile | pinned Node image, deterministic installation in contained build phase | approved node-test/node-build profiles | unknown scripts/profile, missing lock, incompatible runtime |
 | files-only | any approved source types | clone/worktree + Drive documents, no runtime | none; source/context/publish actions only | an execution command returns PROFILE_UNAVAILABLE |
 
-These are design IDs, not preinstalled images or a promise that every existing project is compatible.
-UI fixtures may list them; live setup must only advertise locally approved, actually installed ones.
-Image digests, interpreter versions and lockfiles are selected and verified in EP-00/03. Do not pin
-a guessed digest, download a floating runtime on every operation, or install into the owner's Python.
+`python-basic` with `python-prepare` and `python-quick` is installed and was exercised on
+the owner host in EP-05. `node-basic` and `files-only` remain design/template choices until
+locally approved and actually installed; the live UI advertises only policy-approved choices.
+Existing projects are not assumed compatible. Image digests, interpreter versions and
+lockfiles must be checked against the installed profile; do not use a floating runtime or
+install project packages into the owner's Python.
 
 ## Implemented `python-basic` route
 
@@ -32,7 +34,7 @@ and requires `/out/junit.xml`. Both profiles pin the same installed Python image
 by registry digest. The wheelhouse is source data in the frozen Git snapshot;
 changing a wheel or lockfile changes the snapshot and preparation identity.
 
-`python scripts/install_python_quick_profiles.py --install` validates the
+`.venv/bin/python scripts/install_python_quick_profiles.py --install` validates the
 packaged wheel hashes, the explicit user-owned rootless Docker daemon and its
 installed image digest, then writes owner-private `0600` profiles and a
 preparation grant under an owner-only profile directory. `--profile-dir` may
@@ -43,8 +45,16 @@ separate hard-quota mounts and required JUnit passed; evidence is under
 `verification/implementation/EP-05/live-python-quick/`. The permanent
 `HardQuotaVolumeProvider` allocates per-run mounts only after admission through a
 fixed root-owned helper and retains uncertain mounts for explicit reconciliation.
-Its helper installation is a separate host administration step and is not yet
-active on this host. The production runner remains unarmed.
+The reviewed root-owned helper and narrow sudo rule were installed on the owner host in
+EP-05; its probe returned `READY` and exact disposable volume allocation/removal passed.
+EP-07 now runs an installed, enabled owner-user service from wheel `0.2.2`,
+currently disarmed. Two contained disposable workspace routes completed through
+the earlier installed `0.2.1` wheel: primary tests PASSED and parallel tests
+FAILED while each operation completed with a private draft PR and Drive report.
+See [the current service upgrade](../verification/implementation/EP-07/release-upgrade-0.2.2.json),
+[passing route](../verification/implementation/EP-07/live-publish-primary-20260928.jsonl) and
+[failing route](../verification/implementation/EP-07/live-publish-parallel-20260928.jsonl).
+Broader EP-07 recovery, isolation and fresh-chat release acceptance remains open.
 
 The helper accepts only 64 MiB PREPARATION and 256 MiB TEST allocations, with
 at most eight mounted phase slots. The owner releases a settled run with:

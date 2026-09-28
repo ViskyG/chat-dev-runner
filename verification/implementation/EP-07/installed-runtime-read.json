@@ -1,0 +1,36 @@
+{
+  "checked_at": "2026-09-28T10:37:54.572962+00:00",
+  "command": "installed_runtime_read.py (one-time owner session; no token persisted)",
+  "exit_code": 0,
+  "state": "PARTIALLY_CONFIGURED",
+  "armed": false,
+  "capabilities": [
+    "CREATE_PROJECT",
+    "DELIVER_VERIFY_PUBLISH",
+    "FETCH",
+    "RECONCILE",
+    "RESUME_PROVISION"
+  ],
+  "attached_existing_root": true,
+  "attached_existing_index": true,
+  "execution_readiness": "READY",
+  "draft_pr_capability": "NOT_PROBED",
+  "connections": {
+    "drive": "UNKNOWN",
+    "github_api": "UNKNOWN",
+    "git_remote_scope": null
+  },
+  "provider_checks": {
+    "drive": {
+      "http": 200,
+      "status": "OK",
+      "code": null
+    },
+    "github": {
+      "http": 200,
+      "status": "OK",
+      "code": null
+    }
+  },
+  "session_or_bootstrap_persisted": false
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "target_role": "CHAT PROTOCOL",
+  "document_id": "1vhqcDQmSW6t0nU6Kx6cltyaZL1L-7rj2KHLSp2DJksE",
+  "document_url": "https://docs.google.com/document/d/1vhqcDQmSW6t0nU6Kx6cltyaZL1L-7rj2KHLSp2DJksE",
+  "trusted_read": {
+    "tab_id": "t.0",
+    "protected_controls": 0,
+    "initial_revision": "ANLCKQk48cwwIMuchjlN6Ne2nLnDadrybmOhYl4mWOITOFvsNSqzwxa3Tt2tiTC_HXsPLWHBRUE2wDHEK3XnwyWRtT1hMHWXJxp4gLKHvpo",
+    "target_range": {
+      "start_index": 49,
+      "end_index": 113
+    },
+    "target_occurrences": 1
+  },
+  "write": {
+    "method": "Google Docs connector batchUpdate replaceAllText",
+    "revision_guard": true,
+    "occurrences_changed": 1,
+    "resulting_revision": "ANLCKQnQ9TE2RUP95EDRJCQtAuzp5BqrCqbhyNJXO_zAX58GMUCcHDOut4XWFZHUSee3S2WjCOiIvv7Vt3T1XrE2b7KA5GelcUDnWw5zK2g"
+  },
+  "readback": {
+    "same_document_id": true,
+    "same_title": true,
+    "same_tab_id": true,
+    "new_version_status_present": true,
+    "obsolete_status_absent": true
+  },
+  "other_docs_created": false,
+  "installation_index_modified": false
+}

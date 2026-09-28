@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-09-28T11:46:04.340478+00:00",
+  "document_id": "16oJhQvrSStLemZBIcXIRVte4XGj-TykBJEDjIgw8TJo",
+  "packet": "EP-07",
+  "project_command_doc_id": "1DmncoOobr67INBYU598ho3fzL5T1_hoY82huB-FwMsE",
+  "project_id": "cdr-ep07-ui-20260928",
+  "result": "PASS",
+  "revision_id": "ANLCKQkaG1bp_gSyDWXCQ41CNj07Km4JsBfy_dfZ3vZHZFKHtLtBWKe3Ntq6v52skRIauu_tQq95Bt6CnksJXHOrqlD6nDlt7AWcXdv7RaE",
+  "same_explicit_initial_head": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+  "schema_version": "1.0",
+  "source": "connected Google Docs PROJECT STATE exact-ID readback",
+  "workspace_count": 2,
+  "workspaces": [
+    {
+      "branch": "work/cdr-ep07-ui-20260928",
+      "command_doc_id": "1Mok2sU3964wxEqqhyUw4SAqrQhCGUoL-KVQ_NZ0jSt8",
+      "id": "primary"
+    },
+    {
+      "branch": "feature/ep07-parallel",
+      "command_doc_id": "1jyEB73np1SaAnN-l61yn0tRX90JomuihKVpgVUNkZf8",
+      "id": "parallel"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "command": "PYTHONPATH=. PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -q --junitxml=verification/implementation/EP-07/full-after-workspace.xml",
+  "duration_seconds": 176.833,
+  "errors": 0,
+  "exit_code": 0,
+  "failed": 0,
+  "junitxml": "verification/implementation/EP-07/full-after-workspace.xml",
+  "packet": "EP-07",
+  "passed": 1332,
+  "schema_version": "1.0",
+  "skipped": 1,
+  "stage": "after CREATE_WORKSPACE implementation, before secondary full-route guard refinement",
+  "tests": 1333
+}

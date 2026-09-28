@@ -1,7 +1,9 @@
 # Agent entry contract
 
 Read `STATUS.json`, then `codex/START_HERE.md`. Execute only the selected packet.
-The current repository is a design kit + offline UI + reference implementation, not a live daemon.
+EP-00 through EP-06 are verified. EP-07 has an installed owner-user service from a
+locked wheel, active on loopback and disarmed; release acceptance is still open.
+Check `STATUS.json` and the EP-07 checkpoint before claiming a live capability.
 Do not present mock network actions as implemented integrations.
 
 Non-negotiable requirements:

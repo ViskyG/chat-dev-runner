@@ -318,7 +318,7 @@ async function createWorkspace(form) {
     dialogError('ID или ветка уже используются в этом проекте.'); return;
   }
   try {
-    await submitAction('CREATE_WORKSPACE', state.projectId, id, null,
+    await submitAction('CREATE_WORKSPACE', state.projectId, id, baseCommit,
       {name, branch, base_commit: baseCommit, profile_id: profileId}, `Создать область ${name}`);
   } catch (error) { dialogError(errorText(error)); await refresh({quiet: true}); }
 }

@@ -60,9 +60,18 @@ def make_full_route_factory(
     def build(registration: WorkspaceDriveRegistration, profile_id: str,
               slots: FrozenSlotStore) -> DeliverVerifyPublishWorkflow:
         project_id, workspace_id = registration.project_id, registration.workspace_id
-        if (registration.installation_id != integrations.attached.index.installation_id
-                or workspace_id != "primary"):
+        if registration.installation_id != integrations.attached.index.installation_id:
             raise RouteReadinessError("WORKSPACE_DRIVE_IDENTITY_CHANGED")
+        if integrations.drive_registry.get(project_id, workspace_id) != registration:
+            raise RouteReadinessError("WORKSPACE_DRIVE_IDENTITY_CHANGED")
+        workspace = registry.get_workspace(project_id, workspace_id)
+        profile = registry.get_workspace_profile(project_id, workspace_id)
+        if (workspace is None or workspace.get("state") != "ACTIVE"
+                or workspace.get("archived")
+                or profile is None or profile.get("profile_id") != profile_id
+                or profile.get("template_id") not in integrations.config.template_profiles
+                or integrations.config.template_profiles[profile["template_id"]] != profile_id):
+            raise RouteReadinessError("WORKSPACE_BINDING_CHANGED")
         ports.runs.profiles.require(profile_id)
         try:
             ready = ports.quota_ready(profile_id)

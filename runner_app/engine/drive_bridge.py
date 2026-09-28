@@ -11,7 +11,7 @@ import logging
 import re
 import threading
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
@@ -38,10 +38,12 @@ class DrivePollingBridge:
 
     def __init__(self, poller: DrivePoller, *,
                  state_publisher: Callable[[Mapping[str, Any]], None] | None = None,
+                 available_actions: Callable[[], Iterable[str]] | None = None,
                  schedule: PollSchedule | None = None,
                  clock: Callable[[], float] = time.monotonic) -> None:
         self.poller = poller
         self._state_publisher = state_publisher
+        self._available_actions = available_actions
         self._clock = clock
         self._schedule = schedule or PollSchedule()
         self._state_schedule = PollSchedule()
@@ -58,8 +60,10 @@ class DrivePollingBridge:
             now = self._clock()
             try:
                 state = self.poller.engine.ledger.state()
+                actions = (self._available_actions() if self._available_actions is not None
+                           else self.poller.engine.capabilities())
                 fingerprint = (state["runner_id"], state["epoch"], state["armed"],
-                               tuple(self.poller.engine.capabilities()),
+                               tuple(sorted(set(actions))),
                                tuple(sorted(self.poller.engine.policy.approved_profiles)))
                 if (not isinstance(fingerprint[0], str)
                         or not isinstance(fingerprint[1], str)

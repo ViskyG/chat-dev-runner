@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "result": "PASS",
+  "checked_at": "2026-09-28T12:20:29.597383+00:00",
+  "installation": {
+    "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+    "index_document_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+    "installation_id": "e20c0491-eed2-5596-8534-f4850af9eb46"
+  },
+  "service": {
+    "installed_version": "0.2.2",
+    "loopback_only": true,
+    "armed_after": false,
+    "drive_system_state_actions": [
+      "CREATE_PROJECT",
+      "CREATE_WORKSPACE",
+      "DELIVER_VERIFY_PUBLISH",
+      "FETCH"
+    ],
+    "drive_system_state_revision_after_disarm": "ANLCKQnNUbzR7dvdv17NJVv9IN3vf80CS6A1ZgsU87PtpH8vSDCqqIEGK2vrCIZhnu85Dja4cujfORe5844fqvDL8s9_fGPXCX8ET-YnlyI"
+  },
+  "command": {
+    "document_id": "1gziNBA1B8QsPpuiW515E34j7XzebW_ctkazjcIsUtRA",
+    "project_id": "cdr-ep07-drive-20260928",
+    "request_id": "ded38b1c-82dc-469a-90e9-28a7807eb597",
+    "action": "FETCH",
+    "draft_revision": "ANLCKQlTO9Po7HvkPSITtfBTViUJ6fDtDvQIKL-WVD5cGGTGFVAwXeP6GOd20JEjfLTUdomfeHomkQcDzNenTxwu8wUaNDBtQsHEYEgy-30",
+    "ready_revision": "ANLCKQkyglk9DoAUC7Io1vpXlQCRUWkmv0FG4VqdbXhRNBngkGyrTfKcxGaIbZO7ZaWcpJxP0Y2WSNcm7Z0rs71LhpvC_JLCQCv901sEmNs",
+    "ready_readback": true,
+    "trusted_read_manifest": "verification/implementation/EP-07/trusted-project-command-20260928-r2/manifest.json"
+  },
+  "operation": {
+    "status": "COMPLETED",
+    "code": null,
+    "reconcile_required": false,
+    "request_digest": "13d430cdd017532e9fde24156560abb21588e3fb4f1bd981714e531992d6efb9"
+  },
+  "project_receipt": {
+    "document_id": "1i5P73NgSasPEW5dusp7QoV8zxyJBsotHo-M6bOIzCZA",
+    "connector_readback": true,
+    "matching_request": true,
+    "status": "COMPLETED",
+    "code": null,
+    "revision": "ANLCKQllfhZy_VTY9nH-JnUXtPors6p1KBDk-y-VvJzFaOXM-artOXUQuYp1RbI9N_Iyord9sxXZ3yRGsdyBK7zvDfHAKpAEWkf-scth8cw",
+    "journal_effect": "CONFIRMED"
+  },
+  "writes": [
+    "existing project COMMAND DRAFT",
+    "existing project COMMAND READY",
+    "registered project RECEIPT by runner"
+  ],
+  "no_new_project_or_workspace": true
+}

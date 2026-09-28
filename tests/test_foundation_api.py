@@ -158,13 +158,16 @@ def test_inspection_commands_are_side_effect_free_and_honest(
     assert result.returncode == 0, result.stderr
     report = json.loads(result.stdout)
     assert filesystem_snapshot(tmp_path) == before
-    assert report.get("status", report.get("state")) == "NOT_CONFIGURED"
-    assert report["armed"] is False
-    setup = report if arguments[0] == "configure" else report["setup"]
+    inspected = arguments[0] != "configure"
+    assert report.get("status", report.get("state")) == (
+        "CONFIGURATION_NOT_PROBED" if inspected else "NOT_CONFIGURED"
+    )
+    assert report["armed"] is (None if inspected else False)
+    setup = report if not inspected else report["setup"]
     assert setup["google"]["installation_index_document_id"] == DRIVE_INDEX_ID
     assert setup["google"]["root_folder_id"] == DRIVE_ROOT_ID
     assert setup["google"]["bootstrap_allowed"] is False
-    assert setup["github"]["status"] == "NOT_CONFIGURED"
+    assert setup["github"]["status"] == ("NOT_PROBED" if inspected else "NOT_CONFIGURED")
     if arguments[0] != "configure":
         assert report["network_calls"] is False
         assert report["sandbox"]["host_execution_fallback"] is False
@@ -172,16 +175,23 @@ def test_inspection_commands_are_side_effect_free_and_honest(
         assert report["missing_prerequisites"]
     if arguments[0] == "install":
         assert report["mode"] == "DRY_RUN"
-        assert report["installable"] is False
+        assert report["runtime_package"]["status"] in {
+            "WHEEL", "EDITABLE_SOURCE", "MISSING", "NOT_PROBED",
+        }
+        assert report["installable"] is (
+            report["runtime_package"]["status"] == "WHEEL"
+        )
         assert report["service_changes"] is False
         assert report["cloud_writes"] is False
         assert report["would_start_armed"] is False
+        assert report["live_start_may_publish_system_state"] is True
+        assert report["argv"][4:6] == ["--host", "127.0.0.1"]
 
 
 @pytest.mark.parametrize("arguments", [
-    ("doctor",), ("install",), ("install", "--user"), ("configure",),
+    ("doctor",), ("install",), ("configure",), ("uninstall",),
 ])
-def test_cli_requires_explicit_inspection_only_options(
+def test_cli_requires_explicit_command_options(
     arguments: tuple[str, ...], isolated_environment: dict[str, str], tmp_path: Path,
 ) -> None:
     before = filesystem_snapshot(tmp_path)

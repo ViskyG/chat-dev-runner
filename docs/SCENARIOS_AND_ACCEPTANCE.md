@@ -9,24 +9,34 @@ the user decision, automatic work, final evidence and failure branch.
 
 ## SC-01 · First installation
 
-User opens prototype, reviews boundaries, approves local installation. Codex inventories OS,
-Python, Git, container mode and existing projects WITHOUT changing them. Owner selects managed
-root, local OAuth client, GitHub identity/owner, private provisioning and approved templates.
-Installer creates its own Drive root/docs and a loopback UI. Runner starts UNARMED. A disposable
-Doc read/edit/readback handshake validates the chat connection. Owner arms the local runner;
-new epoch and exact IDs are published. No sample command executes.
+User opens the local control center, reviews boundaries and approves owner-local installation.
+Codex inventories OS, Python, Git, rootless container mode and existing projects without
+changing them. Owner selects managed paths, local OAuth client, GitHub identity/owner,
+private provisioning and approved templates. For this owner account the runner attaches the
+already-provisioned `Chat-Dev Runner` Drive root and INSTALLATION INDEX by exact ID, validates
+the indexed control documents and starts UNARMED. The completed disposable Doc
+read/edit/readback handshake validates the chat connection. Owner arming rotates the epoch;
+no sample command executes automatically.
 
-Acceptance: only loopback listeners; secrets absent from Git/Drive; generated Docs are editable
-from chat and readable by runner's narrow OAuth app; starting twice does not duplicate folders;
-old READY examples do not execute; failed authorization leaves meaningful setup progress.
+Acceptance: only loopback listeners; secrets absent from Git/Drive; the existing Docs are
+editable from chat and readable by the runner's owner-approved full Drive OAuth scope;
+restarting does not duplicate the Drive installation; old READY examples do not execute;
+failed authorization leaves meaningful setup progress. EP-07 has verified
+the durable wheel `0.2.2` service installation and exact existing Drive
+attachment; a fresh separate-chat handoff remains open. See
+[release-upgrade-0.2.2.json](../verification/implementation/EP-07/release-upgrade-0.2.2.json).
 
 ## SC-02 · Create a brand-new project from chat
 
 User asks for Notes Lab from approved python-basic template. Chat reads ROOT RECEIPT and
 capabilities, writes one CREATE_PROJECT command and stops. Runner immediately admits or rejects,
 then creates private GitHub repo, managed clone, initial branch/commit, first worktree,
-environment binding, Drive docs and full project index. Initial setup is automatic. Chat's
-GitHub permission setup is separately MANUAL_REQUIRED, not a claimed success.
+environment binding, Drive docs and full project index. Initial setup is automatic.
+The runner uses its configured owner-local GitHub grant. The owner reports
+chat-side GitHub access configured. A current-chat Drive connector command created disposable private project
+`cdr-ep07-drive-20260928` and received a matching COMPLETED root RECEIPT;
+[the roundtrip evidence](../verification/implementation/EP-07/live-drive-chat-roundtrip-20260928.json)
+does not yet prove a fresh separate chat can use the published instructions.
 
 Acceptance: stable IDs across all resources; no empty “Drive-only project”; returned repo/Docs
 IDs exist; private=true explicit; no unsolicited organization/public repo; no arbitrary host
@@ -52,6 +62,17 @@ another. Worktree metadata changes are scoped; branch binding remains unambiguou
 Acceptance: result links never cross workspace IDs; no shared venv/port conflict; same branch
 cannot be forcibly checked out twice; third request beyond capacity gets a terminal BUSY,
 not an automatically delayed run. Two projects work as well as two areas in one project.
+EP-07's deployed UI created a second `parallel` workspace beside `primary` in
+`cdr-ep07-ui-20260928`; independent
+[readback](../verification/implementation/EP-07/live-multiworkspace-readback-20260928.json)
+confirmed two active workspaces, distinct branches and separate Drive folders.
+Both workspaces subsequently completed separate passing and failing contained
+verification/publication routes on distinct branches with separate draft PRs
+and Drive reports: [primary](../verification/implementation/EP-07/live-publish-primary-20260928.jsonl),
+[parallel](../verification/implementation/EP-07/live-publish-parallel-20260928.jsonl).
+The full parallel execution/isolation matrix and live project-level Drive
+CREATE_WORKSPACE command remain open; the installed `0.2.2` service advertises
+the action but no such chat-origin roundtrip has passed yet.
 
 ## SC-05 · Deliver, verify and publish once
 
@@ -64,6 +85,10 @@ updates draft PR and returns report. Chat has already ended its turn. User later
 Acceptance: exact tested tree equals published tree; no automatic main merge; repeated READY
 observations never rerun; no arbitrary command string; no user input required between routine
 allowed stages; report includes workload outcome even on failure; next model iteration absent.
+The installed `0.2.1` service completed a passing primary route with remote
+draft PR and Drive report independently read back
+([evidence](../verification/implementation/EP-07/live-publish-primary-20260928.jsonl));
+exact tested-tree identity across all release scenarios remains a separate gate.
 
 ## SC-06 · Project tests fail normally
 
@@ -74,6 +99,10 @@ not merely the current branch label.
 
 Acceptance: no global “runner error: 2”; no success claim for tests; no guessed count when
 JUnit missing; PUBLISH never labels failed tests passed; no automatic repair/retry.
+The installed `0.2.1` parallel route had execution FAILED (exit 1) while the
+runner operation COMPLETED and published a private `[FAILED]` draft PR with
+Drive report ([evidence](../verification/implementation/EP-07/live-publish-parallel-20260928.jsonl)).
+The complete UI presentation and evidence-format matrix remain to be reviewed.
 
 ## SC-07 · Switch branches without losing work
 
@@ -143,6 +172,10 @@ inside project logs can redirect it into publishing a new operation.
 Acceptance: exact IDs resolve; version mismatch is explicit; recipes include create project,
 create workspace, deliver/verify/publish, branch retarget, context export and delivery retry.
 No undocumented remembered magic phrases.
+Installed `0.2.2` accepted a current-chat `FETCH` through the exact existing
+project COMMAND and produced a matching project RECEIPT
+([evidence](../verification/implementation/EP-07/live-project-fetch-20260928.json));
+this does not close the fresh separate-chat acceptance gate.
 
 ## SC-14 · Quiet local control center
 

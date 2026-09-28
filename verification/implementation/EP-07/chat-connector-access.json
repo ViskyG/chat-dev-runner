@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "checked_at_utc": "2026-09-28T10:50:19Z",
+  "google_drive_connector": {
+    "exact_chat_protocol_doc_id": "1vhqcDQmSW6t0nU6Kx6cltyaZL1L-7rj2KHLSp2DJksE",
+    "trusted_read_status": "complete",
+    "exact_doc_edit": "revision-guarded, one occurrence",
+    "readback_same_id_and_tab": true
+  },
+  "github_connector": {
+    "repository_full_name": "ViskyG/chat-dev-runner",
+    "read_status": "OK",
+    "visibility": "private",
+    "default_branch": "main"
+  },
+  "fresh_separate_chat_verified": false
+}

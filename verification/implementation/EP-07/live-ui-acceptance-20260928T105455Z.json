@@ -1,0 +1,12 @@
+{
+  "checked_at": "2026-09-28T10:54:54.839291+00:00",
+  "disarmed_after": null,
+  "failure_code": "UNEXPECTED_Error",
+  "mode": "LIVE_UI_ACCEPTANCE",
+  "packet": "EP-07",
+  "project_id": "cdr-ep07-ui-20260928",
+  "request_submitted": false,
+  "result": "FAIL",
+  "schema_version": "1.0",
+  "source_kind": "new"
+}

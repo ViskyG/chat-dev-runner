@@ -1,0 +1,21 @@
+{
+  "date_utc": "2026-09-28",
+  "environment": "owner host, uid 1000, Python 3.10.12, EP-07 implementation checkout",
+  "command": "XDG_DATA_HOME=/home/visky/Work/GPTRunner/.runner-data .venv/bin/python - [create_backup(Paths.discover(), private destination)]",
+  "exit_code": 0,
+  "archive": "/home/visky/Work/GPTRunner/.runner-backups/pre-ep07-service-20260928",
+  "source_state_dir": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner",
+  "database_schema_version": 9,
+  "files": 181,
+  "manifest_sha256": "5ae763a7fd446efbc7db7a17d9addac0d334ba77e52ef93aaaee412702f44a78",
+  "verification": {
+    "exit_code": 0,
+    "archive_mode": "0700",
+    "manifest_mode": "0600",
+    "entries": 273,
+    "hashes_and_database_integrity_verified": true,
+    "config_or_token_entry_present": false
+  },
+  "restore_attempted_on_live_state": false,
+  "runner_service_active_during_backup": false
+}

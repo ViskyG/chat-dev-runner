@@ -1,0 +1,17 @@
+{
+  "archive": "/home/visky/Work/GPTRunner/.runner-backups/pre-workspace-upgrade-20260928",
+  "checked_at": "2026-09-28T11:19:44.314061+00:00",
+  "credentials_in_archive": false,
+  "database_integrity": "ok",
+  "database_schema_version": 9,
+  "files": 267,
+  "hashes_verified": true,
+  "manifest_entries": 401,
+  "manifest_sha256": "addcb2956bccfeeff2b08b63c9c69cf22a79e4afb58fa555d8c7551f54301781",
+  "packet": "EP-07",
+  "result": "PASS",
+  "schema_version": "1.0",
+  "service_stopped": true,
+  "source_contains_ep07_ui_and_drive_projects": true,
+  "symlinks": 0
+}

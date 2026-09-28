@@ -41,8 +41,10 @@ unchanged type, parent, title, capabilities and Index revision; newly created fi
 current-app ownership checks. The manifest is owner-only and outside the source repository.
 
 The chatbot connector and local runner are independently authorized. Never save bearer tokens,
-refresh tokens or OAuth client secrets in Drive instructions. Configuration of ChatGPT's
-GitHub access is separately manual until a supported permission mechanism is confirmed.
+refresh tokens or OAuth client secrets in Drive instructions. The owner reports ChatGPT's Drive and GitHub connections configured and the runner's
+private GitHub identity was verified in EP-05. Those are separate grants. EP-07 must
+still confirm a fresh chat can read the published instructions and issue one valid
+command; owner-reported access alone does not prove that round trip.
 
 ## Structure and writers
 

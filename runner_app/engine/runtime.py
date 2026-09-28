@@ -15,6 +15,7 @@ from fastapi import FastAPI
 from runner_app.api.auth import Sessions
 from runner_app.api.runtime import create_runtime_app
 from runner_app.config import DRIVE_INDEX_ID, DRIVE_ROOT_ID, Settings
+from runner_app.domain.commands import PROJECT_ACTIONS
 from runner_app.engine.connection_checks import (
     ConnectionChecks,
     check_existing_drive,
@@ -166,6 +167,7 @@ class Runtime:
                     self.engine, paths.state_dir / "drive-frozen-workspaces",
                     self.integrations.config.template_profiles,
                     route_factory=route_factory,
+                    project_receipt=self.integrations.project_receipt,
                 ) if self.integrations is not None else None
             )
             connections = self.integrations
@@ -207,6 +209,19 @@ class Runtime:
         except BaseException:
             self._singleton.close()
             raise
+
+    def drive_actions(self) -> list[str]:
+        """Advertise only actions with a running exact Drive mailbox route."""
+        actions: set[str] = set()
+        if self.drive_bridge is not None and self.integrations is not None:
+            actions.add("CREATE_PROJECT")
+        manager = self.workspace_mailboxes
+        if manager is not None:
+            if manager.project_active_count():
+                actions.update(PROJECT_ACTIONS)
+            if manager.active_count():
+                actions.add("DELIVER_VERIFY_PUBLISH")
+        return sorted(actions)
 
     def close(self) -> None:
         self._bootstrap_stop.set()

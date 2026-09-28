@@ -60,8 +60,10 @@ an independent test volume through nofollow descriptors, and records an immutabl
 The TEST container cannot be created without that exact handoff. Its broker result must attest
 the plan, preparation run and copied tree; the broker rescans the staged bytes before create
 and start. A failed or uncertain preparation never starts TEST. The Python starter's
-offline dependency installation and JUnit test have passed a direct rootless Docker smoke
-check; the full broker path still requires live acceptance with fresh hard-quota volumes.
+offline dependency installation and JUnit test passed a direct rootless Docker smoke
+check. EP-03's real broker containment matrix and EP-05's full passing and failing routes
+used fresh hard-quota volumes on the owner host; see their checkpoints. EP-07 must still
+test the installed user-service boundary and its adversarial release matrix.
 Preparation logs remain local and are not yet a published output channel.
 
 ## Git and publication

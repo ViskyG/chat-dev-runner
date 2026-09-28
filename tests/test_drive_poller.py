@@ -294,6 +294,40 @@ def test_bridge_republishes_capability_state_after_route_registration(tmp_path: 
         engine.shutdown()
 
 
+def test_bridge_republishes_when_drive_routes_activate_without_policy_change(
+    tmp_path: Path,
+) -> None:
+    poller, _, engine, _ = fixture(tmp_path)
+    now = [0.0]
+    actions = ["CREATE_PROJECT"]
+    published: list[tuple[str, ...]] = []
+    unchanged_capabilities = engine.capabilities()
+    unchanged_profiles = engine.policy.approved_profiles
+    bridge = DrivePollingBridge(
+        poller,
+        state_publisher=lambda _state: published.append(tuple(actions)),
+        available_actions=lambda: actions,
+        clock=lambda: now[0],
+    )
+    try:
+        assert bridge.poll_once_if_due().kind == "SUBMITTED"
+        assert published == [("CREATE_PROJECT",)]
+        # Project discovery changes the Drive routes, not local handlers or
+        # profile policy. SYSTEM STATE still needs a fresh publication.
+        actions.extend(["CREATE_WORKSPACE", "FETCH"])
+        now[0] = 1.0
+        assert bridge.poll_once_if_due().kind == "WAITING"
+        assert published == [
+            ("CREATE_PROJECT",),
+            ("CREATE_PROJECT", "CREATE_WORKSPACE", "FETCH"),
+        ]
+        assert engine.capabilities() == unchanged_capabilities
+        assert engine.policy.approved_profiles == unchanged_profiles
+    finally:
+        bridge.close()
+        engine.shutdown()
+
+
 def test_unregistered_mailbox_is_refused_before_polling(tmp_path: Path) -> None:
     poller, provider, engine, _ = fixture(tmp_path)
     try:

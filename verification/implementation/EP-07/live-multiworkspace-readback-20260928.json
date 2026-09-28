@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-09-28T11:36:26.476885+00:00",
+  "distinct_branches": true,
+  "duplicate_workspace_created": false,
+  "final_armed": false,
+  "mode": "LIVE_MULTIWORKSPACE_INDEPENDENT_READBACK",
+  "operation_code": null,
+  "operation_status": "COMPLETED",
+  "original_apply_evidence": "verification/implementation/EP-07/live-multiworkspace-20260928.json",
+  "original_apply_ui_timeout_after_backend_completion": true,
+  "packet": "EP-07",
+  "project_id": "cdr-ep07-ui-20260928",
+  "request_id": "8b34bf26-1d48-46d4-9aac-3711b2838dac",
+  "result": "PASS",
+  "same_explicit_base": true,
+  "schema_version": "1.0",
+  "second_drive_registered": true,
+  "second_ui_visible": true,
+  "two_active_workspaces": true,
+  "workspace_id": "parallel"
+}

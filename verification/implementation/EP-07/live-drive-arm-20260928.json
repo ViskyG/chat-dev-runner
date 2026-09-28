@@ -1,0 +1,11 @@
+{
+  "armed": true,
+  "checked_at": "2026-09-28T11:08:54.639604+00:00",
+  "epoch": "9e489eef-d3b4-44bb-adb8-7db424da3eaf",
+  "mode": "ARM",
+  "packet": "EP-07",
+  "project_id": "cdr-ep07-drive-20260928",
+  "result": "PASS",
+  "runner_id": "local-runner",
+  "schema_version": "1.0"
+}

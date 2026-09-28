@@ -198,3 +198,125 @@ def test_route_collision_cannot_replace_registered_workspace(tmp_path: Path) -> 
             Provenance("drive", provenance.source_id, "other", "primary"),
             "python-quick", handler,
         )
+
+
+def test_completed_second_area_gets_its_own_exact_mailbox(tmp_path: Path) -> None:
+    class SecondarySources(FakeSources):
+        def get_workspace(self, project_id: str, workspace_id: str) -> dict[str, Any] | None:
+            if (project_id, workspace_id) == ("toy", "experiment"):
+                return {"state": "ACTIVE", "archived": False}
+            return super().get_workspace(project_id, workspace_id)
+
+        def get_workspace_profile(self, project_id: str, workspace_id: str
+                                  ) -> dict[str, str] | None:
+            if (project_id, workspace_id) == ("toy", "experiment"):
+                return {"template_id": "python-basic", "profile_id": "python-quick"}
+            return super().get_workspace_profile(project_id, workspace_id)
+
+    class SecondaryRegistrations(FakeRegistrations):
+        def __init__(self) -> None:
+            super().__init__()
+            self.second = WorkspaceDriveRegistration(
+                _INSTALLATION, "toy", "experiment", "projectFolder123",
+                "secondFolder123", "secondCommand123", "secondChangeset123",
+                "secondReceipt123", "secondLatest123", "projectStateDocument123",
+                "secondContext123", "projectCommandDocument123",
+                "projectReceiptDocument123",
+            )
+
+        def get(self, project_id: str, workspace_id: str) -> WorkspaceDriveRegistration:
+            self.calls.append((project_id, workspace_id))
+            assert project_id == "toy"
+            return self.registration if workspace_id == "primary" else self.second
+
+    ledger = _ledger(tmp_path)
+    engine = Engine(ledger)
+    registrations = SecondaryRegistrations()
+    provider = FakeDrive()
+    handler = lambda _frozen, _context: OperationResult("COMPLETED")
+    manager = WorkspaceMailboxManager(
+        ledger, cast(Any, SecondarySources(ledger)), cast(Any, registrations),
+        provider, engine, tmp_path / "frozen-workspaces",
+        {"python-basic": "python-quick"},
+        route_factory=lambda *_: handler,
+    )
+    try:
+        _completed_create(ledger)
+        assert manager.refresh().activated == 1
+        state = ledger.state()
+        now = datetime.now(timezone.utc)
+        command = {
+            "schema_version": "1.0", "request_id": str(uuid4()),
+            "dispatch": "READY", "runner_id": state["runner_id"],
+            "epoch": state["epoch"], "issued_at": now.isoformat(),
+            "expires_at": (now + timedelta(minutes=5)).isoformat(),
+            "action": "CREATE_WORKSPACE", "project_id": "toy",
+            "workspace_id": "experiment", "expected_head": "a" * 40,
+            "params": {"name": "Experiment", "branch": "feature/experiment",
+                       "base_commit": "a" * 40, "profile_id": "python-quick"},
+            "intent": "Create second fake area",
+        }
+        assert ledger.admit(
+            command, freeze(command).digest, "local-owner",
+            ("repo:toy", "global:drive-installation"),
+        ).execute
+        ledger.finish(command["request_id"], "COMPLETED")
+        refreshed = manager.refresh()
+        assert refreshed.known == refreshed.activated == 2
+        assert refreshed.new_mailboxes == (registrations.second.command_doc_id,)
+        assert ("toy", "experiment") in manager.mailboxes()
+        assert engine.policy.mailboxes[registrations.second.command_doc_id] == Provenance(
+            "drive", registrations.second.command_doc_id, "toy", "experiment",
+        )
+        assert provider.calls == []
+    finally:
+        manager.close()
+
+
+def test_project_mailbox_requires_receipt_port_and_registers_exact_scope(
+    tmp_path: Path,
+) -> None:
+    class ReceiptPort:
+        def publish_if_terminal(self, *_: Any) -> None:
+            raise AssertionError("A disarmed refresh must not read or write a command")
+
+    ledger = _ledger(tmp_path)
+    engine = Engine(ledger, handlers={
+        "CREATE_WORKSPACE": lambda *_: OperationResult("COMPLETED"),
+        "FETCH": lambda *_: OperationResult("COMPLETED"),
+    })
+    registrations = FakeRegistrations()
+    provider = FakeDrive()
+    manager = WorkspaceMailboxManager(
+        ledger, cast(Any, FakeSources(ledger)), cast(Any, registrations),
+        provider, engine, tmp_path / "frozen-project",
+        {"python-basic": "python-quick"},
+        project_receipt=cast(Any, ReceiptPort()),
+    )
+    try:
+        _completed_create(ledger)
+        ledger.disarm()
+        refreshed = manager.refresh()
+        assert refreshed.known == 1 and refreshed.activated == 0
+        assert manager.project_active_count() == 1
+        from runner_app.engine.runtime import Runtime
+
+        runtime = cast(Any, object.__new__(Runtime))
+        runtime.drive_bridge = object()
+        runtime.integrations = object()
+        runtime.workspace_mailboxes = manager
+        assert runtime.drive_actions() == ["CREATE_PROJECT", "CREATE_WORKSPACE", "FETCH"]
+        project = manager.project_mailboxes()["toy"]
+        assert project.command_id == registrations.registration.project_command_doc_id
+        assert project.receipt_id == registrations.registration.project_receipt_doc_id
+        assert project.parent_id == registrations.registration.project_folder_id
+        assert project.changeset_id is None
+        expected = Provenance("drive", project.command_id, "toy")
+        assert engine.policy.mailboxes[project.command_id] == expected
+        assert engine.policy.project_ids == {"toy"}
+        assert engine.policy.approved_profiles == {"python-quick"}
+        assert provider.calls == []
+        assert manager.refresh().new_mailboxes == ()
+        assert manager.project_active_count() == 1
+    finally:
+        manager.close()

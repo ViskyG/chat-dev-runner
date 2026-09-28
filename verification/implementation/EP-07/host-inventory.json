@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "checked_at": "2026-09-28T10:16:01.111622+00:00",
+  "mode": "READ_ONLY_HOST_INVENTORY",
+  "external_writes": false,
+  "host": {
+    "python": "3.10.12",
+    "system": "Linux",
+    "kernel": "6.8.0-138-generic",
+    "machine": "x86_64",
+    "cgroup_v2": true
+  },
+  "tools": {
+    "git": {
+      "status": "PRESENT",
+      "version": "git version 2.34.1"
+    },
+    "docker": {
+      "status": "PRESENT",
+      "version": null
+    },
+    "systemctl": {
+      "status": "PRESENT",
+      "version": "systemd 249 (249.11-0ubuntu3.22)"
+    },
+    "node": {
+      "status": "PRESENT",
+      "version": "v22.22.2"
+    },
+    "code": {
+      "status": "PRESENT",
+      "version": "1.128.0"
+    }
+  },
+  "user_systemd_bus": {
+    "present": true,
+    "kind_matches": true,
+    "owner_is_current_user": true,
+    "owner_is_root": false,
+    "mode": "0666"
+  },
+  "rootless_docker_socket": {
+    "present": true,
+    "kind_matches": true,
+    "owner_is_current_user": true,
+    "owner_is_root": false,
+    "mode": "1660"
+  },
+  "quota_helper": {
+    "present": true,
+    "kind_matches": true,
+    "owner_is_current_user": false,
+    "owner_is_root": true,
+    "mode": "0755"
+  },
+  "runner_port_before_install": {
+    "status": "OBSERVED",
+    "binds": [],
+    "loopback_only": true
+  }
+}

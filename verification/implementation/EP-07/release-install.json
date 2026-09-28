@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "checked_at_utc": "2026-09-28T10:50:19Z",
+  "environment": {
+    "host": "owner Linux x86_64",
+    "python": "3.10.12",
+    "systemd": "249 (249.11-0ubuntu3.22)",
+    "installation": "owner-user systemd service",
+    "service_name": "chat-dev-runner.service"
+  },
+  "build": {
+    "command": "uv build --wheel --out-dir /home/visky/Work/GPTRunner/.runner-install/wheels",
+    "exit_code": 0,
+    "wheel": "chat_dev_runner-0.2.0-py3-none-any.whl",
+    "wheel_sha256": "79ba81c493f602142ac74828e6e28482bcb531aee4569678b0511ee2c8090e2c",
+    "production_lock": "requirements.production.lock",
+    "production_lock_sha256": "79036fafb676757f4109d02c9a85910ac0a9f607582cc6151339e7d9c91e2cea",
+    "dependencies_installed": 42,
+    "dependency_check": "43 compatible packages"
+  },
+  "paths": {
+    "install_root": "/home/visky/Work/GPTRunner/.runner-install",
+    "install_root_mode": "0700",
+    "state_root": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner",
+    "state_root_mode": "0700",
+    "unit": "/home/visky/.config/systemd/user/chat-dev-runner.service",
+    "unit_mode": "0600"
+  },
+  "commands": [
+    {
+      "command": "runner install --dry-run",
+      "exit_code": 0,
+      "installable": true,
+      "package": "WHEEL",
+      "unit_before": "ABSENT"
+    },
+    {
+      "command": "runner install --user",
+      "exit_code": 0,
+      "started": true,
+      "enabled": true
+    },
+    {
+      "command": "service_gate.py",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "installed_runtime_read.py",
+      "exit_code": 0,
+      "drive_read": "OK",
+      "github_read": "OK",
+      "armed": false,
+      "execution_readiness": "READY"
+    },
+    {
+      "command": "runner stop",
+      "exit_code": 0,
+      "stopped": true,
+      "listener_closed": true
+    },
+    {
+      "command": "runner backup --output /home/visky/Work/GPTRunner/.runner-backups/post-stop-service-20260928",
+      "exit_code": 0,
+      "files": 181,
+      "schema": 9,
+      "manifest_sha256": "f512d3fc46ed2e56f9dc9d2b285246faedaa5ba6d8ae673528b5295413399f77"
+    },
+    {
+      "command": "runner restore --from /home/visky/Work/GPTRunner/.runner-backups/post-stop-service-20260928",
+      "exit_code": 2,
+      "error": "RESTORE_TARGET_EXISTS"
+    },
+    {
+      "command": "runner install --user",
+      "exit_code": 0,
+      "unit_changed": false,
+      "started": true
+    },
+    {
+      "command": "service_gate.py after restart",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "runner backup --output /home/visky/Work/GPTRunner/.runner-backups/should-not-exist-running-20260928",
+      "exit_code": 2,
+      "error": "RUNNER_RUNNING",
+      "archive_created": false
+    }
+  ],
+  "final_state": {
+    "active": true,
+    "enabled": true,
+    "armed": false,
+    "listener": [
+      "127.0.0.1:8765"
+    ],
+    "existing_drive_root_attached": true,
+    "existing_drive_index_attached": true
+  },
+  "source_evidence": [
+    "host-inventory.json",
+    "pre-service-backup.json",
+    "service-unit-syntax.json",
+    "service-gate.json",
+    "installed-runtime-read.json",
+    "service-backup-cli-final.xml"
+  ]
+}

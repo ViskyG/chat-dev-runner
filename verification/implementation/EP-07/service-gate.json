@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "checked_at": "2026-09-28T12:08:25.679503+00:00",
+  "mode": "READ_ONLY_DEPLOYED_SERVICE_GATE",
+  "cloud_writes": false,
+  "checks": {
+    "user_unit_active": true,
+    "listener_binds": [
+      "127.0.0.1:8765"
+    ],
+    "health": {
+      "http": 200,
+      "service": "chat-dev-runner",
+      "status": "PARTIALLY_CONFIGURED",
+      "armed": false
+    },
+    "public_shell": {
+      "http": 200,
+      "csp": true,
+      "bytes": 771
+    },
+    "unauthenticated_system_http": 403,
+    "spoofed_host_http": 403,
+    "cross_origin_session": {
+      "http": 403,
+      "code": "INVALID_ORIGIN"
+    },
+    "nonloopback_probe": {
+      "status": "REFUSED_NONLOOPBACK"
+    }
+  },
+  "failures": [],
+  "result": "PASS"
+}

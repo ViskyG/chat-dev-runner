@@ -9,12 +9,13 @@ roles to provider IDs, each present in the human-readable Index; it is stored wi
 mode 0600 under a 0700 directory. The cross-app canary also passed using a new
 labelled test Doc, without modifying pre-existing files.
 Do not run `scripts/bootstrap_drive.py --apply` for this installation. The seed files specify
-structure and contracts; they do not authorize replacement of existing documents. EP-04 must
-attach by known ID, read the Installation Index, validate its root/control-document mapping,
-and retain existing document identities. No live access was performed in EP-00.
+structure and contracts; they do not authorize replacement of existing documents. EP-04
+attached by known ID, read the Installation Index, validated its root/control-document mapping
+and retained existing document identities. EP-05 used that attachment for disposable private
+project delivery; EP-06 checked the same installation from the real disarmed local process.
 
 `runner configure --show-required` displays the gate without writing configuration or secrets.
-Local setup must eventually obtain, locally:
+Local setup uses the following owner-private inputs and policy:
 
 - Google desktop OAuth app in the owner-private local file
   `$XDG_CONFIG_HOME/chat-dev-runner/google-oauth-client.json` (default
@@ -22,9 +23,9 @@ Local setup must eventually obtain, locally:
   the owner explicitly selected only the full Drive OAuth scope
   `https://www.googleapis.com/auth/drive`. The browser authorization stores token fields only
   in the owner-private `$XDG_CONFIG_HOME/chat-dev-runner/tokens/google-drive.json`; it does
-  not copy the Desktop client ID or secret into that token file. A prior `drive.file` token must
-  be revoked and discarded before reauthorization. Confirm read access to the exact existing
-  root and Installation Index IDs before any Drive write; do not create replacement infrastructure.
+  not copy the Desktop client ID or secret into that token file. The prior `drive.file`
+  token was revoked and discarded before full-scope reauthorization. Exact-ID root and Index
+  reads and the cross-app canary have passed; do not create replacement infrastructure.
 - An explicit GitHub owner/organization, private disposable smoke-test namespace, credential
   reference, actual identity/capability probe, and permission for draft PRs and normal pushes.
 - Approved local import roots, environment templates, pinned images and dependency build
@@ -34,11 +35,32 @@ Local setup must eventually obtain, locally:
   shared experiments installation, provided no pre-existing resources or other experiments
   are overwritten or deleted. Other live external effects still require the relevant
   configured policy or explicit owner authorization. Never ask for credentials in chat;
-  use a local secret store. Configured production project policy
-  will authorize ordinary finite publication without repetitive push confirmation dialogs.
+  use a local secret store. The configured project policy authorizes ordinary finite
+  publication without repetitive push confirmation dialogs.
 
-Until these probes and later packet gates pass: NOT_CONFIGURED, armed=false, no READY
-commands, no approved execution profiles. The health server is not an execution daemon.
+The EP-04/05 integration and execution gates passed. The owner runtime is configured,
+and the approved `python-basic` profile and quota helper are installed. EP-07
+installed an enabled owner-user service, now at wheel version `0.2.2`, bound only to
+`127.0.0.1:8765`; the ledger is currently **disarmed**. A completed command can
+remain READY in its Drive document without being re-executed: admission is keyed
+to its recorded request ID and receipt. One disposable private project was
+created through the installed UI and another through the existing root Drive
+COMMAND from this chat connector session. A second workspace was created from
+the local UI. The two workspaces completed separate passing and failing
+contained verification/publication routes with private draft PRs and Drive
+reports. The current-chat Drive connector also submitted a project-level
+FETCH through installed `0.2.2` and read its matching COMPLETED project
+RECEIPT. See [the installed release](../verification/implementation/EP-07/release-upgrade-0.2.2.json),
+[UI create](../verification/implementation/EP-07/live-ui-acceptance-20260928T105918Z.json),
+[Drive create](../verification/implementation/EP-07/live-drive-chat-roundtrip-20260928.json),
+[two-workspace readback](../verification/implementation/EP-07/live-multiworkspace-readback-20260928.json),
+[passing route](../verification/implementation/EP-07/live-publish-primary-20260928.jsonl),
+[failing route](../verification/implementation/EP-07/live-publish-parallel-20260928.jsonl) and
+[project FETCH](../verification/implementation/EP-07/live-project-fetch-20260928.json).
+Same-path restore, uninstall, a live project-level Drive CREATE_WORKSPACE
+command, broader recovery/security acceptance and a command from a fresh
+separate chat remain open. The stateless
+`serve --health-only` mode is a foundation probe, not the configured service.
 
 # Filesystem and database
 
@@ -46,12 +68,23 @@ App paths are `$XDG_CONFIG_HOME/chat-dev-runner` (default `~/.config/chat-dev-ru
 `$XDG_DATA_HOME/chat-dev-runner` (default `~/.local/share/chat-dev-runner`, containing durable
 state per the architecture), and `$XDG_CACHE_HOME/chat-dev-runner` (default
 `~/.cache/chat-dev-runner`). Optional runtime files use `$XDG_RUNTIME_DIR/chat-dev-runner`.
-`XDG_STATE_HOME` does not relocate the architecture's data/state root.
-App-owned roots and token/evidence directories are 0700; DB and secret files are 0600.
+`XDG_STATE_HOME` does not relocate the architecture's data/state root. On this
+host, the installed service uses `XDG_DATA_HOME=/home/visky/Work/GPTRunner/.runner-data`
+and thus `/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner` for state;
+the default data path contains older root-owned test volumes. Use the same
+`XDG_DATA_HOME` for owner CLI maintenance commands. App-owned roots and
+token/evidence directories are 0700; DB and secret files are 0600.
 Reject unsafe existing permissions, symlinks and foreign ownership without modifying
 unrelated ancestor directories. Inspection and installation dry-run create no paths.
 
-SQLite uses foreign keys, WAL, explicit migrations and `PRAGMA user_version`. Migration 1
-creates only metadata; EP-01 adds domain tables as a subsequent migration. A future schema
-version is refused; migration failure rolls back. Take a consistent SQLite backup before
-future upgrades. EP-07 must verify recovery/backup procedures before deployment.
+SQLite uses foreign keys, WAL, explicit migrations and `PRAGMA user_version`; the current
+runtime schema is version 9. A future schema version is refused and migration failures roll
+back. Take a consistent SQLite backup before upgrades. EP-07 verified a private
+pre-service snapshot and stopped-service backups before both the `0.2.1`
+and `0.2.2` upgrades, plus refusal to back up while running or restore over
+existing state. The latter backup held 416 files with schema 9; its manifest
+hash, all file hashes and SQLite integrity were independently verified. A successful same-path live
+restore and migration recovery still require host acceptance; see
+[release-install.json](../verification/implementation/EP-07/release-install.json) and
+[release-upgrade-0.2.1.json](../verification/implementation/EP-07/release-upgrade-0.2.1.json) and
+[release-upgrade-0.2.2.json](../verification/implementation/EP-07/release-upgrade-0.2.2.json).

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chat-dev-runner"
-version = "0.2.0"
+version = "0.2.2"
 description = "Local finite development runner; unconfigured and unarmed by default"
 requires-python = ">=3.10"
 dependencies = ["jsonschema==4.26.0", "fastapi==0.141.1", "uvicorn==0.54.0"]
@@ -22,6 +22,7 @@ runner = "runner_app.cli:main"
 include = ["runner_app*", "bridge_reference*", "schemas"]
 
 [tool.setuptools.package-data]
+"runner_app" = ["production.service.in"]
 schemas = ["*.schema.json"]
 "runner_app.git" = ["python_quick_wheels/*.whl"]
 "runner_app.web" = ["index.html", "*.js", "*.css"]

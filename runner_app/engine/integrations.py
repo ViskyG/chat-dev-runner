@@ -24,8 +24,9 @@ from runner_app.adapters.drive_index import (
     attach_existing,
 )
 from runner_app.adapters.drive_poller import FrozenSlotStore
+from runner_app.adapters.drive_project_receipt import ProjectTerminalReceiptPublisher
 from runner_app.adapters.drive_provision import DriveProjectProvisioner, ProjectUploadProvider
-from runner_app.adapters.drive_registry import WorkspaceDriveRegistry
+from runner_app.adapters.drive_registry import WorkspaceDriveRegistration, WorkspaceDriveRegistry
 from runner_app.adapters.drive_root_receipt import RootCreateProjectReceiptPublisher
 from runner_app.adapters.drive_transport import isolated_request_builder
 from runner_app.adapters.drive_upload import GoogleUploadProvider
@@ -46,6 +47,7 @@ from runner_app.workflows.create_project import (
     GitHubBaselineBootstrap,
     GitHubLocalImportBootstrap,
 )
+from runner_app.workflows.create_workspace import CreateWorkspaceWorkflow
 from runner_app.workflows.fetch import FetchWorkflow
 from runner_app.workflows.provision_resume_complete import CompleteProvisionRecoveryWorkflow
 from runner_app.workflows.provision_resume_partial import PartialProvisionRecoveryWorkflow
@@ -236,6 +238,7 @@ class RuntimeIntegrations:
     github: GitHubREST
     token_provider: Callable[[], str]
     root_receipt: RootCreateProjectReceiptPublisher
+    project_receipt: ProjectTerminalReceiptPublisher
     drive_registry: WorkspaceDriveRegistry
     source: SourceService
     policy: LocalPolicy
@@ -266,6 +269,9 @@ def build_runtime_integrations(
     drive_registry = WorkspaceDriveRegistry(
         paths.state_dir / "drive-registrations", attached, connections.reader,
     )
+    project_receipt = ProjectTerminalReceiptPublisher(
+        ledger, attached, connections.reader, drive_registry,
+    )
     source = SourceService(ledger, registry, import_grants=import_grants)
     provisioner = DriveProjectProvisioner(ledger, attached, upload, drive_registry)
 
@@ -276,6 +282,14 @@ def build_runtime_integrations(
         return provisioner.populate(
             request_id, registration, source_registry=sources, writer=writer,
             repository_id=repository.id, repository_url=repository.html_url,
+        )
+
+    def populate_workspace(request_id: str, registration: WorkspaceDriveRegistration,
+                           sources: SourceRegistry) -> Mapping[str, str]:
+        writer = DocsCASWriter(cast(Any, connections.reader), attached,
+                               extra_docs=registration.state_docs())
+        return provisioner.populate_workspace(
+            request_id, registration, source_registry=sources, writer=writer,
         )
 
     root_writer = DocsCASWriter(cast(Any, connections.reader), attached)
@@ -289,6 +303,10 @@ def build_runtime_integrations(
         config.github_imports,
     )
     fetch = FetchWorkflow(ledger, registry, connections.github, connections.token_provider)
+    create_workspace = CreateWorkspaceWorkflow(
+        ledger, source, connections.github, provisioner, populate_workspace,
+        template_profiles=config.template_profiles,
+    )
     create = CreateProjectWorkflow(
         ledger, source, connections.github, provisioner,
         GitHubBaselineBootstrap(registry, connections.github, connections.token_provider),
@@ -346,7 +364,8 @@ def build_runtime_integrations(
     )
     return RuntimeIntegrations(
         config, attached, connections.reader, upload, connections.github,
-        connections.token_provider, root_receipt, drive_registry, source, policy,
-        {"CREATE_PROJECT": create, "RECONCILE": reconcile,
-         "RESUME_PROVISION": resume, "FETCH": fetch},
+        connections.token_provider, root_receipt, project_receipt,
+        drive_registry, source, policy,
+        {"CREATE_PROJECT": create, "CREATE_WORKSPACE": create_workspace,
+         "RECONCILE": reconcile, "RESUME_PROVISION": resume, "FETCH": fetch},
     )

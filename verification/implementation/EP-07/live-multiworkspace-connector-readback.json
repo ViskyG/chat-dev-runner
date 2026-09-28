@@ -1,0 +1,17 @@
+{
+  "changeset_doc_id": "1E7QTtMqtDNyPFUHnxeVOmbJncUiApYas0JzZ4U-wA9Q",
+  "checked_at": "2026-09-28T11:37:02.707918+00:00",
+  "command_doc_id": "1jyEB73np1SaAnN-l61yn0tRX90JomuihKVpgVUNkZf8",
+  "connector": "Google Drive",
+  "docs_parent_id": "1cYkSy7lGlETMiIjoBQNg2Ts2D0NV7PJE",
+  "mode": "CONNECTED_CHAT_DRIVE_EXACT_ID_READBACK",
+  "new_project_created": false,
+  "packet": "EP-07",
+  "project_folder_id": "1IfV9O4HCUZrjI7JJrrRCTMAoplLca4-e",
+  "project_id": "cdr-ep07-ui-20260928",
+  "result": "PASS",
+  "schema_version": "1.0",
+  "workspace_folder_id": "1cYkSy7lGlETMiIjoBQNg2Ts2D0NV7PJE",
+  "workspace_id": "parallel",
+  "workspace_parent_id": "1IfV9O4HCUZrjI7JJrrRCTMAoplLca4-e"
+}
