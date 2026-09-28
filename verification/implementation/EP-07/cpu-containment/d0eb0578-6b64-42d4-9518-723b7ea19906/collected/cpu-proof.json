@@ -1,0 +1,1 @@
+{"cpu_max": "25000 100000", "elapsed_seconds": 3.001323, "expected_cpu_fraction": 0.25, "iterations": 9720000, "limit_enforced": true, "nr_periods_after": 34, "nr_periods_before": 4, "nr_throttled_after": 33, "nr_throttled_before": 3, "throttled_usec_after": 2418811, "throttled_usec_before": 182241, "usage_usec_after": 845325, "usage_usec_before": 93951}

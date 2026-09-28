@@ -1,0 +1,11 @@
+{
+  "argv_sha256": "0cadbabd674941cbd20ecc5b78f267872ff6897804f5428b2d19b82d8ddde459",
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "nonce": "fb1e0770660c4c28b7d779063c23a17d",
+  "profile_id": "ep07-cpu-proof",
+  "profile_revision_sha256": "f4797debd4ab257d8cd62f5fbe7e8e6d6659747baa3ac6a65c6983cbaef277e3",
+  "run_id": "d0eb0578-6b64-42d4-9518-723b7ea19906",
+  "source_path": "/tmp/cdr-ep07-cpu-d0eb0578-6b64-42d4-9518-723b7ea19906-f8r433z4/sources/d0eb0578-6b64-42d4-9518-723b7ea19906"
+}

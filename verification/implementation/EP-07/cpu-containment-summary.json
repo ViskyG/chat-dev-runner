@@ -1,0 +1,117 @@
+{
+  "checks": {
+    "cpu_predicate_positive_and_negative": "PASS",
+    "generated_source_profile_compile": "PASS",
+    "mypy_single_file": "PASS",
+    "postrun_exact_container_and_mount_absent": "PASS",
+    "real_rootless_broker_cpu": "PASS",
+    "ruff_single_file": "PASS"
+  },
+  "current_evidence": {
+    "cleanup.json": {
+      "path": "verification/implementation/EP-07/cpu-containment/d0eb0578-6b64-42d4-9518-723b7ea19906/cleanup.json",
+      "sha256": "905ab3c7f334b0b22106aeade4ef476290337278faed23955eb015f9d9cb3787"
+    },
+    "collected/cpu-proof.json": {
+      "path": "verification/implementation/EP-07/cpu-containment/d0eb0578-6b64-42d4-9518-723b7ea19906/collected/cpu-proof.json",
+      "sha256": "eac2ca8fbc5b5db01eafbc4e6d296b96b1edb2b565eeea44b8b8ce7016c91a0c"
+    },
+    "intent.json": {
+      "path": "verification/implementation/EP-07/cpu-containment/d0eb0578-6b64-42d4-9518-723b7ea19906/intent.json",
+      "sha256": "8d284c531da7ffd9f1974406c5b066cbf4b87597078d5b8c6a90d09af3f85d3b"
+    },
+    "result.json": {
+      "path": "verification/implementation/EP-07/cpu-containment/d0eb0578-6b64-42d4-9518-723b7ea19906/result.json",
+      "sha256": "116dc8e9e26d336546ff3fdc11f716da04610acc9430b70679b4211aabbeb70c"
+    },
+    "retirement.json": {
+      "path": "verification/implementation/EP-07/cpu-containment/d0eb0578-6b64-42d4-9518-723b7ea19906/retirement.json",
+      "sha256": "7d63b9478fa3af52082062b251062a1875ee8a7efe490b83f6b2e011a5f00571"
+    },
+    "setup.json": {
+      "path": "verification/implementation/EP-07/cpu-containment/d0eb0578-6b64-42d4-9518-723b7ea19906/setup.json",
+      "sha256": "48edb303fefcb278bc06885efced8c0204bfd60884d7af881652e9d2a8aeba29"
+    }
+  },
+  "environment": {
+    "cgroup_driver": "systemd",
+    "cgroup_version": "2",
+    "delegated_controllers": [
+      "cpu",
+      "memory",
+      "pids"
+    ],
+    "image_digest": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "profile_revision_sha256": "f4797debd4ab257d8cd62f5fbe7e8e6d6659747baa3ac6a65c6983cbaef277e3",
+    "quota_bytes": 67108864,
+    "rootless_daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+    "toy_source_sha256": "86cc1eb2db3f626f296323b12ed5a645823befd45cd2e7eca590a96f66e992b4"
+  },
+  "harness_path": "scripts/ep07_cpu_containment.py",
+  "harness_sha256": "27403005b515ed8172d614f7490eea7267f6773f96062df1c69ed4450b219207",
+  "kind": "EP-07 real-host CPU cgroup enforcement acceptance",
+  "observed": {
+    "broker_outcome": "PASSED",
+    "container_exit_code": 0,
+    "cpu_max": "25000 100000",
+    "durable_cleanup": true,
+    "durable_intent": true,
+    "elapsed_seconds": 3.001323,
+    "exact_mount_released": true,
+    "frozen_output_complete": true,
+    "nr_throttled_after": 33,
+    "nr_throttled_before": 3,
+    "owned_container_absent": true,
+    "throttled_usec_after": 2418811,
+    "throttled_usec_before": 182241
+  },
+  "prior_ep03_evidence": {
+    "cases": [
+      {
+        "case": "hostile",
+        "previously_passed": true,
+        "result_path": "verification/implementation/EP-03/live-toy/7fa65503-8531-4c49-a465-4231dc67fdbd/result.json",
+        "result_sha256": "de7d68421d7befe3c7ca9395f982bb428a99e6368f181f8c518275f28eaea9a6"
+      },
+      {
+        "case": "fork",
+        "previously_passed": true,
+        "result_path": "verification/implementation/EP-03/live-toy/da5907c5-d826-47d8-9c56-cfad4abb56c0/result.json",
+        "result_sha256": "e7f4715732c9ef38ae26026c097ab2ea75f5fb19421f38c94fd1dafe94b81da4"
+      },
+      {
+        "case": "memory",
+        "previously_passed": true,
+        "result_path": "verification/implementation/EP-03/live-toy/86882085-2377-4ab7-abd0-ecfad9c4efbf/result.json",
+        "result_sha256": "b2b307c7693fde6cb026c12cdd1ef6eb3b07a3249b88042db4c879fe743bb7aa"
+      },
+      {
+        "case": "log-volume",
+        "previously_passed": true,
+        "result_path": "verification/implementation/EP-03/live-toy/8177323c-c66b-48ea-a04d-4fe4536eb780/result.json",
+        "result_sha256": "3bf50ea458d74cfa03f9354ae3b6dcca8b05b0f81704cab58aa6f63b76ec3853"
+      },
+      {
+        "case": "disk-full",
+        "previously_passed": true,
+        "result_path": "verification/implementation/EP-03/live-toy/a8487949-073f-4e82-a037-d508a8d12115/result.json",
+        "result_sha256": "3d63f534efa43e6a42811cab7cacae2781d8b0feb1c3ab8195cfdc732a6711eb"
+      }
+    ],
+    "interpretation": "Historical real-host effects for unchanged home/socket/sibling/PID/memory/log/disk checks; not rerun for this CPU-only boundary.",
+    "summary_path": "verification/implementation/EP-03/live-acceptance-summary.json",
+    "summary_sha256": "8fbeda58a0db0a4f7b8b1799ecaea20554cd974fd2ef591d34d36df4e8e42f29"
+  },
+  "recorded_at_utc": "2026-09-28T17:30:47.548337+00:00",
+  "run_id": "d0eb0578-6b64-42d4-9518-723b7ea19906",
+  "schema_version": "1.0",
+  "scope": {
+    "broker_policy_changed": false,
+    "drive_or_github_calls": false,
+    "production_profile_changed": false,
+    "remaining_ep07_gates_unchanged": true,
+    "service_changed": false
+  },
+  "source_base_commit": "12b990ce5c7dd9bd90a59c604238fb33bea5ce38",
+  "source_branch": "ep07/cpu-containment"
+}

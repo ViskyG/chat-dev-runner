@@ -1,0 +1,27 @@
+{
+  "cgroup_driver": "systemd",
+  "cgroup_version": "2",
+  "cpu_limit": 0.25,
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "delegated_controllers": [
+    "cpu",
+    "memory",
+    "pids"
+  ],
+  "harness_sha256": "27403005b515ed8172d614f7490eea7267f6773f96062df1c69ed4450b219207",
+  "helper_sha256": "c1e7c8e749dde40f49b644830525dbcf931ed1f3397ce943ed5542e0233f6daa",
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "profile_id": "ep07-cpu-proof",
+  "profile_revision_sha256": "f4797debd4ab257d8cd62f5fbe7e8e6d6659747baa3ac6a65c6983cbaef277e3",
+  "quota_bytes": 67108864,
+  "run_id": "d0eb0578-6b64-42d4-9518-723b7ea19906",
+  "schema_version": "1.0",
+  "server_version": "29.1.5",
+  "snapshot_commit": "ea072f7409c80aec68bdee14fe5bda9e86ef5199",
+  "snapshot_id": "f84a10e1-3eb3-42e9-b992-5111132855a7",
+  "snapshot_tree": "4bda930cf9d8377b15f1a33a5b293886f1cd3fbd",
+  "source_checkout_commit": "12b990ce5c7dd9bd90a59c604238fb33bea5ce38",
+  "started_at": "2026-09-28T17:28:41.189726+00:00",
+  "toy_source_sha256": "86cc1eb2db3f626f296323b12ed5a645823befd45cd2e7eca590a96f66e992b4",
+  "volume": "/var/lib/chat-dev-runner/volumes/d0eb0578-6b64-42d4-9518-723b7ea19906"
+}
