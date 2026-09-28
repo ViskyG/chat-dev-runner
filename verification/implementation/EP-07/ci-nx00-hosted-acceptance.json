@@ -1,0 +1,42 @@
+{
+  "recorded_at_utc": "2026-09-28T16:56:08.960035+00:00",
+  "claim": "EP-07 branch clean-install/CI defect repaired at frozen source commit; hosted Actions succeeded. This does not complete EP-07 release acceptance.",
+  "source_commit": "90ac54a872dafc95f880d53ac45f5914d93aa742",
+  "branch": "ep07/ci-test-extra",
+  "run_id": 36454122890,
+  "url": "https://github.com/ViskyG/chat-dev-runner/actions/runs/36454122890",
+  "conclusion": "success",
+  "artifact_id": 10984696793,
+  "artifact_zip_digest": "sha256:8cdcef1ab6ccd23af1f20fd1b47cd99ea99a35abfc1c07eefcb1940f3feb6dea",
+  "junit": "ci-nx00-hosted-90ac54a.junit.xml.gz",
+  "junit_raw_sha256": "800c98fd9f550d0ac622f5af3cdb27faa32450692025706b3525e42ed844a855",
+  "junit_counts": {
+    "tests": 1368,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "junit_duration_seconds": 90.221,
+  "steps": {
+    "checkout": "SUCCESS",
+    "setup_python_3_11": "SUCCESS",
+    "pip_install_test": "SUCCESS",
+    "pytest": "SUCCESS",
+    "offline_drive_plan": "SUCCESS",
+    "artifact_upload": "SUCCESS"
+  },
+  "offline_drive_plan": {
+    "artifact": "ci-nx00-hosted-90ac54a-drive-plan.json",
+    "mode": "PLAN_ONLY",
+    "network_calls": false,
+    "entry_count": 26
+  },
+  "source_scope": [
+    "pyproject.toml test extra",
+    "requirements.lock development/test hash lock",
+    "runner_app/storage/database.py sidecar-only race handling",
+    "tests/test_foundation_storage.py deterministic validation tests"
+  ],
+  "production_lock_sha256": "79036fafb676757f4109d02c9a85910ac0a9f607582cc6151339e7d9c91e2cea",
+  "remaining_gate": "EP-07 release acceptance and installed-service rollout remain IN_PROGRESS; no live provider acceptance is implied by this CI run."
+}
