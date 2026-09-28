@@ -423,16 +423,23 @@ class _Connection(sqlite3.Connection):
             self.close()
 
 
-def _validate_existing_file(directory_fd: int, filename: str) -> bool:
+def _validate_existing_file(directory_fd: int, filename: str, *,
+                            sidecar: bool = False) -> bool:
     """Inspect a pinned directory entry without disturbing SQLite locks."""
-    try:
-        info = os.stat(filename, dir_fd=directory_fd, follow_symlinks=False)
-    except FileNotFoundError:
-        return False
-    except OSError as error:
-        raise UnsafePathError("Unsafe SQLite file") from error
-    _check_private(info, directory=False)
-    return True
+    for _ in range(3 if sidecar else 1):
+        try:
+            info = os.stat(filename, dir_fd=directory_fd, follow_symlinks=False)
+        except FileNotFoundError:
+            return False
+        except OSError as error:
+            raise UnsafePathError("Unsafe SQLite file") from error
+        # SQLite may unlink a sidecar between pathname lookup and stat. Check
+        # the stale inode's privacy, then inspect the current name again so an
+        # unsafe replacement is never accepted as a harmless disappearance.
+        _check_private(info, directory=False, allow_unlinked=sidecar)
+        if info.st_nlink != 0:
+            return True
+    raise UnsafePathError("SQLite sidecar changed during validation")
 
 
 def _ensure_database_file(directory_fd: int, filename: str) -> None:
@@ -466,7 +473,7 @@ def _validate_sidecars(directory_fd: int, filename: str) -> None:
         # A sidecar can vanish normally when SQLite closes the final WAL
         # connection. Its current directory entry must still be private if it
         # exists. Opening it just for validation would release fcntl locks.
-        _validate_existing_file(directory_fd, filename + suffix)
+        _validate_existing_file(directory_fd, filename + suffix, sidecar=True)
 
 
 def _version(connection: sqlite3.Connection) -> int:

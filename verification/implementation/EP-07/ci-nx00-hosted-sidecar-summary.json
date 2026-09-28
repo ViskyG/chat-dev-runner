@@ -1,0 +1,39 @@
+{
+  "recorded_at_utc": "2026-09-28T16:51:17.608254+00:00",
+  "source_commit": "012797288f11b0cb7740ad0ae8a8ca0cc045ba81",
+  "run_id": 36453152554,
+  "url": "https://github.com/ViskyG/chat-dev-runner/actions/runs/36453152554",
+  "artifact_id": 10983889579,
+  "artifact_zip_digest": "sha256:38651c76a5f5ebb0ca992ce015db20910521abcfef5dae97ac78ee0d761f2d22",
+  "junit": "ci-nx00-hosted-0127972.junit.xml.gz",
+  "junit_raw_sha256": "ff68f12ea4687aa7431f617abb9943169149556f4ee105959bee3646584f7d56",
+  "junit_counts": {
+    "tests": 1362,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  },
+  "steps": {
+    "pip_install_test": "SUCCESS",
+    "pytest": "FAILURE",
+    "offline_drive_plan": "SKIPPED",
+    "artifact_upload": "SUCCESS"
+  },
+  "failed_nodes": [
+    "tests.test_reconcile_workflow::test_lost_acknowledgement_confirms_exact_positive_read_only_proof[pull_request-draft-pull-request-intent2-81]",
+    "tests.test_verify_handler::test_hard_evidence_enospc_is_a_nonreplayed_storage_fault"
+  ],
+  "cause": "Both failures reached Database.connect sidecar pathname validation while concurrent SQLite final-connection cleanup unlinked a WAL/SHM/journal file; os.stat returned private ordinary inode metadata with st_nlink=0 and _check_private rejected it. No collection errors remained.",
+  "sidecar_fix": "For sidecars only, validate zero-link inode privacy and re-stat the current name up to 3 times; accept ENOENT, reject changed unsafe entries. Main database and ordinary file checks remain strict.",
+  "focused": {
+    "junit": "ci-nx00-sidecar-focused.junit.xml",
+    "counts": {
+      "tests": 68,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "coverage": "All foundation storage tests, positive read-only reconciliation variants and exact hosted ENOSPC case; includes sidecar symlink/hardlink/fifo/public/directory and ordinary unlinked-file refusal, plus SQLite file-lock preservation."
+  },
+  "remaining_gate": "One hosted broad regression after the sidecar source freeze."
+}
