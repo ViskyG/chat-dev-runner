@@ -35,6 +35,11 @@ from runner_app.engine.connection_checks import (
 from runner_app.engine.service import Engine
 from runner_app.git.imports import ImportGrants
 from runner_app.git.registry import SourceRegistry
+from runner_app.outputs.inspection import (
+    MAX_INSPECTION_BYTES,
+    inspect_registered_output,
+    inspection_limit,
+)
 from runner_app.storage.ledger import LedgerError
 from runner_app.storage.run_evidence import EvidenceError, RunEvidenceStore
 
@@ -47,7 +52,7 @@ _WEB_ASSETS = {
 }
 _WEB_CSP = (
     "default-src 'none'; script-src 'self'; style-src 'self'; "
-    "img-src 'self' data:; connect-src 'self'; object-src 'none'; "
+    "img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; "
     "frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
 )
 
@@ -520,6 +525,35 @@ def create_runtime_app(settings: Settings, engine: Engine, sessions: Sessions, *
         if engine.ledger.get_run(run_id) is None:
             return JSONResponse({"error": "NOT_FOUND"}, 404)
         return JSONResponse({"items": engine.ledger.list_outputs(run_id), "next_cursor": None})
+
+    @app.get(prefix + "runs/{run_id}/outputs/{output_id}/inspection")
+    def output_inspection(run_id: str, output_id: str) -> Response:
+        _require_uuid(run_id)
+        _require_slug(output_id)
+        if run_evidence is None:
+            return JSONResponse({"error": "OUTPUT_STORAGE_UNAVAILABLE"}, status_code=503)
+        manifest = next((item for item in engine.ledger.list_outputs(run_id)
+                         if item["output_id"] == output_id), None)
+        if manifest is None:
+            return JSONResponse({"error": "OUTPUT_NOT_FOUND"}, status_code=404)
+        if manifest["size_bytes"] > MAX_INSPECTION_BYTES:
+            return JSONResponse(inspection_limit(manifest))
+        try:
+            handle = run_evidence.open_output(run_id, output_id)
+        except EvidenceError as error:
+            return JSONResponse({"error": error.code}, status_code=_evidence_http_status(error.code))
+        try:
+            raw = bytearray()
+            while chunk := os.read(handle.descriptor, 64 * 1024):
+                raw.extend(chunk)
+                if len(raw) > MAX_INSPECTION_BYTES:
+                    return JSONResponse(inspection_limit(manifest))
+            if (len(raw) != handle.size_bytes or handle.size_bytes != manifest["size_bytes"]
+                    or handle.sha256 != manifest["sha256"]):
+                return JSONResponse({"error": "OUTPUT_CHANGED"}, status_code=409)
+            return JSONResponse(inspect_registered_output(manifest, bytes(raw)))
+        finally:
+            handle.close()
 
     @app.get(prefix + "runs/{run_id}/outputs/{output_id}")
     def output(run_id: str, output_id: str) -> Response:

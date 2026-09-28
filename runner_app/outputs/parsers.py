@@ -262,17 +262,20 @@ class ImageInspection:
 
 
 def inspect_image(
-    source: Path, *, max_dimension: int = 10_000,
+    source: Path | bytes, *, max_dimension: int = 10_000,
     max_pixels: int = 40_000_000, max_header_bytes: int = 256 * 1024,
 ) -> ImageInspection:
     """Read only bounded image headers; never decode or render untrusted pixels."""
     if min(max_dimension, max_pixels, max_header_bytes) < 1:
         raise ValueError("Image inspection limits must be positive")
-    try:
-        with source.open("rb") as stream:
-            raw = stream.read(max_header_bytes)
-    except OSError:
-        return ImageInspection(None, None, None, False, "IMAGE_READ_ERROR")
+    if isinstance(source, bytes):
+        raw = source[:max_header_bytes]
+    else:
+        try:
+            with source.open("rb") as stream:
+                raw = stream.read(max_header_bytes)
+        except OSError:
+            return ImageInspection(None, None, None, False, "IMAGE_READ_ERROR")
     kind: str | None = None
     width: int | None = None
     height: int | None = None

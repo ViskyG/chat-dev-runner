@@ -57,7 +57,9 @@ projects, runs and event journal require the session. `GET /api/v1/events`
 returns a finite ordered SSE batch; Last-Event-ID resumes from durable SQLite
 history without taking an execution slot. Output bytes stream only by registered
 run/output ID from EP-03's immutable evidence store, as an attachment with a
-sandboxed content policy.
+sandboxed content policy. The owner-local inspection read model uses those sealed
+bytes to expose bounded parsed JUnit failures, validated structured-log errors and
+safe raster-preview metadata. It never changes v1 command, run or output schemas.
 
 The authenticated retention view reports an owner pin and registered output
 availability beside immutable run evidence. A local owner can pin or unpin a run

@@ -1,0 +1,22 @@
+{
+  "base_commit": "33d74fbbc19802d1adbb7be6f2331946d6d3aaae",
+  "checks": {
+    "failed_case_navigation": true,
+    "loopback_only": true,
+    "no_mutation_requests": true,
+    "no_page_errors": true,
+    "project_failure_not_runner_fault": true,
+    "raster_preview": true,
+    "real_case_count_not_suite_claim": true,
+    "structured_error_filter": true,
+    "svg_remains_inert": true,
+    "trace_inert": true
+  },
+  "mode": "PACKAGED_UI_FAKE_API_FOCUSED",
+  "mutation_requests": [],
+  "packet": "EP-07",
+  "page_errors": [],
+  "provider_writes": 0,
+  "schema_version": "1.0",
+  "service_started": false
+}

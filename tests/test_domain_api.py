@@ -90,6 +90,8 @@ def test_ui_shell_is_public_but_api_session_is_private(api: dict[str, Any]) -> N
                       "frame-ancestors 'none'", "object-src 'none'"):
         assert directive in csp
     assert "unsafe-inline" not in csp
+    assert "img-src 'self' data: blob:" in csp
+    assert "script-src 'self';" in csp
     assert api["bootstrap"] not in index.text
 
     for filename, media_type in (("app.js", "text/javascript"),

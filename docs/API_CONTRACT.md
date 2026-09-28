@@ -32,7 +32,8 @@ starts disarmed and cannot admit production actions. See `DOMAIN_API.md` for cur
 | GET /api/v1/runs/{uuid}/retention | current owner pin and output availability/tombstones |
 | POST /api/v1/runs/{uuid}/retention/pin | explicit owner pin/unpin decision |
 | GET /api/v1/runs/{uuid}/outputs | typed frozen output index |
-| GET /api/v1/runs/{uuid}/outputs/{id} | safe bounded view/download by registered ID |
+| GET /api/v1/runs/{uuid}/outputs/{id} | verified raw attachment by registered ID |
+| GET /api/v1/runs/{uuid}/outputs/{id}/inspection | bounded read-only JUnit cases, structured ERROR/FATAL events or safe raster preview metadata from sealed bytes |
 | POST /api/v1/runs/{uuid}/outputs/{id}/expire | retire one registered output after age/reference/pin gates |
 | POST /api/v1/local/open-editor | project_id + workspace_id → local fixed VS Code argv, no client path |
 | POST /api/v1/local/import-handles | owner-only local path grant; returns opaque handle |
@@ -82,7 +83,15 @@ expiration commits an append-only tombstone before verified private-file unlink;
 immutable run manifest and remaining outputs stay available. UI confirmation must
 name the exact run and output.
 
-Large outputs stream with bounded ranges. Never load a whole multi-GB file into an API JSON body.
+The inspection route reads at most 2 MiB from an immutable, hash-checked registered output.
+It returns no test count for incomplete, unparsed or unknown formats. JUnit counts come
+from testcase elements, with at most 50 failed-case details; application-log/v1 shows
+at most 100 validated ERROR/FATAL events and reports omitted or invalid lines. Image
+preview metadata is true only for complete PNG/JPEG/WebP with matching media type and
+bounded dimensions; SVG and other active formats remain inert text or downloads.
+This is a local read model, not a new command route or persisted v1 schema field.
+
+Large raw outputs remain attachments. Never load a whole multi-GB file into an API JSON body.
 Escape returned content in frontend. Mutations require session + CSRF token + validated Origin/Host. The unauthenticated
 local shell and fixed assets contain no bootstrap or private state. Their CSP permits only
 same-origin scripts, styles and API connections; project output bytes are always attachments

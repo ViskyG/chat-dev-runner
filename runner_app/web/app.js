@@ -10,6 +10,7 @@ const state = {
   loading: true, authenticated: false, offline: false, error: '',
   system: null, projects: [], workspaces: {}, workspaceErrors: {}, workspaceConnections: {}, connectionReadErrors: {},
   operations: [], runs: {}, runErrors: {}, outputs: {}, outputErrors: {}, retention: {}, retentionReadAt: {},
+  inspections: {}, inspectionErrors: {}, logErrorsOnly: false,
   partialOperations: false, partialRunEvidence: false,
   projectId: null, workspaceId: null, operationId: null,
   view: 'work', tab: 'summary', dialog: null, preview: null,
@@ -86,6 +87,9 @@ function paintDialog({focus = false} = {}) {
   }
 }
 function openDialog(type, extra = {}) {
+  if (state.dialog?.type === 'output' && type !== 'output' && state.preview?.url) {
+    URL.revokeObjectURL(state.preview.url); state.preview = null;
+  }
   if (!state.dialog) focusReturn = document.activeElement;
   state.dialog = {type, error: '', ...extra};
   paintDialog({focus: true});
@@ -96,6 +100,7 @@ function closeDialog() {
   const value = focusReturn?.dataset?.value;
   const run = focusReturn?.dataset?.run;
   state.dialog = null;
+  if (state.preview?.url) URL.revokeObjectURL(state.preview.url);
   state.preview = null;
   if (repaintPage) paint();
   else paintDialog();
@@ -471,6 +476,23 @@ async function expireOutput() {
   } catch (error) { dialog.error = errorText(error); }
   finally { dialog.busy = false; if (state.dialog === dialog) paintDialog(); }
 }
+async function loadTabInspections() {
+  if (state.tab !== 'tests' && state.tab !== 'console') return;
+  const projectId = state.projectId, workspaceId = state.workspaceId, tab = state.tab;
+  const operation = latestRunOperation(state, projectId, workspaceId);
+  const runId = runIdFrom(operation);
+  if (!runId) return;
+  const kind = tab === 'tests' ? 'test_result' : 'application_log';
+  const outputs = (state.outputs[runId] || []).filter(item => item.kind === kind);
+  await limited(outputs, 3, async item => {
+    const key = `${runId}/${item.output_id}`;
+    if (state.inspections[key] || state.inspectionErrors[key]) return;
+    try { state.inspections[key] = await api.inspectOutput(runId, item.output_id); }
+    catch (error) { state.inspectionErrors[key] = errorText(error); }
+  });
+  if (!state.dialog && state.projectId === projectId && state.workspaceId === workspaceId
+      && state.tab === tab) paint();
+}
 async function inspectOutput(runId, outputId) {
   if (!isUuid(runId) || !isSlug(outputId)) return;
   const output = (state.outputs[runId] || []).find(item => item.output_id === outputId);
@@ -489,7 +511,23 @@ async function inspectOutput(runId, outputId) {
   }
   const type = String(output.media_type || '').toLowerCase();
   const textual = type.startsWith('text/') || ['application/json', 'application/xml', 'application/x-ndjson', 'image/svg+xml'].includes(type);
-  if (!textual) state.preview = {loading: false, text: null, error: 'Для этого формата доступно только скачивание.'};
+  if (output.kind === 'screenshot' && ['image/png', 'image/jpeg', 'image/webp'].includes(type)) {
+    try {
+      const inspection = await api.inspectOutput(runId, outputId);
+      state.inspections[`${runId}/${outputId}`] = inspection;
+      if (!inspection.safe_preview || !['image/png', 'image/jpeg', 'image/webp'].includes(inspection.preview_media_type))
+        throw new Error('Безопасный предпросмотр этого изображения недоступен; можно скачать исходный файл.');
+      const blob = await api.output(runId, outputId);
+      if (blob.size !== output.size_bytes || blob.size > 2097152)
+        throw new Error('Размер изображения не совпал с зарегистрированным выводом.');
+      const url = URL.createObjectURL(new Blob([blob], {type: inspection.preview_media_type}));
+      if (state.dialog?.type !== 'output' || state.dialog.runId !== runId || state.dialog.outputId !== outputId) {
+        URL.revokeObjectURL(url); return;
+      }
+      state.preview = {loading: false, text: null, error: null, url,
+        width: inspection.width, height: inspection.height};
+    } catch (error) { state.preview = {loading: false, text: null, error: errorText(error)}; }
+  } else if (!textual) state.preview = {loading: false, text: null, error: 'Для этого формата доступно только скачивание.'};
   else if (output.size_bytes > 262144) state.preview = {loading: false, text: null, error: 'Файл больше 256 КБ. Скачайте его для просмотра.'};
   else {
     try {
@@ -531,7 +569,8 @@ root.addEventListener('click', async event => {
     state.workspaceId = state.workspaces[value]?.[0]?.workspace_id || null;
     state.view = 'work'; state.tab = 'summary'; paint(); void loadSelectedConnection().then(() => { if (!state.dialog) paint(); });
   } else if (action === 'workspace') { state.workspaceId = value; state.tab = 'summary'; paint(); void loadSelectedConnection().then(() => { if (!state.dialog) paint(); }); }
-  else if (action === 'tab') { state.tab = value; paint(); }
+  else if (action === 'tab') { state.tab = value; paint(); void loadTabInspections(); }
+  else if (action === 'log-errors-only') { state.logErrorsOnly = !state.logErrorsOnly; paint(); }
   else if (action === 'operation') { state.operationId = value; state.view = 'operations'; paint(); }
   else if (action === 'theme') { state.theme = state.theme === 'dark' ? 'light' : 'dark'; writePreference('runner-theme', state.theme); paint(); }
   else if (action === 'motion') { state.motionOff = !state.motionOff; writePreference('runner-motion', state.motionOff ? 'on' : 'off'); paint(); }

@@ -1136,3 +1136,56 @@ def test_retention_rejects_age_overflow_with_stable_code(tmp_path: Path) -> None
     with pytest.raises(EvidenceError) as invalid:
         store.expire_output(str(uuid4()), "stdout-raw", retention_days=10**12)
     assert invalid.value.code == "RETENTION_POLICY_INVALID"
+
+
+def test_output_inspection_route_reads_only_exact_sealed_registered_bytes(tmp_path: Path) -> None:
+    store, registry, ledger, request_id, snapshot_id, _, _ = _fixture(tmp_path)
+    manifest, provenance, files = _evidence(store, request_id, snapshot_id, registry)
+    samples = {
+        "junit": ("test_result", "junit-xml", "application/xml",
+                  (b'<testsuite tests="999"><testcase name="ok"/><testcase name="bad">'
+                   b'<failure message="known">trace</failure></testcase></testsuite>')),
+        "app-log": ("application_log", "application-log/v1", "application/x-ndjson",
+                    (b'{"timestamp":"2026-09-28T00:00:00Z","level":"ERROR",'
+                     b'"service":"toy","event":"failed","message":"known"}\n')),
+        "screen": ("screenshot", "png", "image/png",
+                   b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\rIHDR"
+                   + (800).to_bytes(4, "big") + (600).to_bytes(4, "big")),
+    }
+    for output_id, (kind, format_name, media_type, raw) in samples.items():
+        path = store.evidence_root / manifest["run_id"] / "capture" / f"{output_id}.bin"
+        path.write_bytes(raw)
+        path.chmod(0o600)
+        files[output_id] = path
+        manifest["outputs"].append({
+            "output_id": output_id, "kind": kind, "format": format_name,
+            "media_type": media_type, "relative_path": f"capture/{output_id}.bin",
+            "size_bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest(),
+            "complete": True, "truncated_reason": None, "publication": "local_only",
+        })
+    store.record_contained_run(manifest, snapshot_id=snapshot_id,
+                               provenance=provenance, files=files)
+    sessions = Sessions()
+    bootstrap = sessions.issue_bootstrap()
+    origin = "http://127.0.0.1:8765"
+    prefix = f"/api/v1/runs/{manifest['run_id']}/outputs/"
+    with TestClient(create_runtime_app(Settings(), Engine(ledger), sessions,
+                                       run_evidence=store), base_url=origin) as client:
+        assert client.get(prefix + "junit/inspection").status_code == 403
+        exchange = client.post("/api/v1/local/session", json={"bootstrap": bootstrap},
+                               headers={"Origin": origin})
+        assert exchange.status_code == 200
+        junit = client.get(prefix + "junit/inspection")
+        assert junit.status_code == 200
+        assert junit.json()["summary"]["tests"] == 2
+        assert junit.json()["failed_cases"][0]["id"] == "bad"
+        log = client.get(prefix + "app-log/inspection")
+        assert log.status_code == 200
+        assert [item["level"] for item in log.json()["error_events"]] == ["ERROR"]
+        screen = client.get(prefix + "screen/inspection")
+        assert screen.status_code == 200 and screen.json()["safe_preview"] is True
+        assert client.get(prefix + "missing/inspection").status_code == 404
+        assert client.get(prefix + "../screen/inspection").status_code != 200
+        assert client.get(prefix + "junit/inspection", headers={"Host": "attacker.example"}).status_code == 403
+        files["junit"].write_bytes(b"changed after registration")
+        assert client.get(prefix + "junit/inspection").json()["error"] == "OUTPUT_CHANGED"

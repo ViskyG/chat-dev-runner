@@ -75,6 +75,9 @@ export class LocalApi {
   output(id, outputId) {
     return this.request(`runs/${encodeURIComponent(id)}/outputs/${encodeURIComponent(outputId)}`, {responseType: 'blob'});
   }
+  inspectOutput(id, outputId) {
+    return this.request(`runs/${encodeURIComponent(id)}/outputs/${encodeURIComponent(outputId)}/inspection`);
+  }
   submit(command) { return this.request('operations', {method: 'POST', body: command}); }
   arm() { return this.request('local/arm', {method: 'POST', body: {}}); }
   disarm() { return this.request('local/disarm', {method: 'POST', body: {}}); }

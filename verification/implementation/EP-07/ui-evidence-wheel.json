@@ -1,0 +1,19 @@
+{
+  "wheel_name": "chat_dev_runner-0.2.5-py3-none-any.whl",
+  "wheel_sha256": "3c4af902f741f1d4654cbc43cefa1815e7e8292403fafb18f81bc2465464c90e",
+  "required_files": {
+    "runner_app/api/runtime.py": true,
+    "runner_app/outputs/inspection.py": true,
+    "runner_app/web/app.js": true,
+    "runner_app/web/render.js": true,
+    "runner_app/web/styles.css": true
+  },
+  "installed": false,
+  "source_byte_match": {
+    "runner_app/api/runtime.py": true,
+    "runner_app/outputs/inspection.py": true,
+    "runner_app/web/app.js": true,
+    "runner_app/web/render.js": true,
+    "runner_app/web/styles.css": true
+  }
+}

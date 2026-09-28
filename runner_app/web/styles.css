@@ -30,3 +30,17 @@ html,body{max-width:100%;overflow-x:hidden}code{font-family:var(--mono);overflow
 
 .retention-short{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:11px;padding:8px 0 13px}.retention-short .btn{margin:0}.artifact-row{min-width:0}.artifact-row .artifact{width:100%;min-width:0;overflow-wrap:anywhere}.artifact-row>small{display:block;color:var(--quiet);font-size:10px;padding:4px 2px 8px;overflow-wrap:anywhere}.retention-list{border-top:1px solid var(--line);margin-top:18px}.retention-item{display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line);padding:13px 0}.retention-item>div{min-width:0}.retention-item strong{display:block;font-size:12px;font-weight:500;overflow-wrap:anywhere}.retention-item small{display:block;color:var(--quiet);font-size:10px;overflow-wrap:anywhere}.retention-item .btn{flex-shrink:0}.retention-confirm{border:1px solid var(--line2);background:var(--panel2);border-radius:12px;padding:17px;margin-top:20px}.retention-confirm strong{font-size:12px;font-weight:500;overflow-wrap:anywhere}.retention-confirm p{font-size:11px;color:var(--muted)}.retention-confirm .actions{margin-top:13px}
 @media(max-width:600px){.retention-item{align-items:flex-start;flex-direction:column;gap:8px}.retention-confirm .btn{white-space:normal;text-align:center}}
+
+/* Registered evidence details keep the same quiet card language. */
+.evidence-detail{border-top:1px solid var(--line);padding:13px 0;margin-top:12px;min-width:0}
+.evidence-detail h3{margin:13px 0 7px}
+.evidence-detail .subtitle{margin:8px 0}
+.test-case{border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin:8px 0;background:var(--panel2);font-size:11px;overflow-wrap:anywhere}
+.test-case summary{cursor:pointer;font-weight:500}
+.test-case p{color:var(--muted)}
+.test-case .console{max-height:220px;margin-bottom:0}
+.structured-event{border-bottom:1px solid var(--line);padding:11px 0;font-size:11px;overflow-wrap:anywhere}
+.structured-event strong,.structured-event small{display:block}
+.structured-event small{color:var(--quiet)}
+.structured-event p{margin:5px 0;color:var(--muted);white-space:pre-wrap}
+.preview-image{display:block;max-width:100%;max-height:60vh;object-fit:contain;margin:14px auto;border:1px solid var(--line);border-radius:9px;background:var(--panel2)}

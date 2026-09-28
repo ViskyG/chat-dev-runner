@@ -138,19 +138,50 @@ function runPanel(state, workspace) {
     runIdFrom(o) === run.run_id && ['PUBLISH', 'DELIVER_VERIFY_PUBLISH', 'VERIFY'].includes(o.action) && o.result?.publication) || operation;
   const tab = state.tab;
   const tabs = [['summary', 'Сводка'], ['console', 'Консоль'], ['tests', 'Тесты'], ['artifacts', 'Файлы']];
+  const resultNote = operation.status === 'COMPLETED' && run.execution?.outcome === 'FAILED'
+    ? notice('Проверка кода проекта не прошла. Runner обслужил операцию; состояние публикации и доставки показано отдельно.')
+    : operation.status === 'FAULT' ? notice('Сбой runner или инфраструктуры. Итог кода и сохранённые файлы показаны отдельно.') : '';
   let content = '';
   if (tab === 'summary') {
     content = `<div class="summary-grid"><div>${badge(operation.status)}<div class="label">Операция</div></div><div>${badge(run.execution?.outcome)}<div class="label">Исполнение проекта</div></div><div>${deliveryBadge(deliveryOperation.result?.delivery?.status || deliveryOperation.delivery_status || run.delivery?.status)}<div class="label">Доставка</div></div></div>
       ${row('Запуск', run.run_id)}${row('Проверенный commit', run.snapshot?.commit)}${row('Дерево снимка', run.snapshot?.tree)}${row('Ветка сейчас', workspace.branch)}${row('Публикация', label(publicationOperation.result?.publication?.status || publicationOperation.publication_status || 'NOT_REQUESTED'))}
       ${row('Продолжительность', typeof run.execution?.duration_seconds === 'number' ? `${run.execution.duration_seconds.toFixed(2)} с` : null)}${githubPrLink(publicationOperation.result?.publication)}
-      ${notice(snapshotState(workspace, run, operation.result))}`;
+      ${resultNote}${notice(snapshotState(workspace, run, operation.result))}`;
   } else if (tab === 'console') {
     const outputs = state.outputs[run.run_id] || [];
     const logs = outputs.filter(o => ['console', 'runner_log', 'application_log'].includes(o.kind));
+    const structured = logs.filter(o => o.kind === 'application_log' && o.format === 'application-log/v1');
     content = logs.length ? `<p class="subtitle">Файлы ограничены размером при просмотре. Выберите зарегистрированный поток; порядок stdout и stderr не объединяется искусственно.</p>${logs.map(o => outputButton(state, run.run_id, o)).join(' ')}` : empty('Консольных файлов нет', 'Зарегистрированных потоков у этого запуска нет.');
+    if (structured.length) {
+      content += `<div class="evidence-detail"><button type="button" class="btn small" data-action="log-errors-only" aria-pressed="${state.logErrorsOnly}">${state.logErrorsOnly ? 'Скрыть ERROR/FATAL' : 'Показать ERROR/FATAL'}</button><p class="subtitle">Фильтр применяется только к распознанным application-log/v1; исходные файлы доступны выше.</p>`;
+      if (state.logErrorsOnly) content += structured.map(o => {
+        const key = `${run.run_id}/${o.output_id}`;
+        const inspection = state.inspections[key];
+        if (retentionOutput(state, run.run_id, o.output_id)?.state === 'EXPIRED')
+          return notice(`Журнал ${o.output_id} удалён; фильтр недоступен.`);
+        if (state.inspectionErrors[key]) return notice(`Журнал ${o.output_id}: ${state.inspectionErrors[key]}`);
+        if (!inspection) return notice(`Журнал ${o.output_id}: читаем сохранённые события…`);
+        if (inspection.status !== 'PARSED') return notice(`Журнал ${o.output_id}: фильтр недоступен (${inspection.status}). Откройте исходный файл.`);
+        const events = inspection.error_events || [];
+        return `<h3>${esc(o.output_id)}</h3>${inspection.summary?.invalid_lines ? notice(`Некорректных строк: ${inspection.summary.invalid_lines}; они не включены в фильтр.`) : ''}${events.length ? events.map(event => `<div class="structured-event"><strong>${esc(event.level)} · ${esc(event.service)} · ${esc(event.event)}</strong><small>${esc(event.timestamp)}</small><p>${esc(event.message)}${event.message_truncated ? ' …' : ''}</p></div>`).join('') : empty('ERROR/FATAL не зарегистрированы', 'Только в распознанных строках этого журнала.')}${inspection.omitted_error_events ? notice(`Осталось ${inspection.omitted_error_events} событий; откройте исходный файл.`) : ''}`;
+      }).join('');
+      content += '</div>';
+    }
   } else if (tab === 'tests') {
     const outputs = (state.outputs[run.run_id] || []).filter(o => o.kind === 'test_result');
-    content = outputs.length ? `<p class="subtitle">Случаи и причины ошибок доступны в сохранённых тестовых файлах. Число тестов не оценивается по статусу запуска.</p>${outputs.map(o => outputButton(state, run.run_id, o)).join(' ')}` : empty('Результаты тестов не зарегистрированы');
+    content = outputs.length ? `<p class="subtitle">Итоги показаны только для распознанного полного JUnit. Неполные и иные форматы остаются исходными файлами.</p>${outputs.map(o => {
+      const key = `${run.run_id}/${o.output_id}`;
+      const inspection = state.inspections[key];
+      const raw = outputButton(state, run.run_id, o);
+      if (retentionOutput(state, run.run_id, o.output_id)?.state === 'EXPIRED')
+        return `<div class="evidence-detail">${raw}${notice('Исходный JUnit удалён; подробности недоступны.')}</div>`;
+      if (state.inspectionErrors[key]) return `<div class="evidence-detail">${raw}${notice(state.inspectionErrors[key])}</div>`;
+      if (!inspection) return `<div class="evidence-detail">${raw}${notice('Читаем сохранённый JUnit…')}</div>`;
+      if (inspection.status !== 'PARSED') return `<div class="evidence-detail">${raw}${notice(`Число тестов неизвестно: ${inspection.status}. Откройте исходный файл.`)}</div>`;
+      const summary = inspection.summary || {};
+      const cases = inspection.failed_cases || [];
+      return `<div class="evidence-detail">${raw}<p class="subtitle">Из элементов testcase: ${Number(summary.tests).toLocaleString('ru-RU')} всего · ${Number(summary.passed).toLocaleString('ru-RU')} прошло · ${Number(summary.failed).toLocaleString('ru-RU')} ошибок проверки · ${Number(summary.errors).toLocaleString('ru-RU')} ошибок запуска · ${Number(summary.skipped).toLocaleString('ru-RU')} пропущено.</p>${cases.map(item => `<details class="test-case"><summary>${esc(item.outcome)} · ${esc(item.id)}</summary>${item.message ? `<p>${esc(item.message)}</p>` : ''}<pre class="console">${esc(item.trace || 'Текст причины не записан в JUnit.')}</pre></details>`).join('')}${inspection.omitted_failed_cases ? notice(`Показаны первые ${cases.length} случаев; ещё ${inspection.omitted_failed_cases} доступны в исходном JUnit.`) : ''}</div>`;
+    }).join('')}` : empty('Результаты тестов не зарегистрированы');
   } else content = outputList(state, run);
   return `<div class="inspect-body"><div class="runheadline"><div><strong>Последний сохранённый запуск этой области</strong><p>Операция ${esc(short(operation.request_id))} · ${esc(timeText(run.created_at))}</p></div>${badge(run.execution?.outcome)}</div></div>
     <div class="output-tabs" role="tablist" aria-label="Разделы результата">${tabs.map(([id, caption]) => `<button type="button" class="output-tab ${tab === id ? 'on' : ''}" role="tab" id="tab-${id}" aria-controls="run-panel" aria-selected="${tab === id}" data-action="tab" data-value="${id}">${caption}</button>`).join('')}</div>
@@ -333,7 +364,7 @@ export function renderDialog(state) {
     title = `Вывод · ${dialog.outputId}`;
     const output = (state.outputs[dialog.runId] || []).find(o => o.output_id === dialog.outputId);
     body = output ? `${row('Тип', output.kind)}${row('Формат', output.format)}${row('Размер', `${output.size_bytes} байт`)}${row('SHA-256', output.sha256)}${row('Полнота', output.complete ? 'Полный' : `Неполный: ${output.truncated_reason || 'причина неизвестна'}`)}${row('Публикация', output.publication)}
-      <p class="subtitle">Содержимое показывается только как инертный текст, без выполнения HTML, SVG или скриптов.</p><pre class="console" data-testid="output-preview" id="output-preview" tabindex="0">${state.preview?.loading ? 'Читаем файл…' : state.preview?.error ? esc(state.preview.error) : state.preview && typeof state.preview.text === 'string' ? esc(state.preview.text || 'Файл пустой.') : 'Предпросмотр не выбран или недоступен.'}</pre>` : empty('Файл не найден');
+      <p class="subtitle">Текст остаётся инертным. Изображение показывается только после проверки зарегистрированного растрового формата и размеров.</p>${state.preview?.url ? `<img class="preview-image" data-testid="image-preview" src="${esc(state.preview.url)}" alt="Сохранённое изображение ${esc(output.output_id)}"><p class="subtitle">${esc(state.preview.width)} × ${esc(state.preview.height)} пикселей · локальный проверенный вывод</p>` : `<pre class="console" data-testid="output-preview" id="output-preview" tabindex="0">${state.preview?.loading ? 'Читаем файл…' : state.preview?.error ? esc(state.preview.error) : state.preview && typeof state.preview.text === 'string' ? esc(state.preview.text || 'Файл пустой.') : 'Предпросмотр не выбран или недоступен.'}</pre>`}` : empty('Файл не найден');
     const expired = retentionOutput(state, dialog.runId, dialog.outputId)?.state === 'EXPIRED';
     footer = `<button type="button" class="btn ghost" data-action="retention-from-output">Хранение</button><button type="button" class="btn ghost" data-action="copy-output" ${state.preview?.text && !expired ? '' : 'disabled title="Нет доступного текста"'}>Копировать текст</button><button type="button" class="btn primary" data-action="download-output" ${output && !expired ? '' : 'disabled title="Вывод уже удалён"'}>Скачать файл</button>`;
   }
