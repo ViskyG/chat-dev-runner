@@ -1,0 +1,18 @@
+{
+  "checked_at": "2026-09-28T17:52:12.609853+00:00",
+  "mode": "INSTALLED_026_LOCAL_BOUNDARY",
+  "version": "0.2.6",
+  "armed": true,
+  "health_http": 200,
+  "shell_http": 200,
+  "csp": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+  "unauth_system_http": 403,
+  "unauth_inspection_http": 403,
+  "spoofed_host_http": 403,
+  "cross_origin_session_http": 403,
+  "listener_binds": [
+    "127.0.0.1:8765"
+  ],
+  "provider_writes_by_this_check": false,
+  "pass": true
+}

@@ -1,13 +1,12 @@
 # Agent entry contract
 
 Read `STATUS.json`, then `codex/START_HERE.md`. Execute only the selected packet.
-EP-00 through EP-06 are verified. EP-07 has an installed owner-user service
-from a locked wheel, but the unit is intentionally stopped and disabled during
-owner-approved release maintenance. The service previously passed loopback-only
-and armed startup checks. `Linger=yes` is configured; when the user unit is
-enabled, a clean configured startup arms command intake by default. Explicit
-`--start-unarmed` or `NEEDS_RECONCILIATION` leaves intake off. Real boot and
-release acceptance are still open. Check `STATUS.json` and the EP-07
+EP-00 through EP-06 are verified. EP-07 has an installed owner-user `0.2.6`
+service from a locked wheel, active and enabled on loopback. `Linger=yes` is
+configured; a clean configured startup arms command intake by default. Explicit
+`--start-unarmed` or `NEEDS_RECONCILIATION` leaves intake off. The installed
+local/Drive epoch and UI readbacks passed; real boot and release acceptance
+are still open. Check `STATUS.json` and the EP-07
 checkpoint before claiming a live capability.
 Do not present mock network actions as implemented integrations.
 

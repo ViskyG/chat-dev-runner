@@ -14,7 +14,8 @@ Codex inventories OS, Python, Git, rootless container mode and existing projects
 changing them. Owner selects managed paths, local OAuth client, GitHub identity/owner,
 private provisioning and approved templates. For this owner account the runner attaches the
 already-provisioned `Chat-Dev Runner` Drive root and INSTALLATION INDEX by exact ID, validates
-the indexed control documents and starts UNARMED. The completed disposable Doc
+the indexed control documents and starts armed after clean recovery checks.
+An explicit `--start-unarmed` mode remains available for maintenance. The completed disposable Doc
 read/edit/readback handshake validates the chat connection. Owner arming rotates the epoch;
 no sample command executes automatically.
 

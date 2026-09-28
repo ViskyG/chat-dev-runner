@@ -1,13 +1,13 @@
 {
   "version": "0.4.0-EP07-in-progress",
   "date": "2026-09-28",
-  "ui": "EP-06 VERIFIED: packaged same-origin control centre is bound to authenticated local read models/actions; 65/65 fake-backed browser, 19/19 fresh local-process and 22/22 configured disarmed-process checks passed. Original prototype remains separate.",
+  "ui": "EP-06 VERIFIED packaged same-origin control centre. EP-07 installed 0.2.6 read-only UI/API acceptance matched operation/execution/publication/delivery axes and JUnit cases for the existing passing and failing routes, with 18 dark/light/reduced-motion screenshots and real keyboard/viewport checks; optional registered image and structured-log examples were absent. See verification/implementation/EP-07/ui-evidence-installed-20260928.md.",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
-  "live_runner": "EP-00 through EP-06 VERIFIED; EP-07 IN_PROGRESS. The existing 0.2.5 owner-user unit is installed but intentionally inactive and disabled during owner-approved EP-07 maintenance; local command intake is disarmed and no loopback listener is running. The installed-service UI, Drive-origin CREATE_PROJECT and project FETCH, two workspace publish routes, and matching receipts previously passed. The existing Drive root and Index remain attached. Exact mailbox preflight found no unexpired READY without terminal before maintenance. Same-path restore, retention rollback, and uninstall/reinstall passed on the owner host. Source main contains later EP-07 fixes not yet deployed in the 0.2.5 wheel; a new wheel, final integration checks, real boot and the remaining release matrix are open. See codex/checkpoints/EP-07.md and verification/implementation/EP-07/.",
+  "live_runner": "EP-00 through EP-06 VERIFIED; EP-07 IN_PROGRESS. Owner-user wheel 0.2.6 is installed, active and enabled with Linger=yes, listening only on 127.0.0.1:8765 and armed after a clean start. Exact existing Drive root, Installation Index and SYSTEM STATE were read back with the same local/remote epoch; pre-start exact mailbox preflight found no unexpired READY lacking terminal receipt. The ledger still has 17 operations and 167 effects; no project command was issued during this upgrade. The prior passing/failing workspace publications and the current installed UI/JUnit readback passed. Real reboot, remaining host/provider routes, chat GitHub access and the full release matrix remain open. See verification/implementation/EP-07/release-upgrade-0.2.6.json.",
   "github_live_adapter": "EP-05 created three disposable private repositories under ViskyG. EP-07 installed 0.2.1 service published passing primary and failing parallel runs to distinct branches of the disposable private UI project, with draft PRs #1 and #2 and Drive report links. The failing draft PR is labelled [FAILED]. Owner-only tokens remain outside the repository. Owner-local GitHub read independently confirmed the calculator repository is private; this chat GitHub connector returned 404 for that new repository.",
   "credentials": "None bundled",
-  "service_installation": "Owner-user 0.2.5 wheel and managed unit remain installed. The service was stopped and disabled after the owner-approved backup/restore, retention and uninstall/reinstall gates; local ledger armed=false, 127.0.0.1:8765 has no listener. The prior clean reinstall/start produced a fresh epoch and confirmed 17 operations/167 effects unchanged, then the service was stopped again. The currently installed wheel predates later source fixes. Linger=yes is configured, but a real machine power-cycle has not been tested. No installed new-wheel release is claimed. See verification/implementation/EP-07/host-same-path-restore-20260928.json, host-retention-trial-20260928.json and host-uninstall-reinstall-20260928.json.",
+  "service_installation": "Wheel 0.2.6 was built from the 1379-pass, 1-skipped source freeze; 109 packaged members matched source and all 43 installed dependencies are compatible. A private 572-file schema-9 backup passed independent hashes and SQLite integrity before the stopped-service upgrade. The managed unit is CURRENT, active and enabled; only 127.0.0.1:8765 listens, local intake is armed, and the exact existing Drive SYSTEM STATE epoch matches. Linger=yes is configured; real power-cycle behavior has not been observed. The installed browser matched passing and failing registered runs/JUnit facts and saved 18 reviewed screenshots. EP-07 is not yet signed as a daily-use release.",
   "automatic_chat_access": "CONNECTED_DRIVE_COMMAND_ROUNDTRIPS_VERIFIED_IN_CURRENT_CHAT: connected chat Drive app issued revision-guarded DRAFT/READY CREATE_PROJECT through the existing root COMMAND and read a matching COMPLETED root RECEIPT after deployed service execution. On installed 0.2.2, it issued FETCH through an existing project COMMAND and read a matching COMPLETED project RECEIPT. An owner-reported separate-chat CREATE_PROJECT for cdr-calculator-smoke-20260928-1759 was independently observed as COMPLETED in the installed ledger and connected Drive root RECEIPT; the originating chat session identity is not independently proven. CONNECTED_GITHUB_RUNNER_REPO_READ_VERIFIED: private ViskyG/chat-dev-runner is visible. The current chat GitHub connector returned 404 for the newly created private calculator repository, which owner-local gh independently verified exists.",
   "user_projects": "Three disposable EP-05 projects and three EP-07 projects (cdr-ep07-ui-20260928, cdr-ep07-drive-20260928 and owner-requested cdr-calculator-smoke-20260928-1759) were created under the existing Drive installation and private GitHub owner. All three EP-07 projects are READY. The UI project has primary and parallel ACTIVE workspaces on distinct branches from the same explicit base, with the second area registered in Drive. Deployed workspace commands on each UI branch completed separately: primary PASSED, parallel FAILED, each with private draft PR and Drive report. The calculator project is a scaffold; application code has not yet been submitted. Independent unchanged-workspace source identity is evidenced in verification/implementation/EP-07/source-identity-readonly-20260928.json. No pre-existing user project was imported or modified.",
   "drive_installation": {
@@ -18,8 +18,8 @@
     "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
     "installation_index_document_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
     "installation_index_url": "https://docs.google.com/document/d/1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA/edit",
-    "runner_state": "LOCAL_STOPPED_CLOUD_STATE_NOT_RECHECKED",
-    "armed": false,
+    "runner_state": "CONFIGURED_ARMED",
+    "armed": true,
     "bootstrap_allowed": false,
     "live_validation": "13_ROLE_LEGACY_ATTACH_AND_CROSS_APP_CANARY_VERIFIED; EP05_UI_CREATE_COMPLETED; EP05_DRIVE_ROOT_CREATE_RESUMED; EP05_PASSING_WORKSPACE_DRAFT_PR_DELIVERED; EP05_FAILING_WORKSPACE_DRAFT_PR_DELIVERED; PASS_AND_FAIL_PROVIDER_POSTCHECK_CONFIRMED; EP07_INSTALLED_SERVICE_EXACT_ATTACH_AND_PROVIDER_READS_OK; EP07_DEPLOYED_UI_CREATE_COMPLETED; EP07_CHAT_PROTOCOL_IN_PLACE_UPDATE_VERIFIED; EP07_CHAT_CONNECTOR_DRIVE_CREATE_COMPLETED_AND_RECEIPT_MATCHED; EP07_SECOND_WORKSPACE_EXACT_DRIVE_READBACK_AND_UI_API_PASS; EP07_DEPLOYED_PRIMARY_PASS_DRAFT_PR_AND_DRIVE_REPORT; EP07_DEPLOYED_PARALLEL_FAIL_DRAFT_PR_AND_DRIVE_REPORT; EP07_INSTALLED_022_PROJECT_FETCH_COMMAND_AND_RECEIPT_MATCHED; EP07_INSTALLED_024_DEFAULT_ON_GRACEFUL_RESTART_AND_DRIVE_SYSTEM_STATE_EPOCH_MATCHED; EP07_ROOT_INVALID_JSON_NO_ADMISSION_EXPIRED_DRAFT_RETIRED_PROTOCOL_12; EP07_CALCULATOR_CHAT_ORIGIN_CREATE_COMPLETED_RECEIPT_MATCHED",
     "source": "Owner update after archive creation; seed is a reference specification"
@@ -36,7 +36,7 @@
       "EP-06": "VERIFIED",
       "EP-07": "IN_PROGRESS"
     },
-    "armed": false,
+    "armed": true,
     "deployable": false,
     "evidence": "verification/implementation/EP-07/",
     "checkpoint": "codex/checkpoints/EP-07.md",
@@ -107,7 +107,10 @@
     "ep07_retention_trial": "verification/implementation/EP-07/host-retention-trial-20260928.json",
     "ep07_uninstall_reinstall": "verification/implementation/EP-07/host-uninstall-reinstall-20260928.json",
     "ep07_hosted_ci": "verification/implementation/EP-07/ci-nx00-hosted-acceptance.json",
-    "ep07_cpu_containment": "verification/implementation/EP-07/cpu-containment-summary.json"
+    "ep07_cpu_containment": "verification/implementation/EP-07/cpu-containment-summary.json",
+    "ep07_release_026": "verification/implementation/EP-07/release-upgrade-0.2.6.json",
+    "ep07_installed_ui": "verification/implementation/EP-07/installed-ui-026-20260928T1755Z/report.json",
+    "ep07_installed_keyboard": "verification/implementation/EP-07/installed-0.2.6-keyboard.json"
   },
   "implementation_source_repository": {
     "local_git": "EP07_IN_PROGRESS_MAIN",

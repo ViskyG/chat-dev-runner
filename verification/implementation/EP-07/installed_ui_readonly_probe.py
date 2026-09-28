@@ -35,6 +35,7 @@ STATUS_LABELS = {
     "COMPLETED": "Обслужена", "PASSED": "Пройдены", "FAILED": "Не пройдены",
     "DELIVERED": "Доставлено", "PENDING": "Ожидает доставки",
     "PARTIAL": "Частично", "NOT_ATTEMPTED": "Не выполнялось",
+    "DRAFT_PUBLISHED": "Черновик PR создан", "NOT_REQUESTED": "Не запрашивалось",
 }
 SLUG = re.compile(r"[a-z0-9][a-z0-9-]{0,47}\Z")
 UUID = re.compile(r"[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}\Z")
@@ -184,7 +185,8 @@ def inspect_workspace(page: Page, workspace: str, facts: dict[str, Any]) -> dict
             operation["result"]["delivery"]["status"]]
     require(badges == [STATUS_LABELS.get(axis, axis) for axis in axes], "UI_AXES_MISMATCH")
     publication = operation["result"]["publication"]["status"]
-    require("Публикация" in summary and publication in summary, "UI_PUBLICATION_MISMATCH")
+    require("Публикация" in summary and STATUS_LABELS.get(publication, publication) in summary,
+            "UI_PUBLICATION_MISMATCH")
     if run["execution"]["outcome"] == "FAILED":
         require("Проверка кода проекта не прошла" in summary
                 and "Сбой runner или инфраструктуры" not in summary,

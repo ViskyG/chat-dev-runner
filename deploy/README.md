@@ -2,11 +2,13 @@
 
 ## Current deployment state
 
-EP-00–06 are verified. EP-07 has an installed `0.2.5` owner-user service
-from the private wheel environment. It is intentionally stopped and disabled
-during owner-approved release maintenance. When enabled, a clean configured
-start arms command intake by default; the service listens only on
-`127.0.0.1:8765`. The later main-branch fixes are not yet installed. The initial host installation and prior upgrades are recorded in
+EP-00–06 are verified. EP-07 has an installed `0.2.6` owner-user service
+from the private wheel environment, active and enabled after a validated
+stopped-service upgrade. A clean configured start arms command intake by
+default; the service listens only on `127.0.0.1:8765`. The exact existing
+Drive SYSTEM STATE epoch matches the local ledger. Release acceptance and a
+real reboot test remain open; see
+[release-upgrade-0.2.6.json](../verification/implementation/EP-07/release-upgrade-0.2.6.json). The initial host installation and prior upgrades are recorded in
 [release-install.json](../verification/implementation/EP-07/release-install.json),
 [release-upgrade-0.2.1.json](../verification/implementation/EP-07/release-upgrade-0.2.1.json) and
 [release-upgrade-0.2.2.json](../verification/implementation/EP-07/release-upgrade-0.2.2.json) and

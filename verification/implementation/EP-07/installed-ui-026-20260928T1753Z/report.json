@@ -1,0 +1,17 @@
+{
+  "auth_only_post": 1,
+  "base_source_commit": "a25be072b5f44d24ddbe4758fe6915c355d90e58",
+  "blocked_mutations": [],
+  "checked_at": "2026-09-28T17:53:36.024699+00:00",
+  "failure_code": "UI_PUBLICATION_MISMATCH",
+  "installed_version": "0.2.6",
+  "mode": "LIVE_INSTALLED_UI_READ_ONLY",
+  "off_origin_requests": [],
+  "optional_coverage": {},
+  "packet": "EP-07",
+  "project_id": "cdr-ep07-ui-20260928",
+  "result": "FAIL",
+  "runs": [],
+  "schema_version": "1.0",
+  "screenshots": []
+}

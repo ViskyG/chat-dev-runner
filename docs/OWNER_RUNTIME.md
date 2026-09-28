@@ -137,12 +137,11 @@ workspace ID, and owner-only run evidence retention controls. Explicit `FETCH` i
 only operation that advances the durable per-project fetch timestamp; an `ls-remote`
 connection check is read-only and does not imply a fetch. The packaged UI
 reflects these backend values. EP-07 has installed and upgraded the durable
-owner-user service from a locked wheel; the unit is currently stopped and
-disabled for owner-approved EP-07 maintenance. When enabled, a clean configured
-service restart arms intake. The user unit and `Linger=yes` can arrange for
-startup at computer boot without interactive login; a real reboot check remains
-open. Read the local service status and fresh `SYSTEM STATE` after rollout for
-its current intake state. Exact existing Drive root/Index
+owner-user `0.2.6` service from a locked wheel; the unit is active and
+enabled after the verified stopped-service upgrade. A clean configured restart
+arms intake. The user unit and `Linger=yes` configure startup at computer boot
+without interactive login; a real reboot check remains open. The local status
+and exact existing `SYSTEM STATE` were read back with a matching current epoch. Exact existing Drive root/Index
 and provider reads, one UI-origin project, one current-chat Drive-origin
 project and a second local-UI
 workspace have passed deployed checks. See

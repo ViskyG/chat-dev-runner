@@ -1,0 +1,33 @@
+{
+  "checked_at": "2026-09-28T18:00:52.950869+00:00",
+  "mode": "INSTALLED_026_KEYBOARD_AND_LAYOUT_READ_ONLY",
+  "auth_only_post": 1,
+  "blocked_mutations": [],
+  "off_origin_requests": [],
+  "viewport_checks": [
+    {
+      "width": 1280,
+      "height": 800,
+      "document_scroll_width": 1280,
+      "horizontal_overflow": false
+    },
+    {
+      "width": 1600,
+      "height": 1120,
+      "document_scroll_width": 1600,
+      "horizontal_overflow": false
+    },
+    {
+      "width": 2560,
+      "height": 1440,
+      "document_scroll_width": 2560,
+      "horizontal_overflow": false
+    }
+  ],
+  "page_errors": 0,
+  "result": "PASS",
+  "keyboard_workspace_selection": "PASS",
+  "keyboard_palette_focus_return": "PASS",
+  "keyboard_theme_toggle": "PASS",
+  "reduced_motion_media": "PASS"
+}

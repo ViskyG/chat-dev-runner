@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-09-28T17:51:34.010211+00:00",
+  "result": "PASS",
+  "remote_writes_by_this_check": false,
+  "local_token_file_changed": false,
+  "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+  "installation_index_document_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+  "system_state_document_id": "1UXNE8Vt-73inAKm4i949TpyGT5rb3ve9bv_521QwXS0",
+  "system_state_sha256": "7c139f39a0c838c688c4c3a1f76a661ac79d26dd44aedce69434de90bab045c4",
+  "remote_state": "ARMED",
+  "remote_armed": true,
+  "local_armed": true,
+  "local_epoch": "163762fe-2cc3-43f4-807a-cf803fa4c7cb",
+  "remote_epoch": "163762fe-2cc3-43f4-807a-cf803fa4c7cb",
+  "available_actions": [
+    "CREATE_PROJECT",
+    "CREATE_WORKSPACE",
+    "DELIVER_VERIFY_PUBLISH",
+    "FETCH"
+  ]
+}

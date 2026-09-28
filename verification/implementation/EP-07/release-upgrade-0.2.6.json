@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "mode": "OWNER_HOST_WHEEL_0.2.6_UPGRADE",
+  "source_commit": "a25be072b5f44d24ddbe4758fe6915c355d90e58",
+  "source_freeze": {
+    "junit": "verification/implementation/EP-07/0.2.6-source-freeze.xml",
+    "passed": 1379,
+    "skipped": 1,
+    "errors": 0,
+    "failures": 0,
+    "seconds": 309.71,
+    "focused_tests_passed": 81,
+    "ruff": "PASS",
+    "mypy": "PASS",
+    "node_check": "PASS"
+  },
+  "wheel": {
+    "version": "0.2.6",
+    "sha256": "a4ec9a79baffecf92c73e021b94be50f3400b2f36deddb44c84dd7933109e102",
+    "packaged_members_source_identical": 109,
+    "dependency_check": "43_COMPATIBLE",
+    "production_lock_sha256": "79036fafb676757f4109d02c9a85910ac0a9f607582cc6151339e7d9c91e2cea"
+  },
+  "pre_upgrade_backup": {
+    "private_archive": "/home/visky/Work/GPTRunner/.runner-backups/pre-0.2.6-20260928T1745Z",
+    "manifest_sha256": "8607a2d10ff3f0ad74df801d9c88d55b811fb1c8fd3e6191c42ffd3ab13b5f8d",
+    "files_independently_verified": 572,
+    "symlinks": 0,
+    "sqlite_schema": 9,
+    "sqlite_integrity": "ok",
+    "mode": "0700"
+  },
+  "mailbox_preflight": "verification/implementation/EP-07/pre-0.2.6-mailbox-20260928.json",
+  "service": {
+    "installed_version": "0.2.6",
+    "unit_state": "CURRENT",
+    "active": true,
+    "enabled": true,
+    "loopback_listener": "127.0.0.1:8765",
+    "armed": true,
+    "epoch": "163762fe-2cc3-43f4-807a-cf803fa4c7cb",
+    "operations_unchanged": 17,
+    "effects_unchanged": 167,
+    "real_boot_tested": false
+  },
+  "drive_epoch_readback": "verification/implementation/EP-07/installed-0.2.6-epoch-readback.json",
+  "loopback_gate": "verification/implementation/EP-07/installed-0.2.6-loopback-gate.json",
+  "installed_ui": {
+    "report": "verification/implementation/EP-07/installed-ui-026-20260928T1755Z/report.json",
+    "result": "PASS",
+    "screenshots": 18,
+    "existing_routes_checked": 2,
+    "optional_real_formats_absent": true
+  },
+  "new_project_or_workspace_operations": 0,
+  "new_github_repository": false,
+  "duplicate_drive_installation": false,
+  "release_acceptance": "IN_PROGRESS"
+}

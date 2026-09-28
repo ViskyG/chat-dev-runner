@@ -1,0 +1,264 @@
+{
+  "auth_only_post": 1,
+  "base_source_commit": "a25be072b5f44d24ddbe4758fe6915c355d90e58",
+  "blocked_mutations": [],
+  "checked_at": "2026-09-28T17:55:03.856198+00:00",
+  "installed_version": "0.2.6",
+  "mode": "LIVE_INSTALLED_UI_READ_ONLY",
+  "off_origin_requests": [],
+  "optional_coverage": {
+    "parallel": {
+      "raster_screenshot": "ABSENT",
+      "structured_application_log": "ABSENT",
+      "svg_screenshot": "ABSENT",
+      "unsafe_junit_marker": "ABSENT"
+    },
+    "primary": {
+      "raster_screenshot": "ABSENT",
+      "structured_application_log": "ABSENT",
+      "svg_screenshot": "ABSENT",
+      "unsafe_junit_marker": "ABSENT"
+    }
+  },
+  "packet": "EP-07",
+  "page_error_count": 0,
+  "project_id": "cdr-ep07-ui-20260928",
+  "result": "PASS",
+  "runs": [
+    {
+      "delivery": "DELIVERED",
+      "execution": "PASSED",
+      "junit": [
+        {
+          "case_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "counts": {
+            "errors": 0,
+            "failed": 0,
+            "passed": 2,
+            "skipped": 0,
+            "tests": 2
+          },
+          "failed_case_count": 0,
+          "output_id": "junit",
+          "status": "PARSED"
+        }
+      ],
+      "operation": "COMPLETED",
+      "outputs_verified": 8,
+      "publication": "DRAFT_PUBLISHED",
+      "report_asset_confirmed": true,
+      "request_id": "d4e83e2e-cb8f-4768-84bf-13784aa9072f",
+      "run_id": "d4e83e2e-cb8f-4768-84bf-13784aa9072f",
+      "workspace_id": "primary"
+    },
+    {
+      "delivery": "DELIVERED",
+      "execution": "FAILED",
+      "junit": [
+        {
+          "case_ids_sha256": "6c3f460ed8b2c92b96c83955c7d34e5a87a2a87fe3fb6fb7bd259670c922744b",
+          "counts": {
+            "errors": 0,
+            "failed": 1,
+            "passed": 1,
+            "skipped": 0,
+            "tests": 2
+          },
+          "failed_case_count": 1,
+          "output_id": "junit",
+          "status": "PARSED"
+        }
+      ],
+      "operation": "COMPLETED",
+      "outputs_verified": 8,
+      "publication": "DRAFT_PUBLISHED",
+      "report_asset_confirmed": true,
+      "request_id": "cbc20739-bfe2-451e-9440-07118e08105a",
+      "run_id": "cbc20739-bfe2-451e-9440-07118e08105a",
+      "workspace_id": "parallel"
+    }
+  ],
+  "schema_version": "1.0",
+  "screenshots": [
+    {
+      "file": "primary-dark-1600x1120.png",
+      "reduced_motion": false,
+      "sha256": "1d61b10bf59af44d0961d05de4e3f6724bd5be3fb326df73bdf44c17980fc598",
+      "theme": "dark",
+      "viewport": [
+        1600,
+        1120
+      ]
+    },
+    {
+      "file": "primary-dark-1280x800.png",
+      "reduced_motion": false,
+      "sha256": "1baf9d3e78c0537f9fd124571038ce133e76ca113eecc92a7b5e4fd4a4c759de",
+      "theme": "dark",
+      "viewport": [
+        1280,
+        800
+      ]
+    },
+    {
+      "file": "primary-dark-2560x1440.png",
+      "reduced_motion": false,
+      "sha256": "5a482d0d8932872ea4f6f6f5cc6b68135293753f3c00708fda32274a1d51a387",
+      "theme": "dark",
+      "viewport": [
+        2560,
+        1440
+      ]
+    },
+    {
+      "file": "primary-light-1600x1120.png",
+      "reduced_motion": false,
+      "sha256": "66c3557bef70e696ea62a170d73d82de843fea531a1c7a3a259dac2de8ea6346",
+      "theme": "light",
+      "viewport": [
+        1600,
+        1120
+      ]
+    },
+    {
+      "file": "primary-light-1280x800.png",
+      "reduced_motion": false,
+      "sha256": "83b3fd54e4caa0873edd48ee19f92459a2ebdbafd17b9230d5f80cea2da1eccf",
+      "theme": "light",
+      "viewport": [
+        1280,
+        800
+      ]
+    },
+    {
+      "file": "primary-light-2560x1440.png",
+      "reduced_motion": false,
+      "sha256": "cc52bb7e3d222ccf4971a77f13a9718fdff9277a68c2a40fed1f21c0068a2992",
+      "theme": "light",
+      "viewport": [
+        2560,
+        1440
+      ]
+    },
+    {
+      "file": "primary-reduced-motion-1600x1120.png",
+      "reduced_motion": true,
+      "sha256": "69b48f5eefd84fd10e141adb326d7c40ffa13dc5083bfb72d6d23b25d5a3acf2",
+      "theme": "dark",
+      "viewport": [
+        1600,
+        1120
+      ]
+    },
+    {
+      "file": "primary-reduced-motion-1280x800.png",
+      "reduced_motion": true,
+      "sha256": "1baf9d3e78c0537f9fd124571038ce133e76ca113eecc92a7b5e4fd4a4c759de",
+      "theme": "dark",
+      "viewport": [
+        1280,
+        800
+      ]
+    },
+    {
+      "file": "primary-reduced-motion-2560x1440.png",
+      "reduced_motion": true,
+      "sha256": "c5dff0d6c0addc6020036dd34bc7135be7ab69e985a695d1e7f2f5c8dcdc00e2",
+      "theme": "dark",
+      "viewport": [
+        2560,
+        1440
+      ]
+    },
+    {
+      "file": "parallel-dark-1600x1120.png",
+      "reduced_motion": false,
+      "sha256": "6f97da152a20983f799fb0693dfb6284861765e0302d67c0dcb8d2829e882664",
+      "theme": "dark",
+      "viewport": [
+        1600,
+        1120
+      ]
+    },
+    {
+      "file": "parallel-dark-1280x800.png",
+      "reduced_motion": false,
+      "sha256": "d1dd600430c77b637f85f0570ad6bf8b98211280b101d78a1bab8eb465e2c56a",
+      "theme": "dark",
+      "viewport": [
+        1280,
+        800
+      ]
+    },
+    {
+      "file": "parallel-dark-2560x1440.png",
+      "reduced_motion": false,
+      "sha256": "e6e744564a3768e23fb30666eba03b404aea3cdadf9472d56ea93791515b0586",
+      "theme": "dark",
+      "viewport": [
+        2560,
+        1440
+      ]
+    },
+    {
+      "file": "parallel-light-1600x1120.png",
+      "reduced_motion": false,
+      "sha256": "1ee52fc3bdb032a63d2c9c9e3b110ff411523f11e98f7c4bf7812f14ff9c0368",
+      "theme": "light",
+      "viewport": [
+        1600,
+        1120
+      ]
+    },
+    {
+      "file": "parallel-light-1280x800.png",
+      "reduced_motion": false,
+      "sha256": "4ede44389a5b3d3ed0fd2f87deabc2ab313f5be0eb6f884cea6ee3ae62de3ef1",
+      "theme": "light",
+      "viewport": [
+        1280,
+        800
+      ]
+    },
+    {
+      "file": "parallel-light-2560x1440.png",
+      "reduced_motion": false,
+      "sha256": "2c8530e51eb65e60d22afba6c83f444c772a9d1e316b99fdccbfa9379e5d6cf5",
+      "theme": "light",
+      "viewport": [
+        2560,
+        1440
+      ]
+    },
+    {
+      "file": "parallel-reduced-motion-1600x1120.png",
+      "reduced_motion": true,
+      "sha256": "6f97da152a20983f799fb0693dfb6284861765e0302d67c0dcb8d2829e882664",
+      "theme": "dark",
+      "viewport": [
+        1600,
+        1120
+      ]
+    },
+    {
+      "file": "parallel-reduced-motion-1280x800.png",
+      "reduced_motion": true,
+      "sha256": "d1dd600430c77b637f85f0570ad6bf8b98211280b101d78a1bab8eb465e2c56a",
+      "theme": "dark",
+      "viewport": [
+        1280,
+        800
+      ]
+    },
+    {
+      "file": "parallel-reduced-motion-2560x1440.png",
+      "reduced_motion": true,
+      "sha256": "e6e744564a3768e23fb30666eba03b404aea3cdadf9472d56ea93791515b0586",
+      "theme": "dark",
+      "viewport": [
+        2560,
+        1440
+      ]
+    }
+  ]
+}

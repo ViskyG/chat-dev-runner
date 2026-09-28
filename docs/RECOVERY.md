@@ -201,13 +201,13 @@ an actual runner/integration problem requiring local attention, not a failing un
 
 ## EP-07 operational gate
 
-The owner-user service is installed from the private `0.2.5` wheel but is
-intentionally stopped and disabled during the owner-approved EP-07 maintenance
-window. Its earlier active loopback, Host, Origin and session gates passed;
-deployed Drive/GitHub reads and execution readiness also passed. The stopped
-backup, same-path restore, explicit retention trial/rollback, and managed-unit
-uninstall/reinstall are recorded under `verification/implementation/EP-07/`.
-After the reinstall check, the service was stopped and disabled again; its
-next startup must use a fresh epoch and reconcile current mailbox state.
-Interruption/power-loss recovery, real boot and fresh-chat end-to-end access
-remain open. Do not mistake this maintenance state for a deployed release.
+The owner-user service is installed from the private `0.2.6` wheel, active
+and enabled after a validated stopped-service upgrade. The 572-file pre-upgrade
+backup passed independent hashes and SQLite integrity; the exact existing
+Drive mailbox preflight found no unexpired READY without terminal receipt.
+After startup, local and Drive SYSTEM STATE epochs matched, and the listener
+remained loopback-only. Same-path restore, explicit retention trial/rollback,
+and managed-unit uninstall/reinstall are recorded under
+`verification/implementation/EP-07/`. Interruption/power-loss recovery, real
+boot and fresh-chat end-to-end access remain open. EP-07 is not yet a signed
+daily-use release; see `release-upgrade-0.2.6.json` for current evidence.
