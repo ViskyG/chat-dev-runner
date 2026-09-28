@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "checked_at": "2026-09-28T14:19:29+00:00",
+  "result": "CREATE_PROJECT_COMPLETED_AFTER_PROGRESSIVE_PROVISIONING",
+  "origin": "Owner reports a command submitted from a separate chat; the installed Runner independently observed its exact Drive request. The connector session that authored the command was not independently identified.",
+  "request_id": "7b1e0f6d-6e98-4f0a-bf71-7df7c3a1cf4d",
+  "project_id": "cdr-calculator-smoke-20260928-1759",
+  "root_command_doc_id": "1sfSwN2pSBtZ1JMV11u_riKvGf0iQ5dwtb9591LMVe0I",
+  "root_receipt_doc_id": "12MHUurW7bbIQO25m1ye9W_YHXCn807r8LOBc89hlQNQ",
+  "ledger": {
+    "received_at": "2026-09-28T14:01:20.424995+00:00",
+    "completed_at": "2026-09-28T14:11:15.968576+00:00",
+    "status": "COMPLETED",
+    "code": null,
+    "reconcile_required": false,
+    "project_state": "READY",
+    "workspace_id": "primary",
+    "workspace_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/managed/cdr-calculator-smoke-20260928-1759/workspaces/primary",
+    "milestones_utc": {
+      "github_repository_confirmed": "2026-09-28T14:01:24.381378+00:00",
+      "local_project_confirmed": "2026-09-28T14:01:24.596072+00:00",
+      "drive_project_folder_confirmed": "2026-09-28T14:01:56.068404+00:00",
+      "drive_project_state_doc_created_empty": "2026-09-28T14:02:22.899952+00:00",
+      "drive_project_state_content_confirmed": "2026-09-28T14:08:10.698234+00:00",
+      "drive_source_context_content_confirmed": "2026-09-28T14:08:47.895363+00:00",
+      "project_ready": "2026-09-28T14:08:47.925231+00:00",
+      "root_receipt_confirmed": "2026-09-28T14:11:15.954100+00:00"
+    }
+  },
+  "drive_readback": {
+    "method": "Connected Google Docs exact-ID read after terminal ledger status",
+    "root_receipt_request_id_matches": true,
+    "root_receipt_status": "COMPLETED",
+    "root_receipt_code": null,
+    "project_state_doc_id": "1jmWgTwNp8r28lpKE8k2Kr6laZAZEkIC1IG5ZOD6NZiU",
+    "project_state_project_id_matches": true,
+    "project_state_repository": "ViskyG/cdr-calculator-smoke-20260928-1759",
+    "project_state_workspace_ids": [
+      "primary"
+    ],
+    "project_folder_id": "1ZjubbEG_2PBR85GGyOl7MfhVMaVV-H7u"
+  },
+  "github_readback": {
+    "method": "Owner-local gh repo view --json nameWithOwner,isPrivate,url,id,defaultBranchRef",
+    "exit_code": 0,
+    "repository": "ViskyG/cdr-calculator-smoke-20260928-1759",
+    "private": true,
+    "default_branch": "main",
+    "url": "https://github.com/ViskyG/cdr-calculator-smoke-20260928-1759",
+    "connected_chat_github_get_repo": "NOT_FOUND_404",
+    "connected_chat_repository_visibility": "NOT_VERIFIED",
+    "connected_chat_installed_repository_search_count": 0
+  },
+  "service_postcheck": {
+    "active": true,
+    "running": true,
+    "enabled": true,
+    "armed": true
+  },
+  "interpretation": "The 18:02 +04 empty documents and old root RECEIPT were intermediate observations during serial Drive provisioning. No retry, recovery, restart or duplicate command was used. The CREATE_PROJECT request created the project scaffold; calculator implementation was not submitted. Chat-side access to this new private GitHub repository still requires connector selection or permission review."
+}
