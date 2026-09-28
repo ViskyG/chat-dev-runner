@@ -1,0 +1,112 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "mode": "READ_ONLY_EXISTING_OPERATION_PROOF",
+  "result": "PASS_WITH_STATED_SCOPE",
+  "checked_at": "2026-09-28T16:41:50.789182+00:00",
+  "source_head": "f490f6a0d71ac058f753e2e0bd9d1b357bbf8006",
+  "installed_state": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/state.sqlite",
+  "project_id": "cdr-ep07-ui-20260928",
+  "base_head": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+  "base_tree": "bdde07456c87a93a047267be35a5aaa3ed4e15af",
+  "captured_source_fingerprint": "92eff540c8fbb42ac80e52159980de528039ae43a16e5ec4deb569276a588a83",
+  "recorded_execution_environment": {
+    "backend": "rootless_docker",
+    "profile_id": "python-quick",
+    "profile_revision": "b47160af8e5abd5ea7cc4b9624ee1a929216a5705c394fd4e287468590efd182",
+    "image_digest": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "containment_verified": true
+  },
+  "net_editor_source_observation": [
+    {
+      "workspace_id": "primary",
+      "head": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+      "tree": "bdde07456c87a93a047267be35a5aaa3ed4e15af",
+      "tracked_diff_paths": 0,
+      "visible_untracked_paths": 0,
+      "recomputed_fingerprint": "92eff540c8fbb42ac80e52159980de528039ae43a16e5ec4deb569276a588a83"
+    },
+    {
+      "workspace_id": "parallel",
+      "head": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+      "tree": "bdde07456c87a93a047267be35a5aaa3ed4e15af",
+      "tracked_diff_paths": 0,
+      "visible_untracked_paths": 0,
+      "recomputed_fingerprint": "92eff540c8fbb42ac80e52159980de528039ae43a16e5ec4deb569276a588a83"
+    }
+  ],
+  "completed_routes": [
+    {
+      "workspace_id": "primary",
+      "branch": "work/cdr-ep07-ui-20260928",
+      "request_id": "d4e83e2e-cb8f-4768-84bf-13784aa9072f",
+      "operation_completed_at": "2026-09-28T11:54:43.139392+00:00",
+      "snapshot_id": "3ddcc05b-d8e4-41d5-bdf5-26a493787395",
+      "snapshot_manifest_sha256": "af60edf1e1ab90897208d380bed985abf6eb950934a850c86388f107f660250e",
+      "tested_commit": "68a5b01e8badee76afa1da3b1307f41366e1c1cd",
+      "tested_tree": "9c728614adad83c2e31b15d718c0c5ce266f0d25",
+      "execution_outcome": "PASSED",
+      "execution_exit_code": 0,
+      "remote_ref": "refs/heads/work/cdr-ep07-ui-20260928",
+      "confirmed_push_provider_id": "68a5b01e8badee76afa1da3b1307f41366e1c1cd",
+      "draft_pr_number": 1,
+      "prior_live_readback": "verification/implementation/EP-07/live-publish-primary-20260928.jsonl"
+    },
+    {
+      "workspace_id": "parallel",
+      "branch": "feature/ep07-parallel",
+      "request_id": "cbc20739-bfe2-451e-9440-07118e08105a",
+      "operation_completed_at": "2026-09-28T12:01:26.703965+00:00",
+      "snapshot_id": "ab00917e-0c7c-45ae-a2ff-694b6b6c2bb3",
+      "snapshot_manifest_sha256": "0d5769f990cea351e85c73a7f18fc9120db508393daa352a93ce6837b1547623",
+      "tested_commit": "591dce81c8d75cb33e6306bc3174a550cd8ed68a",
+      "tested_tree": "20ea7fb649e8ca853fd99f9604aeb63577b834dc",
+      "execution_outcome": "FAILED",
+      "execution_exit_code": 1,
+      "remote_ref": "refs/heads/feature/ep07-parallel",
+      "confirmed_push_provider_id": "591dce81c8d75cb33e6306bc3174a550cd8ed68a",
+      "draft_pr_number": 2,
+      "prior_live_readback": "verification/implementation/EP-07/live-publish-parallel-20260928.jsonl"
+    }
+  ],
+  "proof": [
+    "For each request, source_run_snapshots and run_executions bind its run to the listed source_snapshots row. The runs manifest names the same commit and tree; run_executions records rootless_docker, a verified containment record, profile revision and image digest.",
+    "Each retained refs/cdr/snapshots/<snapshot_id> Git ref resolves to the listed commit, and that commit resolves to the listed tree. SHA-256 of each private snapshot manifest equals source_snapshots.manifest_sha256 and the matching delivery-bundles/<request_id>/input-manifest.json.",
+    "Each CONFIRMED tested-git-push effect names the same run, snapshot, commit, tree and selected branch; its provider ID and the terminal operation remote head equal the tested commit. The prior live acceptance journal recorded an independent GitHub draft PR reconciliation using that expected head SHA.",
+    "The parallel snapshot captured at 2026-09-28T11:55:50.870842+00:00, after primary completion, recorded the same clean base head and fingerprint. The independent current read of primary, after parallel completion, and parallel found the same clean base head, tree and captured fingerprint. The ledger has no later operation on this project."
+  ],
+  "sources": [
+    "verification/implementation/EP-07/live-multiworkspace-readback-20260928.json",
+    "verification/implementation/EP-07/live-publish-primary-20260928.jsonl",
+    "verification/implementation/EP-07/live-publish-parallel-20260928.jsonl",
+    "runner_app/git/snapshots.py:workspace_fingerprint",
+    "verification/implementation/EP-07/deployed_publish_acceptance.py:_verify",
+    "runner_app/adapters/github.py:reconcile_draft_pr",
+    "installed SQLite tables: operations, source_workspaces, source_snapshots, source_run_snapshots, preparation_handoffs, runs, run_executions, effects",
+    "installed managed Git refs and delivery-bundles for the two listed requests"
+  ],
+  "focused_validation": {
+    "result": "PASS",
+    "checked_routes": 2,
+    "checked_editor_workspaces": 2,
+    "checks": [
+      "Read-only SQLite joins and recorded rootless environment match the note",
+      "Retained Git refs and commit trees match both snapshot and push effects",
+      "Private manifest and delivered input-manifest SHA-256 hashes match",
+      "Both prior live journals contain independent proof and terminal PASS",
+      "Current Git heads, trees, clean visible source and recomputed fingerprints match"
+    ]
+  },
+  "limits": [
+    "The workspace comparison proves net visible editor-source identity at the stated observations. It does not prove that no transient edit occurred between them.",
+    "workspace_fingerprint excludes ignored files; their identity is outside this assertion.",
+    "The independent GitHub head and draft PR readbacks occurred in the prior live journals. This audit made no new provider request and does not assert the current remote head.",
+    "This note closes only the two existing-operation source-identity criteria; the remaining EP-07 release gates stay open."
+  ],
+  "actions": {
+    "new_runner_operations": 0,
+    "service_changes": 0,
+    "managed_workspace_writes": 0,
+    "provider_requests": 0
+  }
+}
