@@ -97,8 +97,14 @@ advance fetch freshness.
 The owner-only retention API reports run pin state and output tombstones. Pin/unpin is
 append-only. Per-output expiry has a default 14-day age gate and refuses pinned, referenced,
 busy or uncertain evidence. A tombstone makes a missing payload explicit; retention never
-rewrites the original manifest or a published hash. EP-07 still has to test a
-successful same-path restore and scheduled retention procedure on this host.
+rewrites the original manifest or a published hash. EP-07 host acceptance now records a successful same-path restore of 572 verified files,
+an explicit owner-local retention trial with a deterministic future clock, rollback
+from the unchanged backup, and managed-unit uninstall/reinstall in
+`verification/implementation/EP-07/host-same-path-restore-20260928.json`,
+`host-retention-trial-20260928.json` and `host-uninstall-reinstall-20260928.json`.
+Retention remains an explicit owner decision through the authenticated UI/API;
+there is no automatic retention scheduler. Real power-cycle and interruption
+recovery gates remain open.
 
 ## Owner-local backup and restore
 
@@ -141,7 +147,7 @@ with schema 9 and 181 files. A backup attempted while the service was active
 returned `RUNNER_RUNNING` and created no archive; a restore attempted while
 the state root existed returned `RESTORE_TARGET_EXISTS`. These refusal and
 backup results are recorded in `verification/implementation/EP-07/release-install.json`.
-A successful restore to an absent live state path is not yet accepted.
+A successful restore to the absent original state path is recorded in `verification/implementation/EP-07/host-same-path-restore-20260928.json`; the preserved original directory and verified backup remain available for rollback.
 
 For recovery, stop the service, keep it disarmed, and preserve the damaged state
 directory under a separate private name after recording its condition. The
@@ -195,13 +201,13 @@ an actual runner/integration problem requiring local attention, not a failing un
 
 ## EP-07 operational gate
 
-The owner-user service is installed and enabled from the private wheel environment.
-Its initial and restarted loopback gates passed while disarmed, including the
-Host, Origin and session checks. Deployed Drive/GitHub read checks returned OK
-and execution readiness returned READY. The stopped-service backup and both
-backup/restore refusal gates above passed. See
-`verification/implementation/EP-07/release-install.json` for exact commands,
-exit codes, unit and listener evidence. A successful same-path restore,
-interrupted migration/power-loss recovery, uninstall and fresh-chat end-to-end
-project acceptance remain open. Keep the service disarmed during recovery
-unless the owner explicitly arms a fresh epoch.
+The owner-user service is installed from the private `0.2.5` wheel but is
+intentionally stopped and disabled during the owner-approved EP-07 maintenance
+window. Its earlier active loopback, Host, Origin and session gates passed;
+deployed Drive/GitHub reads and execution readiness also passed. The stopped
+backup, same-path restore, explicit retention trial/rollback, and managed-unit
+uninstall/reinstall are recorded under `verification/implementation/EP-07/`.
+After the reinstall check, the service was stopped and disabled again; its
+next startup must use a fresh epoch and reconcile current mailbox state.
+Interruption/power-loss recovery, real boot and fresh-chat end-to-end access
+remain open. Do not mistake this maintenance state for a deployed release.

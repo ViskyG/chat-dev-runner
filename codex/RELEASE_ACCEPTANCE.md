@@ -3,15 +3,15 @@
 Check a box only for its evidenced **EP-07 release gate** criterion. EP-03/05/06
 predecessor evidence exists, but a fake browser scenario or transient live smoke does not
 sign off a durable host installation. Record test IDs, evidence paths, environment and
-reviewer/date next to each completed check. The installed configured `0.2.5`
-service arms by default after clean startup, but the full release matrix is not
-yet signed off.
+reviewer/date next to each completed check. The configured runner arms by default after clean startup, but the installed
+`0.2.5` service is intentionally stopped and disabled during EP-07 maintenance.
+The full release matrix is not yet signed off.
 
 Predecessor evidence: `codex/checkpoints/EP-03.md` (rootless host acceptance),
 `codex/checkpoints/EP-04.md` (exact existing-Drive attachment, full-scope OAuth and
 cross-app canary), `codex/checkpoints/EP-05.md` (disposable private project runs and
 publication), and `codex/checkpoints/EP-06.md` (all 14 fake-backed UI scenarios and a
-real disarmed local process). EP-07 records installed-service CREATE_PROJECT, local-UI CREATE_WORKSPACE, passing/failing publication and current-chat project FETCH/RECEIPT gates below. Wheel `0.2.5` is active and armed after a successful graceful restart; its enabled user unit plus `Linger=yes` are configured for boot startup. Configured clean startup arms by default; `--start-unarmed` and `NEEDS_RECONCILIATION` keep intake off. `verification/implementation/EP-07/default-intake-live-20260928.json` records matching local/Drive epoch readback. A real power-cycle and the full 14-scenario release matrix remain open.
+real disarmed local process). EP-07 records installed-service CREATE_PROJECT, local-UI CREATE_WORKSPACE, passing/failing publication and current-chat project FETCH/RECEIPT gates below. Wheel `0.2.5` was active and armed after an earlier successful graceful restart; its user unit plus `Linger=yes` are configured for boot startup, but the unit is currently disabled for maintenance. Configured clean startup arms by default; `--start-unarmed` and `NEEDS_RECONCILIATION` keep intake off. `verification/implementation/EP-07/default-intake-live-20260928.json` records matching local/Drive epoch readback. A real power-cycle and the full 14-scenario release matrix remain open.
 The `0.2.5` CREATE_PROJECT performance update passed 1361 source tests with one expected skip, Ruff and mypy, and was installed after a verified 463-file private backup. Exact existing Drive attachment and matching armed SYSTEM STATE epoch passed; no extra project was created, so the new live elapsed time is still unmeasured (`verification/implementation/EP-07/drive-create-performance-upgrade-0.2.5.json`).
 
 ## Product
@@ -36,7 +36,7 @@ The `0.2.5` CREATE_PROJECT performance update passed 1361 source tests with one 
 - [ ] Cancellation works with all execution slots occupied.
 - [ ] Upload outage leaves recoverable local evidence and explicit delivery status.
 - [ ] Large/malformed/malicious artifacts and secrets redaction paths tested.
-- [ ] SQLite and immutable evidence backup/restore, retention and uninstall tested.
+- [x] SQLite and immutable evidence backup/restore, retention and uninstall tested. EP-07 `verification/implementation/EP-07/host-same-path-restore-20260928.json`, `host-retention-trial-20260928.json` and `host-uninstall-reinstall-20260928.json`: after exact mailbox preflight and stopped service, a private schema-9 backup independently passed 572 hashes/SQLite integrity; restore to its original absent path preserved six workspace records and sampled Git fingerprints. A disposable output refused early expiry, tombstoned/ceased serving under an explicit future clock, and returned after rollback from the unchanged backup; uninstall removed only the managed unit and reinstall retained state/tokens. No automatic retention schedule or real power-cycle is claimed. Environment: installed 0.2.5 wheel, owner Linux host, stopped service for state trials; reviewer: Codex, 2026-09-28.
 
 ## Integrations
 
@@ -52,5 +52,5 @@ Installed `0.2.2` advertised `CREATE_PROJECT`, `CREATE_WORKSPACE`, `DELIVER_VERI
 - [ ] Real UI contains no fake project status, run count, test result or progress.
 - [ ] Every control has an actual behavior or specific disabled explanation.
 - [ ] Russian owner guide + English Codex/engineering documents agree with final implementation.
-- [x] Locked install commands and service configuration tested on target host. EP-07 `verification/implementation/EP-07/release-install.json`, `verification/implementation/EP-07/service-unit-syntax.json`, `verification/implementation/EP-07/service-gate.json`, `verification/implementation/EP-07/release-upgrade-0.2.2.json` and `verification/implementation/EP-07/default-intake-live-20260928.json`: hash-locked wheel install, `runner install --dry-run`, `install --user`, unit syntax and earlier stop/restart gates passed. The installed `0.2.5` unit is active, enabled and loopback-only; `Linger=yes` configures boot startup, and the upgraded service is armed with a fresh epoch matching Drive SYSTEM STATE. Its `0.2.4` predecessor also completed a 20-second graceful restart. The `0.2.5` stopped-service backup, wheel and final source suite are recorded in `verification/implementation/EP-07/drive-create-performance-upgrade-0.2.5.json`. A real power-cycle remains untested. Environment: owner Linux x86_64, Python 3.10.12, systemd 249; reviewer: Codex, 2026-09-28.
+- [x] Locked install commands and service configuration tested on target host. EP-07 `verification/implementation/EP-07/release-install.json`, `verification/implementation/EP-07/service-unit-syntax.json`, `verification/implementation/EP-07/service-gate.json`, `verification/implementation/EP-07/release-upgrade-0.2.2.json` and `verification/implementation/EP-07/default-intake-live-20260928.json`: hash-locked wheel install, `runner install --dry-run`, `install --user`, unit syntax and earlier stop/restart gates passed. The installed `0.2.5` unit passed active/enabled/loopback and matching-epoch checks before the maintenance window; it is currently inactive and disabled. `Linger=yes` is configured, but the release unit still needs final rollout and boot verification. Its `0.2.4` predecessor also completed a 20-second graceful restart. The `0.2.5` stopped-service backup, wheel and final source suite are recorded in `verification/implementation/EP-07/drive-create-performance-upgrade-0.2.5.json`. A real power-cycle remains untested. Environment: owner Linux x86_64, Python 3.10.12, systemd 249; reviewer: Codex, 2026-09-28.
 - [ ] All 14 walkthroughs have EP-07 evidence at the required fake/real boundary; STATUS.json and release notes describe actual capabilities.

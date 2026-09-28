@@ -1,0 +1,65 @@
+{
+  "cloud_effect_scope": {
+    "github_write_by_this_gate": false,
+    "new_project_or_workspace_operations": 0,
+    "service_system_state_write_possible": true
+  },
+  "installed_wheel_version": "0.2.5",
+  "maintenance_after_probe": {
+    "active": false,
+    "armed_in_local_ledger": false,
+    "enabled": false,
+    "listener_8765": false,
+    "stop_exit_code": 0,
+    "unit_disabled_again": true
+  },
+  "mode": "OWNER_USER_UNIT_UNINSTALL_REINSTALL",
+  "notes": [
+    "Normal clean reinstall/start wrote a fresh local epoch and may publish Drive SYSTEM STATE; the SQLite byte hash is expected to change after startup.",
+    "The lifecycle CLI removed/recreated only its managed unit; it did not remove state or private token files. No project command was submitted.",
+    "Real machine reboot and final new-wheel rollout remain separate gates."
+  ],
+  "packet": "EP-07",
+  "pre_uninstall": {
+    "active": false,
+    "enabled": false,
+    "state_sqlite_sha256": "d783be54430d27296ec9d6910c4e89cb83a6e95fc8af320dfb54e63e4b712354",
+    "unit_sha256": "a6a05b19bea5dbd9c5548e2bc34eea1e66eb4a7603c0df6ef743eb0a07716d66",
+    "unit_state": "CURRENT"
+  },
+  "recorded_at": "2026-09-28T17:29:07.042813+00:00",
+  "reinstall": {
+    "armed_on_clean_start": true,
+    "command_exit_code": 0,
+    "dry_run_exit_code": 0,
+    "dry_run_network_calls": false,
+    "dry_run_version": "0.2.5",
+    "effects_total_unchanged": 167,
+    "enabled": true,
+    "installed_unit_sha256_matches_original": true,
+    "new_epoch": "5b5dddf0-5bf1-4ed6-b60e-e7efe1a71ef4",
+    "observed_active": true,
+    "observed_loopback_listener": "127.0.0.1:8765",
+    "observed_unit_state": "CURRENT",
+    "operations_total_unchanged": 17,
+    "started": true,
+    "unit_changed": true
+  },
+  "result": "PASS_UNIT_LIFECYCLE_WITH_STATE_PRESERVED",
+  "schema_version": "1.0",
+  "uninstall": {
+    "all_token_files_mode_0600": true,
+    "command": "XDG_DATA_HOME=<selected parent> <installed wheel python> -m runner_app.cli uninstall --user",
+    "exit_code": 0,
+    "post_active": false,
+    "post_enabled": false,
+    "post_listener_8765": false,
+    "post_unit_state": "ABSENT",
+    "reported_cloud_resources_preserved": true,
+    "reported_state_preserved": true,
+    "state_sqlite_sha256_unchanged_immediately_after": true,
+    "token_dir_mode": "0700",
+    "token_file_count": 1,
+    "unit_removed": true
+  }
+}
