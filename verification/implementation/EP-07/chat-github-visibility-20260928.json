@@ -1,0 +1,19 @@
+{
+  "accessible_repository_count": 8,
+  "checked_at": "2026-09-28T17:21:31.044503+00:00",
+  "example_expected_from_local_runner_ledger": "ViskyG/cdr-calculator-smoke-20260928-1759",
+  "limitation": "List visibility alone does not prove whether installation selection, grant propagation or account selection caused absence; owner-local Runner GitHub access is a separate credential and already published private projects.",
+  "method": "connected ChatGPT GitHub list_repositories(owner=ViskyG,page_size=100)",
+  "new_private_project_repositories_visible": false,
+  "packet": "EP-07",
+  "prior_direct_project_lookup": "verification/implementation/EP-07/chat-origin-calculator-create-20260928.json",
+  "result": "CHAT_GITHUB_PROJECT_ACCESS_GATE_OPEN",
+  "runner_repository": "ViskyG/chat-dev-runner",
+  "runner_repository_visible": true,
+  "schema_version": "1.0",
+  "side_effects": {
+    "drive_writes": 0,
+    "github_writes": 0,
+    "service_changes": 0
+  }
+}

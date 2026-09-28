@@ -1,0 +1,45 @@
+{
+  "backup_manifest_sha256": "3a67c77e74b432f36ea6d3b9d58dd8592fefd88416d146f93063cc9ec8956e5c",
+  "future_immutable_run_manifest_unchanged": true,
+  "future_open_output_code": "EVIDENCE_EXPIRED",
+  "future_physical_output_removed": true,
+  "future_retention_days": 14,
+  "future_second_call_idempotent": true,
+  "future_sqlite_integrity": "ok",
+  "future_tombstone_count": 1,
+  "installed_wheel_version": "0.2.5",
+  "limitations": [
+    "The age was supplied as an explicit deterministic future clock; no wall-clock 14-day wait or scheduled retention daemon was tested.",
+    "This trial does not sign off uninstall, real power-cycle, or interruption/reconciliation."
+  ],
+  "mode": "OWNER_HOST_RESTORED_STATE_RETENTION_TRIAL",
+  "mutated_trial_state_preserved_at": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner.retention-trial-20260928T1724Z",
+  "packet": "EP-07",
+  "real_date_not_due_refused": true,
+  "recorded_at": "2026-09-28T17:25:03.652856+00:00",
+  "result": "PASS_WITH_SIMULATED_AGE_AND_ROLLBACK",
+  "rollback": {
+    "restore_cli_exit_code": 0,
+    "restored_manifest_sha256": "3a67c77e74b432f36ea6d3b9d58dd8592fefd88416d146f93063cc9ec8956e5c",
+    "same_path_restored_from_unmodified_backup": true,
+    "selected_output_can_open": true,
+    "selected_output_state": "AVAILABLE",
+    "selected_output_tombstone_absent": true,
+    "sqlite_integrity": "ok"
+  },
+  "schema_version": "1.0",
+  "service_during_trial": {
+    "active": false,
+    "enabled": false,
+    "listener_8765": false
+  },
+  "side_effects": {
+    "current_state_output_left_expired": false,
+    "drive_writes": 0,
+    "github_writes": 0,
+    "runner_commands_submitted": 0
+  },
+  "simulated_future_utc": "2026-10-15T00:00:00+00:00",
+  "test_output_id": "stdout-view",
+  "test_run_id": "5649a6df-f6a9-4ea0-ba9c-487bf530e432"
+}
