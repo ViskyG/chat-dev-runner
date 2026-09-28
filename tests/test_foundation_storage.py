@@ -292,6 +292,57 @@ def test_sqlite_sidecar_unlinked_before_stat_is_safe(
         connection.close()
 
 
+
+@pytest.mark.parametrize("suffix", ["-wal", "-shm", "-journal"])
+@pytest.mark.parametrize("replace_with_symlink", [False, True])
+def test_sqlite_sidecar_unlinked_after_stat_rechecks_current_name(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, suffix: str,
+    replace_with_symlink: bool,
+) -> None:
+    sidecar = tmp_path / f"state.sqlite{suffix}"
+    sidecar.write_bytes(b"")
+    sidecar.chmod(0o600)
+    external = tmp_path / "external"
+    external.write_bytes(b"unchanged")
+    external.chmod(0o600)
+    original_stat = os.stat
+    unlinked = False
+
+    def unlink_after_lookup(path: str | bytes | os.PathLike[str], *,
+                            dir_fd: int | None = None,
+                            follow_symlinks: bool = True) -> os.stat_result:
+        nonlocal unlinked
+        if path == sidecar.name and dir_fd is not None and not unlinked:
+            descriptor = os.open(sidecar.name, os.O_RDONLY | os.O_NOFOLLOW,
+                                 dir_fd=dir_fd)
+            try:
+                sidecar.unlink()
+                if replace_with_symlink:
+                    sidecar.symlink_to(external)
+                info = os.fstat(descriptor)
+                assert info.st_nlink == 0
+                unlinked = True
+                return info
+            finally:
+                os.close(descriptor)
+        return original_stat(path, dir_fd=dir_fd, follow_symlinks=follow_symlinks)
+
+    monkeypatch.setattr(os, "stat", unlink_after_lookup)
+    database = Database(tmp_path / "state.sqlite")
+    if replace_with_symlink:
+        with pytest.raises(UnsafePathError):
+            database.connect()
+        assert sidecar.is_symlink()
+        assert external.read_bytes() == b"unchanged"
+    else:
+        connection = database.connect()
+        try:
+            assert connection.execute("SELECT 1").fetchone() == (1,)
+        finally:
+            connection.close()
+    assert unlinked
+
+
 def test_sqlite_sidecar_replaced_with_symlink_during_validation_fails(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
