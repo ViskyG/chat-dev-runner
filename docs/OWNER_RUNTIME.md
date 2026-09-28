@@ -137,11 +137,12 @@ workspace ID, and owner-only run evidence retention controls. Explicit `FETCH` i
 only operation that advances the durable per-project fetch timestamp; an `ls-remote`
 connection check is read-only and does not imply a fetch. The packaged UI
 reflects these backend values. EP-07 has installed and upgraded the durable
-owner-user service from a locked wheel; it is active and enabled. A clean
-configured service restart arms intake. The enabled user unit and
-`Linger=yes` arrange for service startup when the computer boots, without an
-interactive login. A real reboot check remains open. Read the live UI or
-`SYSTEM STATE` for its current intake state. Exact existing Drive root/Index
+owner-user service from a locked wheel; the unit is currently stopped and
+disabled for owner-approved EP-07 maintenance. When enabled, a clean configured
+service restart arms intake. The user unit and `Linger=yes` can arrange for
+startup at computer boot without interactive login; a real reboot check remains
+open. Read the local service status and fresh `SYSTEM STATE` after rollout for
+its current intake state. Exact existing Drive root/Index
 and provider reads, one UI-origin project, one current-chat Drive-origin
 project and a second local-UI
 workspace have passed deployed checks. See
@@ -153,6 +154,7 @@ The separate [passing primary](../verification/implementation/EP-07/live-publish
 and [failing parallel](../verification/implementation/EP-07/live-publish-parallel-20260928.jsonl)
 workspace routes each completed with a private draft PR and Drive report while
 keeping test outcome separate from operation completion. Same-path restore,
-uninstall, broader safety/recovery acceptance, a live project-level Drive
+retention rollback and managed-unit uninstall/reinstall have since passed on
+the owner host; broader safety/recovery acceptance, a live project-level Drive
 CREATE_WORKSPACE command, and a command from a fresh separate chat remain
 release gates.
