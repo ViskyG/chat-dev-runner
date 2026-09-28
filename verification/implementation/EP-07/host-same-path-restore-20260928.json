@@ -1,0 +1,78 @@
+{
+  "backup": {
+    "command_exit_code": 0,
+    "independent_file_hash_mismatches": 0,
+    "independent_sqlite_integrity": "ok",
+    "manifest_files": 572,
+    "manifest_sha256": "3a67c77e74b432f36ea6d3b9d58dd8592fefd88416d146f93063cc9ec8956e5c",
+    "path": "/home/visky/Work/GPTRunner/.runner-backups/pre-ep07-recovery-20260928T1709Z",
+    "private_directory_mode": "0700",
+    "schema_version": 9,
+    "symlinks": 0
+  },
+  "installed_wheel_version": "0.2.5",
+  "mode": "OWNER_HOST_SAME_PATH_RESTORE",
+  "open_gates": [
+    "uninstall/reinstall",
+    "retention trial",
+    "interruption/recovery",
+    "real power-cycle",
+    "fresh chat GitHub access and provenance",
+    "remaining real provider/containment/UI release criteria"
+  ],
+  "packet": "EP-07",
+  "preconditions": {
+    "exact_id_mailbox_preflight": "verification/implementation/EP-07/live-mailbox-preflight-20260928.json",
+    "local_active_operations": 0,
+    "local_uncertain_effects": 0,
+    "owner_authorized_service_stop_and_main_work": true,
+    "owner_will_not_submit_new_work_until_rollout": true,
+    "unexpired_ready_without_terminal_receipt": 0
+  },
+  "recorded_at": "2026-09-28T17:20:37.373206+00:00",
+  "restore": {
+    "command_exit_code": 0,
+    "effects_by_state": {
+      "CONFIRMED": 167
+    },
+    "ep07_primary_parallel_base_head_match": true,
+    "ep07_primary_parallel_recomputed_fingerprint_match": true,
+    "independent_restored_files_checked": 572,
+    "independent_restored_hash_mismatches": 0,
+    "operations_by_status": {
+      "BLOCKED": 1,
+      "COMPLETED": 12,
+      "FAULT": 1,
+      "INTERRUPTED": 2,
+      "REJECTED": 1
+    },
+    "original_preserved_not_deleted": true,
+    "original_state_preserved_at": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner.pre-restore-20260928T1715Z",
+    "private_directory_mode": "0700",
+    "registered_source_workspaces": 6,
+    "reported_manifest_sha256": "3a67c77e74b432f36ea6d3b9d58dd8592fefd88416d146f93063cc9ec8956e5c",
+    "sqlite_integrity": "ok",
+    "sqlite_schema_version": 9,
+    "target_absent_before_restore": true,
+    "target_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner"
+  },
+  "result": "PASS_SAME_PATH_RESTORE_WITH_SERVICE_STOPPED",
+  "schema_version": "1.0",
+  "service_control": {
+    "after_restore_active": false,
+    "after_restore_enabled": false,
+    "after_restore_unit_state": "CURRENT",
+    "loopback_port_8765_listening": false,
+    "stop_command": "XDG_DATA_HOME=<selected private state parent> <installed wheel python> -m runner_app.cli stop",
+    "stop_exit_code": 0,
+    "user_unit_disabled_for_maintenance": true
+  },
+  "side_effects": {
+    "drive_document_writes": 0,
+    "github_writes": 0,
+    "preserved_original_state_removed": false,
+    "runner_commands_submitted": 0,
+    "service_started_after_restore": false
+  },
+  "source_main_at_record": "35eea80eccf0d024cf83438790f4cbb5724f7933"
+}
