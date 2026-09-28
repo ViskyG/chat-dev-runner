@@ -104,11 +104,12 @@ def parser() -> argparse.ArgumentParser:
     drive_check = commands.add_parser("drive-check", help="Validate the existing Drive installation")
     drive_check.add_argument("--live", action="store_true", required=True,
                              help="Explicitly use local OAuth for exact-ID read-only checks")
-    serve = commands.add_parser("serve", help="Run the unarmed authenticated local API")
+    serve = commands.add_parser("serve", help="Run the authenticated local API")
     serve.add_argument("--health-only", action="store_true", help="Stateless foundation probe")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8765)
-    serve.add_argument("--start-unarmed", action="store_true", default=True)
+    serve.add_argument("--start-unarmed", action="store_true",
+                       help="Keep command intake off for this process")
     return result
 
 
@@ -157,6 +158,8 @@ def main(argv: list[str] | None = None) -> int:
                         bridge.start()
                         if runtime.workspace_mailboxes is not None:
                             runtime.workspace_mailboxes.start()
+                        if not args.start_unarmed:
+                            runtime.arm_on_startup()
                     uvicorn.run(runtime.app, host=config.listen_host, port=config.listen_port,
                                 workers=1, proxy_headers=False, access_log=False, server_header=False)
                 finally:

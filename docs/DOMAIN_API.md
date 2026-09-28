@@ -3,10 +3,13 @@
 The loopback API uses durable admission and the owner-configured EP-05 Drive,
 GitHub and contained execution routes when those integrations are present.
 `runner serve` binds only `127.0.0.1` and takes an exclusive owner-only state
-lock. Startup starts a new epoch, leaves the runner disarmed, and marks unfinished
-operations `INTERRUPTED`. An interrupted operation retains its reserved capacity
-and resource locks until the broker proves its worker stopped. A provider effect
-in `UNKNOWN` state requires exact remote read/reconciliation before retry. The
+lock. Startup starts a fresh epoch and marks unfinished operations
+`INTERRUPTED`. A configured normal `serve` arms command intake after its
+handlers and mailbox bridge are ready, unless `--start-unarmed` was selected or
+the Ledger reports `NEEDS_RECONCILIATION`. Unconfigured processes remain
+disarmed. An interrupted operation retains its reserved capacity and resource
+locks until the broker proves its worker stopped. A provider effect in
+`UNKNOWN` state requires exact remote read/reconciliation before retry. The
 API never resumes a previous request automatically.
 
 The server writes a short-lived one-time bootstrap value to
@@ -45,6 +48,10 @@ profile, GitHub identity and imported-repository IDs so forms can present actual
 owner choices; it does not expose credential material or expand authority.
 Production `arm` is available only when a locally configured production handler
 is registered; an unconfigured process refuses with `ACTION_UNAVAILABLE`.
+An owner can disarm the running process through the authenticated local UI/API;
+that choice lasts until restart. A clean configured restart arms by default,
+and startup always creates a fresh epoch so older READY commands cannot inherit
+the previous epoch.
 `/api/v1/health` is public but returns only minimal local capability/arming state. `/api/v1/system`, operations,
 projects, runs and event journal require the session. `GET /api/v1/events`
 returns a finite ordered SSE batch; Last-Event-ID resumes from durable SQLite

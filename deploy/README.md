@@ -3,9 +3,9 @@
 ## Current deployment state
 
 EP-00–06 are verified. EP-07 has an installed, enabled owner-user service
-running wheel version `0.2.2` from the private environment. The configured
-runner is disarmed; the service listens only on `127.0.0.1:8765`. The initial
-host installation and later upgrade are recorded in
+running a locked wheel from the private environment. A clean configured
+start arms command intake by default; the service listens only on
+`127.0.0.1:8765`. The initial host installation and prior upgrades are recorded in
 [release-install.json](../verification/implementation/EP-07/release-install.json),
 [release-upgrade-0.2.1.json](../verification/implementation/EP-07/release-upgrade-0.2.1.json) and
 [release-upgrade-0.2.2.json](../verification/implementation/EP-07/release-upgrade-0.2.2.json).
@@ -58,10 +58,13 @@ replace current runtime SYSTEM STATE or explicit connection checks. `install --d
 without writing or starting anything. `drive-check --live` performs read-only
 exact-ID Drive checks using the configured local OAuth token. `serve` has been exercised as
 a transient process and binds to 127.0.0.1; its private owner configuration determines
-which handlers are available and startup remains disarmed. With configured integrations,
-`serve` starts the Drive bridge and may publish SYSTEM STATE to the existing exact
-control Doc at startup, even while disarmed; it is not an offline inspection command.
-The disarmed bridge does not freeze a READY command.
+which handlers are available. Configured `serve` arms by default after clean
+recovery checks; `--start-unarmed` explicitly keeps
+that process disarmed. `NEEDS_RECONCILIATION` leaves intake off until resolved.
+With configured integrations, `serve` starts the Drive bridge and may publish
+SYSTEM STATE to the existing exact control Doc at startup; it is not an offline
+inspection command. The bridge does not freeze a READY command while disarmed.
+A manual disarm of the running process lasts only until its next restart.
 
 ```bash
 .venv/bin/python -m runner_app.cli configure --show-required
@@ -79,22 +82,26 @@ at `/home/visky/Work/GPTRunner/.runner-install/venv`. Dependencies come from
 `requirements.production.lock`, the hash-pinned production and Google bootstrap lock.
 The checkout's `.venv` is an editable development install; `install --user` rejects it
 with `WHEEL_INSTALL_REQUIRED`. Build and record the wheel artifact, then install that
-exact wheel into the dedicated environment. For the current `0.2.2` release:
+exact wheel into the dedicated environment. Stop the service and take a
+private backup before an in-place upgrade. For the source version in this
+checkout:
 
 ```bash
 install -d -m 0700 /home/visky/Work/GPTRunner/.runner-install
+cdr_wheel_version="$(.venv/bin/python -m runner_app.cli --version)"
+cdr_wheel_path="/home/visky/Work/GPTRunner/.runner-install/wheels/chat_dev_runner-${cdr_wheel_version}-py3-none-any.whl"
 uv build --wheel --out-dir /home/visky/Work/GPTRunner/.runner-install/wheels
-sha256sum /home/visky/Work/GPTRunner/.runner-install/wheels/chat_dev_runner-0.2.2-py3-none-any.whl
+test -f "$cdr_wheel_path"
+sha256sum "$cdr_wheel_path"
 uv venv /home/visky/Work/GPTRunner/.runner-install/venv --python /usr/bin/python3.10
 uv pip sync --python /home/visky/Work/GPTRunner/.runner-install/venv/bin/python \
   --require-hashes requirements.production.lock
 uv pip install --python /home/visky/Work/GPTRunner/.runner-install/venv/bin/python \
-  --no-deps /home/visky/Work/GPTRunner/.runner-install/wheels/chat_dev_runner-0.2.2-py3-none-any.whl
+  --no-deps "$cdr_wheel_path"
 ```
 
-The installed wheel SHA-256 is
-`fd6cc31512667b31d330fb87ddee5c641915a36db8738cbcf4fa808de30ecf08`;
-the production lock SHA-256 is
+Record the final installed wheel SHA-256 in release evidence; the production
+lock SHA-256 is
 `79036fafb676757f4109d02c9a85910ac0a9f607582cc6151339e7d9c91e2cea`.
 Retain both hashes with the release evidence. The initial `0.2.0` install
 and in-place `0.2.1` and `0.2.2` upgrades are recorded separately in
@@ -134,6 +141,17 @@ invoke the installed narrow sudo quota helper; contained project processes
 separately enforce `no-new-privileges` and have no token or Docker-socket mount.
 The installer refuses an unmanaged unit with the same name.
 
+On this host the user unit is already enabled for `default.target`, and
+`loginctl show-user visky -p Linger` reports `Linger=yes`. This starts the user
+manager and enabled service at computer boot even before an interactive login;
+it does not require a separate system unit. The installed wheel and managed
+unit enable command intake after a clean boot/restart.
+An explicit `--start-unarmed` process or unresolved
+`NEEDS_RECONCILIATION` starts with intake off. Stopping intake in the UI lasts
+only until the next service restart; check the live UI or SYSTEM STATE after a
+reboot. The installed managed unit omits `--start-unarmed`. A real reboot
+check remains to be recorded.
+
 The owner-host service passed its first gate, a second gate after
 stop/restart, and gates after the `0.2.1` and `0.2.2` upgrades.
 `runner install --dry-run` reported an absent unit and wheel package; `install --user` started and enabled the 0600 user unit.
@@ -142,9 +160,9 @@ same unit without changing it. The deployed gate observed only
 `127.0.0.1:8765`, an unarmed health response, a packaged UI with CSP, and
 403 responses for unauthenticated, spoofed-Host and cross-origin access.
 On-demand Drive and GitHub read checks returned OK under the `0.2.1` wheel,
-and execution readiness returned READY. The current `0.2.2` unit is active,
-enabled and disarmed; its service gate passed and its project-level FETCH
-completed through the existing Drive mailbox. The configured service may publish SYSTEM
+and execution readiness returned READY. The current unit is active and enabled
+with clean-start intake armed by default. The project-level FETCH
+completed through the existing Drive mailbox under `0.2.2`. The configured service may publish SYSTEM
 STATE to the existing Drive control Doc at startup; it creates no second
 Drive installation. See [release-install.json](../verification/implementation/EP-07/release-install.json),
 [release-upgrade-0.2.1.json](../verification/implementation/EP-07/release-upgrade-0.2.1.json),
@@ -218,4 +236,5 @@ also completed through the installed `0.2.2` project mailbox and matching
 RECEIPT. Interruption/recovery evidence, a live project-level Drive
 CREATE_WORKSPACE command, and a command from a fresh separate chat still need
 acceptance. Prior EP-05/06 smoke evidence does not substitute for these
-release gates. The service was disarmed after each bounded live gate.
+release gates. Those bounded `0.2.1`/`0.2.2` live gates ended disarmed;
+the current service arms after a clean restart.

@@ -25,7 +25,8 @@ class _FakeCredentials:
 class _FakeHttp:
     instances: ClassVar[list[_FakeHttp]] = []
 
-    def __init__(self) -> None:
+    def __init__(self, *, timeout: float) -> None:
+        self.timeout = timeout
         self.instances.append(self)
 
 
@@ -90,6 +91,7 @@ def test_drive_and_docs_requests_use_independent_http_and_guard_credentials(
         results = list(pool.map(execute, requests))
 
     assert len(_FakeHttp.instances) == len(requests)
+    assert all(http.timeout == 20 for http in _FakeHttp.instances)
     assert len({id(http) for http in _FakeHttp.instances}) == len(requests)
     assert len(_FakeAuthorizedHttp.instances) == len(requests)
     assert all(item.credentials is credentials for item in _FakeAuthorizedHttp.instances)

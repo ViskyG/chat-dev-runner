@@ -57,6 +57,8 @@ class DrivePollingBridge:
     def poll_once_if_due(self) -> BridgeObservation:
         """Publish current authority, then poll only when armed and due."""
         with self._tick_lock:
+            if self._stop.is_set():
+                return BridgeObservation("STOPPED")
             now = self._clock()
             try:
                 state = self.poller.engine.ledger.state()
@@ -104,7 +106,7 @@ class DrivePollingBridge:
             if not self._schedule.due(now):
                 return BridgeObservation("WAITING")
             try:
-                result = self.poller.poll_once()
+                result = self.poller.poll_once(cancelled=self._stop.is_set)
             except Exception as error:  # noqa: BLE001 - provider details may contain credentials
                 self._schedule = self._schedule.failure(now)
                 self.last = BridgeObservation("ERROR", code=_error_code(error))
@@ -131,10 +133,19 @@ class DrivePollingBridge:
     def start(self) -> None:
         if self._thread is not None:
             raise RuntimeError("DRIVE_BRIDGE_ALREADY_STARTED")
+        if self._stop.is_set():
+            raise RuntimeError("DRIVE_BRIDGE_STOPPED")
         self._thread = threading.Thread(target=self._run, name="cdr-drive-poll", daemon=True)
         self._thread.start()
 
-    def close(self) -> None:
+    def request_stop(self) -> None:
+        """Signal without waiting, so all pollers can stop concurrently."""
         self._stop.set()
+
+    def join_until(self, deadline: float) -> None:
         if self._thread is not None:
-            self._thread.join(timeout=30.0)
+            self._thread.join(timeout=max(0.0, deadline - time.monotonic()))
+
+    def close(self, *, deadline: float | None = None) -> None:
+        self.request_stop()
+        self.join_until(deadline if deadline is not None else time.monotonic() + 20.0)

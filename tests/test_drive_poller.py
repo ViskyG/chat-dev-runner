@@ -227,6 +227,39 @@ def test_serving_bridge_never_freezes_disarmed_command(tmp_path: Path) -> None:
         engine.shutdown()
 
 
+
+def test_shutdown_during_provider_read_does_not_freeze_ready_command(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from runner_app.adapters import drive_poller as poller_module
+
+    poller, provider, engine, ledger = fixture(tmp_path)
+    snapshot = poller_module.read_ready_snapshot(provider, poller.mailbox)
+    assert snapshot is not None
+    reading = threading.Event()
+    release = threading.Event()
+
+    def slow_read(*_args: object) -> object:
+        reading.set()
+        assert release.wait(3)
+        return snapshot
+
+    monkeypatch.setattr(poller_module, "read_ready_snapshot", slow_read)
+    bridge = DrivePollingBridge(poller)
+    try:
+        bridge.start()
+        assert reading.wait(2)
+        bridge.request_stop()
+        release.set()
+        bridge.join_until(time.monotonic() + 2)
+        assert bridge.last.kind == "STOPPED"
+        assert ledger.list_operations()["items"] == []
+        assert list((tmp_path / "frozen").iterdir()) == []
+    finally:
+        release.set()
+        bridge.close()
+        engine.shutdown()
+
 def test_bridge_does_not_admit_until_system_state_is_published(tmp_path: Path) -> None:
     poller, provider, engine, ledger = fixture(tmp_path)
     provider.calls.clear()

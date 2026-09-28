@@ -12,13 +12,17 @@ GitHub uses the existing private `github-token` file. The pinned
 Startup validates the exact existing root and INSTALLATION INDEX IDs against
 the pinned local legacy manifest and live Google metadata, then verifies the
 GitHub login and numeric user ID. It does not create a second Drive workspace,
-bootstrap from `drive-seed/`, create a repository, or arm the Ledger. Configured
-`runner serve` publishes its current SYSTEM STATE and starts a finite root
-mailbox bridge; while disarmed, that bridge never reads or freezes a READY
-COMMAND. Once the local owner explicitly arms the runner, it polls only the
-indexed root COMMAND and registered project/workspace COMMAND IDs. If attachment
-fails, no EP-05 handler becomes available. Without the file, Runtime remains
-at its prior NOT_CONFIGURED state.
+bootstrap from `drive-seed/` or create a repository. With the current
+`runner serve` default, a configured Runtime arms after startup
+recovery checks pass, publishes its fresh epoch in SYSTEM STATE and polls only
+the indexed root
+COMMAND and registered project/workspace COMMAND IDs. `--start-unarmed` is an
+explicit opt-out for that process. If an interrupted operation or uncertain
+effect requires reconciliation, startup leaves the Ledger disarmed and does
+not poll READY commands; resolve the recovery gate before arming. If attachment
+fails, no EP-05 handler becomes available. Without the owner configuration,
+Runtime remains at NOT_CONFIGURED. Read the live UI or SYSTEM STATE for the
+current intake state; a manual disarm can still turn it off until restart.
 
 The configured Runtime exposes CREATE_PROJECT, CREATE_WORKSPACE, read-only
 RECONCILE, RESUME_PROVISION and bounded project FETCH handlers through the
@@ -40,11 +44,12 @@ a live Drive-origin CREATE_WORKSPACE project command remains unverified.
 
 1. On this computer, open `http://127.0.0.1:8765`. Sign in with the current
    one-time code from the private `tokens/session-bootstrap.json` file described
-   in [Local authority and API](DOMAIN_API.md). In **Система**, select
-   **Включить приём**. One arm enables the current epoch until the owner stops
-   intake or the service restarts; it is not a separate step for every command.
-   Read the fresh `SYSTEM STATE` in Drive and confirm `ARMED`, its epoch, the
-   approved template and `CREATE_PROJECT` in `available_actions`.
+   in [Local authority and API](DOMAIN_API.md). Read the fresh `SYSTEM STATE`
+   in Drive and confirm `ARMED`, its epoch, the approved template and
+   `CREATE_PROJECT` in `available_actions`. The installed configured service arms
+   automatically after a clean start. If intake was manually stopped, the
+   owner can select **Включить приём** in **Система**. A manual disarm lasts
+   until the next service restart; it is not a persistent startup setting.
 2. In chat, open the existing [INSTALLATION INDEX](https://docs.google.com/document/d/1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA/edit)
    and its `CHAT PROTOCOL`. Ask for one new project from an approved template.
    The chat must use the indexed **root** `COMMAND` and `RECEIPT`, follow the
@@ -107,10 +112,11 @@ visible to the rootless Docker daemon. Its installer refuses to replace the
 previous `/run`-based helper while any old run volume remains mounted.
 
 Runtime status reports the verified EP-05 attachment separately from the
-remaining execution setup. The Ledger still starts disarmed. A local owner
-must explicitly arm it through the authenticated loopback API before any
-READY command can be admitted. Partial CREATE_PROJECT recovery never replays
-an uncertain cloud effect. Use RECONCILE first, confirm that the original locks
+remaining execution setup. In the normal `serve` path, a configured Ledger
+starts armed only when its recovery checks are clear. Explicit
+`--start-unarmed` and `NEEDS_RECONCILIATION` leave it disarmed; a local owner
+can arm it through the authenticated loopback API after resolving the gate.
+Partial CREATE_PROJECT recovery never replays an uncertain cloud effect. Use RECONCILE first, confirm that the original locks
 are released, then submit a fresh owner-local RESUME_PROVISION. Drive-root
 originals require the original terminal partial root RECEIPT to be journaled
 and re-read by exact document ID/hash before owner-local RESUME can adopt their
@@ -122,12 +128,15 @@ workspace ID, and owner-only run evidence retention controls. Explicit `FETCH` i
 only operation that advances the durable per-project fetch timestamp; an `ls-remote`
 connection check is read-only and does not imply a fetch. The packaged UI
 reflects these backend values. EP-07 has installed and upgraded the durable
-owner-user service to wheel `0.2.2`; it is active, enabled and starts disarmed
-after a service restart. Read the live UI or `SYSTEM STATE` for
-its current intake state. Exact existing Drive root/Index and provider reads, one
-UI-origin project, one current-chat Drive-origin project and a second local-UI
+owner-user service from a locked wheel; it is active and enabled. A clean
+configured service restart arms intake. The enabled user unit and
+`Linger=yes` arrange for service startup when the computer boots, without an
+interactive login. A real reboot check remains open. Read the live UI or
+`SYSTEM STATE` for its current intake state. Exact existing Drive root/Index
+and provider reads, one UI-origin project, one current-chat Drive-origin
+project and a second local-UI
 workspace have passed deployed checks. See
-[the current service upgrade](../verification/implementation/EP-07/release-upgrade-0.2.2.json),
+[the prior `0.2.2` service upgrade](../verification/implementation/EP-07/release-upgrade-0.2.2.json),
 [UI create](../verification/implementation/EP-07/live-ui-acceptance-20260928T105918Z.json),
 [Drive roundtrip](../verification/implementation/EP-07/live-drive-chat-roundtrip-20260928.json) and
 [multiworkspace readback](../verification/implementation/EP-07/live-multiworkspace-readback-20260928.json).

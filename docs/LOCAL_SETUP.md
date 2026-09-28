@@ -40,8 +40,9 @@ Local setup uses the following owner-private inputs and policy:
 
 The EP-04/05 integration and execution gates passed. The owner runtime is configured,
 and the approved `python-basic` profile and quota helper are installed. EP-07
-installed an enabled owner-user service, now at wheel version `0.2.2`, bound only to
-`127.0.0.1:8765`; the ledger is currently **disarmed**. A completed command can
+installed an enabled owner-user service from a locked wheel, bound only to
+`127.0.0.1:8765`. Clean configured startup now arms command intake by default;
+check live SYSTEM STATE for its current state. A completed command can
 remain READY in its Drive document without being re-executed: admission is keyed
 to its recorded request ID and receipt. One disposable private project was
 created through the installed UI and another through the existing root Drive
@@ -50,13 +51,21 @@ the local UI. The two workspaces completed separate passing and failing
 contained verification/publication routes with private draft PRs and Drive
 reports. The current-chat Drive connector also submitted a project-level
 FETCH through installed `0.2.2` and read its matching COMPLETED project
-RECEIPT. See [the installed release](../verification/implementation/EP-07/release-upgrade-0.2.2.json),
+RECEIPT. See [the prior `0.2.2` release evidence](../verification/implementation/EP-07/release-upgrade-0.2.2.json),
 [UI create](../verification/implementation/EP-07/live-ui-acceptance-20260928T105918Z.json),
 [Drive create](../verification/implementation/EP-07/live-drive-chat-roundtrip-20260928.json),
 [two-workspace readback](../verification/implementation/EP-07/live-multiworkspace-readback-20260928.json),
 [passing route](../verification/implementation/EP-07/live-publish-primary-20260928.jsonl),
 [failing route](../verification/implementation/EP-07/live-publish-parallel-20260928.jsonl) and
 [project FETCH](../verification/implementation/EP-07/live-project-fetch-20260928.json).
+The installed user unit is enabled for the owner's `default.target`, and this
+host has `Linger=yes` for the owner; systemd can therefore start it when the
+computer boots without waiting for an interactive login. A reboot acceptance
+check has not yet been recorded. The configured `serve` arms automatically
+after clean startup checks; `--start-unarmed` explicitly
+keeps that process disarmed. A `NEEDS_RECONCILIATION` gate keeps intake off
+until resolved. A manual disarm is temporary and does not survive a restart.
+
 Same-path restore, uninstall, a live project-level Drive CREATE_WORKSPACE
 command, broader recovery/security acceptance and a command from a fresh
 separate chat remain open. The stateless

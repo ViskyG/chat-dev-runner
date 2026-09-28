@@ -11,7 +11,7 @@ Environment=@XDG_CONFIG_HOME@
 Environment=@XDG_DATA_HOME@
 Environment=@XDG_CACHE_HOME@
 @RUNTIME_ENV@
-ExecStart=@VENV_PYTHON@ -m runner_app.cli serve --host 127.0.0.1 --port @PORT@ --start-unarmed
+ExecStart=@VENV_PYTHON@ -m runner_app.cli serve --host 127.0.0.1 --port @PORT@
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=30

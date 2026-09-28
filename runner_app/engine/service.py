@@ -4,6 +4,7 @@ from __future__ import annotations
 import errno
 import sqlite3
 import threading
+import time
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
@@ -366,7 +367,8 @@ class Engine:
         except (sqlite3.Error, OSError):
             # Worker cancellation still happens when durable disarm is unavailable.
             pass
+        deadline = time.monotonic() + max(0.0, timeout)
         for worker, _ in workers:
-            worker.join(timeout=timeout)
+            worker.join(timeout=max(0.0, deadline - time.monotonic()))
         # Surviving workers retain RUNNING state and locks. Startup conservatively interrupts them;
         # a real executor broker must prove termination before confirm_stopped releases ownership.

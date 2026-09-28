@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "result": "PASS_FOR_OWNER_REQUESTED_DEFAULT_INTAKE",
+  "checked_at": "2026-09-28T13:16:12.596963+00:00",
+  "scope": "Configured clean startup enables intake by default; user service starts at boot",
+  "version": "0.2.4",
+  "wheel_sha256": "f71a453ca8ea52269db488643d7fcfa4b423fdebde2ebb14029e0de34c7ce21a",
+  "first_upgrade": {
+    "version": "0.2.3",
+    "wheel_sha256": "e3decf33d5b06c0aeb112126bd3a844e304dc1997cc5a7bed9ddafc3b129f15d",
+    "backup_path": "/home/visky/Work/GPTRunner/.runner-backups/pre-default-intake-20260928",
+    "backup_manifest_sha256": "16fffd9f43bae277822743da69d62b911efb3fb9bbb057e000220303f282d67e",
+    "backup_files_verified": 419,
+    "backup_sqlite_schema": 9,
+    "backup_sqlite_integrity": "ok",
+    "startup_auto_armed": true,
+    "shutdown_result": "SYSTEMD_TIMEOUT_30_SECONDS",
+    "observation": "Provider polling delayed ASGI shutdown; no RUNNING operation existed before stop."
+  },
+  "final_upgrade": {
+    "backup_path": "/home/visky/Work/GPTRunner/.runner-backups/pre-graceful-stop-20260928",
+    "backup_manifest_sha256": "ba22476839f1b757276179664c82b402ef1e63a490dcb5bc91f6a1ffd48ba184",
+    "backup_files_verified": 419,
+    "backup_sqlite_schema": 9,
+    "backup_sqlite_integrity": "ok",
+    "wheel_build_exit_code": 0,
+    "wheel_installed_exit_code": 0,
+    "user_install_exit_code": 0,
+    "unit_changed": false,
+    "uv_pip_check": "43_COMPATIBLE_PACKAGES",
+    "wheel_has_no_credential_named_files": true
+  },
+  "focused_verification": {
+    "junit": "verification/implementation/EP-07/default-intake-shutdown-focused.xml",
+    "tests": "129_PASSED",
+    "ruff": "PASS",
+    "mypy": "PASS_8_SOURCE_FILES",
+    "full_suite": "NOT_RERUN_FOR_NARROW_CHANGE"
+  },
+  "service_restart": {
+    "command": "systemctl --user restart chat-dev-runner.service",
+    "exit_code": 0,
+    "duration_seconds_approx": 20,
+    "systemd_result": "success",
+    "previous_main_exit_status": 0,
+    "active_after_restart": true,
+    "enabled": true,
+    "linger": "yes",
+    "unit_exec_start_has_start_unarmed": false,
+    "listener": "127.0.0.1:8765",
+    "api_health_version": "0.2.4",
+    "api_health_armed": true,
+    "running_operations": 0,
+    "new_epoch": "221179ef-a63e-4974-a819-fc9551e718db",
+    "actual_power_cycle_tested": false
+  },
+  "drive_state_readback": {
+    "document_id": "1UXNE8Vt-73inAKm4i949TpyGT5rb3ve9bv_521QwXS0",
+    "state": "ARMED",
+    "runner_armed": true,
+    "epoch": "221179ef-a63e-4974-a819-fc9551e718db",
+    "available_actions": [
+      "CREATE_PROJECT",
+      "CREATE_WORKSPACE",
+      "DELIVER_VERIFY_PUBLISH",
+      "FETCH"
+    ],
+    "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+    "installation_index_document_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+    "eventual_publication_after_async_mailbox_discovery": true
+  },
+  "current_root_command": {
+    "document_id": "1sfSwN2pSBtZ1JMV11u_riKvGf0iQ5dwtb9591LMVe0I",
+    "read_only_observation": "INVALID_JSON_EXTRA_TRAILING_BRACE",
+    "request_expired_before_final_restart": true,
+    "request_epoch_differs_from_current": true,
+    "command_not_rewritten_or_executed": true
+  },
+  "release_status": "EP-07_IN_PROGRESS; broader host and fresh-chat acceptance gates remain open"
+}

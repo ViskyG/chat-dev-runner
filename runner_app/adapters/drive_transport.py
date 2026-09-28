@@ -45,7 +45,8 @@ def isolated_request_builder(credentials: Any) -> Callable[..., Any]:
 
     def build_request(service_http: Any, *args: Any, **kwargs: Any) -> Any:
         del service_http
-        transport = authorized_http(credentials, http=http_factory())
+        # A stalled provider request must not hold service shutdown indefinitely.
+        transport = authorized_http(credentials, http=http_factory(timeout=20))
         return request_type(_CredentialGuardedHttp(transport, credential_lock),
                             *args, **kwargs)
 

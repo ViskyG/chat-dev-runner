@@ -183,7 +183,8 @@ def test_inspection_commands_are_side_effect_free_and_honest(
         )
         assert report["service_changes"] is False
         assert report["cloud_writes"] is False
-        assert report["would_start_armed"] is False
+        assert report["would_start_armed"] is None
+        assert report["startup_arm_policy"] == "CONFIGURED_RUNTIME"
         assert report["live_start_may_publish_system_state"] is True
         assert report["argv"][4:6] == ["--host", "127.0.0.1"]
 

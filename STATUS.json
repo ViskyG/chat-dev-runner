@@ -4,10 +4,10 @@
   "ui": "EP-06 VERIFIED: packaged same-origin control centre is bound to authenticated local read models/actions; 65/65 fake-backed browser, 19/19 fresh local-process and 22/22 configured disarmed-process checks passed. Original prototype remains separate.",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
-  "live_runner": "EP-00 through EP-06 VERIFIED. EP-07 owner-user service is installed, enabled and active with wheel version 0.2.2 on 127.0.0.1:8765; final observed state is disarmed. Exact existing Drive root/Index remain attached. Disposable projects completed through the installed UI and a Drive-origin command from this chat connector session. The UI project has two ACTIVE workspaces; its installed 0.2.1 routes completed with PASSED execution on primary and FAILED execution on parallel, each producing a private draft PR and Drive report. Installed 0.2.2 accepted a project-level FETCH from this chat connector session and published a matching COMPLETED project RECEIPT. Complete EP-07 release acceptance remains open.",
+  "live_runner": "EP-00 through EP-06 VERIFIED. EP-07 owner-user service is installed, enabled and active from wheel 0.2.4 on 127.0.0.1:8765; configured clean startup now arms command intake by default, and the latest 0.2.4 restart was observed armed with a fresh epoch. The enabled user unit and Linger=yes are configured for boot startup; a real power-cycle has not been tested. Exact existing Drive root/Index remain attached. Disposable projects completed through the installed UI and a Drive-origin command from this chat connector session. The UI project has two ACTIVE workspaces; its installed 0.2.1 routes completed with PASSED execution on primary and FAILED execution on parallel, each producing a private draft PR and Drive report. Installed 0.2.2 accepted a project-level FETCH from this chat connector session and published a matching COMPLETED project RECEIPT. Complete EP-07 release acceptance remains open.",
   "github_live_adapter": "EP-05 created three disposable private repositories under ViskyG. EP-07 installed 0.2.1 service published passing primary and failing parallel runs to distinct branches of the disposable private UI project, with draft PRs #1 and #2 and Drive report links. The failing draft PR is labelled [FAILED]. Owner-only tokens remain outside the repository.",
   "credentials": "None bundled",
-  "service_installation": "EP-07 wheel-installed 0.2.2 owner-user systemd service is active and enabled, loopback-only and disarmed after a project-level FETCH command. A stopped-service pre-0.2.2 schema-9 backup passed independent manifest hash, all 416 file hashes and SQLite integrity checks; locked dependencies are unchanged. Earlier stop/restart, Host/Origin/session, deployed Drive/GitHub read, execution-readiness, live passing/failing draft-PR and Drive-delivery, and private backup/refusal gates passed. The 0.2.2 service gate and exact project FETCH/RECEIPT roundtrip passed. Same-path live restore, uninstall and full interruption/recovery acceptance remain open.",
+  "service_installation": "EP-07 wheel-installed 0.2.4 owner-user systemd service is active and enabled, loopback-only and armed after a successful 20-second graceful restart; health reported 0.2.4 armed=true and Drive SYSTEM STATE matched its fresh epoch. Linger=yes allows the enabled user unit to start before interactive login. Pre-0.2.3 and pre-0.2.4 stopped-service schema-9 backups each contained 419 files; each manifest, all file hashes and SQLite integrity passed. The earlier 0.2.3 shutdown timed out; 0.2.4 fixed that observed restart path. Focused tests: 129 passed, with Ruff and mypy passed. Earlier stop/restart, Host/Origin/session, deployed Drive/GitHub read, execution-readiness, live passing/failing draft-PR and Drive-delivery, private backup/refusal, and exact project FETCH/RECEIPT gates passed. Same-path live restore, uninstall, full interruption/recovery and real power-cycle acceptance remain open.",
   "automatic_chat_access": "CONNECTED_DRIVE_COMMAND_ROUNDTRIPS_VERIFIED_IN_CURRENT_CHAT: connected chat Drive app issued revision-guarded DRAFT/READY CREATE_PROJECT through the existing root COMMAND and read a matching COMPLETED root RECEIPT after deployed service execution. On installed 0.2.2, it issued FETCH through an existing project COMMAND and read a matching COMPLETED project RECEIPT. It also read exact IDs and parents of the second workspace documents. CONNECTED_GITHUB_RUNNER_REPO_READ_VERIFIED: private ViskyG/chat-dev-runner is visible. Fresh separate-chat command and new private project repository visibility through the chat GitHub app remain unverified.",
   "user_projects": "Three disposable EP-05 projects and two disposable EP-07 projects (cdr-ep07-ui-20260928 and cdr-ep07-drive-20260928) were created under the existing Drive installation and private GitHub owner. Both EP-07 projects are READY; the UI project has primary and parallel ACTIVE workspaces on distinct branches from the same explicit base, with the second area registered in Drive. Deployed workspace commands on each branch completed separately: primary PASSED, parallel FAILED, each with private draft PR and Drive report. Independent unchanged-workspace assertion remains a release gate. No pre-existing user project was imported or modified.",
   "drive_installation": {
@@ -18,10 +18,10 @@
     "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
     "installation_index_document_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
     "installation_index_url": "https://docs.google.com/document/d/1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA/edit",
-    "runner_state": "CONFIGURED_DISARMED",
-    "armed": false,
+    "runner_state": "CONFIGURED_ARMED",
+    "armed": true,
     "bootstrap_allowed": false,
-    "live_validation": "13_ROLE_LEGACY_ATTACH_AND_CROSS_APP_CANARY_VERIFIED; EP05_UI_CREATE_COMPLETED; EP05_DRIVE_ROOT_CREATE_RESUMED; EP05_PASSING_WORKSPACE_DRAFT_PR_DELIVERED; EP05_FAILING_WORKSPACE_DRAFT_PR_DELIVERED; PASS_AND_FAIL_PROVIDER_POSTCHECK_CONFIRMED; EP07_INSTALLED_SERVICE_EXACT_ATTACH_AND_PROVIDER_READS_OK; EP07_DEPLOYED_UI_CREATE_COMPLETED; EP07_CHAT_PROTOCOL_IN_PLACE_UPDATE_VERIFIED; EP07_CHAT_CONNECTOR_DRIVE_CREATE_COMPLETED_AND_RECEIPT_MATCHED; EP07_SECOND_WORKSPACE_EXACT_DRIVE_READBACK_AND_UI_API_PASS; EP07_DEPLOYED_PRIMARY_PASS_DRAFT_PR_AND_DRIVE_REPORT; EP07_DEPLOYED_PARALLEL_FAIL_DRAFT_PR_AND_DRIVE_REPORT; EP07_INSTALLED_022_PROJECT_FETCH_COMMAND_AND_RECEIPT_MATCHED",
+    "live_validation": "13_ROLE_LEGACY_ATTACH_AND_CROSS_APP_CANARY_VERIFIED; EP05_UI_CREATE_COMPLETED; EP05_DRIVE_ROOT_CREATE_RESUMED; EP05_PASSING_WORKSPACE_DRAFT_PR_DELIVERED; EP05_FAILING_WORKSPACE_DRAFT_PR_DELIVERED; PASS_AND_FAIL_PROVIDER_POSTCHECK_CONFIRMED; EP07_INSTALLED_SERVICE_EXACT_ATTACH_AND_PROVIDER_READS_OK; EP07_DEPLOYED_UI_CREATE_COMPLETED; EP07_CHAT_PROTOCOL_IN_PLACE_UPDATE_VERIFIED; EP07_CHAT_CONNECTOR_DRIVE_CREATE_COMPLETED_AND_RECEIPT_MATCHED; EP07_SECOND_WORKSPACE_EXACT_DRIVE_READBACK_AND_UI_API_PASS; EP07_DEPLOYED_PRIMARY_PASS_DRAFT_PR_AND_DRIVE_REPORT; EP07_DEPLOYED_PARALLEL_FAIL_DRAFT_PR_AND_DRIVE_REPORT; EP07_INSTALLED_022_PROJECT_FETCH_COMMAND_AND_RECEIPT_MATCHED; EP07_INSTALLED_024_DEFAULT_ON_GRACEFUL_RESTART_AND_DRIVE_SYSTEM_STATE_EPOCH_MATCHED",
     "source": "Owner update after archive creation; seed is a reference specification"
   },
   "implementation": {
@@ -36,7 +36,7 @@
       "EP-06": "VERIFIED",
       "EP-07": "IN_PROGRESS"
     },
-    "armed": false,
+    "armed": true,
     "deployable": false,
     "evidence": "verification/implementation/EP-07/",
     "checkpoint": "codex/checkpoints/EP-07.md",
@@ -97,10 +97,11 @@
     "ep07_live_publish_primary_evidence": "verification/implementation/EP-07/live-publish-primary-20260928.jsonl",
     "ep07_live_publish_parallel_evidence": "verification/implementation/EP-07/live-publish-parallel-20260928.jsonl",
     "ep07_upgrade_022_evidence": "verification/implementation/EP-07/release-upgrade-0.2.2.json",
-    "ep07_project_fetch_roundtrip_evidence": "verification/implementation/EP-07/live-project-fetch-20260928.json"
+    "ep07_project_fetch_roundtrip_evidence": "verification/implementation/EP-07/live-project-fetch-20260928.json",
+    "ep07_default_intake_live_evidence": "verification/implementation/EP-07/default-intake-live-20260928.json"
   },
   "implementation_source_repository": {
-    "local_git": "EP06_VERIFIED_MAIN",
+    "local_git": "EP07_IN_PROGRESS_MAIN",
     "branch": "main",
     "github_remote": "ViskyG/chat-dev-runner",
     "private_repository_requested": true,

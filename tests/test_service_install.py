@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from runner_app import service_install
+from runner_app.cli import parser
 from runner_app.service_install import (
     ServiceInstallError,
     dry_run,
@@ -67,14 +68,19 @@ def paths(tmp_path: Path) -> Paths:
     )
 
 
-def test_packaged_template_matches_reviewed_source_and_is_loopback_unarmed(paths: Paths) -> None:
+def test_serve_auto_arms_by_default_with_explicit_unarmed_override() -> None:
+    assert parser().parse_args(["serve"]).start_unarmed is False
+    assert parser().parse_args(["serve", "--start-unarmed"]).start_unarmed is True
+
+
+def test_packaged_template_matches_reviewed_source_and_is_loopback_auto_armed(paths: Paths) -> None:
     assert files("runner_app").joinpath("production.service.in").read_text() == (
         ROOT / "deploy" / "production.service.in"
     ).read_text()
     plan = render_plan(paths, executable=Path(sys.executable), port=9876)
     assert plan.unit_path == paths.config_dir.parent / "systemd/user/chat-dev-runner.service"
     assert plan.argv == [sys.executable, "-m", "runner_app.cli", "serve", "--host",
-                         "127.0.0.1", "--port", "9876", "--start-unarmed"]
+                         "127.0.0.1", "--port", "9876"]
     assert f"WorkingDirectory={paths.state_dir}" in plan.text
     assert f'ExecStart="{sys.executable}" -m runner_app.cli serve --host 127.0.0.1 ' in plan.text
     assert 'Environment="XDG_CONFIG_HOME=' in plan.text
@@ -84,6 +90,7 @@ def test_packaged_template_matches_reviewed_source_and_is_loopback_unarmed(paths
     assert "NoNewPrivileges=no" in plan.text
     assert "no-new-privileges:true" in plan.text
     assert "0.0.0.0" not in plan.text
+    assert "--start-unarmed" not in plan.text
     assert "google-oauth-client" not in plan.text
     assert "github-token" not in plan.text
     assert "@" not in plan.text
@@ -98,7 +105,8 @@ def test_dry_run_is_pure_and_discloses_live_start_state_write(paths: Paths) -> N
     assert report["unit_state"] == "ABSENT"
     assert report["service_changes"] is False
     assert report["cloud_writes"] is False
-    assert report["would_start_armed"] is False
+    assert report["would_start_armed"] is None
+    assert report["startup_arm_policy"] == "CONFIGURED_RUNTIME"
     assert report["live_start_may_publish_system_state"] is True
     assert report["ready_mailbox_polling_while_disarmed"] is False
     assert not plan.unit_path.parent.exists()
@@ -113,7 +121,7 @@ def test_install_is_idempotent_and_uninstall_preserves_state(
     plan = render_plan(paths)
     first = install_user(plan)
     assert first["unit_changed"] is True and first["started"] is True
-    assert first["starts_unarmed"] is True
+    assert first["startup_arm_policy"] == "CONFIGURED_RUNTIME"
     assert plan.unit_path.read_text() == plan.text
     assert plan.unit_path.stat().st_mode & 0o777 == 0o600
     assert paths.state_dir.stat().st_mode & 0o777 == 0o700
@@ -155,7 +163,8 @@ def test_live_upgrade_requires_explicit_stop(paths: Paths, monkeypatch: pytest.M
     stop_user(first)
     changed = install_user(render_plan(paths, port=8766))
     assert changed["unit_changed"] is True
-    assert "--port 8766 --start-unarmed" in first.unit_path.read_text()
+    assert "--port 8766" in first.unit_path.read_text()
+    assert "--start-unarmed" not in first.unit_path.read_text()
 
 
 def test_foreign_unit_and_symlink_are_never_overwritten(

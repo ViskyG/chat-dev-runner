@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import threading
 from importlib import import_module
 from pathlib import Path
 from types import SimpleNamespace
@@ -21,6 +22,7 @@ from runner_app.engine.integrations import (
     load_owner_runtime_config,
 )
 from runner_app.engine.runtime import Runtime
+from runner_app.storage.ledger import LedgerError
 from runner_app.storage.paths import Paths
 
 
@@ -66,6 +68,7 @@ def test_absent_owner_config_keeps_runtime_unarmed_and_without_handlers(tmp_path
         assert runtime.workspace_mailboxes is None
         assert runtime.engine.capabilities() == []
         assert runtime.ledger.state()["armed"] is False
+        assert runtime.arm_on_startup() is False
     finally:
         runtime.close()
 
@@ -121,11 +124,65 @@ def test_configured_runtime_attaches_existing_and_registers_no_write_handlers(
         }
         assert records["command"]["id"] in runtime.engine.policy.mailboxes
         assert runtime.ledger.state()["armed"] is False
+        assert runtime.arm_on_startup() is False  # polling is not initialized yet
+        runtime.drive_bridge = cast(Any, SimpleNamespace(request_stop=lambda: None, close=lambda **_: None))
+        initial_epoch = runtime.ledger.state()["epoch"]
+        assert runtime.arm_on_startup() is True
+        armed = runtime.ledger.state()
+        assert armed["armed"] is True and armed["epoch"] != initial_epoch
+        assert runtime.arm_on_startup() is True
+        assert runtime.ledger.state()["epoch"] == armed["epoch"]
+        runtime.ledger.disarm()
+
+        def needs_reconciliation() -> dict[str, Any]:
+            raise LedgerError("NEEDS_RECONCILIATION", "uncertain effect")
+
+        monkeypatch.setattr(runtime.ledger, "arm", needs_reconciliation)
+        assert runtime.arm_on_startup() is False
+        assert runtime.ledger.state()["armed"] is False
         assert transport.calls == [("GET", "/user")]
         assert all(method in {"files.get", "documents.get"} for method, _ in fake.calls)
     finally:
         runtime.close()
     assert os.stat(paths.config_dir / integrations.CONFIG_FILENAME).st_mode & 0o777 == 0o600
+
+
+
+def test_runtime_shutdown_signals_all_pollers_before_bounded_joins(tmp_path: Path) -> None:
+    events: list[str] = []
+    deadlines: list[float] = []
+    runtime = cast(Any, object.__new__(Runtime))
+    runtime._bootstrap_stop = threading.Event()
+    runtime._bootstrap_refresh = threading.Event()
+    runtime._bootstrap_thread = None
+    runtime._bootstrap_path = tmp_path / "unused-bootstrap.json"
+
+    def stop(name: str) -> None:
+        events.append(f"stop:{name}")
+
+    def join(name: str, *, deadline: float) -> None:
+        events.append(f"join:{name}")
+        deadlines.append(deadline)
+        assert events[:2] == ["stop:manager", "stop:root"]
+
+    runtime.workspace_mailboxes = SimpleNamespace(
+        request_stop=lambda: stop("manager"),
+        close=lambda *, deadline: join("manager", deadline=deadline),
+    )
+    runtime.drive_bridge = SimpleNamespace(
+        request_stop=lambda: stop("root"),
+        close=lambda *, deadline: join("root", deadline=deadline),
+    )
+    runtime.engine = SimpleNamespace(
+        shutdown=lambda *, timeout: events.append(f"engine:{timeout <= 2.0}"),
+    )
+    runtime._singleton = SimpleNamespace(close=lambda: events.append("singleton"))
+
+    runtime.close()
+    assert events == ["stop:manager", "stop:root", "join:manager", "join:root",
+                      "engine:True", "singleton"]
+    assert len(deadlines) == 2 and deadlines[0] == deadlines[1]
+    assert runtime._bootstrap_stop.is_set()
 
 
 def test_owner_config_has_no_implicit_import_or_github_approval() -> None:

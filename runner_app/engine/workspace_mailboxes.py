@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 import re
 import threading
+import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
@@ -243,12 +244,27 @@ class WorkspaceMailboxManager:
             )
             self._thread.start()
 
-    def close(self) -> None:
-        self._stop.set()
+    def request_stop(self) -> None:
+        """Stop discovery and every known poller before waiting for any one of them."""
+        with self._lock:
+            self._stop.set()
+            bridges = [*self._project_bridges.values(), *self._bridges.values()]
+        for bridge in bridges:
+            bridge.request_stop()
+
+    def join_until(self, deadline: float) -> None:
         with self._lock:
             thread = self._thread
-            bridges = [*self._project_bridges.values(), *self._bridges.values()]
         if thread is not None:
-            thread.join(timeout=30.0)
+            thread.join(timeout=max(0.0, deadline - time.monotonic()))
+        # A refresh already in progress may have registered another inert bridge.
+        with self._lock:
+            bridges = [*self._project_bridges.values(), *self._bridges.values()]
         for bridge in bridges:
-            bridge.close()
+            bridge.request_stop()
+        for bridge in bridges:
+            bridge.join_until(deadline)
+
+    def close(self, *, deadline: float | None = None) -> None:
+        self.request_stop()
+        self.join_until(deadline if deadline is not None else time.monotonic() + 20.0)

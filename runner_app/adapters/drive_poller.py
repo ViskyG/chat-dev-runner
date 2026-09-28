@@ -457,10 +457,15 @@ class DrivePoller:
         if engine.policy.mailboxes.get(mailbox.command_id) != self.provenance:
             raise PollError("MAILBOX_NOT_REGISTERED")
 
-    def poll_once(self) -> PollResult:
+    def poll_once(self, *, cancelled: Callable[[], bool] | None = None) -> PollResult:
+        if cancelled is not None and cancelled():
+            return PollResult("STOPPED")
         snapshot = read_ready_snapshot(self.provider, self.mailbox)
         if snapshot is None:
             return PollResult("IDLE")
+        # A read begun before shutdown must not freeze a READY command after stop.
+        if cancelled is not None and cancelled():
+            return PollResult("STOPPED")
         request_id, created = self.slots.freeze(snapshot, self.provenance)
         if not created:
             recorded = self.slots.admission_recorded(request_id, self.provenance)

@@ -1,9 +1,12 @@
 # Agent entry contract
 
 Read `STATUS.json`, then `codex/START_HERE.md`. Execute only the selected packet.
-EP-00 through EP-06 are verified. EP-07 has an installed owner-user service from a
-locked wheel, active on loopback and disarmed; release acceptance is still open.
-Check `STATUS.json` and the EP-07 checkpoint before claiming a live capability.
+EP-00 through EP-06 are verified. EP-07 has an installed owner-user service
+from a locked wheel, active on loopback. Its enabled user unit and
+`Linger=yes` start it at computer boot; a configured clean startup arms command
+intake by default. Explicit `--start-unarmed` or `NEEDS_RECONCILIATION` leaves
+intake off. Release acceptance is still open. Check `STATUS.json` and the EP-07
+checkpoint before claiming a live capability.
 Do not present mock network actions as implemented integrations.
 
 Non-negotiable requirements:

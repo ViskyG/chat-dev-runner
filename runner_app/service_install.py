@@ -63,7 +63,7 @@ class ServicePlan:
     @property
     def argv(self) -> list[str]:
         return [str(self.executable), "-m", "runner_app.cli", "serve", "--host",
-                "127.0.0.1", "--port", str(self.port), "--start-unarmed"]
+                "127.0.0.1", "--port", str(self.port)]
 
 
 def render_plan(paths: Paths | None = None, *, executable: Path | None = None,
@@ -315,7 +315,8 @@ def dry_run(plan: ServicePlan) -> dict[str, Any]:
         "runtime_package": runtime_package,
         "config_dir": str(plan.paths.config_dir), "state_dir": str(plan.paths.state_dir),
         "cache_dir": str(plan.paths.cache_dir), "service_changes": False,
-        "cloud_writes": False, "would_start_armed": False,
+        "cloud_writes": False, "would_start_armed": None,
+        "startup_arm_policy": "CONFIGURED_RUNTIME",
         "live_start_may_publish_system_state": True,
         "ready_mailbox_polling_while_disarmed": False,
     }
@@ -402,7 +403,8 @@ def _install_user_locked(plan: ServicePlan) -> dict[str, Any]:
         _install_step("START", plan, changed, "start", UNIT_NAME)
     return {"unit_path": str(plan.unit_path), "installed": True,
             "unit_changed": changed, "started": not active, "enabled": True,
-            "starts_unarmed": True, "live_start_may_publish_system_state": not active,
+            "startup_arm_policy": "CONFIGURED_RUNTIME",
+            "live_start_may_publish_system_state": not active,
             "ready_mailbox_polling_while_disarmed": False}
 
 

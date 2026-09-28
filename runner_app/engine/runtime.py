@@ -6,6 +6,7 @@ import logging
 import os
 import secrets
 import threading
+import time
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Protocol
@@ -36,14 +37,15 @@ from runner_app.engine.workspace_mailboxes import RouteFactory, WorkspaceMailbox
 from runner_app.git.imports import ImportGrants
 from runner_app.git.registry import SourceRegistry
 from runner_app.storage import Database, Paths, open_private_file
-from runner_app.storage.ledger import Ledger
+from runner_app.storage.ledger import Ledger, LedgerError
 from runner_app.storage.run_evidence import RunEvidenceStore
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class _DriveBridge(Protocol):
-    def close(self) -> None: ...
+    def request_stop(self) -> None: ...
+    def close(self, *, deadline: float | None = None) -> None: ...
 
 
 class Runtime:
@@ -223,20 +225,48 @@ class Runtime:
                 actions.add("DELIVER_VERIFY_PUBLISH")
         return sorted(actions)
 
+    def arm_on_startup(self) -> bool:
+        """Enable a configured service after its Drive polling routes have started.
+
+        Ledger.arm keeps interrupted or uncertain operations disarmed until the
+        owner reconciles them. An unconfigured local foundation stays inert.
+        """
+        if (self.integrations is None or self.drive_bridge is None
+                or self.workspace_mailboxes is None or self.engine.storage_faulted):
+            return False
+        try:
+            self.ledger.arm()
+        except LedgerError as error:
+            if error.code != "NEEDS_RECONCILIATION":
+                raise
+            _LOGGER.warning("RUNNER_STARTUP_NEEDS_RECONCILIATION")
+            return False
+        return True
+
     def close(self) -> None:
+        # The user unit allows 30 seconds. Signal every poller first, then share
+        # one 20-second budget across all joins instead of 30 seconds per route.
+        deadline = time.monotonic() + 20.0
         self._bootstrap_stop.set()
         self._bootstrap_refresh.set()
+        manager = self.workspace_mailboxes
+        bridge = self.drive_bridge
+        if manager is not None:
+            manager.request_stop()
+        if bridge is not None:
+            bridge.request_stop()
         if self._bootstrap_thread is not None:
-            self._bootstrap_thread.join()
-            self._bootstrap_thread = None
+            self._bootstrap_thread.join(timeout=max(0.0, deadline - time.monotonic()))
+            if not self._bootstrap_thread.is_alive():
+                self._bootstrap_thread = None
         try:
             try:
-                if self.workspace_mailboxes is not None:
-                    self.workspace_mailboxes.close()
-                if self.drive_bridge is not None:
-                    self.drive_bridge.close()
+                if manager is not None:
+                    manager.close(deadline=deadline)
+                if bridge is not None:
+                    bridge.close(deadline=deadline)
             finally:
-                self.engine.shutdown()
+                self.engine.shutdown(timeout=min(2.0, max(0.0, deadline - time.monotonic())))
                 self._bootstrap_path.unlink(missing_ok=True)
         finally:
             self._singleton.close()
