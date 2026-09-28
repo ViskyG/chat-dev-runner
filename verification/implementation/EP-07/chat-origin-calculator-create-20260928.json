@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "packet": "EP-07",
-  "checked_at": "2026-09-28T14:19:29+00:00",
+  "checked_at": "2026-09-28T14:21:06+00:00",
   "result": "CREATE_PROJECT_COMPLETED_AFTER_PROGRESSIVE_PROVISIONING",
   "origin": "Owner reports a command submitted from a separate chat; the installed Runner independently observed its exact Drive request. The connector session that authored the command was not independently identified.",
   "request_id": "7b1e0f6d-6e98-4f0a-bf71-7df7c3a1cf4d",
@@ -39,7 +39,10 @@
     "project_state_workspace_ids": [
       "primary"
     ],
-    "project_folder_id": "1ZjubbEG_2PBR85GGyOl7MfhVMaVV-H7u"
+    "project_folder_id": "1ZjubbEG_2PBR85GGyOl7MfhVMaVV-H7u",
+    "project_command_doc_id": "1833RLnOaEuKvO-W20kkNX2LYfHBbIakVWb40uTZDXu0",
+    "project_command_paragraph_count": 0,
+    "project_command_empty_until_project_level_command": true
   },
   "github_readback": {
     "method": "Owner-local gh repo view --json nameWithOwner,isPrivate,url,id,defaultBranchRef",
@@ -58,5 +61,5 @@
     "enabled": true,
     "armed": true
   },
-  "interpretation": "The 18:02 +04 empty documents and old root RECEIPT were intermediate observations during serial Drive provisioning. No retry, recovery, restart or duplicate command was used. The CREATE_PROJECT request created the project scaffold; calculator implementation was not submitted. Chat-side access to this new private GitHub repository still requires connector selection or permission review."
+  "interpretation": "The 18:02 +04 empty PROJECT STATE and old root RECEIPT were intermediate observations during serial Drive provisioning. PROJECT COMMAND is an intentionally empty mailbox until a project-level command is submitted and remains empty after CREATE_PROJECT. No retry, recovery, restart or duplicate command was used. The CREATE_PROJECT request created the project scaffold; calculator implementation was not submitted. Chat-side access to this new private GitHub repository still requires connector selection or permission review."
 }
