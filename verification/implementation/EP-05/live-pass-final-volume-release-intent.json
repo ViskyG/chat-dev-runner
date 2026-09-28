@@ -1,0 +1,16 @@
+{
+  "both_mounts_present": true,
+  "container_proofs": {
+    "PREPARATION": "REMOVED",
+    "TEST": "REMOVED"
+  },
+  "created_at": "2026-09-28T08:19:27.547685+00:00",
+  "operation_status": "COMPLETED",
+  "preparation_outcome": "PASSED",
+  "preparation_run_id": "2da2404d-cea8-5a41-bd37-c6b2b436829c",
+  "reconcile_required": 0,
+  "request_id": "5649a6df-f6a9-4ea0-ba9c-487bf530e432",
+  "reserved_capacity": 0,
+  "schema_version": "1.0",
+  "test_outcome": "PASSED"
+}

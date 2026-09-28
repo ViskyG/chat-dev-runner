@@ -1,0 +1,26 @@
+{
+  "code": "PREPARATION_ARTIFACT_UNSAFE",
+  "confirmed_effects": 1,
+  "effects": 1,
+  "request_id": "56bc5518-c13b-4d13-ae48-50642ec0893d",
+  "result": {
+    "delivery": {
+      "status": "NOT_ATTEMPTED"
+    },
+    "execution": {
+      "exit_code": null,
+      "outcome": "NOT_RUN"
+    },
+    "publication": {
+      "status": "NOT_REQUESTED"
+    },
+    "report_link": {
+      "status": "NOT_REQUESTED"
+    },
+    "snapshot_id": "395e1e92-9278-4406-915d-9336f9669cc7",
+    "tested_commit": "edd7a768fe6495a3816a4632b4c48df1e8249fa4",
+    "tested_tree": "2d2fed2be8dbc6290fd0a7050b590227fefe8b77"
+  },
+  "schema_version": "1.0",
+  "status": "BLOCKED"
+}

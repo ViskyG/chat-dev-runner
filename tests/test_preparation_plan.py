@@ -250,6 +250,31 @@ def test_offline_handoff_copies_verified_bytes_to_distinct_build_root(tmp_path: 
              lambda: stage_prepared_build(plan, staged, source))
 
 
+def test_handoff_traverses_searchable_unreadable_ancestors_without_following_links(
+    tmp_path: Path,
+) -> None:
+    from runner_app.executors.preparation_handoff import _scan
+
+    root_controlled = tmp_path / "root-controlled"
+    root_controlled.mkdir(mode=0o711)
+    root_controlled.chmod(0o711)
+    source, target = _build_roots(root_controlled)
+    (source / "module.py").write_bytes(b"VALUE = 7\n")
+    (source / "module.py").chmod(0o600)
+    registry, grant, _ = _profiles(tmp_path)
+    plan = _plan(_snapshot(tmp_path), registry, grant)
+    staged = OfflinePreparationCoordinator().attest_and_stage(
+        plan, _prepared_result(plan, source.parent), source, target,
+    )
+    assert staged.total_bytes == len(b"VALUE = 7\n")
+    assert (target / "module.py").read_bytes() == b"VALUE = 7\n"
+
+    alias = tmp_path / "root-controlled-alias"
+    alias.symlink_to(root_controlled, target_is_directory=True)
+    _refusal("PREPARATION_ARTIFACT_UNSAFE",
+             lambda: _scan(alias / source.parent.name / "build"))
+
+
 def test_handoff_refuses_untrusted_or_incomplete_preparation(tmp_path: Path) -> None:
     registry, grant, _ = _profiles(tmp_path)
     plan = _plan(_snapshot(tmp_path), registry, grant)

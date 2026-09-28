@@ -29,6 +29,7 @@ class FakeGitHubREST:
         self.prs: list[dict[str, Any]] = []
         self.calls: list[tuple[str, str]] = []
         self.pr_create_timeout = False
+        self.pr_create_status: int | None = None
         self.pr_readback_unavailable = False
         self.pr_readback_after_post = False
         self.cancel_on_branch_read: threading.Event | None = None
@@ -80,6 +81,8 @@ class FakeGitHubREST:
             return GitHubHTTPResponse(200, list(self.prs))
         if method == "POST" and path == prefix + "/pulls":
             self.pr_post_count += 1
+            if self.pr_create_status is not None:
+                return GitHubHTTPResponse(self.pr_create_status, {})
             head = self._head("feature/area")
             assert head is not None
             pr = {
@@ -227,6 +230,28 @@ def test_lost_pr_response_is_reconciled_read_only_without_duplicate(tmp_path: Pa
     assert result.result["publication"]["status"] == "DRAFT_PUBLISHED"
     assert result.result["publication"]["pull_request_disposition"] == "reconciled"
     assert fake.pr_post_count == 1
+
+
+def test_pr_rate_limit_preserves_pushed_commit_and_reports_quota(tmp_path: Path) -> None:
+    case = _case(tmp_path)
+    workflow, ledger, context, frozen, fake = _workflow(case)
+    fake.pr_create_status = 429
+
+    result = workflow(frozen, context)
+
+    assert result.status == "BLOCKED" and result.code == "GITHUB_QUOTA_EXCEEDED"
+    assert result.result["publication"]["status"] == "BLOCKED"
+    assert result.result["publication"]["remote_head"] == case.commit
+    assert run_git(case.remote, ["rev-parse", "refs/heads/feature/area"]).strip() == case.commit
+    assert fake.pr_post_count == 1 and fake.prs == []
+    effects = ledger.get(frozen.command["request_id"])["effects"]
+    assert [(effect["kind"], effect["state"]) for effect in effects] == [
+        ("git_ref", "CONFIRMED"), ("pull_request", "INTENDED"),
+    ]
+    fake.pr_create_status = None
+    retried = workflow(frozen, context)
+    assert retried.status == "BLOCKED" and retried.code == "PULL_REQUEST_CREATE_UNKNOWN"
+    assert fake.pr_post_count == 1 and fake.prs == []
 
 
 def test_unavailable_pr_readback_keeps_intent_and_never_rewrites(tmp_path: Path) -> None:

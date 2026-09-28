@@ -58,6 +58,9 @@ class PhaseLedger(Protocol):
     def record_container_cleaned(self, request_id: str, phase: str,
                                  proof: ContainerReconciliation) -> None: ...
 
+    def record_container_absent(self, request_id: str, phase: str,
+                                     proof: ContainerReconciliation) -> None: ...
+
     def record_preparation_result(self, request_id: str, *, run_id: str,
                                   snapshot_id: str, plan_identity_sha256: str,
                                   preparation_profile_revision_sha256: str, image: str,
@@ -263,14 +266,19 @@ class TrustedPreparationCoordinator:
 
         def record_cleanup(proof: ContainerReconciliation) -> None:
             nonlocal cleaned
+            removed = (proof.state == "REMOVED"
+                       and isinstance(proof.container_id, str)
+                       and _CONTAINER_ID.fullmatch(proof.container_id) is not None)
+            absent = proof.state == "ABSENT" and proof.container_id is None
             if (recorded_intent is None or cleaned or proof.run_id != prep_run_id
                     or proof.daemon_id != recorded_intent.daemon_id
-                    or proof.state != "REMOVED"
-                    or not isinstance(proof.container_id, str)
-                    or not _CONTAINER_ID.fullmatch(proof.container_id)):
+                    or not (removed or absent)):
                 raise PreparationError("CONTAINER_CLEANUP_UNVERIFIED",
                                        "Preparation container cleanup was not verified")
-            self.ledger.record_container_cleaned(request_id, "PREPARATION", proof)
+            if absent:
+                self.ledger.record_container_absent(request_id, "PREPARATION", proof)
+            else:
+                self.ledger.record_container_cleaned(request_id, "PREPARATION", proof)
             cleaned = True
 
         result = self.broker.run(

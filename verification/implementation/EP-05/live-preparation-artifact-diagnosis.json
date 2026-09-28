@@ -1,0 +1,35 @@
+{
+  "after_fix": {
+    "entry_count": 532,
+    "live_mount_mutated": false,
+    "scanner_status": "PASS",
+    "total_file_bytes": 6570257
+  },
+  "ancestor": {
+    "mode_octal": "0o711",
+    "owner_uid": 0,
+    "path": "/var/lib/chat-dev-runner"
+  },
+  "before_fix": {
+    "cause": "O_RDONLY on searchable but unreadable 0711 ancestor",
+    "errno": 13,
+    "failed_component": "chat-dev-runner",
+    "scanner_code": "PREPARATION_ARTIFACT_UNSAFE"
+  },
+  "preparation_result": {
+    "capture_complete": true,
+    "cleanup_verified": true,
+    "exit_code": 0,
+    "outcome": "PASSED"
+  },
+  "preparation_run_id": "56876f54-6201-539c-8968-cfc3b8b08a27",
+  "recorded_at": "2026-09-28T08:10:02.500279+00:00",
+  "regression": {
+    "ancestor_mode_octal": "0o711",
+    "passed": 12,
+    "symlink_ancestor_refused": true,
+    "target": "tests/test_preparation_plan.py"
+  },
+  "request_id": "56bc5518-c13b-4d13-ae48-50642ec0893d",
+  "schema_version": "1.0"
+}

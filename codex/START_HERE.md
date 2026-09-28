@@ -1,9 +1,10 @@
 # Codex entry point
 
-This repository is an **implementation kit**, not a deployed runner. The interactive frontend
-and `bridge_reference` are executable; the Drive adapter and cross-app canary are verified,
-while service intake wiring, GitHub writes, host sandbox acceptance and deployment remain.
-Read `STATUS.json` first.
+This repository is an **implementation kit**, not a deployed runner. EP-00 through EP-05
+are verified: transient loopback intake, existing Drive installation, private GitHub writes,
+rootless contained execution, draft PRs and Drive result delivery passed live acceptance.
+The interactive frontend is still a simulation; durable service installation, real UI binding
+and release acceptance remain in EP-06 and EP-07. Read `STATUS.json` first.
 
 ## Intended outcome
 A local multi-project development bridge. An explicitly authorized one-shot command from an
@@ -34,8 +35,9 @@ python scripts/bootstrap_drive.py --plan
 ./start-prototype.sh
 ```
 Use Python >=3.10. The reference package is designed for **editable source-tree installation**;
-its schemas are source-relative. If packaging a wheel for production, explicitly package the
-schemas/resources and add an installed-wheel smoke test. Do not assume the current wheel does it.
+its schemas are source-relative. The EP-05 wheel packages schemas and offline starter resources,
+with a local wheel audit recorded in the EP-05 checkpoint. Recheck installed-wheel behavior when
+packaging changes; release acceptance still belongs to EP-07.
 
 `python -m bridge_reference.demo` creates its own temporary toy Git repository; it never touches
 existing user repositories. The reference process capturer is **not** a sandbox for arbitrary code.

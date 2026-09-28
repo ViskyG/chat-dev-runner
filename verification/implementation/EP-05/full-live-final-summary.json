@@ -1,0 +1,19 @@
+{
+  "architecture": "x86_64",
+  "command": ".venv/bin/python -m pytest -q --basetemp=/tmp/cdr-ep05-full-final-live --junitxml=verification/implementation/EP-05/full-live-final-tests.xml",
+  "created_at": "2026-09-28T08:22:55.158007+00:00",
+  "diff_check": "PASS",
+  "duration_seconds": 137.09,
+  "errors": 0,
+  "exit_code": 0,
+  "failures": 0,
+  "git_head_before_commit": "06ac19425ca2ee41636242f73a0505204cecd151",
+  "mypy": "PASS_85_SOURCE_FILES",
+  "passed": 1265,
+  "python": "3.10.12",
+  "ruff": "PASS",
+  "schema_version": "1.0",
+  "skipped": 1,
+  "system": "Linux",
+  "tests": 1266
+}

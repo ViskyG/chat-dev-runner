@@ -1,0 +1,41 @@
+{
+  "disposable_create_reproduction": {
+    "disposable_resources_retained": false,
+    "helper_quota_bind": {
+      "allocated_size_mib": 64,
+      "container_present_after_create": false,
+      "create_exit": 1,
+      "release_exit": 0,
+      "stderr_sanitized": "Error response from daemon: invalid mount config for type \"bind\": bind source path does not exist: /run/chat-dev-runner/volumes/<probe-id>/build"
+    },
+    "plain_tmp_bind": {
+      "container_present_after_create": true,
+      "create_exit": 0,
+      "remove_exit": 0
+    }
+  },
+  "inference": "Rootless Docker daemon cannot see host mounts allocated after its /run copy-up; Docker rejected PREPARATION create before a container existed.",
+  "namespace_facts": {
+    "old_preparation_volume_mounted_on_host": true,
+    "rootlesskit_copy_up_run": true
+  },
+  "original_container_inventory": {
+    "name_filter_count": 0,
+    "run_label_filter_count": 0
+  },
+  "original_operation": {
+    "code": "CONTAINER_CLEANUP_UNCERTAIN",
+    "reconcile_required": true,
+    "status": "FAULT"
+  },
+  "phase": "PREPARATION",
+  "phase_run_id": "ac42f3e7-fe87-537a-9192-a69b5d0b27e3",
+  "recorded_at": "2026-09-28T07:49:34.398531+00:00",
+  "request_id": "4f5ffed7-eb8a-499c-9e2c-dd644d3a8801",
+  "same_daemon": {
+    "current_daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+    "intent_daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+    "matches": true
+  },
+  "schema_version": "1.0"
+}

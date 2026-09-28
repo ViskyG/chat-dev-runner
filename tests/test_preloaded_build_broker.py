@@ -16,6 +16,7 @@ import runner_app.executors.broker as broker_module
 from runner_app.executors.broker import (
     BrokerError,
     ContainerIntent,
+    ContainerReconciliation,
     RootlessDockerBroker,
     RuntimeProbe,
     SnapshotInput,
@@ -175,12 +176,17 @@ def _fake_preflight(case: PreparedCase, monkeypatch: pytest.MonkeyPatch) -> list
         calls.append(args)
         if args[:2] == ("container", "create"):
             return subprocess.CompletedProcess([], 1, b"", b"synthetic create refusal")
+        if args[:2] == ("container", "ls"):
+            return subprocess.CompletedProcess([], 0, b"", b"")
         if args[:2] == ("container", "rm"):
             return subprocess.CompletedProcess([], 0, b"", b"")
         pytest.fail(f"unexpected Docker action: {args[:2]}")
 
     monkeypatch.setattr(case.broker, "_run_docker", fake_docker)
-    monkeypatch.setattr(case.broker, "_created_cleanup_id", lambda *_args: "d" * 64)
+    def missing_container(*_args: object) -> str:
+        raise BrokerError("CONTAINER_CLEANUP_UNCERTAIN", "No exact container identity")
+
+    monkeypatch.setattr(case.broker, "_created_cleanup_id", missing_container)
     return calls
 
 
@@ -192,15 +198,20 @@ def test_copied_manifest_is_accepted_and_ordinary_empty_path_stays_default(
                                         case.volume, case.plan, case.manifest)
     calls = _fake_preflight(case, monkeypatch)
     intents: list[ContainerIntent] = []
+    cleanups: list[ContainerReconciliation] = []
     with pytest.raises(BrokerError) as error:
         case.broker.run(
             case.execution, case.snapshot, case.run_root, run_id=case.run_id,
             writable_volume=case.volume, record_intent=intents.append,
+            record_cleanup=cleanups.append,
             preparation_plan=case.plan, staged_build=case.manifest,
         )
-    assert error.value.code == "CONTAINER_CREATE_FAILED"
+    assert error.value.code == "CONTAINER_CLEANUP_UNCERTAIN"
     assert len(intents) == 1
     assert [call[:2] for call in calls].count(("container", "create")) == 1
+    assert all(call[:2] not in {("container", "ls"), ("container", "rm")}
+               for call in calls)
+    assert cleanups == []
     assert (case.volume / "build" / "module.py").read_bytes() == b"VALUE = 7\n"
     assert (case.volume / "out").is_dir() and (case.volume / "tmp").is_dir()
 

@@ -27,6 +27,7 @@ _MAX_ENTRIES = 20_000
 _MAX_FILE_BYTES = 128 * 1024 * 1024
 _MAX_TREE_BYTES = 512 * 1024 * 1024
 _OPEN_DIR = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+_OPEN_PATH_DIR = os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
 _OPEN_FILE = os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK
 
 
@@ -59,10 +60,15 @@ def _open_root(path: Path) -> int:
     """Pin each path component without following an ancestor symlink."""
     if not isinstance(path, Path) or not path.is_absolute() or ".." in path.parts:
         raise _unsafe()
-    parent = os.open("/", _OPEN_DIR)
+    components = path.parts[1:]
+    parent = os.open("/", _OPEN_PATH_DIR)
     try:
-        for component in path.parts[1:]:
-            child = os.open(component, _OPEN_DIR, dir_fd=parent)
+        for index, component in enumerate(components):
+            # Root-controlled ancestors can be searchable (0711) without being
+            # readable. Pin them with O_PATH; the final owned directory still
+            # needs a readable descriptor for scanning and copying.
+            flags = _OPEN_DIR if index == len(components) - 1 else _OPEN_PATH_DIR
+            child = os.open(component, flags, dir_fd=parent)
             os.close(parent)
             parent = child
         info = os.fstat(parent)

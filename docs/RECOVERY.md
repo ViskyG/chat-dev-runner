@@ -15,7 +15,7 @@ status: required-design
 | Test exit code nonzero | every retained output | COMPLETED + execution FAILED | human analyses result |
 | Timeout/cancel | partial output, signal history | timed out/cancelled execution | human decides next step |
 | Process spawn/runtime missing | input + infrastructure trace | operation FAULT | repair runtime; new request |
-| Preparation or test container creation/removal uncertain | phase run UUID, durable pre-create intent (daemon, image, profile, command hash, exact private source mount, nonce), cleanup code, retained lock | FAULT / reconciliation required | inspect the original rootless daemon; local `reconcile_run_attempt` releases the lock only after every phase container has exact removal proof |
+| Preparation or test container creation/removal uncertain | phase run UUID, durable pre-create intent (daemon, image, profile, command hash, exact private source mount, nonce), cleanup code, retained lock | FAULT / reconciliation required | inspect the original rootless daemon; local `reconcile_run_attempt` releases the lock only after exact removal or explicitly requested aged absence proof for every phase |
 | Bad optional JUnit/JSONL | raw output + parsing finding | output unparsed | inspect/project fix |
 | Drive upload failed after tests | local immutable output | delivery FAILED/PARTIAL | PUBLISH_REPORT, no test rerun |
 | Git push divergence | local snapshot + remote refs | publication BLOCKED | explicit branch resolution |
@@ -36,10 +36,14 @@ intent. A candidate must match the recorded run name and label, private nonce, i
 profile revisions, command hash, exact source mount, and isolation/mount policy. Older
 schema-6 TEST intents retain their original run-ID source-name check. A collision or changed
 daemon fails closed. The route removes only an exact owned container by ID and journals
-its `REMOVED` proof. `confirm_stopped` releases the lock only after every phase intent has
-normal CLEANED or recovered REMOVED proof. An empty inventory is not proof of absence after
-an ambiguous create: the Docker request may still complete later. This recovery route is
-local and explicit, never a remote command or automatic startup action.
+its `REMOVED` proof. If and only if removal finds no owned container, an owner may
+explicitly request `--allow-absent` after the durable intent is at least two minutes old.
+Two complete negative inventories on the original daemon then allow a distinct `ABSENT`
+proof; any daemon change, collision, incomplete inventory, or removal failure remains
+fenced. `confirm_stopped` releases the lock only after every phase intent has normal
+CLEANED, recovered REMOVED, or aged ABSENT proof. A Docker create error with an empty
+response never yields immediate absence: the daemon request may still complete later.
+This recovery route is local and explicit, never a remote command or automatic startup action.
 
 A minimal storage-fault receipt is durable only if its SQLite transaction commits. When
 evidence bytes cannot be frozen but SQLite is healthy, the handler records a sanitized FAULT

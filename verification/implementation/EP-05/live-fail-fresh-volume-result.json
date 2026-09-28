@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-09-28T08:48:48.841078+00:00",
+  "mount_paths_absent": {
+    "PREPARATION": true,
+    "TEST": true
+  },
+  "operation_status": "COMPLETED",
+  "released_volumes": [
+    "aa38034f-295b-5d07-afa2-419835b48da8",
+    "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631"
+  ],
+  "request_id": "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631",
+  "reserved_capacity": 0,
+  "schema_version": "1.0",
+  "status": "RETIRED"
+}

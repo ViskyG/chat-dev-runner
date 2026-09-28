@@ -1,0 +1,202 @@
+{
+  "code": null,
+  "confirmed_effects": 15,
+  "effects": 15,
+  "request_id": "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631",
+  "result": {
+    "delivery": {
+      "confirmed_assets": [
+        "operation-manifest.json",
+        "run-manifest.json",
+        "input-manifest.json",
+        "frozen-command.json",
+        "report.md",
+        "bundle-index.json",
+        "delivery-index-ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631.json"
+      ],
+      "index_file_id": "1T1jV-NUw05_Mq3uSBxxg7199nvruvZRT",
+      "latest_skipped_newer": false,
+      "reason": null,
+      "request_folder_id": "1swZZtgMu1rIxiDSMT1RATGZUsnBLXC47",
+      "run_folder_id": "16YNS51rBkfo0iNsqqUvie0w6MkXrBk4l",
+      "status": "DELIVERED"
+    },
+    "editor_head": "82fe8133230dad2da937cff8b819dc98a55a6fd0",
+    "editor_matches_tested": false,
+    "execution": {
+      "duration_seconds": 0.773234,
+      "exit_code": 1,
+      "outcome": "FAILED"
+    },
+    "operation_manifest": {
+      "created_at": "2026-09-28T08:41:45.417236+00:00",
+      "delivery": {
+        "reason": null,
+        "status": "PENDING"
+      },
+      "effects": [
+        {
+          "kind": "git_ref",
+          "provider_id": "ee50998cc549b0c7e8d84295f13f52db0a9a933b",
+          "state": "CONFIRMED",
+          "url": null
+        },
+        {
+          "kind": "git_ref",
+          "provider_id": "ee50998cc549b0c7e8d84295f13f52db0a9a933b",
+          "state": "CONFIRMED",
+          "url": null
+        },
+        {
+          "kind": "pull_request",
+          "provider_id": "4661310542",
+          "state": "CONFIRMED",
+          "url": null
+        }
+      ],
+      "outputs": [
+        {
+          "complete": true,
+          "format": "raw-bytes-v1",
+          "kind": "console",
+          "media_type": "application/octet-stream",
+          "output_id": "stdout-raw",
+          "publication": "local_only",
+          "relative_path": "capture/stdout.bin",
+          "sha256": "b5d342e083477185ecd1357f70ff7ecdfe7f41a796a92455d1a39cdb819dda7e",
+          "size_bytes": 590,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "utf8-safe-view-v1",
+          "kind": "console",
+          "media_type": "text/plain; charset=utf-8",
+          "output_id": "stdout-view",
+          "publication": "local_only",
+          "relative_path": "capture/stdout.txt",
+          "sha256": "b5d342e083477185ecd1357f70ff7ecdfe7f41a796a92455d1a39cdb819dda7e",
+          "size_bytes": 590,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "raw-bytes-v1",
+          "kind": "console",
+          "media_type": "application/octet-stream",
+          "output_id": "stderr-raw",
+          "publication": "local_only",
+          "relative_path": "capture/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "utf8-safe-view-v1",
+          "kind": "console",
+          "media_type": "text/plain; charset=utf-8",
+          "output_id": "stderr-view",
+          "publication": "local_only",
+          "relative_path": "capture/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "stream-observation/v1",
+          "kind": "runner_log",
+          "media_type": "application/x-ndjson",
+          "output_id": "capture-events",
+          "publication": "local_only",
+          "relative_path": "capture/events.jsonl",
+          "sha256": "a16e3817c0715ded3cc22d1a1c8e1598a95f0b7ee2c04bbc1cdfd06fea96c69d",
+          "size_bytes": 417,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "capture-metadata/v1",
+          "kind": "runner_log",
+          "media_type": "application/json",
+          "output_id": "capture-metadata",
+          "publication": "local_only",
+          "relative_path": "capture/capture.json",
+          "sha256": "7a073d6a0e504d487ad47a6709c3e6d81c1882a909a1382bb3492981edeed3a0",
+          "size_bytes": 679,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "junit-xml",
+          "kind": "test_result",
+          "media_type": "application/xml",
+          "output_id": "junit",
+          "publication": "local_only",
+          "relative_path": "collected/junit.xml",
+          "sha256": "fb0cc887e509ee2bf9efd0dc6a8635e84d3594966cb6c4ee9fd8af80bda0f3d5",
+          "size_bytes": 656,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "collection-metadata/v1",
+          "kind": "runner_log",
+          "media_type": "application/json",
+          "output_id": "runner-collection",
+          "publication": "local_only",
+          "relative_path": "collection.json",
+          "sha256": "f6259edfbe55e61ed8c50c5bb6e2d7eec378dfc21057f90e66b218fdc0376301",
+          "size_bytes": 761,
+          "truncated_reason": null
+        }
+      ],
+      "project_id": "cdr-ep05-fail-20260928",
+      "publication": {
+        "branch": "work/cdr-ep05-fail-20260928",
+        "commit": "ee50998cc549b0c7e8d84295f13f52db0a9a933b",
+        "pull_request_url": "https://github.com/ViskyG/cdr-ep05-fail-20260928/pull/1",
+        "reason": null,
+        "repository": "ViskyG/cdr-ep05-fail-20260928",
+        "status": "PR_UPDATED"
+      },
+      "request_id": "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631",
+      "run_ids": [
+        "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631"
+      ],
+      "schema_version": "1.0",
+      "status": "COMPLETED",
+      "workspace_id": "primary"
+    },
+    "preparation": {
+      "evidence_sha256": "6f031ddcace027af893e1af8f8c7fd7058de33b71e5972d7a724ed583c155131",
+      "outcome": "PASSED",
+      "run_id": "aa38034f-295b-5d07-afa2-419835b48da8"
+    },
+    "publication": {
+      "git_status": "PUBLISHED",
+      "pull_request_disposition": "created",
+      "pull_request_id": 4661310542,
+      "pull_request_number": 1,
+      "pull_request_url": "https://github.com/ViskyG/cdr-ep05-fail-20260928/pull/1",
+      "remote_head": "ee50998cc549b0c7e8d84295f13f52db0a9a933b",
+      "remote_ref": "refs/heads/work/cdr-ep05-fail-20260928",
+      "status": "DRAFT_PUBLISHED"
+    },
+    "remote_ref": "refs/heads/work/cdr-ep05-fail-20260928",
+    "report_link": {
+      "disposition": "updated",
+      "pull_request_id": 4661310542,
+      "pull_request_url": "https://github.com/ViskyG/cdr-ep05-fail-20260928/pull/1",
+      "status": "ATTACHED",
+      "url": "https://drive.google.com/drive/folders/16YNS51rBkfo0iNsqqUvie0w6MkXrBk4l"
+    },
+    "run_id": "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631",
+    "snapshot_id": "2f0b95b9-dcf1-4095-bf98-5ab667790406",
+    "tested_commit": "ee50998cc549b0c7e8d84295f13f52db0a9a933b",
+    "tested_tree": "07bab6be734087e977d5184ea83ab5779bcf8f28"
+  },
+  "schema_version": "1.0",
+  "status": "COMPLETED"
+}

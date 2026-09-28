@@ -11,6 +11,7 @@ from uuid import uuid4
 
 import pytest
 
+import runner_app.executors.reconciliation as reconciliation_module
 import runner_app.storage.database as database_module
 from runner_app.executors.broker import ContainerIntent, ContainerReconciliation
 from runner_app.executors.reconciliation import reconcile_run_attempt
@@ -395,3 +396,126 @@ def test_preparation_retention_migration_preserves_existing_phase_result(
         ).fetchone() == ("FAILED", _EVIDENCE)
     finally:
         connection.close()
+
+
+def test_explicit_aged_absence_recovery_releases_only_the_proven_phase(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from runner_app.executors.broker import BrokerError
+    from runner_app.executors.reconciliation import ReconciliationError
+
+    ledger, _, request_id, snapshot_id, prep_id = _ledger(tmp_path)
+    ledger.reserve_phase_attempt(request_id, "PREPARATION", prep_id, snapshot_id)
+    ledger.record_container_intent(
+        request_id, _intent(prep_id, "PREPARATION"), phase="PREPARATION",
+    )
+    ledger.finish(request_id, "FAULT", code="CONTAINER_CLEANUP_UNCERTAIN")
+    proof = ContainerReconciliation(prep_id, "rootless-fixture-daemon", "ABSENT", None)
+    calls: list[str] = []
+
+    def unavailable(_intent: ContainerIntent) -> ContainerReconciliation:
+        calls.append("remove")
+        raise BrokerError("NO_OWNED_CONTAINER", "No owned container")
+
+    def absent(_intent: ContainerIntent) -> ContainerReconciliation:
+        calls.append("absent")
+        return proof
+
+    broker = SimpleNamespace(reconcile_container=unavailable,
+                             reconcile_absent_container=absent)
+    with pytest.raises(ReconciliationError) as too_early:
+        reconcile_run_attempt(ledger, broker, request_id, allow_absence=True)
+    assert too_early.value.code == "ABSENCE_RECOVERY_TOO_EARLY"
+    assert calls == ["remove"]
+    assert ledger.get(request_id)["reconcile_required"] == 1
+
+    class LaterDateTime(datetime):
+        @classmethod
+        def now(cls, tz: timezone | None = None) -> datetime:
+            return datetime.now(tz) + timedelta(minutes=3)
+
+    monkeypatch.setattr(reconciliation_module, "datetime", LaterDateTime)
+    assert reconcile_run_attempt(ledger, broker, request_id, allow_absence=True) == proof
+    assert calls == ["remove", "remove", "absent"]
+    settled = ledger.get(request_id)
+    assert settled["status"] == "FAULT"
+    assert settled["reconcile_required"] == 0
+    assert settled["capacity_held"] == 0
+    assert any(event["type"] == "CONTAINER_ABSENT" for event in ledger.events())
+
+
+def test_absence_recovery_never_follows_post_removal_uncertainty(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from runner_app.executors.broker import BrokerError
+
+    ledger, _, request_id, snapshot_id, prep_id = _ledger(tmp_path)
+    ledger.reserve_phase_attempt(request_id, "PREPARATION", prep_id, snapshot_id)
+    ledger.record_container_intent(
+        request_id, _intent(prep_id, "PREPARATION"), phase="PREPARATION",
+    )
+    ledger.finish(request_id, "FAULT", code="CONTAINER_CLEANUP_UNCERTAIN")
+    calls: list[str] = []
+
+    class LaterDateTime(datetime):
+        @classmethod
+        def now(cls, tz: timezone | None = None) -> datetime:
+            return datetime.now(tz) + timedelta(minutes=3)
+
+    monkeypatch.setattr(reconciliation_module, "datetime", LaterDateTime)
+
+    def uncertain(_intent: ContainerIntent) -> ContainerReconciliation:
+        calls.append("remove")
+        raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN", "Post-removal probe failed")
+
+    def absent(_intent: ContainerIntent) -> ContainerReconciliation:
+        calls.append("absent")
+        return ContainerReconciliation(prep_id, "rootless-fixture-daemon", "ABSENT", None)
+
+    broker = SimpleNamespace(reconcile_container=uncertain,
+                             reconcile_absent_container=absent)
+    with pytest.raises(BrokerError) as error:
+        reconcile_run_attempt(ledger, broker, request_id, allow_absence=True)
+    assert error.value.code == "CONTAINER_RECONCILIATION_UNCERTAIN"
+    assert calls == ["remove"]
+    assert ledger.get(request_id)["reconcile_required"] == 1
+
+
+def test_absent_proof_requires_explicit_aged_path(tmp_path: Path) -> None:
+    from runner_app.executors.reconciliation import ReconciliationError
+
+    ledger, _, request_id, snapshot_id, prep_id = _ledger(tmp_path)
+    ledger.reserve_phase_attempt(request_id, "PREPARATION", prep_id, snapshot_id)
+    ledger.record_container_intent(
+        request_id, _intent(prep_id, "PREPARATION"), phase="PREPARATION",
+    )
+    ledger.finish(request_id, "FAULT", code="CONTAINER_CLEANUP_UNCERTAIN")
+    proof = ContainerReconciliation(prep_id, "rootless-fixture-daemon", "ABSENT", None)
+    broker = SimpleNamespace(reconcile_container=lambda _intent: proof)
+    with pytest.raises(ReconciliationError) as error:
+        reconcile_run_attempt(ledger, broker, request_id, allow_absence=True)
+    assert error.value.code == "CONTAINER_PROOF_INVALID"
+    assert ledger.get(request_id)["reconcile_required"] == 1
+
+
+def test_normal_definite_absence_proof_preserves_create_failure(tmp_path: Path) -> None:
+    ledger, _, request_id, snapshot_id, prep_id = _ledger(tmp_path)
+    ledger.reserve_phase_attempt(request_id, "PREPARATION", prep_id, snapshot_id)
+    ledger.record_container_intent(
+        request_id, _intent(prep_id, "PREPARATION"), phase="PREPARATION",
+    )
+    with pytest.raises(LedgerError) as wrong:
+        ledger.record_container_cleaned(
+            request_id, "PREPARATION",
+            ContainerReconciliation(prep_id, "rootless-fixture-daemon", "ABSENT", None),
+        )
+    assert wrong.value.code == "CONTAINER_PROOF_INVALID"
+    ledger.record_container_absent(
+        request_id, "PREPARATION",
+        ContainerReconciliation(prep_id, "rootless-fixture-daemon", "ABSENT", None),
+    )
+    ledger.finish(request_id, "FAULT", code="CONTAINER_CREATE_FAILED")
+    state = ledger.get(request_id)
+    assert state["code"] == "CONTAINER_CREATE_FAILED"
+    assert state["reconcile_required"] == 0
+    assert state["capacity_held"] == 0

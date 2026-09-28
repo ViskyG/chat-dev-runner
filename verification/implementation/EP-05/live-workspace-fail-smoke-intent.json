@@ -1,0 +1,30 @@
+{
+  "change_id": "a5d414c1-b3ea-4773-bf67-9184f7c9c1ae",
+  "changeset_doc_id": "1qfIwL5jNRIi4Pgu2mykdXfgonohGugnWd2eQQnQcscE",
+  "changeset_revision": "ANLCKQlVuIX6-BhWyVIWNieiBnZDqdgl6Tjq1HoFWEJqEHat9KUFKuhC4LrMtG4Qb0bzkFzSbUUCP42MCRmiSKvuqxD6cC-QtxUXad_TqAU",
+  "changeset_sha256_before": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "changeset_sha256_desired": "01297de2382e6099d21a184a2b271feb8f06ba264a28f6c9d89dcded6e63ddf7",
+  "command_doc_id": "1hTvAtWf6P032ynxIVsWxJKWIev1tNGIZ2QIPDGZDolU",
+  "command_revision": "ANLCKQnvw-n3kZilP2VXQ19_PWX5Kefj-AvkFaQ6l7JKjU5W-XicKXYf5ZcY1W0aGYtRqaJ11Hgzkdj317gg27woy7CUAJMehfK7k6aUOCU",
+  "command_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "created_at": "2026-09-28T08:33:08.813836+00:00",
+  "expected_execution": "FAILED",
+  "expected_head": "eafcf537d0d25aba1052f89853081a8e10562812",
+  "planned_files": [
+    {
+      "path": "src/feature.py",
+      "sha256": "3774bce8bdb418722cf0830e56c4380cc833e8636357b6fe632ceb6121e9300e"
+    },
+    {
+      "path": "tests/test_feature.py",
+      "sha256": "38015375f7f8989521cc3d210902ceff4dd98981709723f7cf1d09fd2d1268d6"
+    }
+  ],
+  "project_id": "cdr-ep05-smoke-20260928",
+  "publication_policy": "draft_always",
+  "repository_id": 1391832580,
+  "request_id": "e0d0e0c9-c9b2-4b5d-84e5-5d8dcc8149d2",
+  "schema_version": "1.0",
+  "state_dir": "/home/visky/Work/GPTRunner/.ep05-smoke/cdr-ep05-smoke-20260928",
+  "workspace_id": "primary"
+}

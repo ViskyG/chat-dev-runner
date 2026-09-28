@@ -1,0 +1,26 @@
+{
+  "code": "CONTAINER_CLEANUP_UNCERTAIN",
+  "confirmed_effects": 1,
+  "effects": 1,
+  "request_id": "4f5ffed7-eb8a-499c-9e2c-dd644d3a8801",
+  "result": {
+    "delivery": {
+      "status": "NOT_ATTEMPTED"
+    },
+    "execution": {
+      "exit_code": null,
+      "outcome": "UNKNOWN"
+    },
+    "publication": {
+      "status": "NOT_REQUESTED"
+    },
+    "report_link": {
+      "status": "NOT_REQUESTED"
+    },
+    "snapshot_id": "4a293ee5-bed6-42d7-88fb-c058209a9e52",
+    "tested_commit": "66216460ca67d0a5da488398a226f6b40fb32deb",
+    "tested_tree": "2d2fed2be8dbc6290fd0a7050b590227fefe8b77"
+  },
+  "schema_version": "1.0",
+  "status": "FAULT"
+}

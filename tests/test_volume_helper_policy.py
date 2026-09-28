@@ -41,6 +41,15 @@ def test_invalid_identity_or_size_refuses_before_mount(
         helper.allocate(run_id, size_mb)
 
 
+def test_helper_broker_and_provider_share_daemon_visible_root_base() -> None:
+    from runner_app.executors.broker import _ROOT_CONTROLLED_VOLUME_BASE
+    from runner_app.executors.volume_provider import VOLUME_BASE
+
+    helper = _module()
+    assert helper.BASE == VOLUME_BASE == _ROOT_CONTROLLED_VOLUME_BASE
+    assert helper.BASE == Path("/var/lib/chat-dev-runner/volumes")
+
+
 def test_allocation_uses_only_fixed_base_and_bounded_mount_flags(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -453,13 +453,17 @@ class RunService:
 
         def record_cleanup(proof: ContainerReconciliation) -> None:
             nonlocal cleanup_recorded
+            removed = proof.state == "REMOVED" and proof.container_id is not None
+            absent = proof.state == "ABSENT" and proof.container_id is None
             if (cleanup_recorded or intended is None or proof.run_id != intended.run_id
-                    or proof.daemon_id != intended.daemon_id or proof.state != "REMOVED"
-                    or proof.container_id is None):
+                    or proof.daemon_id != intended.daemon_id or not (removed or absent)):
                 raise RunServiceError("CONTAINER_CLEANUP_PROOF_INVALID",
                                       "Broker cleanup proof differs from its durable intent")
             try:
-                self.ledger.record_container_cleaned(request_id, "TEST", proof)
+                if absent:
+                    self.ledger.record_container_absent(request_id, "TEST", proof)
+                else:
+                    self.ledger.record_container_cleaned(request_id, "TEST", proof)
             except LedgerError as error:
                 raise RunServiceError(error.code,
                                       "Contained run cleanup could not be recorded") from None

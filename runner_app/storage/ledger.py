@@ -132,7 +132,7 @@ def _container_state(connection: sqlite3.Connection, request_id: str
     proofs: dict[str, tuple[int, dict[str, Any]]] = {}
     for row in connection.execute(
         "SELECT event_id,event_type,detail_json FROM journal WHERE request_id=? "
-        "AND event_type IN ('CONTAINER_INTENDED','CONTAINER_CLEANED','CONTAINER_RECONCILED') "
+        "AND event_type IN ('CONTAINER_INTENDED','CONTAINER_CLEANED','CONTAINER_RECONCILED','CONTAINER_ABSENT') "
         "ORDER BY event_id", (request_id,),
     ):
         detail = json.loads(row[2])
@@ -149,11 +149,17 @@ def _container_state(connection: sqlite3.Connection, request_id: str
             raise ValueError("Container proof has no earlier intent")
         intent = intended[1]
         if (proof.get("run_id") != intent.get("run_id")
-                or proof.get("daemon_id") != intent.get("daemon_id")
-                or proof.get("state") != "REMOVED"
-                or not isinstance(proof.get("container_id"), str)
-                or _CONTAINER_ID.fullmatch(proof["container_id"]) is None):
+                or proof.get("daemon_id") != intent.get("daemon_id")):
             raise ValueError("Container proof does not match its intent")
+        if connection.execute(
+            "SELECT event_type FROM journal WHERE event_id=?", (event_id,),
+        ).fetchone()[0] == "CONTAINER_ABSENT":
+            if proof.get("state") != "ABSENT" or proof.get("container_id") is not None:
+                raise ValueError("Absent-container proof is malformed")
+        elif (proof.get("state") != "REMOVED"
+              or not isinstance(proof.get("container_id"), str)
+              or _CONTAINER_ID.fullmatch(proof["container_id"]) is None):
+            raise ValueError("Container removal proof does not match its intent")
     return ({phase: detail for phase, (_, detail) in intents.items()},
             {phase: detail for phase, (_, detail) in proofs.items()})
 
@@ -907,7 +913,8 @@ class Ledger:
     def journal(self, request_id: str, step_id: str | None, event_type: str,
                 detail: dict[str, Any]) -> dict[str, Any]:
         # Container proofs need the separate admission and identity checks below.
-        if event_type in {"CONTAINER_INTENDED", "CONTAINER_CLEANED", "CONTAINER_RECONCILED"}:
+        if event_type in {"CONTAINER_INTENDED", "CONTAINER_CLEANED", "CONTAINER_RECONCILED",
+                          "CONTAINER_ABSENT"}:
             raise LedgerError("RESERVED_EVENT_TYPE",
                               "Container events require the checked local methods")
         # Callers supply sanitized structured facts, never raw command/output text.
@@ -1091,10 +1098,15 @@ class Ledger:
         if phase not in _PHASES:
             raise LedgerError("CONTAINER_PROOF_INVALID", "Container phase is invalid")
         fields = self._proof_fields(proof)
-        if (fields["state"] != "REMOVED" or not _canonical_uuid(fields["run_id"])
+        removal = event_type in {"CONTAINER_CLEANED", "CONTAINER_RECONCILED"}
+        if (not _canonical_uuid(fields["run_id"])
                 or not isinstance(fields["daemon_id"], str)
-                or not isinstance(fields["container_id"], str)
-                or _CONTAINER_ID.fullmatch(fields["container_id"]) is None):
+                or (removal and (fields["state"] != "REMOVED"
+                                 or not isinstance(fields["container_id"], str)
+                                 or _CONTAINER_ID.fullmatch(fields["container_id"]) is None))
+                or (not removal and (event_type != "CONTAINER_ABSENT"
+                                     or fields["state"] != "ABSENT"
+                                     or fields["container_id"] is not None))):
             raise LedgerError("CONTAINER_PROOF_INVALID", "Container removal proof is invalid")
         with self._transaction() as connection:
             row = self._locked_execution(connection, request_id, running=False)
@@ -1122,6 +1134,11 @@ class Ledger:
     def record_container_reconciled(self, request_id: str, phase: str, proof: object) -> None:
         """Trusted local recovery only, after removing an exact owned container."""
         self._record_container_proof(request_id, phase, proof, "CONTAINER_RECONCILED")
+
+    def record_container_absent(self, request_id: str, phase: str,
+                                     proof: object) -> None:
+        """Journal a trusted same-daemon absence proof for one phase."""
+        self._record_container_proof(request_id, phase, proof, "CONTAINER_ABSENT")
 
     def record_preparation_result(self, request_id: str, *, run_id: str,
                                   snapshot_id: str, plan_identity_sha256: str,

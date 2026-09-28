@@ -1,0 +1,26 @@
+{
+  "code": "LOCKFILE_REQUIRED",
+  "confirmed_effects": 1,
+  "effects": 1,
+  "request_id": "e0d0e0c9-c9b2-4b5d-84e5-5d8dcc8149d2",
+  "result": {
+    "delivery": {
+      "status": "NOT_ATTEMPTED"
+    },
+    "execution": {
+      "exit_code": null,
+      "outcome": "NOT_RUN"
+    },
+    "publication": {
+      "status": "NOT_REQUESTED"
+    },
+    "report_link": {
+      "status": "NOT_REQUESTED"
+    },
+    "snapshot_id": "1b8b3619-1f99-44ca-94aa-4a614a41943c",
+    "tested_commit": "2671553e81f881b3c7fb1c9d4180a9fa9cde005e",
+    "tested_tree": "cec985b6d236c6af7e7f8064468812dd09c3630c"
+  },
+  "schema_version": "1.0",
+  "status": "BLOCKED"
+}

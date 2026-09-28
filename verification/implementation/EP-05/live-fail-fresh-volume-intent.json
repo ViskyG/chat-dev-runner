@@ -1,0 +1,39 @@
+{
+  "container_intents": 2,
+  "container_proofs": {
+    "PREPARATION": "REMOVED",
+    "TEST": "REMOVED"
+  },
+  "created_at": "2026-09-28T08:48:48.764686+00:00",
+  "operation_code": null,
+  "operation_status": "COMPLETED",
+  "phase_results": 2,
+  "planned_action": "release_evidenced",
+  "request_id": "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631",
+  "schema_version": "1.0",
+  "state_dir": "/home/visky/Work/GPTRunner/.ep05-smoke/cdr-ep05-fail-20260928",
+  "volumes": [
+    {
+      "budget_bytes": 67108864,
+      "path": "/var/lib/chat-dev-runner/volumes/aa38034f-295b-5d07-afa2-419835b48da8",
+      "phase": "PREPARATION",
+      "run_id": "aa38034f-295b-5d07-afa2-419835b48da8",
+      "top_level_entries": [
+        "build",
+        "out",
+        "tmp"
+      ]
+    },
+    {
+      "budget_bytes": 268435456,
+      "path": "/var/lib/chat-dev-runner/volumes/ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631",
+      "phase": "TEST",
+      "run_id": "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631",
+      "top_level_entries": [
+        "build",
+        "out",
+        "tmp"
+      ]
+    }
+  ]
+}

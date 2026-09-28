@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-09-28T08:38:31.580014+00:00",
+  "mount_paths_absent": {
+    "PREPARATION": true,
+    "TEST": true
+  },
+  "operation_code": "LOCKFILE_REQUIRED",
+  "operation_status": "BLOCKED",
+  "released_volumes": [
+    "db1e2b3b-68ed-5fe9-a157-cd739a27374c",
+    "e0d0e0c9-c9b2-4b5d-84e5-5d8dcc8149d2"
+  ],
+  "request_id": "e0d0e0c9-c9b2-4b5d-84e5-5d8dcc8149d2",
+  "reserved_capacity": 0,
+  "schema_version": "1.0",
+  "status": "RETIRED"
+}

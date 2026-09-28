@@ -1,0 +1,15 @@
+{
+  "changeset_revision": "ANLCKQlTVN56paZBAUxw5nWy3bPFeF59BiPL0sq7DEwWjymBsKYZ-G8pNaXc9w89fAezVdpdO2GrAlT7XZc8UWXmylxEyXPid7FTE-Ud680",
+  "command_doc_id": "1XTA26PC-9DIbGDka3ec5tkNxttYYouwT39aEe2XxEdY",
+  "draft_revision": "ANLCKQm91n-jvbsRSXt-D06qxgJ4GkEZ5v4iinMQRuoztJleUlyDkDgjhT2TS8NBj4rHXAmsi_xXuUELRLWbQTRJI0TG9IQSK8LMspRW9II",
+  "draft_sha256": "dc4abe614dc0734e6ccc6f213bb07adc07a5ff8719df52aa75d128aa51df959d",
+  "epoch": "b9e76d32-a52d-4b7c-9f9d-88372aeda87c",
+  "expires_at": "2026-09-28T07:48:25.155300+00:00",
+  "issued_at": "2026-09-28T07:38:25.155300+00:00",
+  "ready_revision": "ANLCKQkQ5LIcX8LmZLgVBwCYfXpdGRPRS9_vC-Fqf1Mu6bb3pQZGfT1ZEZA5ywjrRAoex42ulg5tH-JjLjHkD1MjmeZK1aT0gNINGS4oDrg",
+  "ready_sha256": "9dcfbd9355213a0e7b1dd81d7fa31c3b33d7f10661c1839ca3c2844809b5d1a4",
+  "request_id": "4f5ffed7-eb8a-499c-9e2c-dd644d3a8801",
+  "runner_id": "local-runner",
+  "schema_version": "1.0",
+  "write_state": "CONFIRMED"
+}

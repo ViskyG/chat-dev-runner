@@ -1,0 +1,18 @@
+{
+  "allow_absent": true,
+  "created_at": "2026-09-28T07:58:10.962516+00:00",
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "old_preparation_volume_mounted": true,
+  "old_test_volume_mounted": true,
+  "operation_code": "CONTAINER_CLEANUP_UNCERTAIN",
+  "operation_status": "FAULT",
+  "owned_container_count": 0,
+  "phase": "PREPARATION",
+  "phase_run_id": "ac42f3e7-fe87-537a-9192-a69b5d0b27e3",
+  "reconcile_required": 1,
+  "request_id": "4f5ffed7-eb8a-499c-9e2c-dd644d3a8801",
+  "reserved_capacity": 1,
+  "same_daemon": true,
+  "schema_version": "1.0",
+  "service_stopped": true
+}

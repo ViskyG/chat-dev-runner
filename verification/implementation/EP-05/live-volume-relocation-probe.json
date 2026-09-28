@@ -1,0 +1,29 @@
+{
+  "allocate_exit": 0,
+  "approved_container_policy_verified": true,
+  "base": "/var/lib/chat-dev-runner/volumes",
+  "container_absent_after_remove": true,
+  "container_id_matches_create_output": true,
+  "container_present_after_create": true,
+  "create_exit": 0,
+  "create_stderr_sanitized": "",
+  "daemon_before": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "disposable_run_id": "f7ffff5b-d8f4-4416-a204-72b92698f900",
+  "helper_probe": {
+    "base": "/var/lib/chat-dev-runner/volumes",
+    "max_slots": 8,
+    "status": "READY"
+  },
+  "host_mount_exact": true,
+  "installed_helper_exact_hash": true,
+  "old_run_mounts_zero": true,
+  "profile_id": "python-prepare",
+  "recorded_at": "2026-09-28T08:02:43.676579+00:00",
+  "release_exit": 0,
+  "remove_exit": 0,
+  "runner_service_inactive": true,
+  "same_daemon_after": true,
+  "schema_version": "1.0",
+  "status": "PASS",
+  "volume_mount_absent_after_release": true
+}

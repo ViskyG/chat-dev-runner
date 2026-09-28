@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 from uuid import UUID
 
-BASE = Path('/run/chat-dev-runner/volumes')
+BASE = Path('/var/lib/chat-dev-runner/volumes')
 SOURCE = 'cdr-run-quota'
 UID = GID = 1000
 ALLOWED_MB = frozenset({64, 256})
@@ -43,7 +43,8 @@ def _base(*, create: bool) -> None:
     owner = pwd.getpwnam('visky')
     if owner.pw_uid != UID or owner.pw_gid != GID:
         raise ValueError('approved owner identity changed')
-    _check_root_directory(Path('/run'), 0o755)
+    _check_root_directory(Path('/var'), 0o755)
+    _check_root_directory(Path('/var/lib'), 0o755)
     app = BASE.parent
     if create:
         app.mkdir(mode=0o711, exist_ok=True)

@@ -12,6 +12,7 @@ from uuid import UUID, uuid5
 
 import pytest
 
+from runner_app.executors.preparation_handoff import _scan, _tree_digest
 from runner_app.executors.preparation_plan import PreparationGrant
 from runner_app.executors.profiles import ProfileRegistry
 from runner_app.executors.volume_provider import (
@@ -27,10 +28,39 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUEST = "00000000-0000-4000-8000-000000000001"
 
 
+class _FakeHandoffConnection:
+    def __init__(self, ledger: FakeLedger) -> None:
+        self.ledger = ledger
+        self.query = ""
+
+    def execute(self, query: str, arguments: tuple[str, ...]) -> _FakeHandoffConnection:
+        assert arguments == (REQUEST,)
+        assert ("FROM preparation_handoffs h JOIN preparation_results p" in query
+                or "FROM journal" in query)
+        self.query = query
+        return self
+
+    def fetchone(self) -> dict[str, Any] | None:
+        assert "FROM preparation_handoffs" in self.query
+        return self.ledger.handoff_row
+
+    def fetchall(self) -> list[dict[str, str]]:
+        assert "FROM journal" in self.query
+        return [{"detail_json": json.dumps(marker)} for marker in self.ledger.clear_markers]
+
+    def close(self) -> None:
+        pass
+
+
 class FakeLedger:
     def __init__(self, status: str = "RUNNING", action: str = "VERIFY",
                  profile_id: str = "python-quick") -> None:
-        self.database = SimpleNamespace(path=Path("/tmp/volume-policy-state.sqlite"))
+        self.database = SimpleNamespace(
+            path=Path("/tmp/volume-policy-state.sqlite"),
+            connect=lambda: _FakeHandoffConnection(self),
+        )
+        self.handoff_row: dict[str, Any] | None = None
+        self.clear_markers: list[dict[str, str]] = []
         self.preparation_result: dict[str, str] | None = None
         self.run_manifest: dict[str, Any] | None = None
         self.operation: dict[str, Any] = {
@@ -49,6 +79,12 @@ class FakeLedger:
     def get_run(self, request_id: str) -> dict[str, Any] | None:
         assert request_id == REQUEST
         return self.run_manifest
+
+    def journal(self, request_id: str, step_id: str, event_type: str,
+                detail: dict[str, str]) -> None:
+        assert request_id == REQUEST and step_id == "absent-test-build-clear"
+        assert event_type == "ABSENT_TEST_BUILD_CLEAR_INTENDED"
+        self.clear_markers.append(detail)
 
 
 def _provider(tmp_path: Path, ledger: FakeLedger) -> HardQuotaVolumeProvider:
@@ -226,7 +262,9 @@ def _retirement_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     monkeypatch.setattr("runner_app.executors.volume_provider.PreparationEvidenceStore",
                         _FakePreparationEvidence)
     intents = {"PREPARATION": {"run_id": prep_id}, "TEST": {"run_id": REQUEST}}
-    monkeypatch.setattr(provider, "_phase_state", lambda _request: (intents, intents.copy()))
+    proofs = {phase: {"run_id": value["run_id"], "state": "REMOVED"}
+              for phase, value in intents.items()}
+    monkeypatch.setattr(provider, "_phase_state", lambda _request: (intents, proofs))
     released: list[str] = []
 
     def fake_helper(action: str, run_id: str) -> dict[str, str]:
@@ -281,3 +319,277 @@ def test_retirement_preserves_uncertain_output(
     assert released == []
     assert (prep_mount / "out" / "stdout.bin").read_bytes() == b"prep"
     assert (test_mount / "out" / "junit.xml").read_bytes() == b"test"
+
+
+def test_absent_preparation_retires_only_empty_phase_volume(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    provider, ledger, evidence, prep_mount, test_mount, released = _retirement_case(
+        tmp_path, monkeypatch,
+    )
+    prep_id = prep_mount.name
+    monkeypatch.setattr(provider, "_phase_state", lambda _request: (
+        {"PREPARATION": {"run_id": prep_id}},
+        {"PREPARATION": {"run_id": prep_id, "state": "ABSENT"}},
+    ))
+    ledger.preparation_result = None
+    ledger.run_manifest = None
+    (test_mount / "out" / "junit.xml").unlink()
+    (test_mount / "out").rmdir()
+    with pytest.raises(VolumeProviderError) as has_data:
+        provider.release_evidenced(REQUEST, evidence)
+    assert has_data.value.code == "ABSENT_VOLUME_HAS_DATA"
+    assert released == []
+    (prep_mount / "out" / "stdout.bin").unlink()
+    assert provider.release_evidenced(REQUEST, evidence) == (prep_id, REQUEST)
+    assert released == [prep_id, REQUEST]
+
+
+def test_unstarted_test_volume_retires_empty_build_scaffold(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    provider, _ledger, evidence, prep_mount, test_mount, released = _retirement_case(
+        tmp_path, monkeypatch,
+    )
+    prep_id = prep_mount.name
+    monkeypatch.setattr(provider, "_phase_state", lambda _request: (
+        {"PREPARATION": {"run_id": prep_id}},
+        {"PREPARATION": {"run_id": prep_id, "state": "REMOVED"}},
+    ))
+    (test_mount / "out" / "junit.xml").unlink()
+    (test_mount / "out").rmdir()
+    (test_mount / "build").mkdir(mode=0o700)
+    assert provider.release_evidenced(REQUEST, evidence) == (prep_id, REQUEST)
+    assert released == [prep_id, REQUEST]
+    assert not prep_mount.exists() and not test_mount.exists()
+
+
+@pytest.mark.parametrize("unsafe", ["nonempty", "unknown", "symlink", "wrong_mode"])
+def test_unstarted_test_volume_preserves_unsafe_scaffold(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, unsafe: str,
+) -> None:
+    provider, _ledger, evidence, prep_mount, test_mount, released = _retirement_case(
+        tmp_path, monkeypatch,
+    )
+    prep_id = prep_mount.name
+    monkeypatch.setattr(provider, "_phase_state", lambda _request: (
+        {"PREPARATION": {"run_id": prep_id}},
+        {"PREPARATION": {"run_id": prep_id, "state": "REMOVED"}},
+    ))
+    (test_mount / "out" / "junit.xml").unlink()
+    (test_mount / "out").rmdir()
+    build = test_mount / "build"
+    outside = tmp_path / "outside"
+    if unsafe == "nonempty":
+        build.mkdir(mode=0o700)
+        (build / "keep.txt").write_bytes(b"keep")
+    elif unsafe == "unknown":
+        build.mkdir(mode=0o700)
+        (test_mount / "unknown.txt").write_bytes(b"keep")
+    elif unsafe == "symlink":
+        outside.mkdir()
+        build.symlink_to(outside, target_is_directory=True)
+    else:
+        build.mkdir(mode=0o755)
+        build.chmod(0o755)
+    with pytest.raises(VolumeProviderError) as refused:
+        provider.release_evidenced(REQUEST, evidence)
+    assert refused.value.code == "UNSTARTED_VOLUME_NOT_EMPTY"
+    assert released == [prep_id]
+    assert test_mount.exists() and build.is_symlink() == (unsafe == "symlink")
+    if unsafe == "nonempty":
+        assert (build / "keep.txt").read_bytes() == b"keep"
+    if unsafe == "unknown":
+        assert (test_mount / "unknown.txt").read_bytes() == b"keep"
+    if unsafe == "symlink":
+        assert outside.is_dir()
+
+
+def test_absent_phase_with_recorded_result_is_not_retired(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    provider, _ledger, evidence, prep_mount, test_mount, released = _retirement_case(
+        tmp_path, monkeypatch,
+    )
+    prep_id = prep_mount.name
+    monkeypatch.setattr(provider, "_phase_state", lambda _request: (
+        {"PREPARATION": {"run_id": prep_id}},
+        {"PREPARATION": {"run_id": prep_id, "state": "ABSENT"}},
+    ))
+    with pytest.raises(VolumeProviderError) as has_result:
+        provider.release_evidenced(REQUEST, evidence)
+    assert has_result.value.code == "ABSENT_PHASE_HAS_RESULT"
+    assert released == []
+    assert prep_mount.exists() and test_mount.exists()
+
+
+def test_absent_test_phase_requires_immutable_handoff(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    provider, ledger, evidence, prep_mount, test_mount, released = _retirement_case(
+        tmp_path, monkeypatch,
+    )
+    prep_id = prep_mount.name
+    monkeypatch.setattr(provider, "_phase_state", lambda _request: (
+        {"PREPARATION": {"run_id": prep_id}, "TEST": {"run_id": REQUEST}},
+        {"PREPARATION": {"run_id": prep_id, "state": "REMOVED"},
+         "TEST": {"run_id": REQUEST, "state": "ABSENT"}},
+    ))
+    ledger.run_manifest = None
+    (test_mount / "out" / "junit.xml").unlink()
+    (test_mount / "build").mkdir()
+    (test_mount / "build" / "dependency.whl").write_bytes(b"staged")
+    with pytest.raises(VolumeProviderError) as missing_handoff:
+        provider.release_evidenced(REQUEST, evidence)
+    assert missing_handoff.value.code == "ABSENT_TEST_HANDOFF_UNVERIFIED"
+    assert released == [prep_id]
+    assert (test_mount / "build" / "dependency.whl").read_bytes() == b"staged"
+
+
+def _attested_absent_test_case(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> tuple[HardQuotaVolumeProvider, FakeLedger, _FakeEvidence, Path, Path, list[str]]:
+    provider, ledger, evidence, prep_mount, test_mount, released = _retirement_case(
+        tmp_path, monkeypatch,
+    )
+    prep_id = prep_mount.name
+    monkeypatch.setattr(provider, "_phase_state", lambda _request: (
+        {"PREPARATION": {"run_id": prep_id}, "TEST": {"run_id": REQUEST}},
+        {"PREPARATION": {"run_id": prep_id, "state": "REMOVED"},
+         "TEST": {"run_id": REQUEST, "state": "ABSENT"}},
+    ))
+    ledger.run_manifest = None
+    (test_mount / "out" / "junit.xml").unlink()
+    (test_mount / "out").chmod(0o700)
+    (test_mount / "tmp").mkdir(mode=0o700)
+    test_mount.chmod(0o700)
+    build = test_mount / "build"
+    build.mkdir(mode=0o700)
+    package = build / "package"
+    package.mkdir(mode=0o700)
+    artifact = package / "dependency.whl"
+    artifact.write_bytes(b"exact copied build")
+    artifact.chmod(0o600)
+    entries, _ = _scan(build)
+    profile = provider.profiles.require(provider.grant.preparation_profile_id)
+    snapshot_id = "00000000-0000-4000-8000-000000000002"
+    ledger.handoff_row = {
+        "preparation_run_id": prep_id,
+        "snapshot_id": snapshot_id,
+        "test_run_id": REQUEST,
+        "plan_identity_sha256": "b" * 64,
+        "preparation_profile_revision_sha256": provider.grant.preparation_revision_sha256,
+        "image": profile.image,
+        "build_tree_sha256": _tree_digest(entries),
+        "evidence_sha256": ledger.preparation_result["evidence_sha256"],
+        "test_volume_path": str(test_mount),
+        "result_run_id": prep_id,
+        "result_snapshot_id": snapshot_id,
+        "result_plan_identity_sha256": "b" * 64,
+        "result_profile_revision_sha256": provider.grant.preparation_revision_sha256,
+        "result_image": profile.image,
+        "outcome": "PASSED",
+        "exit_code": 0,
+        "capture_complete": 1,
+        "cleanup_verified": 1,
+        "result_evidence_sha256": ledger.preparation_result["evidence_sha256"],
+    }
+    return provider, ledger, evidence, prep_mount, test_mount, released
+
+
+def test_absent_test_phase_retires_only_attested_copied_build(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    provider, _ledger, evidence, prep_mount, test_mount, released = (
+        _attested_absent_test_case(tmp_path, monkeypatch)
+    )
+    assert provider.release_evidenced(REQUEST, evidence) == (prep_mount.name, REQUEST)
+    assert released == [prep_mount.name, REQUEST]
+    assert not prep_mount.exists() and not test_mount.exists()
+
+
+@pytest.mark.parametrize("unsafe", ["changed-build", "unexpected-output", "symlink", "wrong-mode"])
+def test_absent_test_phase_preserves_unattested_or_unknown_bytes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, unsafe: str,
+) -> None:
+    provider, ledger, evidence, prep_mount, test_mount, released = (
+        _attested_absent_test_case(tmp_path, monkeypatch)
+    )
+    artifact = test_mount / "build" / "package" / "dependency.whl"
+    outside = tmp_path / "outside.bin"
+    outside.write_bytes(b"outside")
+    if unsafe == "changed-build":
+        artifact.write_bytes(b"changed copied build")
+    elif unsafe == "unexpected-output":
+        (test_mount / "out" / "unexpected.log").write_bytes(b"keep")
+    elif unsafe == "wrong-mode":
+        artifact.chmod(0o644)
+    else:
+        artifact.unlink()
+        artifact.symlink_to(outside)
+    with pytest.raises(VolumeProviderError) as refused:
+        provider.release_evidenced(REQUEST, evidence)
+    assert refused.value.code == (
+        "ABSENT_VOLUME_HAS_DATA" if unsafe == "unexpected-output"
+        else "ABSENT_TEST_BUILD_CHANGED"
+    )
+    assert released == [prep_mount.name]
+    assert test_mount.is_dir()
+    assert outside.read_bytes() == b"outside"
+    assert ledger.handoff_row is not None
+
+
+def test_absent_test_clear_retries_after_partial_cleanup(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    provider, ledger, evidence, prep_mount, test_mount, released = (
+        _attested_absent_test_case(tmp_path, monkeypatch)
+    )
+    clear = HardQuotaVolumeProvider._clear_verified_mount
+    artifact = test_mount / "build" / "package" / "dependency.whl"
+
+    def interrupt_once(path: Path, run_id: str, budget: int) -> None:
+        if run_id == REQUEST:
+            artifact.unlink()
+            raise VolumeProviderError("SIMULATED_INTERRUPTION")
+        clear(path, run_id, budget)
+
+    monkeypatch.setattr(HardQuotaVolumeProvider, "_clear_verified_mount",
+                        staticmethod(interrupt_once))
+    with pytest.raises(VolumeProviderError) as interrupted:
+        provider.release_evidenced(REQUEST, evidence)
+    assert interrupted.value.code == "SIMULATED_INTERRUPTION"
+    assert released == [prep_mount.name]
+    assert len(ledger.clear_markers) == 1
+    assert not artifact.exists() and test_mount.exists()
+
+    monkeypatch.setattr(HardQuotaVolumeProvider, "_clear_verified_mount",
+                        staticmethod(clear))
+    assert provider.release_evidenced(REQUEST, evidence) == (REQUEST,)
+    assert released == [prep_mount.name, REQUEST]
+    assert not test_mount.exists()
+
+
+@pytest.mark.parametrize("changed", ["volume_path_sha256", "mount_device"])
+def test_absent_test_clear_marker_cannot_authorize_another_mount(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, changed: str,
+) -> None:
+    provider, ledger, evidence, prep_mount, test_mount, released = (
+        _attested_absent_test_case(tmp_path, monkeypatch)
+    )
+    info = test_mount.stat()
+    marker = {
+        "run_id": REQUEST,
+        "preparation_run_id": prep_mount.name,
+        "build_tree_sha256": ledger.handoff_row["build_tree_sha256"],
+        "volume_path_sha256": hashlib.sha256(str(test_mount).encode("utf-8")).hexdigest(),
+        "mount_device": str(info.st_dev),
+        "mount_inode": str(info.st_ino),
+    }
+    marker[changed] = "0" * 64
+    ledger.clear_markers.append(marker)
+    with pytest.raises(VolumeProviderError) as wrong_volume:
+        provider.release_evidenced(REQUEST, evidence)
+    assert wrong_volume.value.code == "ABSENT_TEST_CLEAR_INTENT_INVALID"
+    assert released == [prep_mount.name]
+    assert (test_mount / "build" / "package" / "dependency.whl").is_file()

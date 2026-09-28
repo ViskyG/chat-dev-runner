@@ -46,7 +46,10 @@ the installed owner grant, checks the rootless broker and hard-quota helper,
 and builds `ExecutionPorts` only when they are ready. Route assembly also
 verifies the exact private GitHub repository binding and existing Drive
 installation before starting a workspace poller. The command cannot supply
-those trusted execution ports.
+those trusted execution ports. The root-owned helper creates each bounded
+run volume below `/var/lib/chat-dev-runner/volumes/<run UUID>`, a host path
+visible to the rootless Docker daemon. Its installer refuses to replace the
+previous `/run`-based helper while any old run volume remains mounted.
 
 Runtime status reports the verified EP-05 attachment separately from the
 remaining execution setup. The Ledger still starts disarmed. A local owner

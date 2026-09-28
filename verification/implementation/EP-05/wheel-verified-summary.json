@@ -1,0 +1,15 @@
+{
+  "ambiguous_create_fix_packaged": true,
+  "architecture": "x86_64",
+  "build_command": ".venv/bin/python -m build --wheel --no-isolation --outdir /tmp/cdr-ep05-verified-wheel",
+  "checked_at": "2026-09-28T09:02:17.873462+00:00",
+  "exit_code": 0,
+  "marker_packaged": true,
+  "offline_wheel_count": 5,
+  "python": "3.10.12",
+  "schema_version": "1.0",
+  "system": "Linux",
+  "wheel_name": "chat_dev_runner-0.2.0-py3-none-any.whl",
+  "wheel_sha256": "ec5ef2eb5a19fd2e8dc53e352830e78c623f77a56b3ca4d56f709e02b195c877",
+  "wheel_size_bytes": 2118363
+}

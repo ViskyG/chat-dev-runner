@@ -1,0 +1,202 @@
+{
+  "code": null,
+  "confirmed_effects": 15,
+  "effects": 15,
+  "request_id": "5649a6df-f6a9-4ea0-ba9c-487bf530e432",
+  "result": {
+    "delivery": {
+      "confirmed_assets": [
+        "operation-manifest.json",
+        "run-manifest.json",
+        "input-manifest.json",
+        "frozen-command.json",
+        "report.md",
+        "bundle-index.json",
+        "delivery-index-5649a6df-f6a9-4ea0-ba9c-487bf530e432.json"
+      ],
+      "index_file_id": "1iM47vTQwVUg1Dn-Q2cbABeJKRRdqdXgu",
+      "latest_skipped_newer": false,
+      "reason": null,
+      "request_folder_id": "1vSkhpq4sRrbYd16HcztxfFPSJb4sstKC",
+      "run_folder_id": "1OQbbzfEK2HDuCw66VFVf9OIv6PfUQAsk",
+      "status": "DELIVERED"
+    },
+    "editor_head": "a3a9ebc636461e7527c5cf78a1b41c75bc564f97",
+    "editor_matches_tested": false,
+    "execution": {
+      "duration_seconds": 0.68801,
+      "exit_code": 0,
+      "outcome": "PASSED"
+    },
+    "operation_manifest": {
+      "created_at": "2026-09-28T08:15:22.103865+00:00",
+      "delivery": {
+        "reason": null,
+        "status": "PENDING"
+      },
+      "effects": [
+        {
+          "kind": "git_ref",
+          "provider_id": "7355db35d8cca0a18230838ca06affd6b7564a78",
+          "state": "CONFIRMED",
+          "url": null
+        },
+        {
+          "kind": "git_ref",
+          "provider_id": "7355db35d8cca0a18230838ca06affd6b7564a78",
+          "state": "CONFIRMED",
+          "url": null
+        },
+        {
+          "kind": "pull_request",
+          "provider_id": "4661045857",
+          "state": "CONFIRMED",
+          "url": null
+        }
+      ],
+      "outputs": [
+        {
+          "complete": true,
+          "format": "raw-bytes-v1",
+          "kind": "console",
+          "media_type": "application/octet-stream",
+          "output_id": "stdout-raw",
+          "publication": "local_only",
+          "relative_path": "capture/stdout.bin",
+          "sha256": "fcd476841e8af121ff907e81a92a59579b64c007b70cb79f9d096806f703fc7e",
+          "size_bytes": 98,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "utf8-safe-view-v1",
+          "kind": "console",
+          "media_type": "text/plain; charset=utf-8",
+          "output_id": "stdout-view",
+          "publication": "local_only",
+          "relative_path": "capture/stdout.txt",
+          "sha256": "fcd476841e8af121ff907e81a92a59579b64c007b70cb79f9d096806f703fc7e",
+          "size_bytes": 98,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "raw-bytes-v1",
+          "kind": "console",
+          "media_type": "application/octet-stream",
+          "output_id": "stderr-raw",
+          "publication": "local_only",
+          "relative_path": "capture/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "utf8-safe-view-v1",
+          "kind": "console",
+          "media_type": "text/plain; charset=utf-8",
+          "output_id": "stderr-view",
+          "publication": "local_only",
+          "relative_path": "capture/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "stream-observation/v1",
+          "kind": "runner_log",
+          "media_type": "application/x-ndjson",
+          "output_id": "capture-events",
+          "publication": "local_only",
+          "relative_path": "capture/events.jsonl",
+          "sha256": "b73e4ea603fb8514c04af94f4eeaaf8274f2cd3a23873ba7f1ea41aea4cca509",
+          "size_bytes": 416,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "capture-metadata/v1",
+          "kind": "runner_log",
+          "media_type": "application/json",
+          "output_id": "capture-metadata",
+          "publication": "local_only",
+          "relative_path": "capture/capture.json",
+          "sha256": "fd56476ffbf75fc25c556252a9cfd016f66847b8b03379833dcb9d066e8122bd",
+          "size_bytes": 677,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "junit-xml",
+          "kind": "test_result",
+          "media_type": "application/xml",
+          "output_id": "junit",
+          "publication": "local_only",
+          "relative_path": "collected/junit.xml",
+          "sha256": "6664520590612e32caf3db9aa9955d4d5eb1dea451b9c59d23d5498d86d3ba8b",
+          "size_bytes": 393,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "collection-metadata/v1",
+          "kind": "runner_log",
+          "media_type": "application/json",
+          "output_id": "runner-collection",
+          "publication": "local_only",
+          "relative_path": "collection.json",
+          "sha256": "b973424ecfdc4e43aa7686ff4780e360b01d33abc7b77eb209090210c8fb63cf",
+          "size_bytes": 718,
+          "truncated_reason": null
+        }
+      ],
+      "project_id": "cdr-ep05-drive-20260928",
+      "publication": {
+        "branch": "work/cdr-ep05-drive-20260928",
+        "commit": "7355db35d8cca0a18230838ca06affd6b7564a78",
+        "pull_request_url": "https://github.com/ViskyG/cdr-ep05-drive-20260928/pull/1",
+        "reason": null,
+        "repository": "ViskyG/cdr-ep05-drive-20260928",
+        "status": "PR_UPDATED"
+      },
+      "request_id": "5649a6df-f6a9-4ea0-ba9c-487bf530e432",
+      "run_ids": [
+        "5649a6df-f6a9-4ea0-ba9c-487bf530e432"
+      ],
+      "schema_version": "1.0",
+      "status": "COMPLETED",
+      "workspace_id": "primary"
+    },
+    "preparation": {
+      "evidence_sha256": "cc68bb9af804cccfb3f61b6a3185a6d94e9daaadf7947f256403778c275dd455",
+      "outcome": "PASSED",
+      "run_id": "2da2404d-cea8-5a41-bd37-c6b2b436829c"
+    },
+    "publication": {
+      "git_status": "PUBLISHED",
+      "pull_request_disposition": "created",
+      "pull_request_id": 4661045857,
+      "pull_request_number": 1,
+      "pull_request_url": "https://github.com/ViskyG/cdr-ep05-drive-20260928/pull/1",
+      "remote_head": "7355db35d8cca0a18230838ca06affd6b7564a78",
+      "remote_ref": "refs/heads/work/cdr-ep05-drive-20260928",
+      "status": "DRAFT_PUBLISHED"
+    },
+    "remote_ref": "refs/heads/work/cdr-ep05-drive-20260928",
+    "report_link": {
+      "disposition": "updated",
+      "pull_request_id": 4661045857,
+      "pull_request_url": "https://github.com/ViskyG/cdr-ep05-drive-20260928/pull/1",
+      "status": "ATTACHED",
+      "url": "https://drive.google.com/drive/folders/1OQbbzfEK2HDuCw66VFVf9OIv6PfUQAsk"
+    },
+    "run_id": "5649a6df-f6a9-4ea0-ba9c-487bf530e432",
+    "snapshot_id": "9c456634-a87e-4f6e-a10d-e54aa9c355ac",
+    "tested_commit": "7355db35d8cca0a18230838ca06affd6b7564a78",
+    "tested_tree": "2d2fed2be8dbc6290fd0a7050b590227fefe8b77"
+  },
+  "schema_version": "1.0",
+  "status": "COMPLETED"
+}

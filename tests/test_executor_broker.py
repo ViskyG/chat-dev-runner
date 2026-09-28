@@ -304,7 +304,7 @@ def _fake_create_attempt(
     name = "cdr-run-" + run_id
     source = tmp_path / "source"
     source.mkdir()
-    volume = tmp_path / "volume"
+    volume = tmp_path / run_id
     volume.mkdir()
     parent = tmp_path / "private"
     parent.mkdir(mode=0o700)
@@ -343,8 +343,10 @@ def _fake_create_attempt(
         raise AssertionError("unknown fake inspection mode")
     calls: list[tuple[str, ...]] = []
     intents: list[ContainerIntent] = []
+    removed = False
 
     def fake_docker(*args: str, **_kwargs: object) -> subprocess.CompletedProcess[bytes]:
+        nonlocal removed
         calls.append(args)
         if args[:2] == ("container", "create"):
             assert len(intents) == 1
@@ -358,9 +360,11 @@ def _fake_create_attempt(
                 return subprocess.CompletedProcess([], 1, b"", b"No such object")
             return subprocess.CompletedProcess([], 0, json.dumps(container).encode(), b"")
         if args[:2] == ("container", "rm"):
+            removed = rm_returncode == 0
             return subprocess.CompletedProcess([], rm_returncode, b"", b"")
         if args[:2] == ("container", "ls"):
-            remaining = ("d" * 64 + "\n").encode() if post_rm_present else b""
+            present = inspected != "missing" and (not removed or post_rm_present)
+            remaining = ("d" * 64 + "\n").encode() if present else b""
             return subprocess.CompletedProcess([], 0, remaining, b"")
         pytest.fail(f"unexpected Docker call: {args[:2]}")
 
@@ -448,23 +452,55 @@ def test_uncertain_create_cleans_only_verified_named_container(
     failure, calls, name = _fake_create_attempt(
         profile, broker, tmp_path, monkeypatch, create_reply)
     assert failure.code == expected_code
-    assert [call[2] for call in calls if call[:2] == ("container", "inspect")] == [name]
+    assert name in [call[2] for call in calls if call[:2] == ("container", "inspect")]
     assert [call[-1] for call in calls if call[:2] == ("container", "rm")] == ["d" * 64]
     assert all(call[:2] != ("container", "start") for call in calls)
 
 
 @pytest.mark.parametrize(
-    "inspected", ["missing", "wrong_label", "wrong_profile_label", "wrong_name", "wrong_image"]
+    "inspected", ["wrong_label", "wrong_profile_label", "wrong_name", "wrong_image"]
 )
 def test_uncertain_create_never_removes_unverified_container(
     profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch, inspected: str,
 ) -> None:
-    failure, calls, name = _fake_create_attempt(
+    failure, calls, _name = _fake_create_attempt(
         profile, broker, tmp_path, monkeypatch,
         subprocess.CompletedProcess([], 1, b"", b"failed"), inspected=inspected)
     assert failure.code == "CONTAINER_CLEANUP_UNCERTAIN"
-    assert [call[2] for call in calls if call[:2] == ("container", "inspect")] == [name]
+    assert any(call[:2] == ("container", "inspect") for call in calls)
+    assert all(call[:2] != ("container", "rm") for call in calls)
+
+
+def test_empty_create_error_retains_uncertainty_until_aged_reconciliation(
+    profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proofs: list[broker_module.ContainerReconciliation] = []
+    failure, calls, name = _fake_create_attempt(
+        profile, broker, tmp_path, monkeypatch,
+        subprocess.CompletedProcess([], 1, b"", b"definite refusal"),
+        inspected="missing", cleanup_proofs=proofs,
+    )
+    assert failure.code == "CONTAINER_CLEANUP_UNCERTAIN"
+    assert proofs == []
+    assert name in [call[2] for call in calls if call[:2] == ("container", "inspect")]
+    assert all(call[:2] not in {("container", "ls"), ("container", "rm")}
+               for call in calls)
+
+
+def test_timeout_with_empty_inventory_retains_uncertain_cleanup(
+    profile: ApprovedProfile, broker: RootlessDockerBroker, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proofs: list[broker_module.ContainerReconciliation] = []
+    failure, calls, _ = _fake_create_attempt(
+        profile, broker, tmp_path, monkeypatch,
+        BrokerError("RUNTIME_UNAVAILABLE", "timed out"),
+        inspected="missing", cleanup_proofs=proofs,
+    )
+    assert failure.code == "CONTAINER_CLEANUP_UNCERTAIN"
+    assert proofs == []
     assert all(call[:2] != ("container", "rm") for call in calls)
 
 
@@ -570,7 +606,7 @@ def test_recovery_keeps_lock_when_ambiguous_create_is_not_yet_visible(
     with pytest.raises(BrokerError) as error:
         _fake_recovery(broker, profile, tmp_path, monkeypatch,
                        initially_present=False, record_calls=calls)
-    assert error.value.code == "CONTAINER_RECONCILIATION_UNCERTAIN"
+    assert error.value.code == "NO_OWNED_CONTAINER"
     assert all(call[:2] != ("container", "rm") for call in calls)
 
 

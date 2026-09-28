@@ -1,0 +1,130 @@
+{
+  "checked_at": "2026-09-28T08:26:29.901073+00:00",
+  "drive": {
+    "assets": [
+      {
+        "id": "1erCfhKxbLe2mVz2AYBkiu85M0bC6SaJS",
+        "name": "operation-manifest.json",
+        "parent_id": "1vSkhpq4sRrbYd16HcztxfFPSJb4sstKC",
+        "sha256": "6c175ec65bc31957ebb97e23ba54412c1e966e4e9b4579303d35a6b2a4a396e5",
+        "size_bytes": 3364
+      },
+      {
+        "id": "1q_zfPfW-knEn-8MBsxHj98ccKFxuHDGY",
+        "name": "run-manifest.json",
+        "parent_id": "1OQbbzfEK2HDuCw66VFVf9OIv6PfUQAsk",
+        "sha256": "eb71f4400cde7d1cb3863f8d492c682d0d59f1968588161f99eb0762c7aa9427",
+        "size_bytes": 3022
+      },
+      {
+        "id": "15nUpjmqlCpZDx4qfvJ7ZND76qZV2tIzH",
+        "name": "input-manifest.json",
+        "parent_id": "1OQbbzfEK2HDuCw66VFVf9OIv6PfUQAsk",
+        "sha256": "6dc313596c56af346a534103d6e8fdb7dedfbdd43b444f54aea433d5197feb1e",
+        "size_bytes": 939
+      },
+      {
+        "id": "1Ts1e8BzrzTn50gkOZkRwJlce88gd0U5t",
+        "name": "frozen-command.json",
+        "parent_id": "1vSkhpq4sRrbYd16HcztxfFPSJb4sstKC",
+        "sha256": "16b9a0adfd82cc444b71cd3e3c4a085b9a6af988fe71b3cb0b14de0daf5cb239",
+        "size_bytes": 899
+      },
+      {
+        "id": "1Z7m7H3_Wdtepq32P3skUtwXbhimk4LJe",
+        "name": "report.md",
+        "parent_id": "1OQbbzfEK2HDuCw66VFVf9OIv6PfUQAsk",
+        "sha256": "40ab91578d6be8519ebe021dfabc34a763ed7ab9b591ca6471261400f00407cf",
+        "size_bytes": 659
+      },
+      {
+        "id": "1MVXdJFwF3q4ps7_4OHRzzKhnCjLUqMQK",
+        "name": "bundle-index-5649a6df-f6a9-4ea0-ba9c-487bf530e432.json",
+        "parent_id": "1OQbbzfEK2HDuCw66VFVf9OIv6PfUQAsk",
+        "sha256": "715c87979e7ee967acb4710a8015ed4e34ad62c936f64e6300d1dedb9e714c36",
+        "size_bytes": 1341
+      },
+      {
+        "id": "1iM47vTQwVUg1Dn-Q2cbABeJKRRdqdXgu",
+        "name": "delivery-index-5649a6df-f6a9-4ea0-ba9c-487bf530e432.json",
+        "parent_id": "1OQbbzfEK2HDuCw66VFVf9OIv6PfUQAsk",
+        "sha256": "791aa9aab379bfb7ca684f55311c4dc3d0386fd8623d95f77da503dd679b769a",
+        "size_bytes": 1928
+      }
+    ],
+    "docs": [
+      {
+        "contains_request_id": true,
+        "contains_run_folder_id": true,
+        "id": "1S3gUlvAcGkavZ1jUSOJnD22lr9Pk_ht1YeudAYUfiSc",
+        "key": "workspace-receipt:cdr-ep05-drive-20260928/primary",
+        "sha256": "2d2da8b5dbd634d082e851c80d396921b8b52058f302b14218d2e3e57d729cbd"
+      },
+      {
+        "contains_request_id": true,
+        "contains_run_folder_id": true,
+        "id": "1dhQ5cz5zhe1Jki_HqQBCHQa7XCo6dzBDZuGLlNqnaUo",
+        "key": "latest-result:cdr-ep05-drive-20260928/primary",
+        "sha256": "60bf6f58ff7e234f8ef9ee0adcbbfa518acea5bb43fe7ef85ea561980da54986"
+      }
+    ],
+    "installation_index_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+    "installation_root_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+    "report_url": "https://drive.google.com/drive/folders/1OQbbzfEK2HDuCw66VFVf9OIv6PfUQAsk",
+    "request_folder_id": "1vSkhpq4sRrbYd16HcztxfFPSJb4sstKC",
+    "run_folder_id": "1OQbbzfEK2HDuCw66VFVf9OIv6PfUQAsk"
+  },
+  "github": {
+    "base_branch": "main",
+    "branch": "work/cdr-ep05-drive-20260928",
+    "draft": true,
+    "head_sha": "7355db35d8cca0a18230838ca06affd6b7564a78",
+    "private": true,
+    "pull_request_id": 4661045857,
+    "pull_request_number": 1,
+    "pull_request_url": "https://github.com/ViskyG/cdr-ep05-drive-20260928/pull/1",
+    "report_link_attached": true,
+    "repository_id": 1391917494,
+    "repository_url": "https://github.com/ViskyG/cdr-ep05-drive-20260928"
+  },
+  "local_run": {
+    "backend": "rootless_docker",
+    "containment": {
+      "cleanup_verified": true
+    },
+    "exit_code": 0,
+    "junit": {
+      "bytes": 393,
+      "errors": null,
+      "failures": null,
+      "root": "testsuites",
+      "sha256": "6664520590612e32caf3db9aa9955d4d5eb1dea451b9c59d23d5498d86d3ba8b",
+      "tests": null
+    },
+    "outcome": "PASSED",
+    "output_ids": [
+      "stdout-raw",
+      "stdout-view",
+      "stderr-raw",
+      "stderr-view",
+      "capture-events",
+      "capture-metadata",
+      "junit",
+      "runner-collection"
+    ],
+    "run_id": "5649a6df-f6a9-4ea0-ba9c-487bf530e432",
+    "snapshot_id": "9c456634-a87e-4f6e-a10d-e54aa9c355ac",
+    "tested_commit": "7355db35d8cca0a18230838ca06affd6b7564a78",
+    "tested_tree": "2d2fed2be8dbc6290fd0a7050b590227fefe8b77"
+  },
+  "note": "Remote objects observed after completion. Local editor head differs from tested snapshot as recorded by operation.",
+  "operation": {
+    "capacity_held": false,
+    "confirmed_effects": 15,
+    "reconcile_required": false,
+    "status": "COMPLETED"
+  },
+  "request_id": "5649a6df-f6a9-4ea0-ba9c-487bf530e432",
+  "schema_version": "1.0",
+  "status": "PASS"
+}

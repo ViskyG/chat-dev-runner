@@ -721,6 +721,8 @@ class GitHubREST:
                 if matching.head_sha != expected_head_sha:
                     raise GitHubError("BRANCH_CHANGED", "Matching PR head differs from tested snapshot")
                 return PullRequestResult(matching, "reconciled")
+            if response is not None and response.status == 429:
+                raise _error_for_response(response, read=False)
             if response is None or response.status == 201 or response.status in _TRANSIENT:
                 raise GitHubError("PULL_REQUEST_CREATE_UNKNOWN", "PR creation needs reconciliation")
         assert response is not None

@@ -43,7 +43,7 @@ _DOCKER_OUTPUT_LIMIT = 128 * 1024
 _COMMAND_TIMEOUT = 8.0
 _MIN_HOST_DISK_RESERVE = 1024 * 1024 * 1024
 _MAX_RUN_VOLUME_BYTES = 4 * 1024 * 1024 * 1024
-_ROOT_CONTROLLED_VOLUME_BASE = Path("/run/chat-dev-runner/volumes")
+_ROOT_CONTROLLED_VOLUME_BASE = Path("/var/lib/chat-dev-runner/volumes")
 
 
 class BrokerError(RuntimeError):
@@ -93,7 +93,7 @@ class ContainerIntent:
 class ContainerReconciliation:
     run_id: str
     daemon_id: str
-    state: str  # REMOVED on the same verified rootless daemon
+    state: str  # REMOVED or independently proven ABSENT on the original daemon
     container_id: str | None
 
 
@@ -758,6 +758,50 @@ class RootlessDockerBroker:
                               "Multiple containers claim one run")
         return tuple(matches)
 
+    def _same_daemon_absence(self, intent: ContainerIntent) -> bool:
+        """Require two complete negative inventories on the original daemon.
+
+        A timed-out create never calls this during normal execution. Explicit
+        terminal recovery applies an additional quiescence-time check.
+        """
+        before = self.probe()
+        if not before.available or before.daemon_id != intent.daemon_id:
+            raise BrokerError("CONTAINER_CLEANUP_UNCERTAIN", "Original daemon changed")
+        if self._owned_container_ids(intent):
+            return False
+        time.sleep(0.25)
+        if self._owned_container_ids(intent):
+            return False
+        after = self.probe()
+        if not after.available or after.daemon_id != intent.daemon_id:
+            raise BrokerError("CONTAINER_CLEANUP_UNCERTAIN", "Original daemon changed")
+        return True
+
+    def reconcile_absent_container(self, intent: ContainerIntent) -> ContainerReconciliation:
+        """Owner-local terminal recovery after the caller proves quiescence.
+
+        This never removes a container. A matching container, lookalike,
+        changed daemon or incomplete inventory keeps the operation fenced.
+        """
+        try:
+            valid_run = str(uuid.UUID(intent.run_id)) == intent.run_id
+        except (ValueError, TypeError, AttributeError):
+            valid_run = False
+        if (not valid_run or not intent.daemon_id or len(intent.daemon_id) > 256
+                or not _IMAGE_ID.fullmatch(intent.image_id)
+                or not re.fullmatch(r"[a-z][a-z0-9-]{0,47}", intent.profile_id)
+                or not re.fullmatch(r"[0-9a-f]{64}", intent.profile_revision_sha256)
+                or not re.fullmatch(r"[0-9a-f]{64}", intent.argv_sha256)
+                or not re.fullmatch(r"[0-9a-f]{32}", intent.nonce)
+                or not isinstance(intent.image, str)
+                or not re.search(r"@sha256:[0-9a-f]{64}\Z", intent.image)):
+            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                              "Durable container intent is invalid")
+        if not self._same_daemon_absence(intent):
+            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+                              "Owned container is still present")
+        return ContainerReconciliation(intent.run_id, intent.daemon_id, "ABSENT", None)
+
     def reconcile_container(self, intent: ContainerIntent) -> ContainerReconciliation:
         """Remove only the exact owned container after a crash, on its original daemon.
 
@@ -784,10 +828,10 @@ class RootlessDockerBroker:
                               "Original rootless daemon is unavailable")
         matches = self._owned_container_ids(intent)
         if not matches:
-            # An ambiguous Docker create can still be executing in the daemon
-            # after the CLI timed out. A single empty inventory is not proof
-            # that no container can appear later; retain the workspace lock.
-            raise BrokerError("CONTAINER_RECONCILIATION_UNCERTAIN",
+            # This signal is issued only before any removal attempt. The caller
+            # may request a separate aged, repeated absence proof; by default
+            # a single empty inventory retains the workspace lock.
+            raise BrokerError("NO_OWNED_CONTAINER",
                               "No owned container can be safely reconciled yet")
         removed_id = matches[0]
         removed = self._run_docker("container", "rm", "--force", "--volumes",
@@ -884,6 +928,9 @@ class RootlessDockerBroker:
             create = self._run_docker(*create_args, timeout=30.0,
                                       env=self._docker_env(run_root / "docker-home"))
             if create.returncode != 0:
+                # The CLI can fail after the daemon accepted a create. Even an
+                # empty response cannot prove absence without the aged,
+                # owner-local reconciliation fence.
                 raise BrokerError("CONTAINER_CREATE_FAILED", "Rootless container creation failed")
             try:
                 created_id = create.stdout.decode("ascii", "strict").strip()

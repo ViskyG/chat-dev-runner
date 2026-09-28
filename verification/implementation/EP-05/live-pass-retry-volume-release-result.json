@@ -1,0 +1,12 @@
+{
+  "both_mounts_absent": true,
+  "created_at": "2026-09-28T08:13:57.493038+00:00",
+  "preparation_evidence_retained": true,
+  "preparation_run_id": "56876f54-6201-539c-8968-cfc3b8b08a27",
+  "preparation_volume_released_on_first_call": true,
+  "request_id": "56bc5518-c13b-4d13-ae48-50642ec0893d",
+  "reserved_capacity": 0,
+  "schema_version": "1.0",
+  "service_stopped": true,
+  "test_volume_released_on_second_call": true
+}

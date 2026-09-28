@@ -1,0 +1,82 @@
+{
+  "checked_at": "2026-09-28T08:51:33.023116+00:00",
+  "drive": {
+    "index_file_id": "1T1jV-NUw05_Mq3uSBxxg7199nvruvZRT",
+    "index_file_parent_id": "16YNS51rBkfo0iNsqqUvie0w6MkXrBk4l",
+    "latest_result_doc": {
+      "execution_outcome": "FAILED",
+      "id": "1KVH34DLrzTsQICEDJjfEI8kRIoAkv0c9pWHpBT6SWBU",
+      "revision": "ANLCKQkh1Sof_EI-Xt9qfv5gMLzZFkaj3kxn4AGRYQjPQN6tOzen1kHZm-fiAr9tuQRl_bzXuTNsBRxVDRjyFmCy5mKSFFy5LJj39YC78kE",
+      "sha256": "9e6cac68c511151d3f2fd2f2048a482261d6e2181377e588559b2ecb00bb0cbe",
+      "source_request_id": "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631"
+    },
+    "receipt_doc": {
+      "delivery_status": "DELIVERED",
+      "id": "1zoILtAOwxmnogbAn1Tfv1fvrtQAQWECg1zAPqmrudEI",
+      "request_id": "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631",
+      "revision": "ANLCKQn7W-6js8NBG6ovFLujNjQkFrM3Nd4WmdoOFFv3nFJEWkrI7h45a_0WcGuvNmU45bPqjQx-oGnxV_GF-lZ7Hi8TwrFHD4OcwuMefF4",
+      "sha256": "7f0db5537c1d08beada97f2497965d65a927b0588f0f2fa80aac630c78a041a4"
+    },
+    "report_url": "https://drive.google.com/drive/folders/16YNS51rBkfo0iNsqqUvie0w6MkXrBk4l",
+    "request_folder_id": "1swZZtgMu1rIxiDSMT1RATGZUsnBLXC47",
+    "request_folder_parent_ids": [
+      "1mjQjCnqwXxaTbF62ZglUDugtySyfOTK_"
+    ],
+    "run_folder_id": "16YNS51rBkfo0iNsqqUvie0w6MkXrBk4l",
+    "run_folder_parent_id": "1swZZtgMu1rIxiDSMT1RATGZUsnBLXC47",
+    "workspace_folder_id": "1KuDeNTEsBHXI5Ij7T0DDegO7Jha_TCbV"
+  },
+  "github": {
+    "body_sha256": "089a7d19a1e22ac825c928108a6910d464f92c77feb268c81b79f720897586d7",
+    "default_branch": "main",
+    "draft": true,
+    "head_sha": "ee50998cc549b0c7e8d84295f13f52db0a9a933b",
+    "pull_request_id": 4661310542,
+    "pull_request_number": 1,
+    "pull_request_url": "https://github.com/ViskyG/cdr-ep05-fail-20260928/pull/1",
+    "report_url_attached": true,
+    "repository_id": 1392232161,
+    "repository_private": true
+  },
+  "local": {
+    "armed": false,
+    "capacity_held": 0,
+    "code": null,
+    "confirmed_effects": 15,
+    "delivery_status": "DELIVERED",
+    "editor_head": "82fe8133230dad2da937cff8b819dc98a55a6fd0",
+    "editor_worktree_clean": true,
+    "effects": 15,
+    "execution": {
+      "duration_seconds": 0.773234,
+      "exit_code": 1,
+      "outcome": "FAILED"
+    },
+    "junit": {
+      "failing_case": "test_double_failure",
+      "failure_count": 1,
+      "output_id": "junit",
+      "sha256": "fb0cc887e509ee2bf9efd0dc6a8635e84d3594966cb6c4ee9fd8af80bda0f3d5",
+      "size_bytes": 656
+    },
+    "publication_status": "DRAFT_PUBLISHED",
+    "reconcile_required": 0,
+    "report_link_status": "ATTACHED",
+    "reserved_capacity": 0,
+    "result_sha256": "018b6dc36b51d3a5993c0930afbafbc06a53b39b90a56e302dcd6616173578c3",
+    "run_manifest_sha256": "b3bf7392be920a19b2033d177164349c7f9e962b90b827be5c2071bba8b52b45",
+    "status": "COMPLETED",
+    "tested_commit": "ee50998cc549b0c7e8d84295f13f52db0a9a933b"
+  },
+  "mode": "independent exact-ID readback; no provider writes",
+  "project_id": "cdr-ep05-fail-20260928",
+  "quota_mounts_absent": [
+    "aa38034f-295b-5d07-afa2-419835b48da8",
+    "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631"
+  ],
+  "request_id": "ea1c9fd8-4ca5-4fdd-99a4-8e896a1a4631",
+  "schema_version": "1.0",
+  "state_dir": "/home/visky/Work/GPTRunner/.ep05-smoke/cdr-ep05-fail-20260928",
+  "status": "PASS",
+  "workspace_id": "primary"
+}
