@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "recorded_at_utc": "2026-09-29T09:01:32Z",
+  "result": "EXISTING_DRIVE_INSTRUCTIONS_UPDATED_AND_READ_BACK",
+  "installation_root_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+  "installation_index_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+  "control_folder_id": "1MsfkEohdWJVd49CTI72Vw10oTxH9qAMf",
+  "index_mapping_read": "CHAT PROTOCOL and COMMAND RECIPES exact document IDs matched the installed Index",
+  "documents": [
+    {
+      "title": "CHAT PROTOCOL",
+      "id": "1vhqcDQmSW6t0nU6Kx6cltyaZL1L-7rj2KHLSp2DJksE",
+      "tab_id": "t.0",
+      "initial_revision": "ANLCKQkpPO5w_qM6IKIy1zsidvpNwwJismeJsEKJEihOiRluBUh0FsNMF1AOEtk2Zqki8cCcJcSVO4CjpIhQofRUuryiKlHJvKPxxsslgSE",
+      "final_revision": "ANLCKQl8ldYqYeTVCA3BtiUtAfQ5MZDjVZV6tq0g-6WV9nwbhVwn46W4ORDCHdhPZs2jrZrQFyuLBQolZUkZ034qLtNkl4whjbPruVrhmkc",
+      "revision_guarded_targeted_replacements": 7,
+      "each_replaced_once": true,
+      "readback": "Version 1.3, selected-repository manual access, local-only EXPORT_CONTEXT and digest-matched report receipt text present; optional-diff claim absent"
+    },
+    {
+      "title": "COMMAND RECIPES",
+      "id": "1T3gmtU7ETTzvi-v8RhFjTSIdMEPSc0nIHho-fnEXXqA",
+      "tab_id": "t.0",
+      "initial_revision": "ANLCKQnfb6JJSN90wQ3Ny3PxoCef061kzHCUpReXaqqzfsLE9jFp949VEd7VO5BUN3fKAauXFv_SaV54WycSiPgmXoKN16T3QMb1Nszsf3Y",
+      "final_revision": "ANLCKQnrvTbxZPOGCSFtGBkFY71JXjNHNkL_ZynBoKf4t2VLrsaEN-9yTlty4oVAXVZ6k6aVVdPa6a_ui6DKO_ZkKLOPkHbN7e7D4wKcRv8",
+      "revision_guarded_targeted_replacements": 2,
+      "each_replaced_once": true,
+      "readback": "Action vocabulary gated by live SYSTEM STATE; EXPORT_CONTEXT requires include_diff=false and remains owner-local"
+    }
+  ],
+  "initial_read": "Connected Google Docs metadata, text and full single-tab document read; no table, inline object, rich link, date, person, or private-use marker observed in either target",
+  "trusted_read_bridge": "UNAVAILABLE_BUBBLEWRAP_MOUNTINFO; direct connected full reads and exact revision guards used",
+  "runner_command_submitted": false,
+  "drive_command_or_receipt_modified": false,
+  "workspace_bootstrap_run": false,
+  "source_contents_delivered": false
+}

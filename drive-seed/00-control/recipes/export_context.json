@@ -15,7 +15,7 @@
       "src",
       "tests"
     ],
-    "include_diff": true
+    "include_diff": false
   },
   "intent": "DRAFT EXAMPLE ONLY: EXPORT_CONTEXT. Not an authorized live command."
 }

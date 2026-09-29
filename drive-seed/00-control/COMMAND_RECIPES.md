@@ -195,6 +195,8 @@ All commands are DRAFT, use a zero epoch and fixture timestamps. Regenerate iden
 
 ## EXPORT_CONTEXT
 
+Current v1 export requires `include_diff: false`. The bounded index and selected excerpts remain owner-local; Drive receives only a terminal status receipt. Do not claim that chat can read the export through Drive.
+
 ```json
 {
   "schema_version": "1.0",
@@ -213,7 +215,7 @@ All commands are DRAFT, use a zero epoch and fixture timestamps. Regenerate iden
       "src",
       "tests"
     ],
-    "include_diff": true
+    "include_diff": false
   },
   "intent": "DRAFT EXAMPLE ONLY: EXPORT_CONTEXT. Not an authorized live command."
 }
