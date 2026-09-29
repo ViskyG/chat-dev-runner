@@ -1,0 +1,56 @@
+{
+  "auth_only_post": 1,
+  "blocked_mutations": [],
+  "checked_at": "2026-09-29T09:16:53.695528+00:00",
+  "github_import": {
+    "approved_repository_count": 0,
+    "aria_reason": true,
+    "option_disabled": true,
+    "visible_reason": "GitHub-импорт недоступен: нет утверждённых репозиториев в локальной политике."
+  },
+  "inspection_gets": [
+    "/api/v1/runs/d4e83e2e-cb8f-4768-84bf-13784aa9072f/outputs/junit/inspection",
+    "/api/v1/runs/cbc20739-bfe2-451e-9440-07118e08105a/outputs/junit/inspection"
+  ],
+  "installed_version": "0.2.7",
+  "local_context": {
+    "control_enabled": true,
+    "dialog_local_only_scope": true,
+    "diff_unavailable_explained": true,
+    "operation_submitted": false,
+    "path_input": true
+  },
+  "mode": "INSTALLED_027_UI_AUTH_ONLY_READBACK",
+  "off_origin_requests": [],
+  "page_errors": 0,
+  "result": "PASS",
+  "runs": [
+    {
+      "execution_outcome": "PASSED",
+      "keyboard_console_inspection_get": "NOT_APPLICABLE_NO_APPLICATION_LOG",
+      "keyboard_console_selected": true,
+      "keyboard_tests_inspection_get": true,
+      "keyboard_tests_selected": true,
+      "registered_application_logs": 0,
+      "registered_junit": 1,
+      "registered_outputs": 8,
+      "request_id": "d4e83e2e-cb8f-4768-84bf-13784aa9072f",
+      "run_id": "d4e83e2e-cb8f-4768-84bf-13784aa9072f",
+      "workspace_id": "primary"
+    },
+    {
+      "execution_outcome": "FAILED",
+      "keyboard_console_inspection_get": "NOT_APPLICABLE_NO_APPLICATION_LOG",
+      "keyboard_console_selected": true,
+      "keyboard_tests_inspection_get": true,
+      "keyboard_tests_selected": true,
+      "registered_application_logs": 0,
+      "registered_junit": 1,
+      "registered_outputs": 8,
+      "request_id": "cbc20739-bfe2-451e-9440-07118e08105a",
+      "run_id": "cbc20739-bfe2-451e-9440-07118e08105a",
+      "workspace_id": "parallel"
+    }
+  ],
+  "source_commit": "888b4ae"
+}
