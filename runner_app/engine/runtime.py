@@ -232,8 +232,9 @@ class Runtime:
         if manager is not None:
             if manager.project_active_count():
                 actions.update(PROJECT_ACTIONS)
-            if manager.active_count() and "RETARGET_WORKSPACE" in self.engine.handlers:
-                actions.add("RETARGET_WORKSPACE")
+            if manager.active_count():
+                actions.update(action for action in ("RETARGET_WORKSPACE", "PUBLISH_REPORT")
+                               if action in self.engine.handlers)
             if manager.full_route_count():
                 actions.add("DELIVER_VERIFY_PUBLISH")
         return sorted(actions)

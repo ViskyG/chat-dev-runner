@@ -20,7 +20,7 @@ from runner_app.api.auth import Sessions
 from runner_app.api.runtime import create_runtime_app
 from runner_app.config import Settings
 from runner_app.domain.commands import LocalPolicy, Provenance
-from runner_app.engine.service import Engine
+from runner_app.engine.service import Engine, OperationResult
 from runner_app.git.argv import run_git
 from runner_app.git.registry import SourceRegistry
 from runner_app.git.service import SourceService
@@ -288,6 +288,16 @@ def test_workspace_mailbox_activates_retarget_without_execution_route(tmp_path: 
         provenance = Provenance("drive", COMMAND_ID, PROJECT, WORKSPACE)
         assert engine.policy.mailboxes[COMMAND_ID] == provenance
         assert "DELIVER_VERIFY_PUBLISH" not in engine.capabilities()
+        from runner_app.engine.runtime import Runtime
+        local_runtime = object.__new__(Runtime)
+        local_runtime.drive_bridge = object()  # type: ignore[assignment]
+        local_runtime.integrations = object()  # type: ignore[assignment]
+        local_runtime.workspace_mailboxes = manager
+        local_runtime.engine = engine
+        engine.handlers["PUBLISH_REPORT"] = lambda *_: OperationResult()
+        assert local_runtime.drive_actions() == [
+            "CREATE_PROJECT", "PUBLISH_REPORT", "RETARGET_WORKSPACE",
+        ]
     finally:
         manager.close()
         engine.shutdown()
