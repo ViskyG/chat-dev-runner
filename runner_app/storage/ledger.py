@@ -336,9 +336,10 @@ class Ledger:
         if any(not _SCOPE.fullmatch(scope) for scope in normalized_scopes):
             raise ValueError("Invalid locally derived resource scope")
         if (exempt_capacity
-                and (command.get("action") not in {"CANCEL_OPERATION", "RECONCILE"}
-                     or normalized_scopes)):
-            raise ValueError("Only targeted cancellation or read-only recovery may bypass capacity")
+                and (command.get("action") not in {
+                    "CANCEL_OPERATION", "RECONCILE", "RESUME_RETARGET",
+                } or normalized_scopes)):
+            raise ValueError("Only targeted recovery or cancellation may bypass capacity")
         with self._transaction() as connection:
             # Observe time inside the admission transaction. A command can expire
             # while waiting for a short SQLite writer lock or dispatch handoff.
@@ -356,7 +357,9 @@ class Ledger:
             if code is None and (command.get("runner_id") != state["runner_id"] or command.get("epoch") != state["epoch"]):
                 code = "WRONG_RUNNER_EPOCH"
             if (code is None and not state["armed"]
-                    and command.get("action") not in {"CANCEL_OPERATION", "RECONCILE"}):
+                    and command.get("action") not in {
+                        "CANCEL_OPERATION", "RECONCILE", "RESUME_RETARGET",
+                    }):
                 code = "UNARMED"
             if code is None:
                 expires_at = command.get("expires_at")
@@ -377,6 +380,39 @@ class Ledger:
                 capacity = connection.execute("SELECT count(*) FROM operations WHERE capacity_held=1").fetchone()[0]
                 if busy or (not exempt_capacity and capacity >= self.max_parallel):
                     code = "BUSY"
+            if code is None and command.get("action") == "RESUME_RETARGET":
+                params = command.get("params")
+                target_id = params.get("target_request_id") if isinstance(params, dict) else None
+                target = connection.execute(
+                    "SELECT action,project_id,workspace_id,status,reconcile_required "
+                    "FROM operations WHERE request_id=?", (target_id,),
+                ).fetchone() if isinstance(target_id, str) else None
+                if source_id != "local-owner":
+                    code = "SOURCE_SCOPE"
+                elif (target is None or target["action"] != "RETARGET_WORKSPACE"
+                      or target["project_id"] != command.get("project_id")
+                      or target["workspace_id"] != command.get("workspace_id")
+                      or target["status"] not in {
+                          "BLOCKED", "FAULT", "INTERRUPTED", "CANCELLED",
+                      }
+                      or not target["reconcile_required"]
+                      or connection.execute(
+                          "SELECT 1 FROM locks WHERE request_id=? AND scope=?",
+                          (target_id, f"repo:{target['project_id']}" if target else ""),
+                      ).fetchone() is None):
+                    code = "RETARGET_RESUME_NOT_PARTIAL"
+                elif connection.execute(
+                    "SELECT 1 FROM operations WHERE action='RESUME_RETARGET' "
+                    "AND status='RUNNING' AND project_id=? AND workspace_id=? LIMIT 1",
+                    (target["project_id"], target["workspace_id"]),
+                ).fetchone() is not None:
+                    code = "BUSY"
+                elif connection.execute(
+                    "SELECT 1 FROM journal WHERE request_id=? "
+                    "AND event_type='RETARGET_RESUME_CLAIMED' LIMIT 1",
+                    (target_id,),
+                ).fetchone() is not None:
+                    code = "RETARGET_RESUME_CLAIMED"
             report_run_id: str | None = None
             if code is None and command.get("action") == "PUBLISH_REPORT":
                 params = command.get("params")
@@ -1800,11 +1836,146 @@ class Ledger:
             receipt_doc_id=receipt_doc_id, effect_id=effect_id, workspace=True,
         )
 
+    def begin_terminal_retarget_state(
+        self, target_id: str, *, actor_id: str,
+        intents: Mapping[str, Mapping[str, Any]],
+    ) -> dict[str, str]:
+        """Atomically claim one owner-local continuation and both original Doc intents.
+
+        This accepts only the crash cut before the original retarget declared
+        *any* Drive association effect. It never retries an uncertain write.
+        The retained original repository lock remains the mutation fence.
+        """
+        steps = {"drive-retarget-project-state", "drive-retarget-source-context"}
+        if set(intents) != steps:
+            raise LedgerError("RETARGET_RESUME_INTENT_INVALID", "Both state intents are required")
+        with self._transaction() as connection:
+            actor = connection.execute(
+                "SELECT * FROM operations WHERE request_id=?", (actor_id,),
+            ).fetchone()
+            target = connection.execute(
+                "SELECT * FROM operations WHERE request_id=?", (target_id,),
+            ).fetchone()
+            if (actor is None or actor["status"] != "RUNNING"
+                    or actor["action"] != "RESUME_RETARGET"
+                    or actor["source_id"] != "local-owner"
+                    or target is None or target["action"] != "RETARGET_WORKSPACE"
+                    or target["status"] not in TERMINAL
+                    or not target["reconcile_required"]
+                    or actor["project_id"] != target["project_id"]
+                    or actor["workspace_id"] != target["workspace_id"]
+                    or connection.execute(
+                        "SELECT 1 FROM locks WHERE request_id=? AND scope=?",
+                        (target_id, f"repo:{target['project_id']}"),
+                    ).fetchone() is None):
+                raise LedgerError("RETARGET_RESUME_SCOPE_INVALID", "Retarget continuation scope differs")
+            try:
+                actor_command = json.loads(actor["command_json"])
+                command = json.loads(target["command_json"])
+                valid_commands = (
+                    isinstance(actor_command, dict) and isinstance(command, dict)
+                    and actor_command.get("params") == {
+                        "resume_version": "1.0", "target_request_id": target_id,
+                    }
+                    and actor_command.get("project_id") == target["project_id"]
+                    and actor_command.get("workspace_id") == target["workspace_id"]
+                    and actor_command.get("expected_head") is None
+                    and command.get("request_id") == target_id
+                    and command.get("action") == "RETARGET_WORKSPACE"
+                    and command.get("project_id") == target["project_id"]
+                    and command.get("workspace_id") == target["workspace_id"]
+                    and hashlib.sha256(target["command_json"].encode()).hexdigest()
+                    == target["digest"]
+                    and hashlib.sha256(actor["command_json"].encode()).hexdigest()
+                    == actor["digest"]
+                )
+            except (TypeError, ValueError):
+                valid_commands = False
+            if not valid_commands:
+                raise LedgerError("RETARGET_RESUME_COMMAND_INVALID", "Frozen commands differ")
+            existing = connection.execute(
+                "SELECT step_id,kind,intent_json,state,provider_id FROM effects "
+                "WHERE request_id=?", (target_id,),
+            ).fetchall()
+            source = [effect for effect in existing
+                      if effect["step_id"] == "retarget-workspace"
+                      and effect["kind"] == "local_workspace"]
+            if (len(source) != 1 or source[0]["state"] != "CONFIRMED"
+                    or source[0]["provider_id"] != command["params"]["target_commit"]
+                    or any(effect["step_id"] not in {
+                        "retarget-workspace", _TERMINAL_WORKSPACE_RECEIPT_STEP,
+                    } or effect["state"] != "CONFIRMED"
+                           for effect in existing)):
+                raise LedgerError("RETARGET_RESUME_EFFECT_UNSETTLED",
+                                  "Original effect is uncertain or Drive intent already exists")
+            try:
+                source_intent = json.loads(source[0]["intent_json"])
+            except (TypeError, ValueError):
+                source_intent = None
+            if (not isinstance(source_intent, dict)
+                    or source_intent.get("project_id") != target["project_id"]
+                    or source_intent.get("workspace_id") != target["workspace_id"]
+                    or source_intent.get("from") != command.get("expected_head")
+                    or source_intent.get("from_branch") != command.get("params", {}).get("expected_branch")
+                    or source_intent.get("to") != command["params"]["target_commit"]
+                    or source_intent.get("to_branch") != command["params"]["target_branch"]
+                    or type(source_intent.get("from_generation")) is not int
+                    or source_intent["from_generation"] < 0):
+                raise LedgerError("RETARGET_RESUME_SOURCE_INVALID", "Source proof differs")
+            if connection.execute(
+                "SELECT 1 FROM journal WHERE request_id=? "
+                "AND event_type='RETARGET_RESUME_CLAIMED' LIMIT 1",
+                (target_id,),
+            ).fetchone() is not None:
+                raise LedgerError("RETARGET_RESUME_CLAIMED", "Continuation already claimed")
+            for step, intent in intents.items():
+                expected_key = (
+                    f"project-state:{target['project_id']}"
+                    if step == "drive-retarget-project-state"
+                    else f"source-context:{target['project_id']}/{target['workspace_id']}"
+                )
+                if (set(intent) != {
+                    "file_id", "key", "project_id", "workspace_id",
+                    "request_digest", "base_revision", "base_sha256", "desired_sha256",
+                } or intent.get("key") != expected_key
+                        or intent.get("project_id") != target["project_id"]
+                        or intent.get("workspace_id") != target["workspace_id"]
+                        or intent.get("request_digest") != target["digest"]
+                        or not isinstance(intent.get("file_id"), str)
+                        or not intent["file_id"]
+                        or not isinstance(intent.get("base_revision"), str)
+                        or not intent["base_revision"]
+                        or any(not isinstance(intent.get(name), str)
+                               or _SHA256.fullmatch(intent[name]) is None
+                               for name in ("base_sha256", "desired_sha256"))):
+                    raise LedgerError("RETARGET_RESUME_INTENT_INVALID", "Doc intent differs")
+            timestamp = utcnow()
+            self._append(
+                connection, target_id, None, "RETARGET_RESUME_CLAIMED",
+                {"actor_id": actor_id, "actor_digest": actor["digest"]}, timestamp,
+            )
+            effect_ids: dict[str, str] = {}
+            for step in sorted(steps):
+                effect_id = str(uuid4())
+                self._append(
+                    connection, target_id, step, "EFFECT_INTENDED",
+                    {"effect_id": effect_id, "kind": "drive_file",
+                     "resume_actor_id": actor_id}, timestamp,
+                )
+                connection.execute(
+                    "INSERT INTO effects(effect_id,request_id,step_id,kind,intent_json,state,"
+                    "created_at,updated_at) VALUES(?,?,?,?,?,'INTENDED',?,?)",
+                    (effect_id, target_id, step, "drive_file",
+                     _json(dict(intents[step])), timestamp, timestamp),
+                )
+                effect_ids[step] = effect_id
+            return effect_ids
+
     def release_reconciled_retarget(self, target_id: str, *, actor_id: str) -> None:
         """Release a retarget lock only after exact Git and Drive effects are confirmed.
 
-        This is a local-owner reconciliation step, never an external replay. A
-        switched checkout with missing or uncertain Drive association stays locked.
+        A local-owner RECONCILE or exact claimed RESUME_RETARGET may release it.
+        A switched checkout with missing or uncertain Drive association stays locked.
         """
         with self._transaction() as connection:
             actor = connection.execute(
@@ -1814,7 +1985,7 @@ class Ledger:
                 "SELECT * FROM operations WHERE request_id=?", (target_id,),
             ).fetchone()
             if (actor is None or actor["status"] != "RUNNING"
-                    or actor["action"] != "RECONCILE"
+                    or actor["action"] not in {"RECONCILE", "RESUME_RETARGET"}
                     or actor["source_id"] != "local-owner"
                     or target is None or target["action"] != "RETARGET_WORKSPACE"
                     or target["status"] not in TERMINAL
@@ -1825,6 +1996,28 @@ class Ledger:
             actor_command = json.loads(actor["command_json"])
             if actor_command.get("params", {}).get("target_request_id") != target_id:
                 raise LedgerError("RETARGET_RECONCILE_SCOPE_INVALID", "Retarget target differs")
+            claims = connection.execute(
+                "SELECT detail_json FROM journal WHERE request_id=? "
+                "AND event_type='RETARGET_RESUME_CLAIMED'",
+                (target_id,),
+            ).fetchall()
+            try:
+                claim = json.loads(claims[0]["detail_json"]) if len(claims) == 1 else None
+            except (TypeError, ValueError):
+                claim = None
+            if actor["action"] == "RESUME_RETARGET":
+                if (claim != {"actor_id": actor_id, "actor_digest": actor["digest"]}
+                        or actor_command.get("params") != {
+                            "resume_version": "1.0", "target_request_id": target_id,
+                        }):
+                    raise LedgerError("RETARGET_RESUME_CLAIM_INVALID", "Continuation claim differs")
+            elif claim is not None:
+                claimed_id = claim.get("actor_id") if isinstance(claim, dict) else None
+                claimed = connection.execute(
+                    "SELECT status FROM operations WHERE request_id=?", (claimed_id,),
+                ).fetchone() if isinstance(claimed_id, str) else None
+                if claimed is None or claimed["status"] == "RUNNING":
+                    raise LedgerError("RETARGET_RESUME_ACTIVE", "Continuation still owns release")
             effects = connection.execute(
                 "SELECT step_id,kind,intent_json,state,provider_id FROM effects WHERE request_id=?",
                 (target_id,),
@@ -1884,8 +2077,12 @@ class Ledger:
                 "UPDATE operations SET capacity_held=0,reconcile_required=0,updated_at=? "
                 "WHERE request_id=?", (utcnow(), target_id),
             )
-            self._append(connection, target_id, "retarget-workspace",
-                         "RETARGET_RECONCILED_RELEASED", {"actor_id": actor_id}, utcnow())
+            self._append(
+                connection, target_id, "retarget-workspace",
+                ("RETARGET_RESUMED_RELEASED" if actor["action"] == "RESUME_RETARGET"
+                 else "RETARGET_RECONCILED_RELEASED"),
+                {"actor_id": actor_id}, utcnow(),
+            )
 
     def begin_effect(self, request_id: str, step_id: str, kind: str, intent: dict[str, Any]) -> str:
         if kind not in EFFECT_KINDS or not step_id:

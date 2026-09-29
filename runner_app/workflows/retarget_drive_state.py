@@ -110,6 +110,55 @@ class RetargetDriveState:
              _DocumentPlan("drive-retarget-source-context", context_observed, desired_context)),
         )
 
+    @staticmethod
+    def _intents(plan: RetargetStatePlan) -> dict[str, dict[str, Any]]:
+        intents: dict[str, dict[str, Any]] = {}
+        for document in plan.documents:
+            observed = document.observed
+            intents[document.step] = {
+                "file_id": observed.snapshot.file_id, "key": observed.key,
+                "project_id": plan.project_id, "workspace_id": plan.workspace_id,
+                "request_digest": plan.request_digest,
+                "base_revision": observed.snapshot.revision_id,
+                "base_sha256": observed.snapshot.sha256,
+                "desired_sha256": hashlib.sha256(document.desired.encode("utf-8")).hexdigest(),
+            }
+        return intents
+
+    def _write(self, plan: RetargetStatePlan, effect_ids: dict[str, str]) -> dict[str, str]:
+        result: dict[str, str] = {}
+        for document in plan.documents:
+            intent_sha = hashlib.sha256(document.desired.encode("utf-8")).hexdigest()
+            effect_id = effect_ids[document.step]
+            try:
+                plan.writer.replace(document.observed.key, document.desired,
+                                    expected=document.observed)
+                readback = plan.writer.read(document.observed.key)
+            except Exception:  # noqa: BLE001 -- no blind retry of an uncertain CAS
+                raise DriveError("RETARGET_STATE_WRITE_UNCERTAIN", "State write outcome is uncertain") from None
+            if (readback.snapshot.file_id != document.observed.snapshot.file_id
+                    or readback.snapshot.sha256 != intent_sha
+                    or readback.snapshot.text != document.desired):
+                raise DriveError("RETARGET_STATE_WRITE_UNCERTAIN", "State write outcome is uncertain")
+            self.ledger.confirm_effect(effect_id, readback.snapshot.file_id)
+            result["project_state_sha256" if document.step.endswith("project-state")
+                   else "context_sha256"] = intent_sha
+        return result
+
+    def verify_desired(self, plan: RetargetStatePlan) -> dict[str, str]:
+        """Fresh exact-ID content readback before a retained lock may be released."""
+        result: dict[str, str] = {}
+        for document in plan.documents:
+            observed = plan.writer.read(document.observed.key)
+            expected_sha = hashlib.sha256(document.desired.encode("utf-8")).hexdigest()
+            if (observed.snapshot.file_id != document.observed.snapshot.file_id
+                    or observed.snapshot.sha256 != expected_sha
+                    or observed.snapshot.text != document.desired):
+                raise DriveError("RETARGET_STATE_READBACK_CHANGED", "Drive association changed")
+            result["project_state_sha256" if document.step.endswith("project-state")
+                   else "context_sha256"] = expected_sha
+        return result
+
     def publish(self, request_id: str, plan: RetargetStatePlan) -> dict[str, str]:
         operation = self.ledger.get(request_id)
         if (operation is None or operation["status"] != "RUNNING"
@@ -118,33 +167,17 @@ class RetargetDriveState:
                 or operation["digest"] != plan.request_digest
                 or operation["action"] != "RETARGET_WORKSPACE"):
             raise DriveError("RETARGET_STATE_ADMISSION_MISMATCH", "Retarget state command differs")
-        intents: list[tuple[_DocumentPlan, str, str]] = []
-        for document in plan.documents:
-            desired_sha = hashlib.sha256(document.desired.encode("utf-8")).hexdigest()
-            observed = document.observed
-            intent = {
-                "file_id": observed.snapshot.file_id, "key": observed.key,
-                "project_id": plan.project_id, "workspace_id": plan.workspace_id,
-                "request_digest": plan.request_digest,
-                "base_revision": observed.snapshot.revision_id,
-                "base_sha256": observed.snapshot.sha256,
-                "desired_sha256": desired_sha,
-            }
-            effect_id = self.ledger.begin_effect(request_id, document.step, "drive_file", intent)
-            intents.append((document, desired_sha, effect_id))
-        result: dict[str, str] = {}
-        for document, desired_sha, effect_id in intents:
-            try:
-                plan.writer.replace(document.observed.key, document.desired,
-                                    expected=document.observed)
-                readback = plan.writer.read(document.observed.key)
-            except Exception:  # noqa: BLE001 -- retain both intents for exact reconciliation
-                raise DriveError("RETARGET_STATE_WRITE_UNCERTAIN", "State write outcome is uncertain") from None
-            if (readback.snapshot.file_id != document.observed.snapshot.file_id
-                    or readback.snapshot.sha256 != desired_sha
-                    or readback.snapshot.text != document.desired):
-                raise DriveError("RETARGET_STATE_WRITE_UNCERTAIN", "State write outcome is uncertain")
-            self.ledger.confirm_effect(effect_id, readback.snapshot.file_id)
-            result["project_state_sha256" if document.step.endswith("project-state")
-                   else "context_sha256"] = desired_sha
-        return result
+        intents = self._intents(plan)
+        effect_ids = {
+            step: self.ledger.begin_effect(request_id, step, "drive_file", intent)
+            for step, intent in intents.items()
+        }
+        return self._write(plan, effect_ids)
+
+    def publish_recovery(self, target_id: str, actor_id: str,
+                         plan: RetargetStatePlan) -> dict[str, str]:
+        """One explicit owner attempt; both intents are atomic before any CAS."""
+        effect_ids = self.ledger.begin_terminal_retarget_state(
+            target_id, actor_id=actor_id, intents=self._intents(plan),
+        )
+        return self._write(plan, effect_ids)

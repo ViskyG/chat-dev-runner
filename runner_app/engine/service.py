@@ -285,6 +285,21 @@ class Engine:
                 except (KeyError, TypeError, ValueError):
                     raise DomainError("RESUME_TARGET_INVALID",
                                       "Исходная команда не подтверждена.") from None
+            if command["action"] == "RESUME_RETARGET":
+                target_id = command["params"]["target_request_id"]
+                target = self.ledger.get(target_id)
+                if target is None:
+                    raise DomainError("RETARGET_RESUME_TARGET_MISSING", "Исходная операция не найдена.")
+                if (target_id == request_id or target["project_id"] != command["project_id"]
+                        or target["workspace_id"] != command["workspace_id"]
+                        or target["action"] != "RETARGET_WORKSPACE"):
+                    raise DomainError("RETARGET_RESUME_SCOPE_MISMATCH",
+                                      "Исходная операция относится к другой рабочей области.")
+                if (target["status"] not in {"BLOCKED", "FAULT", "INTERRUPTED", "CANCELLED"}
+                        or not target["reconcile_required"]
+                        or not self.ledger.holds_lock(target_id, f"repo:{command['project_id']}")):
+                    raise DomainError("RETARGET_RESUME_NOT_PARTIAL",
+                                      "Продолжение доступно только для заблокированной операции.")
             if command["action"] != "CANCEL_OPERATION" and command["action"] not in self.handlers:
                 raise DomainError("ACTION_UNAVAILABLE", "Действие пока не настроено.")
         except DomainError as error:
@@ -294,8 +309,9 @@ class Engine:
         action = command.get("action")
         cancel = action == "CANCEL_OPERATION"
         reconcile = action == "RECONCILE"
+        resume_retarget = action == "RESUME_RETARGET"
         scopes: tuple[str, ...] = ()
-        if rejection is None and not cancel and not reconcile:
+        if rejection is None and not cancel and not reconcile and not resume_retarget:
             if action in _REPOSITORY_ACTIONS:
                 scopes = (f"repo:{project}",)
                 if action == "CREATE_WORKSPACE":
@@ -324,7 +340,7 @@ class Engine:
                     rejection = "TARGET_NOT_RUNNING"
             admitted = self.ledger.admit(command, frozen.digest, provenance.source_id, scopes,
                                          rejection_code=rejection,
-                                         exempt_capacity=cancel or reconcile)
+                                         exempt_capacity=cancel or reconcile or resume_retarget)
             if not admitted.execute:
                 return admitted
             if cancel:

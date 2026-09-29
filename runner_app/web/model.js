@@ -6,6 +6,7 @@ const ACTIONS = {
   EXPORT_CONTEXT: 'Собрать локальный контекст', ARCHIVE_WORKSPACE: 'Архивировать область',
   PUBLISH_REPORT: 'Повторно доставить отчёт', CANCEL_OPERATION: 'Остановить операцию',
   RECONCILE: 'Сверить побочные эффекты', RESUME_PROVISION: 'Завершить создание проекта',
+  RESUME_RETARGET: 'Завершить смену ветки',
 };
 const STATUS = {
   LOCAL_READY: ['Локально готов', 'ok'], READY: ['Готов', 'ok'], ACTIVE: ['Действует', 'ok'],

@@ -214,6 +214,22 @@ class ReconcileWorkflow:
             return OperationResult("BLOCKED", "RECONCILE_TARGET_SCOPE_MISMATCH")
         if target["status"] not in TERMINAL or not target["reconcile_required"]:
             return OperationResult("BLOCKED", "RECONCILIATION_NOT_REQUIRED")
+        if target["action"] == "RESUME_RETARGET" and not target["effects"]:
+            # Continuation writes are journaled on the original retarget. A
+            # crash after its release but before this actor's terminal finish
+            # leaves only an empty actor reservation to clear.
+            try:
+                self.ledger.confirm_stopped(target_id)
+            except LedgerError as error:
+                return OperationResult("BLOCKED", error.code)
+            return OperationResult("COMPLETED", result={
+                "target_request_id": target_id,
+                "target_status": target["status"],
+                "confirmed_effect_ids": [],
+                "unresolved_effects": [],
+                "remaining_effect_ids": [],
+                "target_lock_retained": False,
+            })
         if (target["action"] != "RETARGET_WORKSPACE"
                 and not any(item["state"] in {"INTENDED", "UNKNOWN"}
                             for item in target["effects"])):

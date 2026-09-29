@@ -45,6 +45,7 @@
         "PUBLISH_REPORT",
         "RECONCILE",
         "RESUME_PROVISION",
+        "RESUME_RETARGET",
         "CANCEL_OPERATION"
       ]
     },
@@ -558,6 +559,43 @@
             },
             "required": [
               "reconcile_version",
+              "target_request_id"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "const": "RESUME_RETARGET"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "workspace_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+          },
+          "expected_head": {
+            "type": "null"
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "resume_version": {
+                "const": "1.0"
+              },
+              "target_request_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "resume_version",
               "target_request_id"
             ],
             "additionalProperties": false

@@ -84,6 +84,46 @@ current READY command still match. That terminal marker is never adopted as a
 project resource. An interrupted RESUME request is not automatically retried.
 Neither action reruns a test or an ambiguous side effect.
 
+A separate owner-local `RESUME_RETARGET` action covers only the crash cut after a
+clean retarget's Git/workspace-registry transition and before the original
+operation declared any Drive association intent. First submit `RECONCILE` for
+the original `RETARGET_WORKSPACE` request. It must confirm the exact managed
+Git branch/head/generation and report `RETARGET_STATE_INCOMPLETE` while
+retaining the original `repo:<project>` lock. The owner may then submit one
+new authenticated local `RESUME_RETARGET` request with the same project and
+workspace, `expected_head: null`, and
+`params: {"resume_version":"1.0","target_request_id":"<original UUID>"}`.
+It is available during an unarmed recovery state. It never comes from a
+Drive mailbox and never changes the Git checkout again. Competing attempts
+get immediate terminal `BUSY`; there is no waiting list.
+
+The continuation accepts only the exact frozen original command/digest, a
+confirmed source effect, clean registered Git at the target branch/head and
+generation, both registered Drive Docs still at the old association, and zero
+original Drive state intents. It journals a one-shot claim and both new Doc
+intents *on the original operation* in one SQLite transaction before the first
+Docs CAS. Each write uses the exact registered ID and observed revision, then
+receives exact content-hash readback. A fresh Git and two-Doc readback precedes
+release of the original repository lock. The original terminal receipt stays
+immutable; the new local request records the recovery result. No provider
+write is retried automatically. A process loss after the one-shot claim leaves
+the original lock and intents for read-only reconciliation.
+
+An original `INTENDED`/`UNKNOWN` Drive state effect is **not** eligible for
+`RESUME_RETARGET`, even when the Doc currently looks old: the previous write's
+outcome is not inferred from a negative read. If each registered Doc already
+has the exact desired SHA-256 in its original effect intent, owner-local
+`RECONCILE` can read both, confirm them and release the lock. If one Doc is
+still at its old association, an owner must first make an explicit,
+revision-guarded repair of that exact registered Doc to the originally
+intended bytes, preserving other project entries and later context content,
+then run `RECONCILE`; the effect's `desired_sha256` must match. When those
+bytes or the Git/registry transition cannot be proven, no automatic or
+force-unlock route exists: keep the runner disarmed and resolve the exact
+state with an owner-reviewed repair. Google Docs has no cross-document
+transaction, so external writers must coordinate while the two association
+Docs are repaired and verified.
+
 `PUBLISH_REPORT` already appears in schema v1. It addresses immutable run evidence; it may retry
 transport only. Durable delivery state is not a development-task queue and does not cause
 execution. A retry is a new explicit PUBLISH_REPORT request after uncertain effects are

@@ -57,6 +57,7 @@ from runner_app.workflows.reconcile_drive import DriveEffectReader
 from runner_app.workflows.reconcile_github import GitHubEffectReader
 from runner_app.workflows.reconcile_local import ManagedGitEffectReader
 from runner_app.workflows.retarget_drive_state import RetargetDriveState
+from runner_app.workflows.retarget_resume import ResumeRetargetWorkflow
 from runner_app.workflows.retarget_workspace import RetargetWorkspaceWorkflow
 
 CONFIG_FILENAME = "owner-runtime.json"
@@ -310,11 +311,11 @@ def build_runtime_integrations(
         config.github_imports,
     )
     fetch = FetchWorkflow(ledger, registry, connections.github, connections.token_provider)
-    retarget = RetargetWorkspaceWorkflow(
-        ledger, source, RetargetDriveState(
-            ledger, attached, connections.reader, drive_registry,
-        ),
+    retarget_state = RetargetDriveState(
+        ledger, attached, connections.reader, drive_registry,
     )
+    retarget = RetargetWorkspaceWorkflow(ledger, source, retarget_state)
+    resume_retarget = ResumeRetargetWorkflow(ledger, registry, retarget_state)
     create_workspace = CreateWorkspaceWorkflow(
         ledger, source, connections.github, provisioner, populate_workspace,
         template_profiles=config.template_profiles,
@@ -380,6 +381,6 @@ def build_runtime_integrations(
         drive_registry, source, policy,
         {"CREATE_PROJECT": create, "CREATE_WORKSPACE": create_workspace,
          "RECONCILE": reconcile, "RESUME_PROVISION": resume, "FETCH": fetch,
-         "RETARGET_WORKSPACE": retarget,
+         "RETARGET_WORKSPACE": retarget, "RESUME_RETARGET": resume_retarget,
          "EXPORT_CONTEXT": ExportContextRoute(ledger, registry)},
     )

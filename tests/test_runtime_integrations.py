@@ -121,7 +121,7 @@ def test_configured_runtime_attaches_existing_without_provider_writes(
         assert runtime.integrations.root_receipt.command_id == records["command"]["id"]
         assert set(runtime.engine.capabilities()) == {
             "CREATE_PROJECT", "CREATE_WORKSPACE", "FETCH", "PUBLISH_REPORT",
-            "RECONCILE", "RESUME_PROVISION", "RETARGET_WORKSPACE",
+            "RECONCILE", "RESUME_PROVISION", "RESUME_RETARGET", "RETARGET_WORKSPACE",
             "EXPORT_CONTEXT",
         }
         assert records["command"]["id"] in runtime.engine.policy.mailboxes
