@@ -1,0 +1,95 @@
+{
+  "environment": "owner Linux host; installed 0.2.6 Python; disposable /tmp Git + SQLite",
+  "github_style_import": {
+    "effects": [
+      "CONFIRMED",
+      "CONFIRMED"
+    ],
+    "managed_head": "597007542c637346779e5b1f7ef06fd3169aac6f",
+    "original_git_tree_sha256_before_after_import": "535dcaebe27cf401c95fdaeb22eef785631b83b558667be6f05f9f184b7f68f7",
+    "original_remote_tree_sha256_before_after_import": "b2d64bfb6b82b2228e093449f3b2e835a96dca81f0739997b3889e3afb5a7bf4",
+    "provider_boundary": "fake REST + local bare Git clone; no GitHub network",
+    "raw_index_sha256_before_after_import": "1e8d6631800d4cd5f8df3fef9962ac36ecb544281b1aa082ba0c26a3e9f53bc7",
+    "snapshot_before_after": {
+      "branch": "main",
+      "config_sha256": "6230d0eeba8811aa3678243ed97acff597d8fd946ba419a30c97f0c8287a79c1",
+      "head": "597007542c637346779e5b1f7ef06fd3169aac6f",
+      "refs_sha256": "36b34d641f71230983c38b0612023e8366c07c264e27d1b7bf2ccd0331925037",
+      "remote_config_sha256": "0fa8345882a4a87426d4201af826876b7c0ce1adcc4abeec8e7733ed8756b1f1",
+      "remote_refs_sha256": "36b34d641f71230983c38b0612023e8366c07c264e27d1b7bf2ccd0331925037",
+      "staged_entries_sha256": "08dfbcf43c66321f5b98ed57bba0dd81dfd630abaa11f4432c2441cc31b7241d",
+      "status_sha256": "b523cee7b2500b65f64cc2778b2cc24ec1c5412a9beafa15f0c5b281fffa3681",
+      "tracked_sha256": "6ca5aebcfb44ea85c55cf09cc9effa2a4abe29181bffbb6c798864692ced86fa",
+      "untracked_sha256": "27a8b52988580fc322d18cfeaa3dc743f187c761576cbe2d9e3e088fca476b3e"
+    },
+    "source_head": "597007542c637346779e5b1f7ef06fd3169aac6f",
+    "status": "PASS",
+    "workspace_branch": "work/github-fixture"
+  },
+  "installed_module_sha256": {
+    "engine/integrations.py": "7f3dc4ea7c686b5a330128f92cbe03d1abd5f4784770b11ab14a288341d6762d",
+    "engine/service.py": "9d397556d1b79a36ef50f97716df20eb0914a29c571820e70d9d39d6dcd1a593",
+    "git/github_import.py": "1d1d2bd95203a7d72095f2e1eaac318507027426b03218bf3a1c51f9f7a50045",
+    "git/imports.py": "dc88a448e039dd07544ee6b0ecc324aefd9ef5dc3a448a42a094edf4586dd7c6",
+    "git/registry.py": "99abfae2e2f5b1222f8d03cca48841e0708b7c6ec37382515769f30caf4ee2b0",
+    "git/service.py": "cbd5b7243206392514815c18c06f3b27ebf69b9e19f2e042c641e1b2b3042006",
+    "git/worktrees.py": "2f72ef3f72086e3d4d4ae1b5950d2b1947603aa461e720ba9fe2135ad0769f69",
+    "storage/ledger.py": "b96e25da9ab25548c9e97cbcbdcd24f2934187784753bbceb837eb13758cdc78"
+  },
+  "installed_runtime_handler_keys": [
+    "CREATE_PROJECT",
+    "CREATE_WORKSPACE",
+    "FETCH",
+    "RECONCILE",
+    "RESUME_PROVISION"
+  ],
+  "installed_state_touched": false,
+  "installed_version": "0.2.6",
+  "local_import": {
+    "effects": [
+      "CONFIRMED",
+      "CONFIRMED"
+    ],
+    "managed_head": "4bddf01ef4d7adf89de56075c6f5abdc462d0848",
+    "original_git_tree_sha256_before_after_import": "fb174564b8ed9b0730d08de9f929dea3bf255dd45a9b8434ea46fdbb7585510f",
+    "original_remote_tree_sha256_before_after_import": "b1696af51cb94fad757fe35316925b8c0851585a6b72d91cb77c1ecf44229c8c",
+    "raw_index_sha256_before_after_import": "381a38beabf32ee922a06d8b13c9377eeee60d155bb35168e151d6a5f91270b7",
+    "snapshot_before_after": {
+      "branch": "main",
+      "config_sha256": "6251bb5231efc20515219490f8370e4a64e911bd3c8c8ef973503e2c9bb84c14",
+      "head": "4bddf01ef4d7adf89de56075c6f5abdc462d0848",
+      "refs_sha256": "a75b795fb6752dbec019695e526b7eb14e1ef9b74076e093b9f0172975add3c7",
+      "remote_config_sha256": "30cd485b8c9171bcee9a2fdba7c2356d6ec9387578b757a10b915f16ce99e0ca",
+      "remote_refs_sha256": "a75b795fb6752dbec019695e526b7eb14e1ef9b74076e093b9f0172975add3c7",
+      "staged_entries_sha256": "08dfbcf43c66321f5b98ed57bba0dd81dfd630abaa11f4432c2441cc31b7241d",
+      "status_sha256": "b523cee7b2500b65f64cc2778b2cc24ec1c5412a9beafa15f0c5b281fffa3681",
+      "tracked_sha256": "6ca5aebcfb44ea85c55cf09cc9effa2a4abe29181bffbb6c798864692ced86fa",
+      "untracked_sha256": "27a8b52988580fc322d18cfeaa3dc743f187c761576cbe2d9e3e088fca476b3e"
+    },
+    "source_grant_opaque": true,
+    "source_head": "4bddf01ef4d7adf89de56075c6f5abdc462d0848",
+    "status": "PASS",
+    "workspace_branch": "work/local-fixture"
+  },
+  "network_calls": 0,
+  "observed_at_utc": "2026-09-29T07:49:20.859506+00:00",
+  "packet": "EP-07",
+  "release_limit": "Installed runtime integrations register CREATE_PROJECT, CREATE_WORKSPACE, RECONCILE, RESUME_PROVISION and FETCH, but no RETARGET_WORKSPACE handler. Engine records terminal ACTION_UNAVAILABLE at admission; the UI eligibility guard disables the form because the capability is absent. Low-level and SourceService proof does not close the installed route gate.",
+  "result": "PASS_WITH_ROUTE_GAP",
+  "retarget": {
+    "admission_busy_code": "BUSY",
+    "base_head": "507e57a2be1a04eee9cd41dfe871d4f44c03c580",
+    "effect_state": "CONFIRMED",
+    "low_level_refusal_codes": {
+      "busy": "WORKSPACE_BUSY",
+      "dirty": "DIRTY_WORKSPACE",
+      "duplicate_checkout": "BRANCH_IN_USE"
+    },
+    "other_workspace_branch": "feature/second",
+    "retarget_branch": "feature/free",
+    "source_generation": 1,
+    "status": "PASS_AT_SOURCE_SERVICE_ONLY"
+  },
+  "schema_version": "1.0",
+  "source_commit": "1b47eb5c182ea8c5703f0a0b19b2e7665a018db1"
+}
