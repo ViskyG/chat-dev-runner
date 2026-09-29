@@ -23,9 +23,7 @@ Acceptance: only loopback listeners; secrets absent from Git/Drive; the existing
 editable from chat and readable by the runner's owner-approved full Drive OAuth scope;
 restarting does not duplicate the Drive installation; old READY examples do not execute;
 failed authorization leaves meaningful setup progress. EP-07 has verified
-the durable wheel `0.2.2` service installation and exact existing Drive
-attachment; a fresh separate-chat handoff remains open. See
-[release-upgrade-0.2.2.json](../verification/implementation/EP-07/release-upgrade-0.2.2.json).
+the durable wheel 0.2.6 installation, loopback-only active/armed service and exact existing Drive attachment; a fresh separate-chat handoff remains open; a distinct overnight boot auto-started the service after one transient OAuth-refresh failure and systemd retry. See [release-upgrade-0.2.6.json](../verification/implementation/EP-07/release-upgrade-0.2.6.json).
 
 ## SC-02 · Create a brand-new project from chat
 
@@ -71,9 +69,7 @@ Both workspaces subsequently completed separate passing and failing contained
 verification/publication routes on distinct branches with separate draft PRs
 and Drive reports: [primary](../verification/implementation/EP-07/live-publish-primary-20260928.jsonl),
 [parallel](../verification/implementation/EP-07/live-publish-parallel-20260928.jsonl).
-The full parallel execution/isolation matrix and live project-level Drive
-CREATE_WORKSPACE command remain open; the installed `0.2.2` service advertises
-the action but no such chat-origin roundtrip has passed yet.
+The full parallel execution/isolation matrix remains open. A connected-chat project CREATE_WORKSPACE command on installed 0.2.6 completed with matching project RECEIPT and created a third independent local/Drive workspace from the declared full base commit: [live workspace evidence](../verification/implementation/EP-07/live-project-create-workspace-20260929.json).
 
 ## SC-05 · Deliver, verify and publish once
 
@@ -103,7 +99,7 @@ JUnit missing; PUBLISH never labels failed tests passed; no automatic repair/ret
 The installed `0.2.1` parallel route had execution FAILED (exit 1) while the
 runner operation COMPLETED and published a private `[FAILED]` draft PR with
 Drive report ([evidence](../verification/implementation/EP-07/live-publish-parallel-20260928.jsonl)).
-The complete UI presentation and evidence-format matrix remain to be reviewed.
+The installed 0.2.6 UI review confirmed separate operation/execution/publication/delivery axes and the exact failed JUnit case for this run, across dark/light/reduced-motion screenshots and three target viewports. Optional registered image and structured-log examples were absent, so that evidence-format portion remains open: [installed UI evidence](../verification/implementation/EP-07/ui-evidence-installed-20260928.md).
 
 ## SC-07 · Switch branches without losing work
 

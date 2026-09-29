@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "result": "PASS_WITH_TRANSIENT_FIRST_START_FAILURE",
+  "observed_at": "2026-09-29T08:08:00Z",
+  "scope": "A distinct real host boot after the prior user-service shutdown, with automatically restarted owner-user Runner and new armed epoch",
+  "previous_boot": {
+    "boot_id": "8f2f2c7b4a0643fc9d36d4d634063cfc",
+    "runner_stop_started_local": "2026-09-28T22:16:22+04:00",
+    "runner_stop_completed_local": "2026-09-28T22:16:26+04:00",
+    "shutdown_graceful": true
+  },
+  "current_boot": {
+    "boot_id": "cf384a0489d1493e9b0f843a2e2d381d",
+    "uptime_boot_local": "2026-09-29T11:18:05+04:00",
+    "journald_boot_local": "2026-09-29T11:18:14+04:00",
+    "first_service_start_local": "2026-09-29T11:18:16+04:00",
+    "first_service_exit_local": "2026-09-29T11:18:17+04:00",
+    "first_service_error_code": "INVALID_LOCAL_CONFIGURATION/OAUTH_REFRESH_FAILED",
+    "systemd_restart_local": "2026-09-29T11:18:22+04:00",
+    "application_startup_complete_local": "2026-09-29T11:18:31+04:00",
+    "installed_wheel_version": "0.2.6",
+    "unit_enabled": true,
+    "linger_enabled": true,
+    "restart_policy": "on-failure; RestartSec=5",
+    "service_active_after_restart": true,
+    "listener": "127.0.0.1:8765",
+    "public_listener_observed": false
+  },
+  "runner_state": {
+    "runner_id": "local-runner",
+    "epoch": "c7cc0f48-ca72-487a-9875-371f058e37ad",
+    "armed": true,
+    "started_at": "2026-09-29T07:18:22.763591+00:00",
+    "updated_at": "2026-09-29T07:18:31.078858+00:00",
+    "existing_drive_system_state_epoch_match_readback": true,
+    "same_epoch_used_by_later_completed_create_workspace": "62eb309b-a1d6-4a27-97b4-bc8449b84c8d"
+  },
+  "sources": [
+    "journalctl --list-boots",
+    "journalctl --user -u chat-dev-runner.service -b -1 and -b 0",
+    "uptime -s and /proc/sys/kernel/random/boot_id",
+    "systemctl --user show and systemctl --user cat chat-dev-runner.service",
+    "loginctl show-user visky -p Linger",
+    "ss -ltnp",
+    "read-only installed SQLite runner_state",
+    "connected Google Docs SYSTEM STATE readback and live-project-create-workspace-20260929.json"
+  ],
+  "limits": [
+    "The first service attempt failed while refreshing OAuth before network/credential availability settled; systemd recovered on its configured five-second retry. The first-attempt failure is part of the observed boot behavior.",
+    "This proves a distinct kernel boot and user-service auto-start after the prior shutdown; it does not diagnose an electrical outage or simulate repeated cold starts.",
+    "The later Drive project command is separate acceptance evidence; no test command was placed at boot."
+  ]
+}
