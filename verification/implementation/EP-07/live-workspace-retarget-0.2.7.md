@@ -22,6 +22,8 @@ ledger and Drive all retained the original clean branch/head/generation for
 `primary` and `parallel`. Four effects for the successful operation are
 CONFIRMED, no operation remains RUNNING or requires reconciliation, and no
 execution, push, PR, new project or second Drive root was caused by this route.
+An independent GitHub read still listed only the two existing draft PRs (#1
+and #2) on their original branches.
 
 The route's failure cases and crash recovery are supported by focused source
 and disposable real-Git evidence. This live check proves the positive

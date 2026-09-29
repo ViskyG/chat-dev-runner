@@ -71,6 +71,10 @@
     "drive_source_context_branch_and_snapshot_match": true,
     "primary_original_branch_head_generation_and_cleanliness_preserved": true,
     "parallel_original_branch_head_generation_and_cleanliness_preserved": true,
+    "github_open_draft_prs_after": [
+      {"number": 1, "head": "work/cdr-ep07-ui-20260928"},
+      {"number": 2, "head": "feature/ep07-parallel"}
+    ],
     "ledger_operations_after": 20,
     "ledger_effects_after": 186,
     "running_after": 0,
