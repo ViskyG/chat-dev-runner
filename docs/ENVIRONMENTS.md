@@ -47,11 +47,12 @@ separate hard-quota mounts and required JUnit passed; evidence is under
 fixed root-owned helper and retains uncertain mounts for explicit reconciliation.
 The reviewed root-owned helper and narrow sudo rule were installed on the owner host in
 EP-05; its probe returned `READY` and exact disposable volume allocation/removal passed.
-EP-07 now runs an installed, enabled owner-user service from wheel `0.2.2`,
-currently disarmed. Two contained disposable workspace routes completed through
+EP-07 now runs an installed, enabled owner-user service from wheel `0.2.6`.
+The latest verified clean startup armed intake; check live SYSTEM STATE before submitting.
+Two contained disposable workspace routes completed through
 the earlier installed `0.2.1` wheel: primary tests PASSED and parallel tests
 FAILED while each operation completed with a private draft PR and Drive report.
-See [the current service upgrade](../verification/implementation/EP-07/release-upgrade-0.2.2.json),
+See [the current service upgrade](../verification/implementation/EP-07/release-upgrade-0.2.6.json),
 [passing route](../verification/implementation/EP-07/live-publish-primary-20260928.jsonl) and
 [failing route](../verification/implementation/EP-07/live-publish-parallel-20260928.jsonl).
 Broader EP-07 recovery, isolation and fresh-chat release acceptance remains open.

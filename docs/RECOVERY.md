@@ -17,7 +17,7 @@ status: implemented-core; EP-07-host-recovery-pending
 | Process spawn/runtime missing | input + infrastructure trace | operation FAULT | repair runtime; new request |
 | Preparation or test container creation/removal uncertain | phase run UUID, durable pre-create intent (daemon, image, profile, command hash, exact private source mount, nonce), cleanup code, retained lock | FAULT / reconciliation required | inspect the original rootless daemon; local `reconcile_run_attempt` releases the lock only after exact removal or explicitly requested aged absence proof for every phase |
 | Bad optional JUnit/JSONL | raw output + parsing finding | output unparsed | inspect/project fix |
-| Drive upload failed after tests | local immutable output | delivery FAILED/PARTIAL | PUBLISH_REPORT, no test rerun |
+| Drive upload failed after tests | local immutable output | delivery FAILED/PENDING/PARTIAL | reconcile uncertain writes, then new PUBLISH_REPORT; no test rerun |
 | Git push divergence | local snapshot + remote refs | publication BLOCKED | explicit branch resolution |
 | Timeout after GitHub repo/PR creation | external intent/resource IDs | UNKNOWN / reconciliation needed | read remote state before repeating |
 | FETCH transfer ambiguous after durable intent | exact private repo ID, fetch refspec, tracking-ref digest and repo lock | UNKNOWN / reconciliation needed; no successful fetch timestamp | owner-local read-only tracking-ref reconciliation; never replay the uncertain network fetch |
@@ -86,7 +86,8 @@ Neither action reruns a test or an ambiguous side effect.
 
 `PUBLISH_REPORT` already appears in schema v1. It addresses immutable run evidence; it may retry
 transport only. Durable delivery state is not a development-task queue and does not cause
-execution. Default live policy: manual delivery retry after bounded immediate transport retries.
+execution. A retry is a new explicit PUBLISH_REPORT request after uncertain effects are
+reconciled; provider writes are not automatically replayed.
 
 EP-06's project-scoped `FETCH` journals a fixed no-prune tracking-ref update into the managed
 bare repository. Local reconciliation can prove only the intended tracking-ref state on the
@@ -175,8 +176,8 @@ Do not start a restored service until its SQLite schema, state ownership,
 archived project identities and unresolved external effects have been
 reviewed. A restored database does not prove that an interrupted Docker,
 Drive or GitHub operation completed; use the explicit reconciliation routes
-above. EP-07 still must prove successful restore and interrupted-operation
-recovery on the owner host.
+above. EP-07 proved same-path restore on the owner host; interrupted-operation
+recovery remains open.
 
 ## Shutdown and cancellation
 
@@ -208,6 +209,7 @@ Drive mailbox preflight found no unexpired READY without terminal receipt.
 After startup, local and Drive SYSTEM STATE epochs matched, and the listener
 remained loopback-only. Same-path restore, explicit retention trial/rollback,
 and managed-unit uninstall/reinstall are recorded under
-`verification/implementation/EP-07/`. Interruption/power-loss recovery, real
-boot and fresh-chat end-to-end access remain open. EP-07 is not yet a signed
-daily-use release; see `release-upgrade-0.2.6.json` for current evidence.
+`verification/implementation/EP-07/`. Interruption/power-loss recovery and
+fresh-chat end-to-end access remain open. A distinct real host boot and automatic
+service restart were observed, with one transient OAuth-refresh failure before systemd retry.
+EP-07 is not yet a signed daily-use release; see `release-upgrade-0.2.6.json` for current evidence.

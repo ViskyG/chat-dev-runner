@@ -3,7 +3,8 @@
 The real rootless acceptance matrix in `codex/packets/EP-03-execution-outputs.md` passed
 on this host; see `codex/checkpoints/EP-03.md`. EP-05 then exercised the installed
 per-run hard-quota provider with passing and failing disposable projects. The runner
-remains disarmed pending EP-07 durable service/release acceptance. Never substitute the
+is now installed as an enabled 0.2.6 owner-user service; the latest clean startup
+armed intake. EP-07 release acceptance remains open. Never substitute the
 system/rootful Docker socket or an ordinary directory for the broker's hard-quota volume.
 
 ## Historical host finding (2026-09-27)

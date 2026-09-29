@@ -1,11 +1,13 @@
 # Codex entry point
 
-This repository is an **implementation kit**, not a deployed runner. EP-00 through EP-06
-are verified: transient loopback intake, the existing Drive installation, private GitHub writes,
+This repository is the source for an **installed owner-user runner**; EP-07 release
+acceptance is still in progress. EP-00 through EP-06 are verified: transient loopback
+intake, the existing Drive installation, private GitHub writes,
 rootless contained execution, draft PRs, Drive result delivery, and a packaged authenticated
 local UI with fake-backed browser and real disarmed-process acceptance. The original prototype
-remains a separate simulation. The next packet is EP-07: durable user-service installation,
-backup/recovery and host release acceptance. Read `STATUS.json` first.
+remains a separate simulation. The selected packet is EP-07: the durable user service and
+backup/restore are installed and evidenced, while remaining host routes, recovery and release
+acceptance stay open. Read `STATUS.json` first.
 
 ## Intended outcome
 A local multi-project development bridge. An explicitly authorized one-shot command from an

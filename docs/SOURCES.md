@@ -48,11 +48,11 @@ IDs and content digest are in `verification/implementation/EP-04/live-existing-i
 No pre-existing Drive file was edited or deleted, and no project execution or runner-created
 project repository was performed.
 
-## Unverified until deployment
+## Deployment status after the original source inspection
 
-The cross-app Doc canary is verified for this account and current connector session only.
-Root COMMAND/RECEIPT operational flow, private draft PR entitlement, runner-specific GitHub
-repository permissions, actual rootless runtime and isolation, real project test profiles,
-OS editor-open handler, API quotas and polling performance remain unverified. EP-07 must
-repeat deployment-level checks before release; one successful canary does not prove every
-future document or chat session can be edited.
+The cross-app Doc canary established one account/session boundary, not universal access.
+EP-07 later verified installed root COMMAND/RECEIPT routes, private draft PRs, rootless
+project runs and a fixed-argument VS Code open request; see
+`codex/RELEASE_ACCEPTANCE.md` for their exact evidence and limitations. A visible editor
+window was not asserted. Fresh-chat access, newly created private repository selection in
+the chat GitHub connector, provider quotas and the full release scenario matrix remain open.
