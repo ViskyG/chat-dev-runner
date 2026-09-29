@@ -33,7 +33,9 @@ completed with a matching Drive receipt and selected Git/Drive association;
 a preceding invalid-TTL request was rejected terminally without mutation.
 The [focused installed UI](../verification/implementation/EP-07/installed-ui-0.2.7.json)
 confirmed keyboard inspection controls, disabled GitHub import explanation and
-local-only context dialog without submitting that form. A separate
+local-only context dialog without submitting that form. An additional
+[installed offline UI gate](../verification/implementation/EP-07/installed-ui-0.2.7-offline.json)
+verified partial/global connection failure, retry and recovery without stopping the service. A separate
 [installed owner-local context export](../verification/implementation/EP-07/installed-context-0.2.7.json)
 completed with bounded committed-source evidence and zero Drive effects. A fresh separate-chat
 command, live GitHub provider import, real upload-outage/retry and the
