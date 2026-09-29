@@ -1,0 +1,154 @@
+{
+  "environment": {
+    "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+    "hard_quota_bytes": 67108864,
+    "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "source_commit": "c590fc2410e2b9705a9c798f639a1179656f6222"
+  },
+  "evidence_receipts": {
+    "cleanup.json": {
+      "path": "verification/implementation/EP-07/artifact-boundary/d90c7110-51c7-42c5-b489-b6ece2856c0d/cleanup.json",
+      "sha256": "c79a968c7257e2209b1a68a9dc14a844708afb60b649cbed7604770164b13a78"
+    },
+    "intent.json": {
+      "path": "verification/implementation/EP-07/artifact-boundary/d90c7110-51c7-42c5-b489-b6ece2856c0d/intent.json",
+      "sha256": "ecebd5f8fead273eb0efbfe7a42dba141e5a8bf7c3f6a17fcf4f87a1eef8efef"
+    },
+    "recheck/result.json": {
+      "path": "verification/implementation/EP-07/artifact-boundary/d90c7110-51c7-42c5-b489-b6ece2856c0d/recheck/result.json",
+      "sha256": "7184cae58e2c8f273275a852e4fef4e73f4d2c7300740f4dd8b0b258ca4be850"
+    },
+    "result.json": {
+      "path": "verification/implementation/EP-07/artifact-boundary/d90c7110-51c7-42c5-b489-b6ece2856c0d/result.json",
+      "sha256": "720ae6fb09ad20ec197d73d47dd99e8933b1289207051a56a62c06ef1dccaf8d"
+    },
+    "retirement.json": {
+      "path": "verification/implementation/EP-07/artifact-boundary/d90c7110-51c7-42c5-b489-b6ece2856c0d/retirement.json",
+      "sha256": "1251e9db3e0fc33b3f92916f8800e8aa6ea95b08a45c14885e9693a08cea8894"
+    },
+    "setup.json": {
+      "path": "verification/implementation/EP-07/artifact-boundary/d90c7110-51c7-42c5-b489-b6ece2856c0d/setup.json",
+      "sha256": "cccffdbf9f37e27a2a9662b91b5337a9c59c9de57118f06ba5f08179a9f7cfbe"
+    }
+  },
+  "first_probe_note": "The first result.json records passed container and 11/12 checks, but the probe expected EXPORT_INCOMPLETE for a binary large file. Production correctly refuses binary export earlier with EXPORT_FORMAT_UNSUPPORTED. The corrected harness rechecked the same retained bytes without another container; recheck/result.json passed 12/12 before exact volume retirement.",
+  "focused_validation": {
+    "mypy": "both harness scripts pass",
+    "pytest": "42 passed, 30 deselected; then 4 exact API/preview tests passed",
+    "ruff": "pass"
+  },
+  "kind": "EP-07 real rootless hostile-artifact boundary acceptance",
+  "limits": "Generated toy under a temporary locally approved profile, not a live Drive-origin run. Redaction is best effort; suspicious synthetic secret was quarantined rather than uploaded. Existing API/UI tests cover attachment serving and raster-only previews; no active content was opened in the installed browser in this probe.",
+  "observed": {
+    "all_12_checks_passed": true,
+    "artifact_checks": {
+      "html_export_refused": true,
+      "large_export_refused": true,
+      "large_frozen_truncated": true,
+      "large_source_intact": true,
+      "links_refused": true,
+      "malformed_xml_unparsed": true,
+      "raw_only_local": true,
+      "separate_export_hash": true,
+      "svg_export_refused": true,
+      "svg_preview_refused": true,
+      "synthetic_secret_quarantined": true,
+      "unknown_opaque": true
+    },
+    "container_exit_code": 0,
+    "container_outcome": "PASSED",
+    "durable_cleanup_verified": true,
+    "findings": [
+      "large:TRUNCATED_OR_CHANGED",
+      "junit:XML_DTD_FORBIDDEN",
+      "html:FORMAT_NOT_REGISTERED",
+      "svg:IMAGE_HEADER_INVALID",
+      "report:FORMAT_NOT_REGISTERED",
+      "symlink:UNSAFE_OR_MISSING_OUTPUT",
+      "hardlink:UNSAFE_OR_MISSING_OUTPUT"
+    ],
+    "frozen_output_hashes_independently_verified": true,
+    "frozen_outputs": [
+      {
+        "complete": false,
+        "output_id": "large",
+        "publication": "local_only",
+        "sha256": "100f47ee44d8557c6f48f169639441bcae155792a100622eb37f4a7298a76de1",
+        "size_bytes": 131072,
+        "truncated_reason": "file_limit"
+      },
+      {
+        "complete": true,
+        "output_id": "junit",
+        "publication": "local_only",
+        "sha256": "1767469e72ed5d6fd9f8dbe16c1eda9059c3b6b4eebaafe711ef64e20a6fc5d0",
+        "size_bytes": 92,
+        "truncated_reason": null
+      },
+      {
+        "complete": true,
+        "output_id": "html",
+        "publication": "local_only",
+        "sha256": "7bc4d45dc8594aadc431b98443d246ed77fa6cac4b78cef597481a676311ed98",
+        "size_bytes": 61,
+        "truncated_reason": null
+      },
+      {
+        "complete": true,
+        "output_id": "svg",
+        "publication": "local_only",
+        "sha256": "357fe84c688d828e81fa62f714064534d5961e58ab31e813750695b6abb0a4c9",
+        "size_bytes": 24,
+        "truncated_reason": null
+      },
+      {
+        "complete": true,
+        "output_id": "report",
+        "publication": "local_only",
+        "sha256": "f5e01ee12e8c37f83a071197da1987f816d7d8e414ec7e04ded30aab05c971b6",
+        "size_bytes": 71,
+        "truncated_reason": null
+      },
+      {
+        "complete": true,
+        "output_id": "unknown",
+        "publication": "local_only",
+        "sha256": "e9d8031522cef75babd007ae77d5ad7ca0f5160d69c44a25adb82b1c850b3aef",
+        "size_bytes": 14,
+        "truncated_reason": null
+      }
+    ],
+    "redacted_export": {
+      "export_sha256": "4ed6949e064b2a42926d763a9159c4bccecb1fc3dc480fb44474679a2d0877bd",
+      "output": {
+        "complete": true,
+        "format": "redacted-text/v1",
+        "kind": "report",
+        "media_type": "text/plain; charset=utf-8",
+        "output_id": "report-export",
+        "publication": "local_only",
+        "relative_path": "exports/report-export.txt",
+        "sha256": "4ed6949e064b2a42926d763a9159c4bccecb1fc3dc480fb44474679a2d0877bd",
+        "size_bytes": 91,
+        "truncated_reason": null
+      },
+      "quarantined": true,
+      "raw_sha256": "f5e01ee12e8c37f83a071197da1987f816d7d8e414ec7e04ded30aab05c971b6",
+      "replacements": 1
+    },
+    "rootless_containment_verified": true,
+    "volume_released": true
+  },
+  "recorded_at_utc": "2026-09-29T08:08:21.055909+00:00",
+  "run_id": "d90c7110-51c7-42c5-b489-b6ece2856c0d",
+  "schema_version": "1.0",
+  "scope": {
+    "drive_or_github_calls": false,
+    "production_artifact_modules_changed_since_0_2_6_source_freeze": false,
+    "production_service_mutated": false,
+    "real_credentials_used": false,
+    "second_container_run": false,
+    "synthetic_secret_only": true
+  },
+  "status": "PASS"
+}

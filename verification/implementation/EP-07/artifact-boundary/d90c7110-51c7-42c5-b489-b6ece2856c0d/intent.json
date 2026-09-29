@@ -1,0 +1,11 @@
+{
+  "argv_sha256": "d9365688e586f015da04cc21bb54aa30423661acd38701b01a436fb29bbe9c38",
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "nonce": "292adcb3da994ae8b42718bd2bc24d94",
+  "profile_id": "ep07-artifact-proof",
+  "profile_revision_sha256": "e47d8cb7ea4eeda7ab5143593987f84bbdd188a7ef5193ceab7097586975705d",
+  "run_id": "d90c7110-51c7-42c5-b489-b6ece2856c0d",
+  "source_path": "/tmp/cdr-ep07-artifacts-d90c7110-51c7-42c5-b489-b6ece2856c0d-ruelsdx7/sources/d90c7110-51c7-42c5-b489-b6ece2856c0d"
+}

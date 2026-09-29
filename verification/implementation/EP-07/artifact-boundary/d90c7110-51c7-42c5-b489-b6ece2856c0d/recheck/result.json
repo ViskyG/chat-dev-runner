@@ -1,0 +1,191 @@
+{
+  "checked_at": "2026-09-29T08:06:49.160901+00:00",
+  "corrected_expectation": "binary format refusal precedes incomplete-file refusal",
+  "no_second_container": true,
+  "observed": {
+    "all_passed": true,
+    "checks": {
+      "html_export_refused": true,
+      "large_export_refused": true,
+      "large_frozen_truncated": true,
+      "large_source_intact": true,
+      "links_refused": true,
+      "malformed_xml_unparsed": true,
+      "raw_only_local": true,
+      "separate_export_hash": true,
+      "svg_export_refused": true,
+      "svg_preview_refused": true,
+      "synthetic_secret_quarantined": true,
+      "unknown_opaque": true
+    },
+    "export_refusals": {
+      "html": "EXPORT_FORMAT_UNSUPPORTED",
+      "large": "EXPORT_FORMAT_UNSUPPORTED",
+      "svg": "EXPORT_FORMAT_UNSUPPORTED"
+    },
+    "findings": [
+      "large:TRUNCATED_OR_CHANGED",
+      "junit:XML_DTD_FORBIDDEN",
+      "html:FORMAT_NOT_REGISTERED",
+      "svg:IMAGE_HEADER_INVALID",
+      "report:FORMAT_NOT_REGISTERED",
+      "symlink:UNSAFE_OR_MISSING_OUTPUT",
+      "hardlink:UNSAFE_OR_MISSING_OUTPUT"
+    ],
+    "inspection": {
+      "html": {
+        "findings": [
+          "FORMAT_NOT_REGISTERED"
+        ],
+        "format": "html",
+        "kind": "report",
+        "output_id": "html",
+        "status": "UNSUPPORTED"
+      },
+      "junit": {
+        "findings": [
+          "XML_DTD_FORBIDDEN"
+        ],
+        "format": "junit-xml",
+        "kind": "test_result",
+        "output_id": "junit",
+        "status": "UNPARSED"
+      },
+      "large": {
+        "findings": [
+          "file_limit"
+        ],
+        "format": "binary",
+        "kind": "artifact",
+        "output_id": "large",
+        "status": "INCOMPLETE"
+      },
+      "report": {
+        "findings": [
+          "FORMAT_NOT_REGISTERED"
+        ],
+        "format": "text",
+        "kind": "report",
+        "output_id": "report",
+        "status": "UNSUPPORTED"
+      },
+      "svg": {
+        "findings": [
+          "IMAGE_HEADER_INVALID"
+        ],
+        "format": "svg",
+        "height": null,
+        "kind": "screenshot",
+        "output_id": "svg",
+        "preview_media_type": null,
+        "safe_preview": false,
+        "status": "UNPARSED",
+        "width": null
+      },
+      "unknown": {
+        "findings": [
+          "FORMAT_NOT_REGISTERED"
+        ],
+        "format": "custom-v1",
+        "kind": "artifact",
+        "output_id": "unknown",
+        "status": "UNSUPPORTED"
+      }
+    },
+    "outputs": [
+      {
+        "complete": false,
+        "format": "binary",
+        "kind": "artifact",
+        "media_type": "application/octet-stream",
+        "output_id": "large",
+        "publication": "local_only",
+        "relative_path": "collected/large.bin",
+        "sha256": "100f47ee44d8557c6f48f169639441bcae155792a100622eb37f4a7298a76de1",
+        "size_bytes": 131072,
+        "truncated_reason": "file_limit"
+      },
+      {
+        "complete": true,
+        "format": "junit-xml",
+        "kind": "test_result",
+        "media_type": "application/xml",
+        "output_id": "junit",
+        "publication": "local_only",
+        "relative_path": "collected/junit.xml",
+        "sha256": "1767469e72ed5d6fd9f8dbe16c1eda9059c3b6b4eebaafe711ef64e20a6fc5d0",
+        "size_bytes": 92,
+        "truncated_reason": null
+      },
+      {
+        "complete": true,
+        "format": "html",
+        "kind": "report",
+        "media_type": "text/html",
+        "output_id": "html",
+        "publication": "local_only",
+        "relative_path": "collected/html.html",
+        "sha256": "7bc4d45dc8594aadc431b98443d246ed77fa6cac4b78cef597481a676311ed98",
+        "size_bytes": 61,
+        "truncated_reason": null
+      },
+      {
+        "complete": true,
+        "format": "svg",
+        "kind": "screenshot",
+        "media_type": "image/svg+xml",
+        "output_id": "svg",
+        "publication": "local_only",
+        "relative_path": "collected/svg.svg",
+        "sha256": "357fe84c688d828e81fa62f714064534d5961e58ab31e813750695b6abb0a4c9",
+        "size_bytes": 24,
+        "truncated_reason": null
+      },
+      {
+        "complete": true,
+        "format": "text",
+        "kind": "report",
+        "media_type": "text/plain",
+        "output_id": "report",
+        "publication": "local_only",
+        "relative_path": "collected/report.txt",
+        "sha256": "f5e01ee12e8c37f83a071197da1987f816d7d8e414ec7e04ded30aab05c971b6",
+        "size_bytes": 71,
+        "truncated_reason": null
+      },
+      {
+        "complete": true,
+        "format": "custom-v1",
+        "kind": "artifact",
+        "media_type": "application/octet-stream",
+        "output_id": "unknown",
+        "publication": "local_only",
+        "relative_path": "collected/unknown.custom",
+        "sha256": "e9d8031522cef75babd007ae77d5ad7ca0f5160d69c44a25adb82b1c850b3aef",
+        "size_bytes": 14,
+        "truncated_reason": null
+      }
+    ],
+    "redacted_export": {
+      "export_sha256": "4ed6949e064b2a42926d763a9159c4bccecb1fc3dc480fb44474679a2d0877bd",
+      "output": {
+        "complete": true,
+        "format": "redacted-text/v1",
+        "kind": "report",
+        "media_type": "text/plain; charset=utf-8",
+        "output_id": "report-export",
+        "publication": "local_only",
+        "relative_path": "exports/report-export.txt",
+        "sha256": "4ed6949e064b2a42926d763a9159c4bccecb1fc3dc480fb44474679a2d0877bd",
+        "size_bytes": 91,
+        "truncated_reason": null
+      },
+      "quarantined": true,
+      "raw_sha256": "f5e01ee12e8c37f83a071197da1987f816d7d8e414ec7e04ded30aab05c971b6",
+      "replacements": 1
+    }
+  },
+  "passed": true,
+  "run_id": "d90c7110-51c7-42c5-b489-b6ece2856c0d",
+  "schema_version": "1.0"
+}

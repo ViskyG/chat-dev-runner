@@ -1,0 +1,2 @@
+Synthetic fixture only
+token=SYNTHETIC_EP07_NOT_A_CREDENTIAL_123456789

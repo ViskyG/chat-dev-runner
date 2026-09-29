@@ -1,0 +1,14 @@
+# EP-07 hostile artifact and redaction gate
+
+Result: **PASS**, owner host, 2026-09-29. Evidence: `artifact-boundary-summary-20260929.json`, with exact run receipts under `artifact-boundary/d90c7110-51c7-42c5-b489-b6ece2856c0d/`. The broker, collector, parser, redaction, delivery and UI source paths are unchanged from the installed `0.2.6` source freeze (`a25be07`). No service, Drive or GitHub command was issued, and no real credential was used.
+
+One generated toy ran in the existing rootless Docker broker with pinned Python image, `network=none`, no secrets or extra capabilities, read-only source/root, a fresh hard-quota UUID volume and durable intent/cleanup receipts. The code wrote eight hostile output candidates inside `/out`. The rootless run passed, `containment.verified=true`, and the exact container was removed. The collector and local inspector observed:
+
+- A 3,145,735-byte binary source became a 131,072-byte frozen, explicitly incomplete/local-only output; binary export was refused. The earlier EP-03 real-host log-volume case independently measured stream truncation, so no unchanged log-limit case was rerun.
+- JUnit with an external-entity DTD stayed raw and `UNPARSED` with `XML_DTD_FORBIDDEN`; no test count was invented. Active HTML was refused for text export. SVG was denied image preview and export. Unknown test-result format stayed an opaque artifact.
+- Symlink and hardlink candidates were refused at the no-follow/single-link collector boundary. All accepted raw outputs remained `local_only`.
+- A synthetic, clearly noncredential `token=` fixture produced a separate export hash, had its value replaced, and stayed quarantined/local-only pending review. This is a best-effort sanitizer, not a guarantee that arbitrary unknown secrets can be detected.
+
+The first probe receipt has 11/12 checks because the harness incorrectly expected `EXPORT_INCOMPLETE` for the large **binary** file. The production exporter correctly rejected its media type first with `EXPORT_FORMAT_UNSUPPORTED`. The retained source and frozen bytes were checked again with the corrected expectation without launching a second container. `recheck/result.json` has 12/12 true conditions, all 12 original and rechecked frozen file hashes matched their descriptors, and `retirement.json` records exact quota-volume release; the mount is absent.
+
+Focused validation: 42 artifact/capture/delivery/UI tests passed (30 unrelated cases deselected), then four exact output-download/active-content/preview cases passed. Ruff and mypy passed for the two probe scripts. The API serves registered raw bytes as `application/octet-stream` attachments with `nosniff`; local UI limits previews to bounded registered raster images. This gate does not claim an installed-browser exercise of these particular hostile files, a Drive upload, or complete secret detection. The separate typed-output completeness acceptance line remains open for its own real probe.

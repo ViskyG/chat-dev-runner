@@ -1,0 +1,18 @@
+{
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "harness_sha256": "800b7dbbeadfa63eeda05e69b5b211b6f016bf00de8729f818e815e155fea281",
+  "helper_sha256": "c1e7c8e749dde40f49b644830525dbcf931ed1f3397ce943ed5542e0233f6daa",
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "profile_revision_sha256": "e47d8cb7ea4eeda7ab5143593987f84bbdd188a7ef5193ceab7097586975705d",
+  "quota_bytes": 67108864,
+  "run_id": "d90c7110-51c7-42c5-b489-b6ece2856c0d",
+  "schema_version": "1.0",
+  "server_version": "29.1.5",
+  "snapshot_commit": "93fe550d4413b64a06255df0735f7957e8bf9cc5",
+  "snapshot_id": "6ba85888-c52d-4f48-8b38-84faacba0b3b",
+  "snapshot_tree": "ccefb8abbda2b12804714222dd0f24665f7309c1",
+  "source_commit": "c590fc2410e2b9705a9c798f639a1179656f6222",
+  "started_at": "2026-09-29T08:03:10.081368+00:00",
+  "toy_source_sha256": "161a06193b64a1463bb6e108eeee2a189b669a35a2293a18537f9e3a40bea0c4",
+  "volume": "/var/lib/chat-dev-runner/volumes/d90c7110-51c7-42c5-b489-b6ece2856c0d"
+}
