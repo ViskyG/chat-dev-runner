@@ -117,7 +117,11 @@
     "ep07_host_boot": "verification/implementation/EP-07/host-boot-auto-intake-20260929.json",
     "ep07_hostile_artifacts": "verification/implementation/EP-07/artifact-boundary-summary-20260929.json",
     "ep07_chat_github_selection": "verification/implementation/EP-07/chat-github-selection-20260929.json",
-    "ep07_typed_outputs": "verification/implementation/EP-07/typed-outputs/e9951a29-bcf8-40dc-a2d3-97924650393a/result.json"
+    "ep07_typed_outputs": "verification/implementation/EP-07/typed-outputs/e9951a29-bcf8-40dc-a2d3-97924650393a/result.json",
+    "ep07_retarget_source": "verification/implementation/EP-07/retarget-route-source-20260929.md",
+    "ep07_cancel_full_slots": "verification/implementation/EP-07/cancel-full-slots/b52ad007-0091-4b3b-a393-7ae0008bdf7a/result.json",
+    "ep07_delivery_outage_local": "verification/implementation/EP-07/upload-outage-retry-gate-20260929.md",
+    "ep07_scenario_matrix": "verification/implementation/EP-07/scenario-acceptance-matrix-20260929.md"
   },
   "implementation_source_repository": {
     "local_git": "EP07_IN_PROGRESS_MAIN",
