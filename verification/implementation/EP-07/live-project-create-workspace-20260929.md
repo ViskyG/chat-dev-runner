@@ -1,0 +1,9 @@
+# EP-07 connected-chat project workspace gate — 2026-09-29
+
+The installed `0.2.6` service completed one `CREATE_WORKSPACE` from the exact registered `PROJECT COMMAND` of disposable project `cdr-ep07-ui-20260928`. The command's fresh request `62eb309b-a1d6-4a27-97b4-bc8449b84c8d` used the local/Drive-matching current epoch, a full existing base commit, and a 14-minute expiry. The command and receipt Docs were empty at preflight; the project was READY, and the new branch did not exist locally.
+
+The connected Google Docs tool wrote a revision-guarded DRAFT to the existing command Doc. A full native-body read matched the generated, locally schema-validated JSON exactly. One revision-guarded replacement changed only `dispatch` to READY; a second full native-body read matched the intended READY JSON exactly. The installed runner admitted and completed that request without reconciliation. The connected tool independently read the registered project RECEIPT with the same request ID and ledger digest, `COMPLETED` and no error code.
+
+The existing PROJECT STATE now lists `chat-route-20260929`, its separate branch and exact new Drive document IDs. Connected Docs read the new SOURCE CONTEXT with matching project, workspace, base SHA, branch, profile and repository identity. Local registration is ACTIVE; real Git sees the requested branch at the base SHA with a clean worktree. Existing `primary` and `parallel` areas remain on their original branches and SHA, both clean. The root folder and Installation Index were reused. This is a provisioning route only: it did not execute code, push a GitHub branch, or create a PR.
+
+Machine facts and IDs: `live-project-create-workspace-20260929.json`. The initial file-backed control-aware Docs read is in `trusted-project-create-20260929-r2/`; it found no protected controls. No broad source tests were rerun because installed source did not change.

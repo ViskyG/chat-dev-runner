@@ -1,0 +1,57 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read",
+  "status": "complete",
+  "outputDir": "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-07/trusted-project-create-20260929-r2",
+  "target": {
+    "documentId": "1DmncoOobr67INBYU598ho3fzL5T1_hoY82huB-FwMsE",
+    "title": "PROJECT COMMAND",
+    "revisionId": "ANLCKQlwtvF6VnGGQOxwsQUJUuOTXh2S4o1lCJQnWDjBnVzwGqu_SKk1qfWD2WWOjdYNVcpNC14EPoXY7ur_dJ0EXVLk1TPsIAHutQApo88",
+    "documentUrl": "https://docs.google.com/document/d/1DmncoOobr67INBYU598ho3fzL5T1_hoY82huB-FwMsE",
+    "selectedTabId": null
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {},
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "files": {
+    "document_result": {
+      "path": "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-07/trusted-project-create-20260929-r2/document-result.json",
+      "bytes": 13867,
+      "sha256": "3c0eebd5232a99ead1e4c2975121fabf5b1515ae2d2caefdd93d3e27811db1cb"
+    },
+    "control_inventory": {
+      "path": "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-07/trusted-project-create-20260929-r2/control-inventory.json",
+      "bytes": 1020,
+      "sha256": "2cd9a64562b74cb1462b8988b3b4170c4aa351d39ff30026ce86e5a1da29fe83"
+    },
+    "document_outline": {
+      "path": "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-07/trusted-project-create-20260929-r2/document-outline.json",
+      "bytes": 966,
+      "sha256": "f622a547a3c3d9f82d9001d9d56097b2f910f2ef9d92841bab5bd6b02720f0bb"
+    },
+    "document_text": {
+      "path": "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-07/trusted-project-create-20260929-r2/document-text.md",
+      "bytes": 504,
+      "sha256": "43297622951688fcecd77a2a77dc27e798c80fb816a4c9dae4131c6ce1e318ec"
+    },
+    "receipt": {
+      "path": "/home/visky/Work/GPTRunner/chat-dev-runner/verification/implementation/EP-07/trusted-project-create-20260929-r2/receipt.json",
+      "bytes": 951,
+      "sha256": "6ec7cc018df7ebf7763d086733325fa079dc4d99bd346d3c792f8f392debf86a"
+    }
+  },
+  "error": null
+}

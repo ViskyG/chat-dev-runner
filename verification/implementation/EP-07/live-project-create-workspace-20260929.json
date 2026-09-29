@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "mode": "CONNECTED_CHAT_PROJECT_CREATE_WORKSPACE",
+  "result": "PASS",
+  "checked_at": "2026-09-29T07:55:11Z",
+  "installed_version": "0.2.6",
+  "installation": {
+    "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+    "index_document_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+    "installation_id": "e20c0491-eed2-5596-8534-f4850af9eb46",
+    "system_state_document_id": "1UXNE8Vt-73inAKm4i949TpyGT5rb3ve9bv_521QwXS0",
+    "runner_id": "local-runner",
+    "current_local_and_drive_epoch": "c7cc0f48-ca72-487a-9875-371f058e37ad",
+    "armed_before": true
+  },
+  "preflight": {
+    "project_id": "cdr-ep07-ui-20260928",
+    "local_project_state": "READY",
+    "project_state_document_id": "16oJhQvrSStLemZBIcXIRVte4XGj-TykBJEDjIgw8TJo",
+    "project_command_document_id": "1DmncoOobr67INBYU598ho3fzL5T1_hoY82huB-FwMsE",
+    "project_receipt_document_id": "1DOHZ_HBW60M4trYH8jGv6vqc-Hrmix6Mqid_e0wDJXg",
+    "command_and_receipt_native_bodies": "EMPTY",
+    "command_revision_before": "ANLCKQlwtvF6VnGGQOxwsQUJUuOTXh2S4o1lCJQnWDjBnVzwGqu_SKk1qfWD2WWOjdYNVcpNC14EPoXY7ur_dJ0EXVLk1TPsIAHutQApo88",
+    "receipt_revision_before": "ANLCKQluBPhFVzbpU9poFPIe_qeN5deFLA9uU7h5fu-f27HRmjqmrw1I8_n1_PNkUHkX1cn0rXe_e-GtJBDVKm4LJRU4vjqdLaMISXbxa7k",
+    "trusted_read_manifest": "verification/implementation/EP-07/trusted-project-create-20260929-r2/manifest.json",
+    "existing_workspaces": ["primary", "parallel"],
+    "base_commit": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+    "new_branch_ref_absent_locally": true
+  },
+  "command": {
+    "request_id": "62eb309b-a1d6-4a27-97b4-bc8449b84c8d",
+    "action": "CREATE_WORKSPACE",
+    "project_id": "cdr-ep07-ui-20260928",
+    "workspace_id": "chat-route-20260929",
+    "branch": "feature/ep07-chat-route-20260929",
+    "expected_head_and_base_commit": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+    "profile_id": "python-quick",
+    "issued_at": "2026-09-29T07:51:19.716825Z",
+    "expires_at": "2026-09-29T08:05:19.716825Z",
+    "draft_revision": "ANLCKQlQu1oI0mfGAnzDkmQ5o1GGkygwfsN8ZVP0Pj9ee_BLOmJfEVDnLz_fcvRp-ZkM0IvmzG65_Bwrumr0IwclpC4icz3YWkm4P3hXcPU",
+    "ready_revision": "ANLCKQnp8sx1c0yqJYE6teFLrYS9MfmqnO_DtrbF4ki1M8jabNL-eWCcu2PSukdcxjwi5BufUlJo5aziUqiA3St0yrlyiDwfLrehq8BF00w",
+    "full_draft_native_body_exactly_matched_generated_json": true,
+    "ready_replace_occurrences": 1,
+    "full_ready_native_body_exactly_matched_generated_json": true
+  },
+  "operation": {
+    "status": "COMPLETED",
+    "code": null,
+    "reconcile_required": false,
+    "request_digest": "cbf074a62020e8802e075ccb2763ff7b2479842232aab95bc071c3a5317e3926",
+    "received_at": "2026-09-29T07:52:23.993112+00:00",
+    "updated_at": "2026-09-29T07:53:04.379845+00:00",
+    "ledger_operations_after": 18,
+    "ledger_effects_after": 177
+  },
+  "project_receipt": {
+    "document_id": "1DOHZ_HBW60M4trYH8jGv6vqc-Hrmix6Mqid_e0wDJXg",
+    "revision_after": "ANLCKQlSW5FxPKWsvnja4YPx8xofhSuTP03-UlhCjhMWwLNkeSwWdVXUmcHUXn2eR8FHiMETTicJsn8ajpFBm5dZNtLaJRKA6yBZLZQqIRQ",
+    "connector_readback": true,
+    "matching_request_and_digest": true,
+    "status": "COMPLETED",
+    "code": null
+  },
+  "workspace": {
+    "local_state": "ACTIVE",
+    "local_git_head": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+    "local_git_branch": "feature/ep07-chat-route-20260929",
+    "local_git_clean": true,
+    "workspace_folder_id": "19_cegD-mEhau9CVyUWuqTRuLg1sVQDUm",
+    "command_doc_id": "1l5ux3kvSvelF_urKfcXImYPYmtTVoMAr8d7u-6XnVHc",
+    "changeset_doc_id": "1ce6lebUxRBfCI5DyVSklFfUiIWxj2h6WVXUWy693xl4",
+    "receipt_doc_id": "116U9x8BZITzsaIFZMQ0jG5gjHeCGaobn2XFkoqCqZqQ",
+    "latest_result_doc_id": "1WOvM7vzM2mu2Iq6wOVH16EoJGIJlizuCetEEQbuhs0Y",
+    "context_doc_id": "1oXJ7BF5-rEGjB2cAdfBv2y89raMseO9_tDt8g16jXsc",
+    "context_connector_readback": true,
+    "project_state_enumerates_matching_workspace_and_document_ids": true,
+    "primary_and_parallel_git_heads_and_branches_unchanged_and_clean": true
+  },
+  "effects": [
+    "Existing project COMMAND updated DRAFT then READY with revision guards",
+    "Installed runner created one independent local workspace and its registered Drive descendants",
+    "Installed runner updated existing PROJECT STATE and matching project RECEIPT"
+  ],
+  "limits": [
+    "This command created a local branch/worktree and Drive workspace; it did not run tests or publish a GitHub branch or PR.",
+    "The selected project is an existing disposable EP-07 project. No second root or project repository was created.",
+    "This proves the connector-origin project command and terminal receipt at the installed boundary, not every other EP-07 release criterion."
+  ]
+}
