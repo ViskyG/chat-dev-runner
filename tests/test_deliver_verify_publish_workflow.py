@@ -488,3 +488,48 @@ def test_drive_provider_uncertainty_preserves_confirmed_git_and_one_run(
     assert len(source_fixture.broker.calls) == 1
     durable = source_fixture.ledger.get(case.request_id)
     assert durable is not None and durable["delivery_status"] == "PENDING"
+
+    # The completed source run and its private local bundle survive the outage.
+    source_bundle = tmp_path / "state" / "delivery-bundles" / case.request_id
+    source_run = source_fixture.ledger.get_run(case.request_id)
+    assert source_run is not None
+    assert (source_bundle / "run-manifest.json").is_file()
+    assert (source_bundle / "bundle-index.json").is_file()
+    assert json.loads((source_bundle / "run-manifest.json").read_text()) == source_run
+    source_fixture.ledger.finish(
+        case.request_id, result.status, code=result.code, result=result.result,
+    )
+
+    # Recovery is a new, explicitly admitted delivery operation for that exact
+    # saved run. It cannot execute the project or create another GitHub draft.
+    retry = report_command(source_fixture.ledger, source_fixture.head, case.request_id)
+    publisher = FakePublisher(source_fixture.ledger)
+    report = PublishReportWorkflow(
+        source_fixture.ledger, source_fixture.store, publisher,
+        bundle_parent=tmp_path / "state" / "retry-bundles",
+        receipt_key="receipt", latest_result_key="latest-result",
+    )
+    retried = report(freeze(retry), Context(Event(), source_fixture.ledger))
+    assert retried.status == "COMPLETED" and retried.code is None
+    assert retried.result["delivery"]["status"] == "DELIVERED"
+    assert retried.result["run_id"] == case.request_id
+    assert retried.result["source_request_id"] == case.request_id
+    assert retried.result["execution"] == result.result["execution"]
+    assert retried.result["publication"] == result.result["operation_manifest"]["publication"]
+    assert len(publisher.calls) == 1
+    retry_bundle = publisher.calls[0].root
+    assert retry_bundle.name == retry["request_id"] != case.request_id
+    assert (retry_bundle / "run-manifest.json").read_bytes() == (
+        source_bundle / "run-manifest.json"
+    ).read_bytes()
+    assert json.loads((retry_bundle / "operation-manifest.json").read_text()) == (
+        result.result["operation_manifest"]
+    )
+    assert source_fixture.ledger.get_run(case.request_id) == source_run
+    assert len(source_fixture.broker.calls) == case.github.pr_post_count == 1
+    assert case.github.pr_patch_count == 0
+    assert _remote_head(case.remote) == result.result["tested_commit"]
+    assert case.github.prs[0]["html_url"] == retried.result["publication"]["pull_request_url"]
+    source_fixture.ledger.finish(retry["request_id"], retried.status, result=retried.result)
+    delivered = source_fixture.ledger.get(retry["request_id"])
+    assert delivered is not None and delivered["delivery_status"] == "DELIVERED"
