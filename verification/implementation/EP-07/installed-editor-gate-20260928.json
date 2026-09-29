@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "mode": "INSTALLED_OWNER_UI_EXACT_EDITOR_GATE",
+  "checked_at": "2026-09-28T18:15:56.076783+00:00",
+  "project_id": "cdr-ep07-ui-20260928",
+  "result": "PASS",
+  "installed_version": "0.2.6",
+  "installed_source": {
+    "api/editor.py": {
+      "sha256": "60c3f8ac6de21852ef268bef39f5332e202b1703d229768f9633b3ef96509d5d",
+      "installed_matches_source": true
+    },
+    "api/runtime.py": {
+      "sha256": "153f99a31edcca342c39a7d33fd8012262878a916be6c772a21231ec7a5b83bb",
+      "installed_matches_source": true
+    },
+    "web/app.js": {
+      "sha256": "7dabb975319b83d818d9869e72c825d92453f3e604f917456f35a36aca8eac69",
+      "installed_matches_source": true
+    },
+    "web/render.js": {
+      "sha256": "42258336d92d3f42153e853234a703427d4923874d0e57a46b16069e9d4eaee5",
+      "installed_matches_source": true
+    },
+    "web/api.js": {
+      "sha256": "8ffea1ed7e8f0c28a515d6e6991039ec0e4ba3fdcb370a412a9f7a32f0541a38",
+      "installed_matches_source": true
+    }
+  },
+  "workspace_registration": {
+    "parallel": {
+      "registered_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/managed/cdr-ep07-ui-20260928/workspaces/parallel",
+      "registered_head": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+      "registered_branch": "feature/ep07-parallel",
+      "before": {
+        "head": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+        "tree": "bdde07456c87a93a047267be35a5aaa3ed4e15af",
+        "branch": "feature/ep07-parallel",
+        "visible_status": "",
+        "source_fingerprint": "92eff540c8fbb42ac80e52159980de528039ae43a16e5ec4deb569276a588a83"
+      },
+      "after": {
+        "head": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+        "tree": "bdde07456c87a93a047267be35a5aaa3ed4e15af",
+        "branch": "feature/ep07-parallel",
+        "visible_status": "",
+        "source_fingerprint": "92eff540c8fbb42ac80e52159980de528039ae43a16e5ec4deb569276a588a83"
+      }
+    },
+    "primary": {
+      "registered_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/managed/cdr-ep07-ui-20260928/workspaces/primary",
+      "registered_head": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+      "registered_branch": "work/cdr-ep07-ui-20260928",
+      "before": {
+        "head": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+        "tree": "bdde07456c87a93a047267be35a5aaa3ed4e15af",
+        "branch": "work/cdr-ep07-ui-20260928",
+        "visible_status": "",
+        "source_fingerprint": "92eff540c8fbb42ac80e52159980de528039ae43a16e5ec4deb569276a588a83"
+      },
+      "after": {
+        "head": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+        "tree": "bdde07456c87a93a047267be35a5aaa3ed4e15af",
+        "branch": "work/cdr-ep07-ui-20260928",
+        "visible_status": "",
+        "source_fingerprint": "92eff540c8fbb42ac80e52159980de528039ae43a16e5ec4deb569276a588a83"
+      }
+    },
+    "_ledger": {
+      "operation_count_before": 17,
+      "operation_count_after": 17
+    }
+  },
+  "launcher_contract": {
+    "argv_shape": [
+      "<shutil.which(code)>",
+      "--reuse-window",
+      "<registered_worktree_path>"
+    ],
+    "claim": "Installed editor.py is byte-identical to reviewed source; route accepts only two slug IDs and resolves its registered path locally.",
+    "owner_shell_resolved_executable": "/usr/bin/code"
+  },
+  "browser": {
+    "menu_workspace_ids": [
+      "parallel",
+      "primary"
+    ],
+    "selected_workspace_id": "primary",
+    "editor_http_status": 202,
+    "editor_response": {
+      "status": "OPEN_REQUESTED",
+      "project_id": "cdr-ep07-ui-20260928",
+      "workspace_id": "primary"
+    },
+    "requests": {
+      "session_post_count": 1,
+      "editor_post_count": 1,
+      "blocked_mutations": [],
+      "off_origin_requests": []
+    },
+    "page_error_count": 0
+  },
+  "limits": [
+    "OPEN_REQUESTED confirms that the installed route accepted the fixed local VS Code launch; it does not prove a GUI window was displayed on a particular monitor.",
+    "Pre/post source fingerprints cover HEAD, index, tracked files and visible untracked names; ignored files and transient edits between observations are outside this check.",
+    "No project command, Drive write, GitHub write, service restart or arm/disarm action was issued by this probe."
+  ]
+}
