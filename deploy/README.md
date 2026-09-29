@@ -33,9 +33,11 @@ completed with a matching Drive receipt and selected Git/Drive association;
 a preceding invalid-TTL request was rejected terminally without mutation.
 The [focused installed UI](../verification/implementation/EP-07/installed-ui-0.2.7.json)
 confirmed keyboard inspection controls, disabled GitHub import explanation and
-local-only context dialog without submitting that form. A fresh separate-chat
-command, live GitHub provider import, real upload-outage/retry, live context
-submission and the broader release matrix remain open, so EP-07 is not yet a
+local-only context dialog without submitting that form. A separate
+[installed owner-local context export](../verification/implementation/EP-07/installed-context-0.2.7.json)
+completed with bounded committed-source evidence and zero Drive effects. A fresh separate-chat
+command, live GitHub provider import, real upload-outage/retry and the
+broader release matrix remain open, so EP-07 is not yet a
 signed daily-use release. The `0.2.5` update overlaps independent
 Drive provisioning and validation requests; its new live CREATE_PROJECT duration
 will be measured on the next real project request.
