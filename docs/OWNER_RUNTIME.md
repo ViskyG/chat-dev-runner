@@ -92,9 +92,10 @@ Later, read its matching project `RECEIPT`. FETCH updates managed bare-repo
 tracking refs without modifying an occupied worktree. The installed `0.2.2`
 service completed this path for `cdr-ep07-drive-20260928` in the current chat
 connector session: [project FETCH evidence](../verification/implementation/EP-07/live-project-fetch-20260928.json).
-`CREATE_WORKSPACE` is configured and advertised on the project mailbox, but a
-live Drive-origin command/RECEIPT rehearsal for it remains open. The complete
-EP-07 release checklist also remains open, including a fresh separate chat.
+`CREATE_WORKSPACE` completed a live current-chat Drive-origin project command
+with a matching terminal RECEIPT for `cdr-ep07-ui-20260928`; see
+[project CREATE_WORKSPACE evidence](../verification/implementation/EP-07/live-project-create-workspace-20260929.json).
+The complete EP-07 release checklist remains open, including a fresh separate chat.
 
 `import_roots` are owner-approved absolute directories for local Git import handles; an empty
 list grants no source path. Each `github_imports` entry must identify an
@@ -137,10 +138,11 @@ workspace ID, and owner-only run evidence retention controls. Explicit `FETCH` i
 only operation that advances the durable per-project fetch timestamp; an `ls-remote`
 connection check is read-only and does not imply a fetch. The packaged UI
 reflects these backend values. EP-07 has installed and upgraded the durable
-owner-user `0.2.6` service from a locked wheel; the unit is active and
+owner-user `0.2.7` service from a locked wheel; the unit is active and
 enabled after the verified stopped-service upgrade. A clean configured restart
 arms intake. The user unit and `Linger=yes` configure startup at computer boot
-without interactive login; a real reboot check remains open. The local status
+without interactive login; a distinct real host boot under 0.2.6 was observed,
+while electrical-outage recovery remains open. The local status
 and exact existing `SYSTEM STATE` were read back with a matching current epoch. Exact existing Drive root/Index
 and provider reads, one UI-origin project, one current-chat Drive-origin
 project and a second local-UI

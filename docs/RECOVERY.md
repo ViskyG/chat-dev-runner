@@ -242,8 +242,8 @@ an actual runner/integration problem requiring local attention, not a failing un
 
 ## EP-07 operational gate
 
-The owner-user service is installed from the private `0.2.6` wheel, active
-and enabled after a validated stopped-service upgrade. The 572-file pre-upgrade
+The owner-user service is installed from the private `0.2.7` wheel, active
+and enabled after a validated stopped-service upgrade. The 597-file pre-upgrade
 backup passed independent hashes and SQLite integrity; the exact existing
 Drive mailbox preflight found no unexpired READY without terminal receipt.
 After startup, local and Drive SYSTEM STATE epochs matched, and the listener
@@ -252,4 +252,4 @@ and managed-unit uninstall/reinstall are recorded under
 `verification/implementation/EP-07/`. Interruption/power-loss recovery and
 fresh-chat end-to-end access remain open. A distinct real host boot and automatic
 service restart were observed, with one transient OAuth-refresh failure before systemd retry.
-EP-07 is not yet a signed daily-use release; see `release-upgrade-0.2.6.json` for current evidence.
+EP-07 is not yet a signed daily-use release; see `release-upgrade-0.2.7.json` for current evidence.

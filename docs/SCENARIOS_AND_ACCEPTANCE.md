@@ -23,7 +23,7 @@ Acceptance: only loopback listeners; secrets absent from Git/Drive; the existing
 editable from chat and readable by the runner's owner-approved full Drive OAuth scope;
 restarting does not duplicate the Drive installation; old READY examples do not execute;
 failed authorization leaves meaningful setup progress. EP-07 has verified
-the durable wheel 0.2.6 installation, loopback-only active/armed service and exact existing Drive attachment; a fresh separate-chat handoff remains open; a distinct overnight boot auto-started the service after one transient OAuth-refresh failure and systemd retry. See [release-upgrade-0.2.6.json](../verification/implementation/EP-07/release-upgrade-0.2.6.json).
+the durable wheel 0.2.7 installation, loopback-only active/armed service and exact existing Drive attachment; a fresh separate-chat handoff remains open; a distinct overnight boot auto-started the preceding 0.2.6 service after one transient OAuth-refresh failure and systemd retry. See [release-upgrade-0.2.7.json](../verification/implementation/EP-07/release-upgrade-0.2.7.json).
 
 ## SC-02 · Create a brand-new project from chat
 
