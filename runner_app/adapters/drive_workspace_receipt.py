@@ -1,9 +1,9 @@
-"""Exact-ID terminal receipts for finite workspace state/context commands.
+"""Exact-ID terminal receipts for registered workspace commands.
 
-A workspace state/context receipt mirrors the committed SQLite receipt,
-including refusals. It never contains the local context report. The command's
-frozen revision and registered workspace identity are rechecked before any output write. One durable intent precedes one Docs CAS;
-an uncertain CAS is proved by exact readback, never replayed.
+A receipt mirrors the committed SQLite receipt, including refusals, without
+publishing the local context report. The frozen command and registered workspace
+are rechecked before output. One durable intent precedes one Docs CAS; an
+uncertain CAS is proved by exact readback, never replayed.
 """
 from __future__ import annotations
 
@@ -42,8 +42,11 @@ def _same_input(left: FrozenDriveInput, right: FrozenDriveInput) -> bool:
         and left.raw_command == right.raw_command
         and left.command.digest == right.command.digest
         and left.command.command == right.command.command
-        and left.raw_changeset is None
-        and right.raw_changeset is None
+        and left.raw_changeset == right.raw_changeset
+        and left.changeset_doc_id == right.changeset_doc_id
+        and left.changeset_revision == right.changeset_revision
+        and left.changeset_text_sha256 == right.changeset_text_sha256
+        and left.change_plan == right.change_plan
     )
 
 
@@ -65,7 +68,10 @@ class WorkspaceTerminalReceiptPublisher:
         if (provenance.kind != "drive" or provenance.project_id is None
                 or provenance.workspace_id is None
                 or observed.command_doc_id != provenance.source_id
-                or command.get("action") not in {"RETARGET_WORKSPACE", "EXPORT_CONTEXT"}
+                or command.get("action") not in {
+                    "RETARGET_WORKSPACE", "EXPORT_CONTEXT", "PUBLISH_REPORT",
+                    "DELIVER_VERIFY_PUBLISH",
+                }
                 or command.get("project_id") != provenance.project_id
                 or command.get("workspace_id") != provenance.workspace_id):
             raise WorkspaceReceiptError("WORKSPACE_RECEIPT_SCOPE_INVALID")
@@ -104,6 +110,18 @@ class WorkspaceTerminalReceiptPublisher:
                 or mailbox.project_id != provenance.project_id
                 or mailbox.workspace_id != provenance.workspace_id):
             raise WorkspaceReceiptError("WORKSPACE_RECEIPT_REGISTRATION_INVALID")
+        # A delivery route may have written an interim receipt while RUNNING.
+        # Never replace an uncertain same-document write: its exact readback is
+        # still needed for reconciliation. Other uncertain effects retain their
+        # lock and reconciliation flag after this terminal receipt is published.
+        for effect in operation["effects"]:
+            if (effect["kind"] == "drive_file"
+                    and effect["state"] in {"INTENDED", "UNKNOWN"}
+                    and effect["step_id"] != _STEP_ID):
+                effect_intent = effect["intent"]
+                if (not isinstance(effect_intent, dict)
+                        or effect_intent.get("file_id") == mailbox.receipt_id):
+                    raise WorkspaceReceiptError("WORKSPACE_RECEIPT_PRIOR_WRITE_UNCERTAIN")
         try:
             frozen = slots.load_frozen(request_id, provenance)
             current = read_ready_snapshot(self.reader, mailbox)

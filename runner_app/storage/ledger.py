@@ -1671,7 +1671,10 @@ class Ledger:
         step = (_TERMINAL_WORKSPACE_RECEIPT_STEP if workspace
                 else _TERMINAL_PROJECT_RECEIPT_STEP)
         scope = "WORKSPACE" if workspace else "PROJECT"
-        actions = {"RETARGET_WORKSPACE", "EXPORT_CONTEXT"} if workspace else {"CREATE_WORKSPACE", "FETCH"}
+        actions = (
+            {"RETARGET_WORKSPACE", "EXPORT_CONTEXT", "PUBLISH_REPORT",
+             "DELIVER_VERIFY_PUBLISH"} if workspace else {"CREATE_WORKSPACE", "FETCH"}
+        )
         required = {
             "command_doc_id", "receipt_doc_id", "request_digest", "status", "code",
             "desired_sha256", "frozen_command_revision", "frozen_command_sha256",
@@ -1755,7 +1758,10 @@ class Ledger:
         step = (_TERMINAL_WORKSPACE_RECEIPT_STEP if workspace
                 else _TERMINAL_PROJECT_RECEIPT_STEP)
         scope = "WORKSPACE" if workspace else "PROJECT"
-        actions = {"RETARGET_WORKSPACE", "EXPORT_CONTEXT"} if workspace else {"CREATE_WORKSPACE", "FETCH"}
+        actions = (
+            {"RETARGET_WORKSPACE", "EXPORT_CONTEXT", "PUBLISH_REPORT",
+             "DELIVER_VERIFY_PUBLISH"} if workspace else {"CREATE_WORKSPACE", "FETCH"}
+        )
         with self._transaction() as connection:
             row = connection.execute(
                 "SELECT * FROM operations WHERE request_id=?", (request_id,),
