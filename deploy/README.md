@@ -8,8 +8,11 @@ stopped-service upgrade. A clean configured start arms command intake by
 default; the service listens only on `127.0.0.1:8765`. The exact existing
 Drive SYSTEM STATE epoch matches the local ledger. Source freeze passed 1406 tests
 with one expected skip; a 597-file private schema-9 backup passed independent
-hash and SQLite checks before installation. No new command was issued for this
-upgrade. Release acceptance remains open; see
+hash and SQLite checks before installation. No new command was issued during the
+upgrade itself. A subsequent connected-chat workspace retarget and focused
+installed UI readback passed; the ledger then held 20 operations and 186
+effects with none RUNNING or needing reconciliation. Release acceptance
+remains open; see
 [release-upgrade-0.2.7.json](../verification/implementation/EP-07/release-upgrade-0.2.7.json)
 and [source-freeze-0.2.7.json](../verification/implementation/EP-07/source-freeze-0.2.7.json). The initial host installation and prior upgrades are recorded in
 [release-install.json](../verification/implementation/EP-07/release-install.json),
@@ -23,11 +26,17 @@ failing contained verification/publication routes with private draft PRs and
 Drive reports. Installed `0.2.2` completed a project-level `FETCH` command,
 and installed `0.2.6` completed a project-level `CREATE_WORKSPACE` command from
 this chat connector session, each with a matching project RECEIPT. The `0.2.7`
-source adds finite `EXPORT_CONTEXT` (owner-local only), `PUBLISH_REPORT` and
-`RETARGET_WORKSPACE` routes plus terminal workspace delivery receipts; focused
-installed UI and live retarget/route acceptance are still pending. A fresh
-separate-chat command, live GitHub provider import, real upload-outage/retry and
-the broader release matrix remain open, so EP-07 is not yet a signed daily-use release. The `0.2.5` update overlaps independent
+wheel exposes finite `EXPORT_CONTEXT` (owner-local only), `PUBLISH_REPORT` and
+`RETARGET_WORKSPACE` routes plus terminal workspace delivery receipts. One
+[connected-chat workspace retarget](../verification/implementation/EP-07/live-workspace-retarget-0.2.7.json)
+completed with a matching Drive receipt and selected Git/Drive association;
+a preceding invalid-TTL request was rejected terminally without mutation.
+The [focused installed UI](../verification/implementation/EP-07/installed-ui-0.2.7.json)
+confirmed keyboard inspection controls, disabled GitHub import explanation and
+local-only context dialog without submitting that form. A fresh separate-chat
+command, live GitHub provider import, real upload-outage/retry, live context
+submission and the broader release matrix remain open, so EP-07 is not yet a
+signed daily-use release. The `0.2.5` update overlaps independent
 Drive provisioning and validation requests; its new live CREATE_PROJECT duration
 will be measured on the next real project request.
 
@@ -258,8 +267,10 @@ RECEIPT. A later [current-chat project CREATE_WORKSPACE](../verification/impleme
 also completed with a matching project RECEIPT and generated SOURCE CONTEXT.
 The owner reports a separate-chat calculator CREATE_PROJECT that has a matching
 terminal root RECEIPT, but originating-session identity remains owner-reported.
-Live retarget/receipt, provider import, real upload-outage/retry and other
-release-matrix checks still need acceptance. Those bounded `0.2.1`/`0.2.2`
+The later [connected-chat workspace retarget](../verification/implementation/EP-07/live-workspace-retarget-0.2.7.json)
+and [installed UI control readback](../verification/implementation/EP-07/installed-ui-0.2.7.json)
+passed. Provider import, real upload-outage/retry, local context submission
+and other release-matrix checks still need acceptance. Those bounded `0.2.1`/`0.2.2`
 live gates ended disarmed; the current service arms after a clean restart.
 The ChatGPT GitHub App is configured for selected repositories; the owner chose
 to add future `cdr-*` repositories manually. This is distinct from the still
