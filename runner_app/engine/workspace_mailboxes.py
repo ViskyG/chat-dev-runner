@@ -18,6 +18,7 @@ from runner_app.adapters.drive_docs import FrozenDriveInput, ReadProvider, Regis
 from runner_app.adapters.drive_poller import DrivePoller, FrozenSlotStore
 from runner_app.adapters.drive_project_receipt import ProjectTerminalReceiptPublisher
 from runner_app.adapters.drive_registry import WorkspaceDriveRegistration, WorkspaceDriveRegistry
+from runner_app.adapters.drive_workspace_receipt import WorkspaceTerminalReceiptPublisher
 from runner_app.domain.commands import Provenance
 from runner_app.engine.drive_bridge import DrivePollingBridge
 from runner_app.engine.service import Engine, Handler
@@ -52,12 +53,15 @@ class WorkspaceMailboxManager:
         engine: Engine, slots_path: Path, template_profiles: Mapping[str, str], *,
         route_factory: RouteFactory | None = None,
         project_receipt: ProjectTerminalReceiptPublisher | None = None,
+        workspace_receipt: WorkspaceTerminalReceiptPublisher | None = None,
         refresh_seconds: float = 3.0,
     ) -> None:
         if (ledger.database.path != sources.database.path
                 or ledger.database.path != engine.ledger.database.path
                 or not 0.25 <= refresh_seconds <= 60.0):
             raise ValueError("Workspace manager requires one Ledger and bounded refresh")
+        if "RETARGET_WORKSPACE" in engine.handlers and workspace_receipt is None:
+            raise ValueError("Drive retarget route requires its terminal receipt publisher")
         self.ledger = ledger
         self.sources = sources
         self.drive_registry = drive_registry
@@ -67,9 +71,11 @@ class WorkspaceMailboxManager:
         self.template_profiles = dict(template_profiles)
         self.route_factory = route_factory
         self.project_receipt = project_receipt
+        self.workspace_receipt = workspace_receipt
         self.refresh_seconds = refresh_seconds
         self._known: dict[tuple[str, str], RegisteredMailbox] = {}
         self._bridges: dict[tuple[str, str], DrivePollingBridge] = {}
+        self._full_routes: set[tuple[str, str]] = set()
         self._project_known: dict[str, RegisteredMailbox] = {}
         self._project_bridges: dict[str, DrivePollingBridge] = {}
         self._slots: FrozenSlotStore | None = None
@@ -85,6 +91,10 @@ class WorkspaceMailboxManager:
     def active_count(self) -> int:
         with self._lock:
             return len(self._bridges)
+
+    def full_route_count(self) -> int:
+        with self._lock:
+            return len(self._full_routes)
 
     def project_mailboxes(self) -> dict[str, RegisteredMailbox]:
         with self._lock:
@@ -125,7 +135,9 @@ class WorkspaceMailboxManager:
         for project_id, workspace_id in sorted(pairs):
             key = (project_id, workspace_id)
             with self._lock:
-                workspace_ready = self.route_factory is None or key in self._bridges
+                workspace_ready = (self.route_factory is None or key in self._full_routes)
+                if "RETARGET_WORKSPACE" in self.engine.handlers:
+                    workspace_ready = workspace_ready and key in self._bridges
                 project_ready = (workspace_id != "primary" or self.project_receipt is None
                                  or project_id in self._project_bridges)
                 if key in self._known and workspace_ready and project_ready:
@@ -190,7 +202,36 @@ class WorkspaceMailboxManager:
                             self._project_bridges[project_id] = bridge
                             if self._thread is not None and not self._stop.is_set():
                                 bridge.start()
-                if self.route_factory is not None and key not in self._bridges:
+                retarget_ready = "RETARGET_WORKSPACE" in self.engine.handlers
+                if retarget_ready and key not in self._bridges:
+                    with self._lock:
+                        if self._slots is None:
+                            self._slots = FrozenSlotStore(self.slots_path)
+                        slots = self._slots
+                    provenance = Provenance("drive", mailbox.command_id, project_id, workspace_id)
+                    self.engine.register_workspace_mailbox(provenance, profile_id)
+                    workspace_publisher = self.workspace_receipt
+
+                    def publish_workspace(observed: FrozenDriveInput, source: Provenance, *,
+                                          _slots: FrozenSlotStore = slots,
+                                          _publisher: WorkspaceTerminalReceiptPublisher | None = workspace_publisher
+                                          ) -> None:
+                        if observed.command.command["action"] == "RETARGET_WORKSPACE":
+                            if _publisher is None:
+                                raise ValueError("Workspace receipt publisher is unavailable")
+                            _publisher.publish_if_terminal(observed, source, _slots)
+
+                    poller = DrivePoller(
+                        self.provider, mailbox, self.engine, slots,
+                        on_observed=publish_workspace,
+                    )
+                    bridge = DrivePollingBridge(poller)
+                    with self._lock:
+                        if key not in self._bridges:
+                            self._bridges[key] = bridge
+                            if self._thread is not None and not self._stop.is_set():
+                                bridge.start()
+                if self.route_factory is not None and key not in self._full_routes:
                     with self._lock:
                         if self._slots is None:
                             self._slots = FrozenSlotStore(self.slots_path)
@@ -199,6 +240,7 @@ class WorkspaceMailboxManager:
                     provenance = Provenance("drive", mailbox.command_id, project_id, workspace_id)
                     self.engine.register_workspace_route(provenance, profile_id, route)
                     with self._lock:
+                        self._full_routes.add(key)
                         if key not in self._bridges:
                             poller = DrivePoller(self.provider, mailbox, self.engine, slots)
                             bridge = DrivePollingBridge(poller)

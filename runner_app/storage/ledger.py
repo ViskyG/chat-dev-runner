@@ -24,6 +24,7 @@ _PRE_DISPATCH_ROOT_RECEIPT_STEP = "drive-root-create-receipt"
 _PRE_DISPATCH_ROOT_RECEIPT_CODE = "INTERRUPTED_BEFORE_EXECUTION"
 _TERMINAL_ROOT_RECEIPT_CODE = "PROVISIONING_PARTIAL"
 _TERMINAL_PROJECT_RECEIPT_STEP = "drive-project-terminal-receipt"
+_TERMINAL_WORKSPACE_RECEIPT_STEP = "drive-workspace-terminal-receipt"
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 _CONTAINER_ID = re.compile(r"[0-9a-f]{64}\Z")
 _SCOPE = re.compile(r"(?:(?:repo|global):[a-z0-9][a-z0-9-]{0,47}|workspace:[a-z0-9][a-z0-9-]{0,47}/[a-z0-9][a-z0-9-]{0,47})\Z")
@@ -1624,19 +1625,24 @@ class Ledger:
 
     def begin_terminal_project_receipt(
         self, request_id: str, *, source_id: str, digest: str,
-        intent: Mapping[str, Any],
+        intent: Mapping[str, Any], workspace: bool = False,
     ) -> str:
-        """Journal one project output after the actual terminal receipt commits.
+        """Journal an exact scoped Drive receipt after terminal admission.
 
-        The generic effect API is RUNNING-only. This narrow exception can only
-        append the exact committed receipt of a Drive project command. It marks
-        the operation uncertain until the registered Doc is read back.
+        A terminal output intent is narrow because generic effects are RUNNING-only.
+        Uncertainty persists until the registered Doc is read back.
         """
+        step = (_TERMINAL_WORKSPACE_RECEIPT_STEP if workspace
+                else _TERMINAL_PROJECT_RECEIPT_STEP)
+        scope = "WORKSPACE" if workspace else "PROJECT"
+        actions = {"RETARGET_WORKSPACE"} if workspace else {"CREATE_WORKSPACE", "FETCH"}
         required = {
             "command_doc_id", "receipt_doc_id", "request_digest", "status", "code",
             "desired_sha256", "frozen_command_revision", "frozen_command_sha256",
             "base_revision",
         }
+        if workspace:
+            required.update({"project_id", "workspace_id"})
         if (not isinstance(intent, Mapping) or set(intent) != required
                 or intent.get("command_doc_id") != source_id
                 or intent.get("request_digest") != digest
@@ -1650,50 +1656,53 @@ class Ledger:
                 or _SHA256.fullmatch(intent["desired_sha256"]) is None
                 or not isinstance(intent.get("frozen_command_sha256"), str)
                 or _SHA256.fullmatch(intent["frozen_command_sha256"]) is None):
-            raise LedgerError("PROJECT_RECEIPT_INTENT_INVALID", "Project receipt intent is invalid")
+            raise LedgerError(f"{scope}_RECEIPT_INTENT_INVALID", "Project receipt intent is invalid")
         with self._transaction() as connection:
             row = connection.execute(
                 "SELECT * FROM operations WHERE request_id=?", (request_id,),
             ).fetchone()
             if (row is None or row["source_id"] != source_id or row["digest"] != digest
-                    or row["action"] not in {"CREATE_WORKSPACE", "FETCH"}
+                    or row["action"] not in actions
                     or row["project_id"] is None
+                    or (workspace and (row["workspace_id"] is None
+                                       or intent.get("project_id") != row["project_id"]
+                                       or intent.get("workspace_id") != row["workspace_id"]))
                     or row["status"] not in TERMINAL
                     or intent["status"] != row["status"]
                     or intent["code"] != row["code"]):
-                raise LedgerError("PROJECT_RECEIPT_TARGET_INVALID", "Project terminal target differs")
+                raise LedgerError(f"{scope}_RECEIPT_TARGET_INVALID", "Project terminal target differs")
             receipt = json.loads(row["receipt_json"])
             if (receipt.get("request_id") != request_id
                     or receipt.get("request_digest") != digest
                     or receipt.get("status") != row["status"]
                     or receipt.get("code") != row["code"]
                     or _document_sha256(receipt) != intent["desired_sha256"]):
-                raise LedgerError("PROJECT_RECEIPT_TARGET_INVALID", "Committed receipt differs")
+                raise LedgerError(f"{scope}_RECEIPT_TARGET_INVALID", "Committed receipt differs")
             previous = connection.execute(
                 "SELECT * FROM effects WHERE request_id=? AND step_id=? AND kind='drive_file'",
-                (request_id, _TERMINAL_PROJECT_RECEIPT_STEP),
+                (request_id, step),
             ).fetchall()
             if len(previous) > 1:
-                raise LedgerError("PROJECT_RECEIPT_EFFECT_CONFLICT", "Project receipt effect duplicated")
+                raise LedgerError(f"{scope}_RECEIPT_EFFECT_CONFLICT", "Project receipt effect duplicated")
             if previous:
                 old = json.loads(previous[0]["intent_json"])
                 if (not isinstance(old, dict)
                         or {key: old.get(key) for key in required} != dict(intent)
                         or type(old.get("prior_reconcile_required")) is not bool):
-                    raise LedgerError("PROJECT_RECEIPT_INTENT_CHANGED", "Project receipt intent changed")
+                    raise LedgerError(f"{scope}_RECEIPT_INTENT_CHANGED", "Project receipt intent changed")
                 return str(previous[0]["effect_id"])
             timestamp, effect_id = utcnow(), str(uuid4())
             saved_intent = {**dict(intent),
                             "prior_reconcile_required": bool(row["reconcile_required"])}
             self._append(
-                connection, request_id, _TERMINAL_PROJECT_RECEIPT_STEP,
+                connection, request_id, step,
                 "EFFECT_INTENDED", {"effect_id": effect_id, "kind": "drive_file"},
                 timestamp,
             )
             connection.execute(
                 "INSERT INTO effects(effect_id,request_id,step_id,kind,intent_json,state,created_at,updated_at) "
                 "VALUES(?,?,?,?,?,'INTENDED',?,?)",
-                (effect_id, request_id, _TERMINAL_PROJECT_RECEIPT_STEP, "drive_file",
+                (effect_id, request_id, step, "drive_file",
                  _json(saved_intent), timestamp, timestamp),
             )
             connection.execute(
@@ -1704,9 +1713,13 @@ class Ledger:
 
     def complete_terminal_project_receipt(
         self, request_id: str, *, source_id: str, digest: str,
-        receipt_doc_id: str, effect_id: str,
+        receipt_doc_id: str, effect_id: str, workspace: bool = False,
     ) -> None:
-        """Confirm an exact project receipt and release only its own uncertainty."""
+        """Confirm an exact scoped receipt and release only its own uncertainty."""
+        step = (_TERMINAL_WORKSPACE_RECEIPT_STEP if workspace
+                else _TERMINAL_PROJECT_RECEIPT_STEP)
+        scope = "WORKSPACE" if workspace else "PROJECT"
+        actions = {"RETARGET_WORKSPACE"} if workspace else {"CREATE_WORKSPACE", "FETCH"}
         with self._transaction() as connection:
             row = connection.execute(
                 "SELECT * FROM operations WHERE request_id=?", (request_id,),
@@ -1714,29 +1727,32 @@ class Ledger:
             effect = connection.execute(
                 "SELECT * FROM effects WHERE effect_id=? AND request_id=? "
                 "AND step_id=? AND kind='drive_file'",
-                (effect_id, request_id, _TERMINAL_PROJECT_RECEIPT_STEP),
+                (effect_id, request_id, step),
             ).fetchone()
             if (row is None or row["source_id"] != source_id or row["digest"] != digest
-                    or row["action"] not in {"CREATE_WORKSPACE", "FETCH"}
+                    or row["action"] not in actions
+                    or (workspace and row["workspace_id"] is None)
                     or row["status"] not in TERMINAL
                     or effect is None or effect["state"] != "CONFIRMED"
                     or effect["provider_id"] != receipt_doc_id):
-                raise LedgerError("PROJECT_RECEIPT_UNCONFIRMED", "Project receipt is unconfirmed")
+                raise LedgerError(f"{scope}_RECEIPT_UNCONFIRMED", "Project receipt is unconfirmed")
             intent = json.loads(effect["intent_json"])
             receipt = json.loads(row["receipt_json"])
             if (not isinstance(intent, dict)
                     or intent.get("command_doc_id") != source_id
                     or intent.get("receipt_doc_id") != receipt_doc_id
                     or intent.get("request_digest") != digest
+                    or (workspace and (intent.get("project_id") != row["project_id"]
+                                       or intent.get("workspace_id") != row["workspace_id"]))
                     or intent.get("status") != row["status"]
                     or intent.get("code") != row["code"]
                     or intent.get("desired_sha256") != _document_sha256(receipt)
                     or type(intent.get("prior_reconcile_required")) is not bool):
-                raise LedgerError("PROJECT_RECEIPT_UNCONFIRMED", "Project receipt intent differs")
+                raise LedgerError(f"{scope}_RECEIPT_UNCONFIRMED", "Project receipt intent differs")
             confirmations = connection.execute(
                 "SELECT detail_json FROM journal WHERE request_id=? "
-                "AND event_type='TERMINAL_PROJECT_RECEIPT_CONFIRMED'",
-                (request_id,),
+                "AND event_type=?",
+                (request_id, f"TERMINAL_{scope}_RECEIPT_CONFIRMED"),
             ).fetchall()
             detail = {"effect_id": effect_id, "receipt_doc_id": receipt_doc_id}
             if confirmations:
@@ -1745,7 +1761,7 @@ class Ledger:
                 except (TypeError, ValueError):
                     old_detail = None
                 if len(confirmations) != 1 or old_detail != detail:
-                    raise LedgerError("PROJECT_RECEIPT_EFFECT_CONFLICT",
+                    raise LedgerError(f"{scope}_RECEIPT_EFFECT_CONFLICT",
                                       "Project receipt confirmation changed")
                 return
             if not intent["prior_reconcile_required"]:
@@ -1754,16 +1770,122 @@ class Ledger:
                     (request_id,),
                 ).fetchone()
                 if unsettled is not None:
-                    raise LedgerError("PROJECT_RECEIPT_EFFECT_UNSETTLED",
+                    raise LedgerError(f"{scope}_RECEIPT_EFFECT_UNSETTLED",
                                       "Project receipt effect remains uncertain")
                 connection.execute(
                     "UPDATE operations SET reconcile_required=0,updated_at=? WHERE request_id=?",
                     (utcnow(), request_id),
                 )
             self._append(
-                connection, request_id, _TERMINAL_PROJECT_RECEIPT_STEP,
-                "TERMINAL_PROJECT_RECEIPT_CONFIRMED", detail, utcnow(),
+                connection, request_id, step,
+                f"TERMINAL_{scope}_RECEIPT_CONFIRMED", detail, utcnow(),
             )
+
+    def begin_terminal_workspace_receipt(
+        self, request_id: str, *, source_id: str, digest: str,
+        intent: Mapping[str, Any],
+    ) -> str:
+        """Journal one exact workspace command receipt after terminal admission."""
+        return self.begin_terminal_project_receipt(
+            request_id, source_id=source_id, digest=digest, intent=intent, workspace=True,
+        )
+
+    def complete_terminal_workspace_receipt(
+        self, request_id: str, *, source_id: str, digest: str,
+        receipt_doc_id: str, effect_id: str,
+    ) -> None:
+        """Clear only uncertainty introduced by this workspace receipt write."""
+        self.complete_terminal_project_receipt(
+            request_id, source_id=source_id, digest=digest,
+            receipt_doc_id=receipt_doc_id, effect_id=effect_id, workspace=True,
+        )
+
+    def release_reconciled_retarget(self, target_id: str, *, actor_id: str) -> None:
+        """Release a retarget lock only after exact Git and Drive effects are confirmed.
+
+        This is a local-owner reconciliation step, never an external replay. A
+        switched checkout with missing or uncertain Drive association stays locked.
+        """
+        with self._transaction() as connection:
+            actor = connection.execute(
+                "SELECT * FROM operations WHERE request_id=?", (actor_id,),
+            ).fetchone()
+            target = connection.execute(
+                "SELECT * FROM operations WHERE request_id=?", (target_id,),
+            ).fetchone()
+            if (actor is None or actor["status"] != "RUNNING"
+                    or actor["action"] != "RECONCILE"
+                    or actor["source_id"] != "local-owner"
+                    or target is None or target["action"] != "RETARGET_WORKSPACE"
+                    or target["status"] not in TERMINAL
+                    or not target["reconcile_required"]
+                    or actor["project_id"] != target["project_id"]
+                    or actor["workspace_id"] != target["workspace_id"]):
+                raise LedgerError("RETARGET_RECONCILE_SCOPE_INVALID", "Retarget reconciliation scope differs")
+            actor_command = json.loads(actor["command_json"])
+            if actor_command.get("params", {}).get("target_request_id") != target_id:
+                raise LedgerError("RETARGET_RECONCILE_SCOPE_INVALID", "Retarget target differs")
+            effects = connection.execute(
+                "SELECT step_id,kind,intent_json,state,provider_id FROM effects WHERE request_id=?",
+                (target_id,),
+            ).fetchall()
+            if any(effect["state"] in {"INTENDED", "UNKNOWN"} for effect in effects):
+                raise LedgerError("RETARGET_EFFECT_UNSETTLED", "Retarget effect is still uncertain")
+            source = [effect for effect in effects
+                      if effect["step_id"] == "retarget-workspace"
+                      and effect["kind"] == "local_workspace"]
+            if len(source) != 1 or source[0]["state"] != "CONFIRMED":
+                raise LedgerError("RETARGET_SOURCE_UNCONFIRMED", "Retarget source is not confirmed")
+            source_intent = json.loads(source[0]["intent_json"])
+            command = json.loads(target["command_json"])
+            if (not isinstance(source_intent, dict)
+                    or source_intent.get("project_id") != target["project_id"]
+                    or source_intent.get("workspace_id") != target["workspace_id"]
+                    or source_intent.get("from") != command.get("expected_head")
+                    or source_intent.get("from_branch") != command.get("params", {}).get("expected_branch")
+                    or source_intent.get("to") != command.get("params", {}).get("target_commit")
+                    or source_intent.get("to_branch") != command.get("params", {}).get("target_branch")
+                    or type(source_intent.get("from_generation")) is not int
+                    or source_intent["from_generation"] < 0):
+                raise LedgerError("RETARGET_SOURCE_UNCONFIRMED", "Retarget source intent differs")
+            state_steps = {"drive-retarget-project-state", "drive-retarget-source-context"}
+            state_effects = [effect for effect in effects if effect["step_id"] in state_steps]
+            if source[0]["provider_id"] == "UNCHANGED":
+                if state_effects:
+                    raise LedgerError("RETARGET_STATE_INCOMPLETE", "Unchanged source has Drive effects")
+            elif source[0]["provider_id"] == source_intent["to"]:
+                if (len(state_effects) != 2
+                        or {effect["step_id"] for effect in state_effects} != state_steps
+                        or any(effect["kind"] != "drive_file"
+                               or effect["state"] != "CONFIRMED"
+                               or not effect["provider_id"]
+                               for effect in state_effects)):
+                    raise LedgerError("RETARGET_STATE_INCOMPLETE", "Drive association is incomplete")
+                for effect in state_effects:
+                    intent = json.loads(effect["intent_json"])
+                    expected_key = (
+                        f"project-state:{target['project_id']}"
+                        if effect["step_id"] == "drive-retarget-project-state"
+                        else f"source-context:{target['project_id']}/{target['workspace_id']}"
+                    )
+                    if (not isinstance(intent, dict)
+                            or intent.get("file_id") != effect["provider_id"]
+                            or intent.get("key") != expected_key
+                            or intent.get("project_id") != target["project_id"]
+                            or intent.get("workspace_id") != target["workspace_id"]
+                            or intent.get("request_digest") != target["digest"]
+                            or not isinstance(intent.get("desired_sha256"), str)
+                            or _SHA256.fullmatch(intent["desired_sha256"]) is None):
+                        raise LedgerError("RETARGET_STATE_INCOMPLETE", "Drive association intent differs")
+            else:
+                raise LedgerError("RETARGET_SOURCE_UNCONFIRMED", "Retarget source proof differs")
+            connection.execute("DELETE FROM locks WHERE request_id=?", (target_id,))
+            connection.execute(
+                "UPDATE operations SET capacity_held=0,reconcile_required=0,updated_at=? "
+                "WHERE request_id=?", (utcnow(), target_id),
+            )
+            self._append(connection, target_id, "retarget-workspace",
+                         "RETARGET_RECONCILED_RELEASED", {"actor_id": actor_id}, utcnow())
 
     def begin_effect(self, request_id: str, step_id: str, kind: str, intent: dict[str, Any]) -> str:
         if kind not in EFFECT_KINDS or not step_id:

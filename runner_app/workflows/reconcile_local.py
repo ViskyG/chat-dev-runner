@@ -28,6 +28,8 @@ class ManagedGitEffectReader:
                  effect: Mapping[str, Any]) -> EffectProof | None:
         if target.get("action") == "FETCH":
             return self._fetch(target, effect)
+        if target.get("action") == "RETARGET_WORKSPACE":
+            return self._retarget(target, effect)
         command = target.get("command")
         intent = effect.get("intent")
         project_id = target.get("project_id")
@@ -49,6 +51,58 @@ class ManagedGitEffectReader:
         if step == "initial-workspace":
             return self._workspace(target, effect, intent, project_id)
         return None
+
+    def _retarget(self, target: Mapping[str, Any],
+                  effect: Mapping[str, Any]) -> EffectProof | None:
+        """Prove either an unchanged checkout or a fully committed transition."""
+        command = target.get("command")
+        intent = effect.get("intent")
+        project_id, workspace_id = target.get("project_id"), target.get("workspace_id")
+        if (target.get("status") not in {"BLOCKED", "FAULT", "INTERRUPTED", "CANCELLED"}
+                or not isinstance(command, dict) or command.get("action") != "RETARGET_WORKSPACE"
+                or command.get("project_id") != project_id
+                or command.get("workspace_id") != workspace_id
+                or not isinstance(project_id, str) or not isinstance(workspace_id, str)
+                or effect.get("kind") != "local_workspace"
+                or effect.get("step_id") != "retarget-workspace"
+                or effect.get("state") not in {"INTENDED", "UNKNOWN"}
+                or not isinstance(effect.get("effect_id"), str)
+                or not isinstance(intent, dict)
+                or set(intent) != {
+                    "project_id", "workspace_id", "from_branch", "from",
+                    "from_generation", "to_branch", "to",
+                }
+                or intent.get("project_id") != project_id
+                or intent.get("workspace_id") != workspace_id
+                or intent.get("from") != command.get("expected_head")
+                or intent.get("from_branch") != command.get("params", {}).get("expected_branch")
+                or intent.get("to") != command.get("params", {}).get("target_commit")
+                or intent.get("to_branch") != command.get("params", {}).get("target_branch")
+                or type(intent.get("from_generation")) is not int
+                or intent["from_generation"] < 0):
+            return None
+        repo = self.registry.checked_project_path(project_id)
+        path = self.registry.checked_workspace_path(project_id, workspace_id)
+        record = self.registry.get_workspace(project_id, workspace_id)
+        if record is None or record.get("worktree_path") != str(path):
+            return None
+        observed = worktrees.inspect_workspace(repo, path)
+        if observed["dirty"]:
+            return None
+        unchanged = (record["branch"] == intent["from_branch"]
+                     and record["head"] == intent["from"]
+                     and record["generation"] == intent["from_generation"]
+                     and observed["branch"] == intent["from_branch"]
+                     and observed["head"] == intent["from"])
+        completed = (record["branch"] == intent["to_branch"]
+                     and record["head"] == intent["to"]
+                     and record["generation"] == intent["from_generation"] + 1
+                     and observed["branch"] == intent["to_branch"]
+                     and observed["head"] == intent["to"])
+        provider_id = "UNCHANGED" if unchanged else intent["to"] if completed else None
+        if provider_id is None or effect.get("provider_id") not in (None, provider_id):
+            return None
+        return EffectProof(effect["effect_id"], provider_id, dict(intent))
 
     def _fetch(self, target: Mapping[str, Any],
                effect: Mapping[str, Any]) -> EffectProof | None:

@@ -55,6 +55,8 @@ from runner_app.workflows.reconcile import ReconcileWorkflow
 from runner_app.workflows.reconcile_drive import DriveEffectReader
 from runner_app.workflows.reconcile_github import GitHubEffectReader
 from runner_app.workflows.reconcile_local import ManagedGitEffectReader
+from runner_app.workflows.retarget_drive_state import RetargetDriveState
+from runner_app.workflows.retarget_workspace import RetargetWorkspaceWorkflow
 
 CONFIG_FILENAME = "owner-runtime.json"
 _MAX_CONFIG_BYTES = 16_384
@@ -212,13 +214,17 @@ class _ReconcileDocuments:
         if key == "root-receipt":
             return DocsCASWriter(cast(Any, self.provider), self.attached)
         project_id: str | None = None
+        workspace_id = "primary"
         if key.startswith("project-state:"):
             project_id = key.removeprefix("project-state:")
-        elif key.startswith("source-context:") and key.endswith("/primary"):
-            project_id = key.removeprefix("source-context:").removesuffix("/primary")
-        if project_id is None or _SLUG.fullmatch(project_id) is None:
+        elif key.startswith("source-context:"):
+            pair = key.removeprefix("source-context:").split("/")
+            if len(pair) == 2:
+                project_id, workspace_id = pair
+        if (project_id is None or _SLUG.fullmatch(project_id) is None
+                or _SLUG.fullmatch(workspace_id) is None):
             raise DriveError("OUTPUT_NOT_REGISTERED", "Output Doc is not registered")
-        registration = self.registry.get(project_id, "primary")
+        registration = self.registry.get(project_id, workspace_id)
         return DocsCASWriter(cast(Any, self.provider), self.attached,
                              extra_docs=registration.state_docs())
 
@@ -303,6 +309,11 @@ def build_runtime_integrations(
         config.github_imports,
     )
     fetch = FetchWorkflow(ledger, registry, connections.github, connections.token_provider)
+    retarget = RetargetWorkspaceWorkflow(
+        ledger, source, RetargetDriveState(
+            ledger, attached, connections.reader, drive_registry,
+        ),
+    )
     create_workspace = CreateWorkspaceWorkflow(
         ledger, source, connections.github, provisioner, populate_workspace,
         template_profiles=config.template_profiles,
@@ -367,5 +378,6 @@ def build_runtime_integrations(
         connections.token_provider, root_receipt, project_receipt,
         drive_registry, source, policy,
         {"CREATE_PROJECT": create, "CREATE_WORKSPACE": create_workspace,
-         "RECONCILE": reconcile, "RESUME_PROVISION": resume, "FETCH": fetch},
+         "RECONCILE": reconcile, "RESUME_PROVISION": resume, "FETCH": fetch,
+         "RETARGET_WORKSPACE": retarget},
     )

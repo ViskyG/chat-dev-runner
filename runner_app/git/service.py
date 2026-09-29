@@ -210,7 +210,8 @@ class SourceService:
         self.ledger.confirm_effect(effect, str(path))
         return record
 
-    def retarget_workspace_source(self, request_id: str, *, expected_generation: int) -> dict[str, Any]:
+    def retarget_workspace_source(self, request_id: str, *, expected_generation: int,
+                                  defer_confirmation: bool = False) -> dict[str, Any]:
         command, _ = self._command(request_id, "RETARGET_WORKSPACE")
         project_id, workspace_id = command["project_id"], command["workspace_id"]
         params = command["params"]
@@ -218,12 +219,23 @@ class SourceService:
         if (current["generation"] != expected_generation or current["head"] != command["expected_head"]
                 or current["branch"] != params["expected_branch"]):
             raise SourceError("WORKSPACE_CHANGED", "Workspace changed before branch retarget")
-        repo = self._project(project_id)
-        effect = self.ledger.begin_effect(request_id, "retarget-workspace", "local_workspace",
-                                          {"project_id": project_id, "workspace_id": workspace_id,
-                                           "from": current["head"], "to": params["target_commit"]})
+        repo = self.registry.checked_project_path(project_id)
+        path = self.registry.checked_workspace_path(project_id, workspace_id)
+        if params["target_branch"] == current["branch"] and params["target_commit"] == current["head"]:
+            raise SourceError("NO_CHANGE", "Workspace already has the requested branch and commit")
+        # Ordinary refusal must not leave an uncertain effect and retain the repo lock.
+        worktrees.preflight_retarget_workspace(
+            repo, path, expected_head=current["head"], expected_branch=current["branch"],
+            target_branch=params["target_branch"], target_commit=params["target_commit"],
+        )
+        effect = self.ledger.begin_effect(request_id, "retarget-workspace", "local_workspace", {
+            "project_id": project_id, "workspace_id": workspace_id,
+            "from_branch": current["branch"], "from": current["head"],
+            "from_generation": expected_generation,
+            "to_branch": params["target_branch"], "to": params["target_commit"],
+        })
         state = worktrees.retarget_workspace(
-            repo, Path(current["worktree_path"]), expected_head=current["head"],
+            repo, path, expected_head=current["head"],
             expected_branch=current["branch"], target_branch=params["target_branch"],
             target_commit=params["target_commit"],
         )
@@ -231,7 +243,11 @@ class SourceService:
             project_id, workspace_id, expected_generation=expected_generation,
             expected_head=current["head"], branch=params["target_branch"], head=state["head"],
         )
-        self.ledger.confirm_effect(effect, state["head"])
+        # The full Drive-backed route keeps this intent open until both
+        # association documents have durable readback proof. A crash between
+        # the Git switch and those writes must retain the repository lock.
+        if not defer_confirmation:
+            self.ledger.confirm_effect(effect, state["head"])
         return updated
 
     def fetch_source(self, request_id: str, *, remote: str,

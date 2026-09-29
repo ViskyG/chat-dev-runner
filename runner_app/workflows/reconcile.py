@@ -2,8 +2,8 @@
 
 A provider port may only read the exact resource named by a durable effect intent.
 It returns a positive identity proof or None. This workflow never repeats an
-external write or releases the target's retained lock. Ledger confirmation is
-an internal proof record, not a cloud mutation.
+external write. An exact fully confirmed retarget may release its retained
+repository lock; incomplete Drive association remains locked.
 """
 from __future__ import annotations
 
@@ -24,7 +24,8 @@ _EXTERNAL_STEPS = {
     "github_repository": frozenset({"github-repository"}),
     "git_ref": frozenset({"baseline-main", "tested-git-push"}),
     "pull_request": frozenset({"draft-pull-request", "attach-run-report-link"}),
-    "local_workspace": frozenset({"local-project", "initial-workspace", "git-fetch"}),
+    "local_workspace": frozenset({"local-project", "initial-workspace", "git-fetch",
+                                  "retarget-workspace"}),
 }
 _PORT_KINDS = frozenset({"github_repository", "git_ref", "pull_request", "drive_file"})
 _OPTIONAL_PORT_KINDS = frozenset({"local_workspace"})
@@ -100,6 +101,19 @@ def _positive_proof(effect: Mapping[str, Any], proof: EffectProof) -> bool:
         if (not isinstance(project_id, str)
                 or re.fullmatch(r"[a-z0-9][a-z0-9-]{0,47}", project_id) is None):
             return False
+        if effect["step_id"] == "retarget-workspace":
+            return (set(intent) == {
+                "project_id", "workspace_id", "from_branch", "from",
+                "from_generation", "to_branch", "to",
+            } and isinstance(intent.get("workspace_id"), str)
+                and re.fullmatch(r"[a-z0-9][a-z0-9-]{0,47}", intent["workspace_id"]) is not None
+                and all(isinstance(intent.get(key), str) and _OBJECT_ID.fullmatch(intent[key])
+                        is not None for key in ("from", "to"))
+                and all(isinstance(intent.get(key), str) and bool(intent[key])
+                        for key in ("from_branch", "to_branch"))
+                and type(intent.get("from_generation")) is int
+                and intent["from_generation"] >= 0
+                and proof.provider_id in {"UNCHANGED", intent["to"]})
         if effect["step_id"] == "git-fetch":
             advertised = intent.get("advertised_heads")
             return (re.fullmatch(r"[0-9a-f]{64}", proof.provider_id) is not None
@@ -200,7 +214,9 @@ class ReconcileWorkflow:
             return OperationResult("BLOCKED", "RECONCILE_TARGET_SCOPE_MISMATCH")
         if target["status"] not in TERMINAL or not target["reconcile_required"]:
             return OperationResult("BLOCKED", "RECONCILIATION_NOT_REQUIRED")
-        if not any(item["state"] in {"INTENDED", "UNKNOWN"} for item in target["effects"]):
+        if (target["action"] != "RETARGET_WORKSPACE"
+                and not any(item["state"] in {"INTENDED", "UNKNOWN"}
+                            for item in target["effects"])):
             return OperationResult("BLOCKED", "RECONCILIATION_NO_EXTERNAL_EFFECTS")
 
         confirmed: list[str] = []
@@ -257,6 +273,16 @@ class ReconcileWorkflow:
             # Re-read the durable row; never hand a provider a speculative proof.
             target = self.ledger.get(target_id) or target
         final = self.ledger.get(target_id)
+        release_code: str | None = None
+        if (target["action"] == "RETARGET_WORKSPACE" and final is not None
+                and not unresolved
+                and not any(item["state"] in {"INTENDED", "UNKNOWN"}
+                            for item in final["effects"])):
+            try:
+                self.ledger.release_reconciled_retarget(target_id, actor_id=request_id)
+                final = self.ledger.get(target_id)
+            except LedgerError as error:
+                release_code = error.code
         remaining = ([] if final is None else [item for item in final["effects"]
                       if item["state"] in {"INTENDED", "UNKNOWN"}])
         result: dict[str, Any] = {
@@ -264,6 +290,7 @@ class ReconcileWorkflow:
             "target_status": target["status"], "confirmed_effect_ids": confirmed,
             "unresolved_effects": unresolved,
             "remaining_effect_ids": [item["effect_id"] for item in remaining],
+            **({"release_code": release_code} if release_code is not None else {}),
             "ready_for_resume": (target["action"] == "CREATE_PROJECT"
                                  and not remaining and not unresolved),
             "target_lock_retained": bool(final and (

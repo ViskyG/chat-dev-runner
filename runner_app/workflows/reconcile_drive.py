@@ -150,10 +150,28 @@ class DriveEffectReader:
         if (key.startswith("project-state:")
                 and key != f"project-state:{target.get('project_id')}"):
             return None
-        if (key.startswith("source-context:")
-                and target.get("action") == "CREATE_PROJECT"
-                and key != f"source-context:{target.get('project_id')}/primary"):
-            return None
+        if key.startswith("source-context:"):
+            expected_workspace = (
+                "primary" if target.get("action") == "CREATE_PROJECT"
+                else target.get("workspace_id")
+            )
+            if key != f"source-context:{target.get('project_id')}/{expected_workspace}":
+                return None
+        if target.get("action") == "RETARGET_WORKSPACE":
+            step_id = effect.get("step_id")
+            if not isinstance(step_id, str):
+                return None
+            expected_key = {
+                "drive-retarget-project-state": f"project-state:{target.get('project_id')}",
+                "drive-retarget-source-context": (
+                    f"source-context:{target.get('project_id')}/{target.get('workspace_id')}"
+                ),
+            }.get(step_id)
+            if (expected_key is None or key != expected_key
+                    or intent.get("project_id") != target.get("project_id")
+                    or intent.get("workspace_id") != target.get("workspace_id")
+                    or intent.get("request_digest") != target.get("digest")):
+                return None
         registered = self.docs.registration(key)
         if registered.file_id != file_id:
             return None

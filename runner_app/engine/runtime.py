@@ -13,6 +13,7 @@ from typing import Protocol
 
 from fastapi import FastAPI
 
+from runner_app.adapters.drive_workspace_receipt import WorkspaceTerminalReceiptPublisher
 from runner_app.api.auth import Sessions
 from runner_app.api.runtime import create_runtime_app
 from runner_app.config import DRIVE_INDEX_ID, DRIVE_ROOT_ID, Settings
@@ -176,6 +177,10 @@ class Runtime:
                     self.integrations.config.template_profiles,
                     route_factory=route_factory,
                     project_receipt=self.integrations.project_receipt,
+                    workspace_receipt=WorkspaceTerminalReceiptPublisher(
+                        self.ledger, self.integrations.attached,
+                        self.integrations.provider, self.integrations.drive_registry,
+                    ),
                 ) if self.integrations is not None else None
             )
             connections = self.integrations
@@ -227,7 +232,9 @@ class Runtime:
         if manager is not None:
             if manager.project_active_count():
                 actions.update(PROJECT_ACTIONS)
-            if manager.active_count():
+            if manager.active_count() and "RETARGET_WORKSPACE" in self.engine.handlers:
+                actions.add("RETARGET_WORKSPACE")
+            if manager.full_route_count():
                 actions.add("DELIVER_VERIFY_PUBLISH")
         return sorted(actions)
 

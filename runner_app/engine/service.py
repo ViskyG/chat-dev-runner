@@ -99,6 +99,37 @@ class Engine:
             )
             self._project_mailbox_origins[provenance.project_id] = provenance
 
+    def register_workspace_mailbox(self, provenance: Provenance,
+                                   profile_id: str) -> None:
+        """Bind an exact verified workspace COMMAND without requiring execution ports."""
+        if (provenance.kind != "drive" or provenance.project_id is None
+                or provenance.workspace_id is None or not profile_id
+                or "RETARGET_WORKSPACE" not in self.handlers):
+            raise ValueError("Exact workspace mailbox and retarget handler are required")
+        key = (provenance.project_id, provenance.workspace_id)
+        with self._handoff:
+            old = self.policy.mailboxes.get(provenance.source_id)
+            old_origin = self._workspace_route_origins.get(key)
+            old_profile = self._workspace_route_profiles.get(key)
+            if (old is not None and old != provenance
+                    or old_origin is not None and old_origin != provenance
+                    or old_profile is not None and old_profile != profile_id
+                    or any(value.source_id == provenance.source_id
+                           and pair != key for pair, value in self._workspace_route_origins.items())):
+                raise ValueError("Workspace mailbox identity has changed")
+            if old_origin == provenance:
+                return
+            mailboxes = dict(self.policy.mailboxes)
+            mailboxes[provenance.source_id] = provenance
+            self.policy = replace(
+                self.policy, mailboxes=mailboxes,
+                approved_profiles=self.policy.approved_profiles | {profile_id},
+                project_ids=self.policy.project_ids | {provenance.project_id},
+                workspace_pairs=self.policy.workspace_pairs | {key},
+            )
+            self._workspace_route_origins[key] = provenance
+            self._workspace_route_profiles[key] = profile_id
+
     def register_workspace_route(self, provenance: Provenance,
                                  profile_id: str, handler: Handler) -> None:
         """Add one exact owner-verified Drive workspace after completed provision.

@@ -363,10 +363,10 @@ def inspect_workspace(repo: Path, worktree: Path, *, remote: str | None = None) 
             "worktree": str(path)}
 
 
-def retarget_workspace(repo: Path, worktree: Path, *, expected_head: str,
-                       expected_branch: str, target_branch: str, target_commit: str,
-                       busy: bool = False) -> dict[str, Any]:
-    """Switch one clean, idle worktree to an unoccupied existing branch at its exact HEAD."""
+def preflight_retarget_workspace(repo: Path, worktree: Path, *, expected_head: str,
+                                 expected_branch: str, target_branch: str,
+                                 target_commit: str, busy: bool = False) -> None:
+    """Refuse a stale, dirty or occupied switch before recording a Git effect."""
     path = _workspace(repo, worktree)
     if busy:
         raise GitError("WORKSPACE_BUSY", "Workspace has an active operation")
@@ -382,6 +382,18 @@ def retarget_workspace(repo: Path, worktree: Path, *, expected_head: str,
     occupant = _branch_occupant(repo, target_branch)
     if occupant is not None and occupant.resolve() != path.resolve():
         raise GitError("BRANCH_IN_USE", "Target branch is checked out in another worktree")
+
+
+def retarget_workspace(repo: Path, worktree: Path, *, expected_head: str,
+                       expected_branch: str, target_branch: str, target_commit: str,
+                       busy: bool = False) -> dict[str, Any]:
+    """Switch one clean, idle worktree to an unoccupied existing branch at its exact HEAD."""
+    preflight_retarget_workspace(
+        repo, worktree, expected_head=expected_head, expected_branch=expected_branch,
+        target_branch=target_branch, target_commit=target_commit, busy=busy,
+    )
+    path = _workspace(repo, worktree)
+    commit = _commit(repo, target_commit)
     if target_branch != expected_branch:
         _require_expected(path, expected_head, expected_branch)
         _require_clean(path)
