@@ -1,0 +1,14 @@
+{
+  "all_complete": true,
+  "all_file_hashes_and_sizes_match": true,
+  "binary_raw_exact": true,
+  "console_raw_exact": true,
+  "first_and_recheck_metadata_identical": true,
+  "outputs": 13,
+  "owner_only_modes": true,
+  "png_crc_and_zlib_valid": true,
+  "retirement_released": true,
+  "run_id": "e9951a29-bcf8-40dc-a2d3-97924650393a",
+  "schema": "run-manifest/1.0 and output/1",
+  "status": "PASS"
+}

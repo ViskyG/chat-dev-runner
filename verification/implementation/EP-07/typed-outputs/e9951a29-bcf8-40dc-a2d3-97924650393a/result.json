@@ -1,0 +1,306 @@
+{
+  "capture_complete": true,
+  "cleanup_recorded": true,
+  "collection_complete": true,
+  "ended_at": "2026-09-29T08:14:04.871147+00:00",
+  "execution_outcome": "PASSED",
+  "finalized_offline": true,
+  "first_freeze_matches_recheck": true,
+  "inspections": {
+    "app-log": {
+      "error_events": [
+        {
+          "event": "expected",
+          "level": "ERROR",
+          "message": "synthetic handled error event",
+          "message_truncated": false,
+          "service": "typed-toy",
+          "timestamp": "2026-09-29T00:00:00Z"
+        }
+      ],
+      "findings": [],
+      "format": "application-log/v1",
+      "kind": "application_log",
+      "omitted_error_events": 0,
+      "output_id": "app-log",
+      "status": "PARSED",
+      "summary": {
+        "invalid_lines": 0,
+        "levels": {
+          "ERROR": 1,
+          "INFO": 1
+        },
+        "valid_events": 2
+      }
+    },
+    "binary": {
+      "findings": [
+        "FORMAT_NOT_REGISTERED"
+      ],
+      "format": "binary",
+      "kind": "artifact",
+      "output_id": "binary",
+      "status": "UNSUPPORTED"
+    },
+    "coverage": {
+      "findings": [
+        "FORMAT_NOT_REGISTERED"
+      ],
+      "format": "cobertura-xml",
+      "kind": "coverage",
+      "output_id": "coverage",
+      "status": "UNSUPPORTED"
+    },
+    "image": {
+      "findings": [],
+      "format": "png",
+      "height": 1,
+      "kind": "screenshot",
+      "output_id": "image",
+      "preview_media_type": "image/png",
+      "safe_preview": true,
+      "status": "PARSED",
+      "width": 1
+    },
+    "junit": {
+      "failed_cases": [],
+      "findings": [],
+      "format": "junit-xml",
+      "kind": "test_result",
+      "omitted_failed_cases": 0,
+      "output_id": "junit",
+      "status": "PARSED",
+      "summary": {
+        "counts_source": "testcase-elements",
+        "duration_seconds": 0.03,
+        "errors": 0,
+        "failed": 0,
+        "failed_ids": [],
+        "passed": 2,
+        "skipped": 0,
+        "tests": 2
+      }
+    },
+    "report": {
+      "findings": [
+        "FORMAT_NOT_REGISTERED"
+      ],
+      "format": "markdown",
+      "kind": "report",
+      "output_id": "report",
+      "status": "UNSUPPORTED"
+    }
+  },
+  "intent_recorded": true,
+  "one_real_rootless_run": true,
+  "output_schema_valid": true,
+  "outputs": {
+    "app-log": {
+      "complete": true,
+      "format": "application-log/v1",
+      "kind": "application_log",
+      "media_type": "application/x-ndjson",
+      "relative_path": "collected-recheck/app-log.jsonl",
+      "sha256": "9ff8c5dc1933fef8d1f32a30a83b1b2d89b20b2fa31411fb38668b22a1dea359",
+      "size_bytes": 272
+    },
+    "binary": {
+      "complete": true,
+      "format": "binary",
+      "kind": "artifact",
+      "media_type": "application/octet-stream",
+      "relative_path": "collected-recheck/binary.dat",
+      "sha256": "51cc4e9fba8199e02b670c91e59dcef56909ce3a7b5eae10834ac3029b695193",
+      "size_bytes": 43
+    },
+    "capture-events": {
+      "complete": true,
+      "format": "stream-observation/v1",
+      "kind": "runner_log",
+      "media_type": "application/x-ndjson",
+      "relative_path": "capture/events.jsonl",
+      "sha256": "7ca0dea8fa7903d216d34e60c77bf39f2a9a06553e9fb9c1e2d431797b39b505",
+      "size_bytes": 209
+    },
+    "capture-metadata": {
+      "complete": true,
+      "format": "capture-metadata/v1",
+      "kind": "runner_log",
+      "media_type": "application/json",
+      "relative_path": "capture/capture.json",
+      "sha256": "f75224f58da6cf5d54337c587913a687d0248fee67fc3b2e14c41ab8a09641b5",
+      "size_bytes": 679
+    },
+    "coverage": {
+      "complete": true,
+      "format": "cobertura-xml",
+      "kind": "coverage",
+      "media_type": "application/xml",
+      "relative_path": "collected-recheck/coverage.xml",
+      "sha256": "68936486c5af78d76cebe59ab0c90b2ce824da744bc1ebb76202137b8d18fcb8",
+      "size_bytes": 121
+    },
+    "image": {
+      "complete": true,
+      "format": "png",
+      "kind": "screenshot",
+      "media_type": "image/png",
+      "relative_path": "collected-recheck/image.png",
+      "sha256": "41d22a86d96ce260a025397fa3a3bcc47e446a06796536114759803e03b08e06",
+      "size_bytes": 69
+    },
+    "junit": {
+      "complete": true,
+      "format": "junit-xml",
+      "kind": "test_result",
+      "media_type": "application/xml",
+      "relative_path": "collected-recheck/junit.xml",
+      "sha256": "e40d195ad9e261a010d87367422699cc43e577bcc89264195edd20384e68c65e",
+      "size_bytes": 191
+    },
+    "report": {
+      "complete": true,
+      "format": "markdown",
+      "kind": "report",
+      "media_type": "text/markdown",
+      "relative_path": "collected-recheck/report.md",
+      "sha256": "06b9a680e478fe5995cb0f61e4c43c729129b451efe038c512055fda102bd4fe",
+      "size_bytes": 50
+    },
+    "runner-collection": {
+      "complete": true,
+      "format": "collection-metadata/v1",
+      "kind": "runner_log",
+      "media_type": "application/json",
+      "relative_path": "collection-recheck.json",
+      "sha256": "468cb3055b2dc9afb9f4f8d51a9ea85a73aa548e816a0be992677e5f0b5ebfca",
+      "size_bytes": 1906
+    },
+    "stderr-raw": {
+      "complete": true,
+      "format": "raw-bytes-v1",
+      "kind": "console",
+      "media_type": "application/octet-stream",
+      "relative_path": "capture/stderr.bin",
+      "sha256": "a6e687e57a92c71fd8c691f52a0f903fe1b99bfb59d53b6d214a01b6c1178782",
+      "size_bytes": 26
+    },
+    "stderr-view": {
+      "complete": true,
+      "format": "utf8-safe-view-v1",
+      "kind": "console",
+      "media_type": "text/plain; charset=utf-8",
+      "relative_path": "capture/stderr.txt",
+      "sha256": "a6e687e57a92c71fd8c691f52a0f903fe1b99bfb59d53b6d214a01b6c1178782",
+      "size_bytes": 26
+    },
+    "stdout-raw": {
+      "complete": true,
+      "format": "raw-bytes-v1",
+      "kind": "console",
+      "media_type": "application/octet-stream",
+      "relative_path": "capture/stdout.bin",
+      "sha256": "50f4d10fa5814dc5669ca7457794e18702731e90202064a82bdd3a0ab384754f",
+      "size_bytes": 30
+    },
+    "stdout-view": {
+      "complete": true,
+      "format": "utf8-safe-view-v1",
+      "kind": "console",
+      "media_type": "text/plain; charset=utf-8",
+      "relative_path": "capture/stdout.txt",
+      "sha256": "50f4d10fa5814dc5669ca7457794e18702731e90202064a82bdd3a0ab384754f",
+      "size_bytes": 30
+    }
+  },
+  "parses": {
+    "app-log": {
+      "findings": [],
+      "status": "PARSED",
+      "summary": {
+        "invalid_lines": 0,
+        "levels": {
+          "ERROR": 1,
+          "INFO": 1
+        },
+        "valid_events": 2
+      }
+    },
+    "coverage": {
+      "findings": [],
+      "status": "PARSED",
+      "summary": {
+        "branch_rate": 0.5,
+        "branches_covered": 1,
+        "branches_valid": 2,
+        "counts_source": "coverage-root-attributes",
+        "line_rate": 0.75,
+        "lines_covered": 3,
+        "lines_valid": 4
+      }
+    },
+    "junit": {
+      "findings": [],
+      "status": "PARSED",
+      "summary": {
+        "counts_source": "testcase-elements",
+        "duration_seconds": 0.03,
+        "errors": 0,
+        "failed": 0,
+        "failed_ids": [],
+        "passed": 2,
+        "skipped": 0,
+        "tests": 2
+      }
+    },
+    "report": {
+      "findings": [
+        "FORMAT_NOT_REGISTERED"
+      ],
+      "status": "UNSUPPORTED",
+      "summary": {}
+    }
+  },
+  "passed": true,
+  "provenance": {
+    "app-log": {
+      "profile_output_id": "app-log",
+      "requested_publication": "local_only",
+      "source_relative_path": "app.jsonl"
+    },
+    "binary": {
+      "profile_output_id": "binary",
+      "requested_publication": "local_only",
+      "source_relative_path": "payload.dat"
+    },
+    "coverage": {
+      "profile_output_id": "coverage",
+      "requested_publication": "local_only",
+      "source_relative_path": "coverage.xml"
+    },
+    "image": {
+      "image": {
+        "format": "png",
+        "height": 1,
+        "safe_preview": true,
+        "width": 1
+      },
+      "profile_output_id": "image",
+      "requested_publication": "local_only",
+      "source_relative_path": "screenshot.png"
+    },
+    "junit": {
+      "profile_output_id": "junit",
+      "requested_publication": "local_only",
+      "source_relative_path": "junit.xml"
+    },
+    "report": {
+      "profile_output_id": "report",
+      "requested_publication": "local_only",
+      "source_relative_path": "report.md"
+    }
+  },
+  "run_id": "e9951a29-bcf8-40dc-a2d3-97924650393a",
+  "run_manifest_schema_valid": true,
+  "schema_version": "1.0"
+}

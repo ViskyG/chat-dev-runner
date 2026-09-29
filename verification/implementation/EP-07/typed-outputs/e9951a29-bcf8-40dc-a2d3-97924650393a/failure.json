@@ -1,0 +1,11 @@
+{
+  "cleanup_recorded": true,
+  "code": "AssertionError",
+  "ended_at": "2026-09-29T08:09:36.034256+00:00",
+  "intent_recorded": true,
+  "retained_temp_root": "/tmp/cdr-ep07-typed-e9951a29-bcf8-40dc-a2d3-97924650393a-g8gm6tiy",
+  "run_id": "e9951a29-bcf8-40dc-a2d3-97924650393a",
+  "schema_version": "1.0",
+  "volume_allocated": true,
+  "volume_released": false
+}

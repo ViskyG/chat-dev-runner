@@ -1,0 +1,11 @@
+{
+  "checked_in_harness_sha256": "49c0b3342046c81b4b66a6541730534482df6c5e212e44ebf99ee55eeb106ff9",
+  "executed_harness_sha256": "08b12d3a1b338c4020ae68622fe0f0bf56084450cb3f58c64a6be2ce9e292036",
+  "post_run_change": "Corrected expectation for documented Markdown FORMAT_NOT_REGISTERED raw fallback; then Ruff fixes/formatting. No second container run.",
+  "profile_revision_sha256": "84417cc2365cae2d29e7ceaa7140e850c8358f4e692ec517908fed9f9bf4eab6",
+  "profile_unchanged": true,
+  "run_id": "e9951a29-bcf8-40dc-a2d3-97924650393a",
+  "schema_version": "1.0",
+  "toy_source_sha256": "229e2f33a5c02ce078c65a96204415406f53568c8099ac05f3ad1dbfe71281e0",
+  "toy_source_unchanged": true
+}

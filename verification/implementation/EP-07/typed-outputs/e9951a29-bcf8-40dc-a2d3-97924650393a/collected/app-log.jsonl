@@ -1,0 +1,2 @@
+{"event": "start", "level": "INFO", "message": "fixture started", "service": "typed-toy", "timestamp": "2026-09-29T00:00:00Z"}
+{"event": "expected", "level": "ERROR", "message": "synthetic handled error event", "service": "typed-toy", "timestamp": "2026-09-29T00:00:00Z"}

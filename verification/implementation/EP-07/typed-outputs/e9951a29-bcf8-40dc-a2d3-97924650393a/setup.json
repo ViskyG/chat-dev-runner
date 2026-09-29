@@ -1,0 +1,20 @@
+{
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "harness_sha256": "08b12d3a1b338c4020ae68622fe0f0bf56084450cb3f58c64a6be2ce9e292036",
+  "helper_sha256": "c1e7c8e749dde40f49b644830525dbcf931ed1f3397ce943ed5542e0233f6daa",
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "installed_package": "/home/visky/Work/GPTRunner/.runner-install/venv/lib/python3.10/site-packages/runner_app/__init__.py",
+  "profile_id": "ep07-typed-output-proof",
+  "profile_revision_sha256": "84417cc2365cae2d29e7ceaa7140e850c8358f4e692ec517908fed9f9bf4eab6",
+  "quota_bytes": 67108864,
+  "run_id": "e9951a29-bcf8-40dc-a2d3-97924650393a",
+  "schema_version": "1.0",
+  "server_version": "29.1.5",
+  "snapshot_commit": "e2f62244bdd6ccaf47ca55824301fd92954568e8",
+  "snapshot_id": "702e1ce0-8f47-44cb-bf71-f48f957df932",
+  "snapshot_tree": "de4f096ad7d74120009762ca5036f61a309c5a8e",
+  "source_checkout_commit": "029f66ca54a6be701b7b6ab1bfb04a69195a9a87",
+  "started_at": "2026-09-29T08:09:35.559814+00:00",
+  "toy_source_sha256": "229e2f33a5c02ce078c65a96204415406f53568c8099ac05f3ad1dbfe71281e0",
+  "volume": "/var/lib/chat-dev-runner/volumes/e9951a29-bcf8-40dc-a2d3-97924650393a"
+}

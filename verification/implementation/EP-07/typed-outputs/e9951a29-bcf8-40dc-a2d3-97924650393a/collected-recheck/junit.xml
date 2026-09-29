@@ -1,0 +1,1 @@
+<testsuite name="typed-toy" tests="2" failures="0" errors="0" skipped="0"><testcase classname="toy" name="text" time="0.01"/><testcase classname="toy" name="binary" time="0.02"/></testsuite>
