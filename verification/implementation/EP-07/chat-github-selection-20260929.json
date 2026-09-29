@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "observed_at": "2026-09-29T08:15:15Z",
+  "result": "NEW_PROJECT_REPOSITORIES_NOT_VISIBLE_TO_CONNECTED_CHAT",
+  "github_app_installation": {
+    "installation_id": 98462295,
+    "account_login": "ViskyG",
+    "repository_selection": "selected",
+    "settings_url": "https://github.com/settings/installations/98462295"
+  },
+  "connected_chat_reads": {
+    "ViskyG/chat-dev-runner": "PRIVATE_REPOSITORY_READ_OK",
+    "ViskyG/cdr-calculator-smoke-20260928-1759": "GITHUB_API_404",
+    "installed_repository_search_for_calculator": "NO_RESULTS"
+  },
+  "owner_local_gh_read": {
+    "ViskyG/cdr-calculator-smoke-20260928-1759": "PRIVATE_REPOSITORY_EXISTS"
+  },
+  "interpretation": "The connected chat GitHub App installation is selected-repositories, and the newly created calculator repository is not in its visible selection. The 404 is an access/selection gap, not evidence that the repository is missing.",
+  "required_account_change": "Owner chooses all-repositories access for automatic visibility of future Runner-created projects, or manually adds each new cdr-* repository to this GitHub App installation.",
+  "external_change_performed": false,
+  "owner_choice": "Keep selected-repositories access; add each new cdr-* repository manually for now, reconsider broader access later."
+}
