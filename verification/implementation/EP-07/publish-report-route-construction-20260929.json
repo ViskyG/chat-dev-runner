@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "result": "SOURCE_ROUTE_READY_FOR_INTEGRATION",
+  "scope": "Configured Runtime registers an explicit PUBLISH_REPORT handler independent of rootless execution readiness. Each admitted call resolves the exact managed workspace and Drive registration before using the existing saved-run PublishReportWorkflow and DriveDeliveryPublisher.",
+  "source_commit_base": "115161573dba4be1665b282cd0384c0edc1c1140",
+  "focused_validation": {
+    "command": "pytest -q tests/test_runtime_integrations.py tests/test_publish_report_workflow.py",
+    "result": "14 passed",
+    "ruff": "PASS",
+    "mypy": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "external_effects": "none",
+  "limits": [
+    "This source construction does not claim an installed service route, Drive outage/retry, or a second execution count on the owner host.",
+    "Workspace Drive polling without rootless execution requires the independent RETARGET_WORKSPACE mailbox activation change before PUBLISH_REPORT can be accepted when execution readiness is unavailable.",
+    "The unchanged PublishReportWorkflow is already exercised with real ledger/evidence and fake Drive delivery in the focused tests."
+  ]
+}

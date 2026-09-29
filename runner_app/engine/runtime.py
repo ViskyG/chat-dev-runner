@@ -31,6 +31,7 @@ from runner_app.engine.integrations import (
     build_runtime_integrations,
     load_owner_runtime_config,
 )
+from runner_app.engine.report_route import PublishReportRoute
 from runner_app.engine.service import Engine
 from runner_app.engine.singleton import Singleton
 from runner_app.engine.workspace_mailboxes import RouteFactory, WorkspaceMailboxManager
@@ -138,6 +139,11 @@ class Runtime:
                 handlers=dict(self.integrations.handlers) if self.integrations is not None else None,
                 import_grants=self.import_grants,
             )
+            if self.integrations is not None:
+                self.engine.handlers["PUBLISH_REPORT"] = PublishReportRoute(
+                    self.integrations, self.ledger, self.source_registry,
+                    self.run_evidence, paths,
+                )
             if workspace_route_factory is not None and execution_ports is not None:
                 raise IntegrationConfigError("RUNTIME_WORKSPACE_ROUTE_AMBIGUOUS")
             if ((workspace_route_factory is not None or execution_ports is not None)

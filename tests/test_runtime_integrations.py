@@ -94,7 +94,7 @@ def test_owner_config_requires_exact_ids_and_private_file(tmp_path: Path) -> Non
     assert error.value.code == "RUNTIME_CONFIG_INVALID"
 
 
-def test_configured_runtime_attaches_existing_and_registers_no_write_handlers(
+def test_configured_runtime_attaches_existing_without_provider_writes(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     paths = _paths(tmp_path)
@@ -120,7 +120,8 @@ def test_configured_runtime_attaches_existing_and_registers_no_write_handlers(
         assert runtime.integrations.attached.root_mailbox().command_id == records["command"]["id"]
         assert runtime.integrations.root_receipt.command_id == records["command"]["id"]
         assert set(runtime.engine.capabilities()) == {
-            "CREATE_PROJECT", "CREATE_WORKSPACE", "FETCH", "RECONCILE", "RESUME_PROVISION",
+            "CREATE_PROJECT", "CREATE_WORKSPACE", "FETCH", "PUBLISH_REPORT",
+            "RECONCILE", "RESUME_PROVISION",
         }
         assert records["command"]["id"] in runtime.engine.policy.mailboxes
         assert runtime.ledger.state()["armed"] is False
