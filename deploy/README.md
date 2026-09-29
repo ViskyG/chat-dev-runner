@@ -2,13 +2,16 @@
 
 ## Current deployment state
 
-EP-00–06 are verified. EP-07 has an installed `0.2.6` owner-user service
+EP-00–06 are verified. EP-07 has an installed `0.2.7` owner-user service
 from the private wheel environment, active and enabled after a validated
 stopped-service upgrade. A clean configured start arms command intake by
 default; the service listens only on `127.0.0.1:8765`. The exact existing
-Drive SYSTEM STATE epoch matches the local ledger. Release acceptance and a
-real reboot test remain open; see
-[release-upgrade-0.2.6.json](../verification/implementation/EP-07/release-upgrade-0.2.6.json). The initial host installation and prior upgrades are recorded in
+Drive SYSTEM STATE epoch matches the local ledger. Source freeze passed 1406 tests
+with one expected skip; a 597-file private schema-9 backup passed independent
+hash and SQLite checks before installation. No new command was issued for this
+upgrade. Release acceptance remains open; see
+[release-upgrade-0.2.7.json](../verification/implementation/EP-07/release-upgrade-0.2.7.json)
+and [source-freeze-0.2.7.json](../verification/implementation/EP-07/source-freeze-0.2.7.json). The initial host installation and prior upgrades are recorded in
 [release-install.json](../verification/implementation/EP-07/release-install.json),
 [release-upgrade-0.2.1.json](../verification/implementation/EP-07/release-upgrade-0.2.1.json) and
 [release-upgrade-0.2.2.json](../verification/implementation/EP-07/release-upgrade-0.2.2.json) and
@@ -17,10 +20,14 @@ The installed UI created one disposable private project; a command from this
 chat's Drive connector created a second, and the local UI added a second
 workspace to the first. The two workspaces completed separate passing and
 failing contained verification/publication routes with private draft PRs and
-Drive reports. Installed `0.2.2` also completed a project-level `FETCH` command
-from this chat connector session with a matching project RECEIPT. Fresh
-separate-chat and broader host/recovery acceptance remain open, so EP-07 is
-not yet a signed daily-use release. The `0.2.5` update overlaps independent
+Drive reports. Installed `0.2.2` completed a project-level `FETCH` command,
+and installed `0.2.6` completed a project-level `CREATE_WORKSPACE` command from
+this chat connector session, each with a matching project RECEIPT. The `0.2.7`
+source adds finite `EXPORT_CONTEXT` (owner-local only), `PUBLISH_REPORT` and
+`RETARGET_WORKSPACE` routes plus terminal workspace delivery receipts; focused
+installed UI and live retarget/route acceptance are still pending. A fresh
+separate-chat command, live GitHub provider import, real upload-outage/retry and
+the broader release matrix remain open, so EP-07 is not yet a signed daily-use release. The `0.2.5` update overlaps independent
 Drive provisioning and validation requests; its new live CREATE_PROJECT duration
 will be measured on the next real project request.
 
@@ -155,8 +162,9 @@ unit enable command intake after a clean boot/restart.
 An explicit `--start-unarmed` process or unresolved
 `NEEDS_RECONCILIATION` starts with intake off. Stopping intake in the UI lasts
 only until the next service restart; check the live UI or SYSTEM STATE after a
-reboot. The installed managed unit omits `--start-unarmed`. A real reboot
-check remains to be recorded.
+reboot. The installed managed unit omits `--start-unarmed`. A distinct host boot on 2026-09-29 auto-started predecessor `0.2.6` after a
+transient first-attempt OAuth refresh error and configured systemd retry; an
+electrical-outage recovery test remains open.
 
 The owner-host service passed its first gate, a second gate after
 stop/restart, and gates after the `0.2.1` and `0.2.2` upgrades.
@@ -176,15 +184,21 @@ Drive installation. See [release-install.json](../verification/implementation/EP
 [live-project-fetch-20260928.json](../verification/implementation/EP-07/live-project-fetch-20260928.json),
 [service-gate.json](../verification/implementation/EP-07/service-gate.json) and
 [installed-runtime-read-after-upgrade.json](../verification/implementation/EP-07/installed-runtime-read-after-upgrade.json)
-for exact host evidence. Uninstall, a successful same-path live restore, a
-fresh separate-chat command, live project-level Drive CREATE_WORKSPACE
-command and broader recovery/security acceptance are still open.
+for historical host evidence. Uninstall/reinstall, same-path live restore and
+a project-level Drive CREATE_WORKSPACE command have since passed; see
+[host-uninstall-reinstall-20260928.json](../verification/implementation/EP-07/host-uninstall-reinstall-20260928.json),
+[host-same-path-restore-20260928.json](../verification/implementation/EP-07/host-same-path-restore-20260928.json) and
+[live-project-create-workspace-20260929.json](../verification/implementation/EP-07/live-project-create-workspace-20260929.json).
+The current `0.2.7` upgrade is recorded in
+[release-upgrade-0.2.7.json](../verification/implementation/EP-07/release-upgrade-0.2.7.json).
+Fresh separate-chat provenance and broader recovery/security acceptance remain open.
 
 ## EP-07 backup and recovery gates
 
-EP-07 has verified private backup creation and refusal gates. A successful
-same-path restore, migration recovery, interrupted operation reconciliation,
-disk-cap handling and retention still need host acceptance. Wheel upgrades to
+EP-07 has verified private backup creation/refusal, successful same-path
+restore, retention rollback and managed-unit uninstall/reinstall on the owner
+host. Migration/interrupted-operation recovery and a real upload outage still
+need their applicable live acceptance. Wheel upgrades to
 `0.2.1` and `0.2.2` passed their recorded service gates; the latter followed a
 private schema-9 backup whose manifest hash, all 416 file hashes and SQLite
 integrity were independently verified, plus a successful `uv pip check`.
@@ -216,7 +230,8 @@ state path existed returned `RESTORE_TARGET_EXISTS`. `restore --from` validates
 every hash and SQLite integrity, then restores **only** to the same absolute
 state path recorded in the archive, when that target does not exist; it never
 overwrites current state. See `docs/RECOVERY.md` before moving a damaged state directory
-aside. A live restore test remains an EP-07 gate.
+aside. The successful same-path live restore is recorded in
+[host-same-path-restore-20260928.json](../verification/implementation/EP-07/host-same-path-restore-20260928.json).
 
 The explicit `scripts/reconcile_run_attempt.py` and
 `scripts/release_run_volumes.py` tools were used for EP-05 container and volume
@@ -239,8 +254,15 @@ and [failing parallel](../verification/implementation/EP-07/live-publish-paralle
 routes each completed with a private draft PR and Drive report. The
 [current-chat project FETCH](../verification/implementation/EP-07/live-project-fetch-20260928.json)
 also completed through the installed `0.2.2` project mailbox and matching
-RECEIPT. Interruption/recovery evidence, a live project-level Drive
-CREATE_WORKSPACE command, and a command from a fresh separate chat still need
-acceptance. Prior EP-05/06 smoke evidence does not substitute for these
-release gates. Those bounded `0.2.1`/`0.2.2` live gates ended disarmed;
-the current service arms after a clean restart.
+RECEIPT. A later [current-chat project CREATE_WORKSPACE](../verification/implementation/EP-07/live-project-create-workspace-20260929.json)
+also completed with a matching project RECEIPT and generated SOURCE CONTEXT.
+The owner reports a separate-chat calculator CREATE_PROJECT that has a matching
+terminal root RECEIPT, but originating-session identity remains owner-reported.
+Live retarget/receipt, provider import, real upload-outage/retry and other
+release-matrix checks still need acceptance. Those bounded `0.2.1`/`0.2.2`
+live gates ended disarmed; the current service arms after a clean restart.
+The ChatGPT GitHub App is configured for selected repositories; the owner chose
+to add future `cdr-*` repositories manually. This is distinct from the still
+unapproved owner-local Runner source-import grant. See
+[chat-github-selection-20260929.json](../verification/implementation/EP-07/chat-github-selection-20260929.json)
+and [github-import-provider-preflight-20260929.json](../verification/implementation/EP-07/github-import-provider-preflight-20260929.json).
