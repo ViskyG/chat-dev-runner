@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "mode": "OWNER_HOST_WHEEL_0.2.7_UPGRADE",
+  "release_source_commit": "aab2881d6eae32a4eadf36cb014379762cea0ff9",
+  "source_freeze": "verification/implementation/EP-07/source-freeze-0.2.7.json",
+  "source_tests": {
+    "passed": 1406,
+    "skipped": 1,
+    "failures": 0,
+    "errors": 0,
+    "ruff": "PASS",
+    "mypy": "PASS_100_SOURCE_FILES",
+    "node_check": "PASS"
+  },
+  "hosted_ci": {
+    "run_id": 36547026925,
+    "head_sha": "888b4aef78c445bf9f85377424bb9f6a35bdb1be",
+    "workflow": "Reference kit checks",
+    "conclusion": "success"
+  },
+  "wheel": {
+    "version": "0.2.7",
+    "path": "/home/visky/Work/GPTRunner/.runner-install/wheels/chat_dev_runner-0.2.7-py3-none-any.whl",
+    "sha256": "b09a4a1840556c1bbd017947517b3d463e4d733ca8c0baa4061a6b56bf837a61",
+    "source_members_byte_identical": 126,
+    "missing_or_extra_members": 0,
+    "installed_metadata_and_module_version": "0.2.7",
+    "dependency_check": "43_COMPATIBLE",
+    "production_lock_sha256": "79036fafb676757f4109d02c9a85910ac0a9f607582cc6151339e7d9c91e2cea"
+  },
+  "pre_upgrade": {
+    "mailbox_preflight": "verification/implementation/EP-07/pre-0.2.7-mailbox-20260929.json",
+    "registered_mailboxes_checked": 13,
+    "pending_ready_without_terminal_receipt": 0,
+    "ledger_operations": 18,
+    "ledger_effects": 177,
+    "running_or_reconciliation_required": 0,
+    "service_stopped_and_disabled_before_backup": true
+  },
+  "pre_upgrade_backup": {
+    "private_archive": "/home/visky/Work/GPTRunner/.runner-backups/pre-0.2.7-20260929T0907Z",
+    "manifest_sha256": "109758738983cc52cb31d893a7cfbe72a6a73ee5455d9d7638d63a88896dd0ea",
+    "files_independently_verified": 597,
+    "symlinks": 0,
+    "sqlite_schema": 9,
+    "sqlite_integrity": "ok",
+    "mode": "0700"
+  },
+  "post_upgrade_before_new_canary": {
+    "install_dry_run": "CURRENT",
+    "service_active": true,
+    "service_enabled": true,
+    "linger": "yes",
+    "loopback_listener": "127.0.0.1:8765",
+    "health_http": 200,
+    "health_version": "0.2.7",
+    "health_armed": true,
+    "local_and_existing_drive_epoch": "6e9f5dde-2374-4155-a760-344a30b47539",
+    "operations_preserved": 18,
+    "effects_preserved": 177,
+    "running_or_reconciliation_required": 0,
+    "unauthenticated_system": "403_SESSION_REQUIRED",
+    "spoofed_host": "403_INVALID_HOST",
+    "cross_origin_post": "403_INVALID_ORIGIN"
+  },
+  "existing_drive_installation": {
+    "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+    "installation_index_document_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+    "system_state_document_id": "1UXNE8Vt-73inAKm4i949TpyGT5rb3ve9bv_521QwXS0",
+    "system_state_armed": true,
+    "system_state_actions": [
+      "CREATE_PROJECT",
+      "CREATE_WORKSPACE",
+      "DELIVER_VERIFY_PUBLISH",
+      "EXPORT_CONTEXT",
+      "FETCH",
+      "PUBLISH_REPORT",
+      "RETARGET_WORKSPACE"
+    ],
+    "chat_repository_access": "MANUAL_REQUIRED"
+  },
+  "new_project_or_workspace_operations_during_upgrade": 0,
+  "new_github_repository_during_upgrade": false,
+  "duplicate_drive_installation": false,
+  "release_acceptance": "IN_PROGRESS",
+  "limits": [
+    "The upgrade preserves prior state and proves startup, attachment and local security gates; it does not by itself prove each newly installed action end to end.",
+    "The source freeze contains one intentionally skipped live-Docker case; separate real-host execution and artifact gates are documented in EP-07 evidence.",
+    "A real host boot was observed under 0.2.6, including a transient OAuth refresh retry. No electrical outage is claimed for this upgrade."
+  ]
+}
