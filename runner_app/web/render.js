@@ -302,8 +302,10 @@ export function renderDialog(state) {
       footer = `<button type="button" class="btn ghost" data-action="project-back">Назад</button><button type="button" class="btn primary" data-action="project-confirm">Создать проект</button>`;
     } else {
       const d = dialog.draft || {};
+      const githubImportWhy = state.system?.approved?.github_repositories?.length
+        ? '' : 'GitHub-импорт недоступен: нет утверждённых репозиториев в локальной политике.';
       body = `<form id="project-form">${field('name', 'Название', d.name)}${field('id', 'Постоянный ID', d.id, 'a–z, 0–9, дефис; до 48 символов')}
-        <label class="field"><span>Источник</span><select name="sourceKind"><option value="new" ${d.sourceKind === 'new' ? 'selected' : ''}>Новый</option><option value="github" ${d.sourceKind === 'github' ? 'selected' : ''} ${state.system?.approved?.github_repositories?.length ? '' : 'disabled'}>Существующий GitHub</option><option value="local" ${d.sourceKind === 'local' ? 'selected' : ''}>Локальный Git</option></select></label>
+        <label class="field"><span>Источник</span><select name="sourceKind"><option value="new" ${d.sourceKind === 'new' ? 'selected' : ''}>Новый</option><option value="github" ${d.sourceKind === 'github' ? 'selected' : ''} ${githubImportWhy ? `disabled title="${esc(githubImportWhy)}" aria-description="${esc(githubImportWhy)}"` : ''}>Существующий GitHub</option><option value="local" ${d.sourceKind === 'local' ? 'selected' : ''}>Локальный Git</option></select>${githubImportWhy ? `<small class="disabled-reason">${esc(githubImportWhy)}</small>` : ''}</label>
         ${selectField('repository', 'Утверждённый GitHub owner/repository', state.system?.approved?.github_repositories, d.repository, 'Только для импорта из GitHub; список задаётся локальной политикой', false)}${field('localPath', 'Абсолютный путь к локальному Git', d.localPath, 'Только для локального импорта; путь остаётся на этой машине', false)}
         ${selectField('templateId', 'Разрешённый шаблон', state.system?.approved?.templates, d.templateId)}${selectField('githubIdentity', 'Разрешённая GitHub identity', state.system?.approved?.github_identities, d.githubIdentity)}
         <button type="submit" class="btn primary">Проверить план</button></form>`;

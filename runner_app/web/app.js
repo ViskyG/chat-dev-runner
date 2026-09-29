@@ -707,6 +707,7 @@ document.addEventListener('keydown', event => {
         : (at + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
       state.tab = tabs[next].dataset.value; paint();
       root.querySelector(`[role=\"tab\"][data-value=\"${state.tab}\"]`)?.focus();
+      void loadTabInspections();
     }
     return;
   }

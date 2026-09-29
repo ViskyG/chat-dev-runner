@@ -1,0 +1,25 @@
+{
+  "api_mutation_count": 0,
+  "api_request_count": 13,
+  "checked_at_utc": "2026-09-29T08:19:32.894515+00:00",
+  "checks": {
+    "end_selects_artifacts": true,
+    "github_option_disabled": true,
+    "github_option_exact_reason": true,
+    "home_selects_summary": true,
+    "keyboard_console_inspection": true,
+    "keyboard_junit_inspection": true,
+    "no_browser_errors": true,
+    "no_mutations": true,
+    "no_unmodelled_routes": true,
+    "same_origin_only": true
+  },
+  "kind": "EP-07 focused fake-backed UI control behavior",
+  "passed": true,
+  "schema_version": "1.0",
+  "service_or_provider_calls": false,
+  "source_sha256": {
+    "app.js": "186c74afef58af594d2242344608c024678e5b0c033d5574b547ad4413d3c251",
+    "render.js": "df4ce9184db479daa94b054427349983ae90470fe710ff7c9b029cec2bfb0103"
+  }
+}
