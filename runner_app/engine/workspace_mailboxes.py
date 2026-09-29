@@ -216,7 +216,7 @@ class WorkspaceMailboxManager:
                                           _slots: FrozenSlotStore = slots,
                                           _publisher: WorkspaceTerminalReceiptPublisher | None = workspace_publisher
                                           ) -> None:
-                        if observed.command.command["action"] == "RETARGET_WORKSPACE":
+                        if observed.command.command["action"] in {"RETARGET_WORKSPACE", "EXPORT_CONTEXT"}:
                             if _publisher is None:
                                 raise ValueError("Workspace receipt publisher is unavailable")
                             _publisher.publish_if_terminal(observed, source, _slots)

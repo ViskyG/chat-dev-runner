@@ -233,7 +233,7 @@ class Runtime:
             if manager.project_active_count():
                 actions.update(PROJECT_ACTIONS)
             if manager.active_count():
-                actions.update(action for action in ("RETARGET_WORKSPACE", "PUBLISH_REPORT")
+                actions.update(action for action in ("RETARGET_WORKSPACE", "EXPORT_CONTEXT", "PUBLISH_REPORT")
                                if action in self.engine.handlers)
             if manager.full_route_count():
                 actions.add("DELIVER_VERIFY_PUBLISH")

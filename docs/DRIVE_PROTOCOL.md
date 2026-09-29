@@ -133,11 +133,16 @@ that an old command is guaranteed to execute later.
 
 ## Code transport and context export
 
-GitHub is source history. Drive transports changesets and allowlisted source excerpts, not a
-blind bidirectional mirror. `EXPORT_CONTEXT` emits an index with path, size, content hash and
-source snapshot; exact source files can be read through connected GitHub or exported Drive
-Docs/blobs. Context snapshots are read-only views. Local manual edits are not silently
-replaced; expected base and per-file hashes must match.
+GitHub is source history. Drive transports changesets and reviewed source excerpts where
+a delivery route explicitly supports them, not a blind bidirectional mirror. The current
+`EXPORT_CONTEXT` route computes a bounded committed-tree index with path, size, content hash
+and source snapshot in the private owner-local operation result. Selected excerpts stay local
+for privacy review. Its workspace Drive RECEIPT conveys only terminal status and request
+digest; it does not update SOURCE CONTEXT or deliver source bytes. Chat can read exact source
+files through a separately authorized GitHub connector grant. Publishing reviewed excerpts
+or an index into Drive needs its own writer-coordination and privacy contract. Context
+snapshots are read-only views. Local manual edits are not silently replaced; expected base
+and per-file hashes must match.
 
 Large or binary edits use an explicitly reviewed blob extension later. v1 JSON changesets
 have bounded counts and byte size. Never force binary data through Docs rich text. Artifacts

@@ -401,7 +401,7 @@ async function exportContext(form) {
       || new Set(paths).size !== paths.length || paths.some(path => !validExportPath(path))) {
     dialogError('Нужны 1–100 разных относительных безопасных путей и подтверждённый HEAD области.'); return;
   }
-  const includeDiff = !!form.elements.namedItem('includeDiff')?.checked;
+  const includeDiff = false; // No pinned committed diff basis exists in v1.
   try { await submitAction('EXPORT_CONTEXT', state.projectId, state.workspaceId, head,
     {paths, include_diff: includeDiff}, `Выдать контекст ${state.projectId}/${state.workspaceId}`); }
   catch (error) { dialogError(errorText(error)); await refresh({quiet: true}); }

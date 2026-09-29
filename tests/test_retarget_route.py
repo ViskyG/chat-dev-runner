@@ -550,3 +550,64 @@ def test_uncertain_workspace_receipt_cas_is_never_replayed(tmp_path: Path) -> No
         assert provider.batches.count(RECEIPT_ID) == writes == 1
     finally:
         engine.shutdown()
+
+
+def test_drive_context_export_has_status_receipt_and_no_source_upload(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from runner_app.engine.context_route import ExportContextRoute
+    from runner_app.engine.runtime import Runtime
+    from runner_app.engine.workspace_mailboxes import WorkspaceMailboxManager
+
+    ledger, registry, repo, area, other, head, provider, registration, engine = _setup(tmp_path)
+    command = _command(ledger, head)
+    command.update(
+        action="EXPORT_CONTEXT",
+        params={"paths": ["README.md"], "include_diff": False},
+        intent="Collect a committed local context fixture",
+    )
+    before_context = _text(provider, CONTEXT_ID)
+    before_state = _text(provider, STATE_ID)
+    before_area = inspect_workspace(repo, area)
+    before_other = inspect_workspace(repo, other)
+    engine.handlers["EXPORT_CONTEXT"] = ExportContextRoute(ledger, registry)
+    provider.put_document(COMMAND_ID, json.dumps(command, sort_keys=True) + "\n")
+    monkeypatch.setattr(ledger, "completed_provision_project_ids", lambda: [PROJECT])
+    monkeypatch.setattr(ledger, "completed_workspace_pairs", lambda: [(PROJECT, WORKSPACE)])
+    publisher = WorkspaceTerminalReceiptPublisher(
+        ledger, _attached(), provider, _Registration(registration),
+    )
+    manager = WorkspaceMailboxManager(
+        ledger, registry, _Registration(registration), provider, engine,
+        tmp_path / "context-frozen", {"python-basic": "python-quick"},
+        workspace_receipt=publisher,
+    )
+    try:
+        assert manager.refresh().activated == 1
+        local_runtime = object.__new__(Runtime)
+        local_runtime.drive_bridge = object()  # type: ignore[assignment]
+        local_runtime.integrations = object()  # type: ignore[assignment]
+        local_runtime.workspace_mailboxes = manager
+        local_runtime.engine = engine
+        assert local_runtime.drive_actions() == [
+            "CREATE_PROJECT", "EXPORT_CONTEXT", "RETARGET_WORKSPACE",
+        ]
+        poller = manager._bridges[(PROJECT, WORKSPACE)].poller
+        assert poller.poll_once().kind == "SUBMITTED"
+        operation = _terminal(ledger, command["request_id"])
+        assert operation["status"] == "COMPLETED"
+        assert operation["result"]["context"]["delivery_status"] == "LOCAL_ONLY"
+        assert poller.poll_once().kind == "ALREADY_OBSERVED"
+        receipt = _text(provider, RECEIPT_ID)
+        assert json.loads(receipt) == ledger.get(command["request_id"])["receipt"]
+        assert "inventory" not in receipt and "selection" not in receipt
+        assert _text(provider, CONTEXT_ID) == before_context
+        assert _text(provider, STATE_ID) == before_state
+        assert inspect_workspace(repo, area) == before_area
+        assert inspect_workspace(repo, other) == before_other
+        assert len(provider.batches) == 1
+        assert len([effect for effect in ledger.get(command["request_id"])["effects"]
+                    if effect["step_id"] == "drive-workspace-terminal-receipt"]) == 1
+    finally:
+        manager.close()
+        engine.shutdown()

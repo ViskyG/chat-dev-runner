@@ -34,6 +34,7 @@ from runner_app.adapters.drive_writer import DocsCASWriter, ObservedOutputDoc, R
 from runner_app.adapters.github import GitHubREST, UrllibGitHubTransport
 from runner_app.config import DRIVE_INDEX_ID, DRIVE_ROOT_ID
 from runner_app.domain.commands import DomainError, LocalPolicy, Provenance, parse_json
+from runner_app.engine.context_route import ExportContextRoute
 from runner_app.engine.service import Handler
 from runner_app.git.github_import import ApprovedGitHubImport, GitHubImportService
 from runner_app.git.github_transport import GitHubGitTransport, OwnerTokenFile
@@ -379,5 +380,6 @@ def build_runtime_integrations(
         drive_registry, source, policy,
         {"CREATE_PROJECT": create, "CREATE_WORKSPACE": create_workspace,
          "RECONCILE": reconcile, "RESUME_PROVISION": resume, "FETCH": fetch,
-         "RETARGET_WORKSPACE": retarget},
+         "RETARGET_WORKSPACE": retarget,
+         "EXPORT_CONTEXT": ExportContextRoute(ledger, registry)},
     )

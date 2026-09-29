@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "observed_at_utc": "2026-09-29T08:47:24Z",
+  "packet": "EP-07",
+  "source_branch": "ep07/context-export",
+  "base_commit": "4ab75ff4b33bbcdb42e2e200be2e6171f8042573",
+  "installed_service_changed": false,
+  "live_drive_command_issued": false,
+  "live_provider_write": false,
+  "source_capability": {
+    "action": "EXPORT_CONTEXT",
+    "admission": "Exact registered project/workspace, expected HEAD and workspace lock; no queued execution",
+    "read_basis": "Pinned committed Git tree; dirty working files are observed but not read",
+    "local_result": "Bounded inventory and selected excerpts in owner-local operation Ledger/UI JSON",
+    "privacy_review_required": "True whenever selected excerpts are present",
+    "drive_output": "Exact registered workspace RECEIPT only: committed request ID, digest, terminal status and code; no inventory or excerpts",
+    "source_context_changed": false,
+    "include_diff_true": "BLOCKED: COMMITTED_DIFF_BASIS_REQUIRED"
+  },
+  "focused_verification": {
+    "command": "../chat-dev-runner/.venv/bin/python -m pytest -q tests/test_drive_context.py tests/test_retarget_route.py tests/test_workspace_mailboxes.py tests/test_runtime_integrations.py",
+    "result": "35 passed, 1 pre-existing Starlette deprecation warning, 0 failures",
+    "python_style": "Ruff passed on touched Python files",
+    "python_types": "mypy passed on runner_app/engine/context_route.py",
+    "javascript_syntax": "node --check passed for app.js, model.js and render.js",
+    "diff_check": "git diff --check passed"
+  },
+  "fake_drive_boundary": {
+    "mailbox": "Registered workspace COMMAND through WorkspaceMailboxManager",
+    "terminal_receipt": "Exact frozen command and SQLite receipt matched; one CAS batch and one confirmed receipt effect",
+    "unchanged": ["PROJECT STATE", "SOURCE CONTEXT", "managed workspace Git identity", "other workspace Git identity"],
+    "no_source_in_receipt": true
+  },
+  "remaining_gates": [
+    "This source branch is not in the installed 0.2.6 service; no live EXPORT_CONTEXT command has run.",
+    "The existing Drive CHAT PROTOCOL seed/example still describes optional diff; installed instructions need a versioned mapping update before advertising this route to a fresh chat.",
+    "Publishing an index or excerpts to Drive for chat requires explicit privacy review, writer coordination with RETARGET_WORKSPACE, a versioned contract and live acceptance.",
+    "PUBLISH_REPORT and DELIVER_VERIFY_PUBLISH workspace receipt behavior is outside this change."
+  ]
+}

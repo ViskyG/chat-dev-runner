@@ -1,8 +1,8 @@
-"""Exact-ID terminal receipts for workspace RETARGET_WORKSPACE commands.
+"""Exact-ID terminal receipts for finite workspace state/context commands.
 
-A workspace retarget receipt mirrors the committed SQLite receipt, including
-refusals. The command's frozen revision and registered workspace identity are
-rechecked before any output write. One durable intent precedes one Docs CAS;
+A workspace state/context receipt mirrors the committed SQLite receipt,
+including refusals. It never contains the local context report. The command's
+frozen revision and registered workspace identity are rechecked before any output write. One durable intent precedes one Docs CAS;
 an uncertain CAS is proved by exact readback, never replayed.
 """
 from __future__ import annotations
@@ -65,7 +65,7 @@ class WorkspaceTerminalReceiptPublisher:
         if (provenance.kind != "drive" or provenance.project_id is None
                 or provenance.workspace_id is None
                 or observed.command_doc_id != provenance.source_id
-                or command.get("action") != "RETARGET_WORKSPACE"
+                or command.get("action") not in {"RETARGET_WORKSPACE", "EXPORT_CONTEXT"}
                 or command.get("project_id") != provenance.project_id
                 or command.get("workspace_id") != provenance.workspace_id):
             raise WorkspaceReceiptError("WORKSPACE_RECEIPT_SCOPE_INVALID")

@@ -122,6 +122,7 @@ def test_configured_runtime_attaches_existing_without_provider_writes(
         assert set(runtime.engine.capabilities()) == {
             "CREATE_PROJECT", "CREATE_WORKSPACE", "FETCH", "PUBLISH_REPORT",
             "RECONCILE", "RESUME_PROVISION", "RETARGET_WORKSPACE",
+            "EXPORT_CONTEXT",
         }
         assert records["command"]["id"] in runtime.engine.policy.mailboxes
         assert runtime.ledger.state()["armed"] is False

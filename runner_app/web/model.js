@@ -3,7 +3,7 @@ const ACTIONS = {
   RETARGET_WORKSPACE: 'Сменить ветку', DELIVER_VERIFY_PUBLISH: 'Доставить · проверить · опубликовать',
   VERIFY: 'Проверить снимок', PUBLISH: 'Опубликовать проверенный снимок',
   FETCH: 'Обновить отслеживаемые ветки Git', SYNC_WORKSPACE: 'Синхронизировать область',
-  EXPORT_CONTEXT: 'Выдать контекст', ARCHIVE_WORKSPACE: 'Архивировать область',
+  EXPORT_CONTEXT: 'Собрать локальный контекст', ARCHIVE_WORKSPACE: 'Архивировать область',
   PUBLISH_REPORT: 'Повторно доставить отчёт', CANCEL_OPERATION: 'Остановить операцию',
   RECONCILE: 'Сверить побочные эффекты', RESUME_PROVISION: 'Завершить создание проекта',
 };

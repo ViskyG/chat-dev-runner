@@ -157,3 +157,72 @@ def test_replacement_refs_cannot_change_the_reported_committed_tree(source) -> N
     with pytest.raises(ContextError) as error:
         ContextExporter(ledger, registry).export(request)
     assert error.value.code == "REPLACEMENT_OBJECTS_UNSUPPORTED"
+
+
+def test_engine_export_context_keeps_excerpts_owner_local(source) -> None:
+    import time
+
+    from runner_app.domain.commands import LocalPolicy, Provenance
+    from runner_app.engine.context_route import ExportContextRoute
+    from runner_app.engine.service import Engine
+
+    ledger, registry, _, workspace, head = source
+    (workspace / "app.py").write_text("value = 'unsaved-private'\n")
+    now = datetime.now(timezone.utc)
+    command = {
+        "schema_version": "1.0", "request_id": str(uuid4()), "dispatch": "READY",
+        "runner_id": ledger.state()["runner_id"], "epoch": ledger.state()["epoch"],
+        "issued_at": now.isoformat(),
+        "expires_at": (now + timedelta(minutes=5)).isoformat(),
+        "action": "EXPORT_CONTEXT", "project_id": "project", "workspace_id": "area",
+        "expected_head": head, "params": {"paths": ["app.py"], "include_diff": False},
+        "intent": "Read one committed local fixture",
+    }
+    engine = Engine(
+        ledger,
+        policy=LocalPolicy(project_ids=frozenset({"project"}),
+                           workspace_pairs=frozenset({("project", "area")})),
+        handlers={"EXPORT_CONTEXT": ExportContextRoute(ledger, registry)},
+    )
+    try:
+        admission = engine.submit(json.dumps(command).encode(),
+                                  Provenance("local", "local-owner"))
+        assert admission.execute
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            operation = ledger.get(command["request_id"])
+            if operation is not None and operation["status"] != "RUNNING":
+                break
+            time.sleep(0.01)
+        assert operation is not None and operation["status"] == "COMPLETED"
+        report = operation["result"]["context"]
+        assert report["delivery_status"] == "LOCAL_ONLY"
+        assert report["privacy_review_required"] is True
+        assert report["dirty_at_export"] is True
+        assert report["selection"][0]["text"] == "value = 'committed'\n"
+        assert "unsaved-private" not in json.dumps(operation)
+        assert "value = 'committed'" not in json.dumps(operation["receipt"])
+        assert operation["effects"] == []
+        duplicate = engine.submit(json.dumps(command).encode(),
+                                  Provenance("local", "local-owner"))
+        assert duplicate.duplicate and duplicate.receipt == operation["receipt"]
+    finally:
+        engine.shutdown()
+
+
+def test_context_route_rejects_unpinned_diff_without_source_result(source) -> None:
+    from threading import Event
+
+    from runner_app.engine.context_route import ExportContextRoute
+    from runner_app.engine.service import Context
+
+    ledger, registry, _, _, head = source
+    request = _admit(ledger, head, paths=["app.py"], include_diff=True)
+    operation = ledger.get(request)
+    assert operation is not None
+    result = ExportContextRoute(ledger, registry)(
+        freeze(operation["command"]), Context(Event(), ledger),
+    )
+    assert result.status == "BLOCKED"
+    assert result.code == "COMMITTED_DIFF_BASIS_REQUIRED"
+    assert result.result == {}
