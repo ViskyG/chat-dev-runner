@@ -1,0 +1,16 @@
+{
+  "all_output_hashes_and_schemas_match": true,
+  "both_cancelled_with_frozen_partial_outputs": true,
+  "both_exact_volumes_released": true,
+  "busy_seconds": 0.011566,
+  "cancel_accepted_seconds": 0.023019,
+  "capacity_and_locks_final_zero": true,
+  "capacity_at_busy": 2,
+  "probe_id": "b52ad007-0091-4b3b-a393-7ae0008bdf7a",
+  "real_rootless_runs": 2,
+  "same_daemon_removed_and_absent": true,
+  "status": "PASS",
+  "third_duplicate_terminal": true,
+  "third_never_dispatched": true,
+  "third_terminal_busy": true
+}

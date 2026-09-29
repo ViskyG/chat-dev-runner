@@ -1,0 +1,31 @@
+{
+  "harness_matches_executed": true,
+  "harness_sha256": "28d794eb11f0571650ceeb5d89948d07dafc71c96e12f6623ababe4e0536cde0",
+  "installed_source_modules": {
+    "engine/service.py": {
+      "installed_sha256": "9d397556d1b79a36ef50f97716df20eb0914a29c571820e70d9d39d6dcd1a593",
+      "source_sha256": "9d397556d1b79a36ef50f97716df20eb0914a29c571820e70d9d39d6dcd1a593"
+    },
+    "executors/broker.py": {
+      "installed_sha256": "45c6d01c88ed9a38bb54499c25832c8b60abd0581a812dd4dda8136b3c554bd0",
+      "source_sha256": "45c6d01c88ed9a38bb54499c25832c8b60abd0581a812dd4dda8136b3c554bd0"
+    },
+    "executors/run_service.py": {
+      "installed_sha256": "3ee589633b5bcfc72ffdce771462eeb5232bc1ce897ead80a2987b23aad0fba6",
+      "source_sha256": "3ee589633b5bcfc72ffdce771462eeb5232bc1ce897ead80a2987b23aad0fba6"
+    },
+    "outputs/capture.py": {
+      "installed_sha256": "23470ccc198550532620726bc7f658fe89e08e9c662752d1819709b9f013e9c8",
+      "source_sha256": "23470ccc198550532620726bc7f658fe89e08e9c662752d1819709b9f013e9c8"
+    },
+    "outputs/collection.py": {
+      "installed_sha256": "aa85cde201f507d9a7b438056df6a9d2c8cd0d160bb3ae8f30a79a07a4935a44",
+      "source_sha256": "aa85cde201f507d9a7b438056df6a9d2c8cd0d160bb3ae8f30a79a07a4935a44"
+    },
+    "storage/ledger.py": {
+      "installed_sha256": "b96e25da9ab25548c9e97cbcbdcd24f2934187784753bbceb837eb13758cdc78",
+      "source_sha256": "b96e25da9ab25548c9e97cbcbdcd24f2934187784753bbceb837eb13758cdc78"
+    }
+  },
+  "status": "PASS"
+}

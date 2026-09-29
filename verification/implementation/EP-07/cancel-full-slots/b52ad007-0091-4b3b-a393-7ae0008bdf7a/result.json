@@ -1,0 +1,67 @@
+{
+  "cancel_first_latency_seconds": 0.023019,
+  "cancel_first_receipt": {
+    "code": null,
+    "message": "\u0421\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435 \u043e\u043f\u0435\u0440\u0430\u0446\u0438\u0438 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e.",
+    "observed_at": "2026-09-29T08:25:48.793493+00:00",
+    "request_digest": "e7f424be5e97bcd1881bbad25e5e3b37c751d52dcd88f4276e90af326c5a11ae",
+    "request_id": "d6ec9e3b-7e81-4e90-9588-ae3f2f83bd44",
+    "run_id": null,
+    "schema_version": "1.0",
+    "status": "COMPLETED"
+  },
+  "capacity_held_final": 0,
+  "drive_or_github_touched": false,
+  "ended_at": "2026-09-29T08:25:50.988846+00:00",
+  "first_terminal": {
+    "code": null,
+    "message": "\u0421\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435 \u043e\u043f\u0435\u0440\u0430\u0446\u0438\u0438 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e.",
+    "observed_at": "2026-09-29T08:25:49.884240+00:00",
+    "request_digest": "879ae8e41bd348ad7577c3ff9d4c8a42dc5f6eb17d59364cfeda9ca9aff18638",
+    "request_id": "a191c5b2-5c17-4727-8baa-d068b7f07825",
+    "run_id": null,
+    "schema_version": "1.0",
+    "status": "CANCELLED"
+  },
+  "handler_calls": [
+    "a191c5b2-5c17-4727-8baa-d068b7f07825",
+    "549ba8ed-8340-4e1b-9348-ebe3a9311a9b"
+  ],
+  "locks_at_busy": [
+    "workspace:ep07-cancel-proof/a",
+    "workspace:ep07-cancel-proof/b"
+  ],
+  "locks_final": 0,
+  "passed": true,
+  "probe_id": "b52ad007-0091-4b3b-a393-7ae0008bdf7a",
+  "second_terminal": {
+    "code": null,
+    "message": "\u0421\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435 \u043e\u043f\u0435\u0440\u0430\u0446\u0438\u0438 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e.",
+    "observed_at": "2026-09-29T08:25:50.977197+00:00",
+    "request_digest": "62c45c8934b644af45f753617117c373ec46380cb2d5ed3920c70683a5ba27f7",
+    "request_id": "549ba8ed-8340-4e1b-9348-ebe3a9311a9b",
+    "run_id": null,
+    "schema_version": "1.0",
+    "status": "CANCELLED"
+  },
+  "service_touched": false,
+  "slots_held_at_busy": 2,
+  "third_busy_latency_seconds": 0.011566,
+  "third_dispatch_count": 0,
+  "third_duplicate_same_receipt": true,
+  "third_receipt": {
+    "code": "BUSY",
+    "message": "\u0421\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435 \u043e\u043f\u0435\u0440\u0430\u0446\u0438\u0438 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e.",
+    "observed_at": "2026-09-29T08:25:48.765349+00:00",
+    "request_digest": "6826bb1129e84d0f1eda7a376a4df031637ef7cf10e9a575d6341dd2b467c55e",
+    "request_id": "68831452-9ab4-4ede-8428-cc34609dcbc1",
+    "run_id": null,
+    "schema_version": "1.0",
+    "status": "REJECTED"
+  },
+  "two_real_rootless_runs": true,
+  "volumes_released": [
+    "549ba8ed-8340-4e1b-9348-ebe3a9311a9b",
+    "a191c5b2-5c17-4727-8baa-d068b7f07825"
+  ]
+}

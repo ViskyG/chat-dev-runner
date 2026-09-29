@@ -1,0 +1,6 @@
+{
+  "checked_at": "2026-09-29T08:27:44.110994+00:00",
+  "listener": "LISTEN 0      2048   127.0.0.1:8765 0.0.0.0:*",
+  "unit_active": "active",
+  "unit_enabled": "enabled"
+}

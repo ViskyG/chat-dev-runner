@@ -1,0 +1,11 @@
+{
+  "argv_sha256": "fbb316d3d12474367e508902f3d021c73edddf66b6e65fe0521148bd8c78cb03",
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "nonce": "3018a52404544ff49e134f5924b271dd",
+  "profile_id": "ep07-cancel-slots-proof",
+  "profile_revision_sha256": "e605846a2536314bacebe369939570759207f280fe96e7740fd3ec9e183f6979",
+  "run_id": "a191c5b2-5c17-4727-8baa-d068b7f07825",
+  "source_path": "/tmp/cdr-ep07-cancel-b52ad007-0091-4b3b-a393-7ae0008bdf7a-crujer6v/source"
+}
