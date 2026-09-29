@@ -1,0 +1,42 @@
+{
+  "auth_only_post": 1,
+  "baseline": {
+    "primary_run_id": "d4e83e2e-cb8f-4768-84bf-13784aa9072f",
+    "retry_accessible_name": "Обновить реальные данные",
+    "runner_online": true
+  },
+  "blocked_mutations": [],
+  "checked_at": "2026-09-29T09:28:45.552309+00:00",
+  "global_get_failure": {
+    "command_controls_disabled_with_reason": true,
+    "historical_run_unchanged": true,
+    "intercepted_api_gets": 3,
+    "provider_checks_prefixed_unavailable": 4,
+    "retry_enabled_and_labelled": true,
+    "runner_explicitly_unavailable": true,
+    "screenshot": "installed-ui-0.2.7-offline.png",
+    "screenshot_sha256": "ae3039c0b191f8504f40d5fa70805e48cb4285dc56ee11424b53fc1cf30b50bf"
+  },
+  "installed_version": "0.2.7",
+  "intercepted_gets": [
+    "/api/v1/projects/cdr-ep07-ui-20260928/workspaces/primary/connections",
+    "/api/v1/system",
+    "/api/v1/projects",
+    "/api/v1/operations"
+  ],
+  "mode": "INSTALLED_027_UI_BROWSER_GET_FAILURE_READBACK",
+  "off_origin_requests": [],
+  "page_errors": 0,
+  "recovery": {
+    "command_controls_restored": true,
+    "runner_online_again": true,
+    "same_registered_run": true
+  },
+  "result": "PASS",
+  "source_commit": "888b4ae",
+  "workspace_projection_failure": {
+    "git_fetch_and_remote_marked_unavailable": true,
+    "intercepted_connection_get": true,
+    "runner_not_falsely_offline": true
+  }
+}
