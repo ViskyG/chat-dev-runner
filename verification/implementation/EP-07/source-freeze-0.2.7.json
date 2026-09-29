@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "packet": "EP-07",
+  "mode": "SOURCE_FREEZE_WHEEL_PRE_UPGRADE",
+  "source_commit": "aab2881d6eae32a4eadf36cb014379762cea0ff9",
+  "source_version": "0.2.7",
+  "tests": {
+    "junit": "verification/implementation/EP-07/source-freeze-0.2.7.xml",
+    "passed": 1406,
+    "skipped": 1,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 163.866
+  },
+  "ruff": "PASS",
+  "mypy": "PASS_100_SOURCE_FILES",
+  "node_check": "PASS",
+  "wheel": {
+    "path": "/home/visky/Work/GPTRunner/.runner-install/wheels/chat_dev_runner-0.2.7-py3-none-any.whl",
+    "sha256": "b09a4a1840556c1bbd017947517b3d463e4d733ca8c0baa4061a6b56bf837a61",
+    "packaged_source_members": 126,
+    "source_members_byte_identical": 126,
+    "missing_or_extra_members": 0
+  },
+  "production_lock_sha256": "79036fafb676757f4109d02c9a85910ac0a9f607582cc6151339e7d9c91e2cea",
+  "mailbox_preflight": "verification/implementation/EP-07/pre-0.2.7-mailbox-20260929.json",
+  "mailboxes_checked": 13,
+  "maintenance_safe": true,
+  "installed_service_changed": false
+}
