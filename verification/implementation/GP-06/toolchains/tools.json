@@ -1,0 +1,51 @@
+{
+  "evidence_scope": "Read-only initial path/version probes; no environment dump",
+  "tools": [
+    {
+      "tool": "python",
+      "path": "/usr/bin/python3",
+      "version": "3.10.12",
+      "exit_code": 0
+    },
+    {
+      "tool": "node",
+      "path": "/home/visky/.nvm/versions/node/v22.22.2/bin/node",
+      "version": "v22.22.2",
+      "exit_code": 0
+    },
+    {
+      "tool": "npm",
+      "path": "/home/visky/.nvm/versions/node/v22.22.2/bin/npm",
+      "version": "10.9.7",
+      "exit_code": 0
+    },
+    {
+      "tool": "java",
+      "path": null,
+      "code": "TOOLCHAIN_UNAVAILABLE"
+    },
+    {
+      "tool": "javac",
+      "path": null,
+      "code": "TOOLCHAIN_UNAVAILABLE"
+    },
+    {
+      "tool": "maven",
+      "path": null,
+      "code": "TOOLCHAIN_UNAVAILABLE"
+    },
+    {
+      "tool": "dotnet",
+      "path": "/usr/bin/dotnet",
+      "version": "8.0.131",
+      "exit_code": 0,
+      "sdks": [
+        "8.0.131"
+      ],
+      "runtimes": {
+        "Microsoft.NETCore.App": "8.0.31",
+        "Microsoft.AspNetCore.App": "8.0.31"
+      }
+    }
+  ]
+}

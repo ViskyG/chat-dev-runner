@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="7" failures="0" errors="0" time="0.001876891">
+    <testsuite name="calculator.test.js" timestamp="2026-10-15T12:01:23.787Z" hostname="k8s-master" tests="7" failures="0" errors="0" skipped="0" time="0.001876891">
+        <testcase classname="calculator.test.js" name="calculator &gt; 7 + 5 = 12" time="0.000515999">
+        </testcase>
+        <testcase classname="calculator.test.js" name="calculator &gt; 7 - 5 = 2" time="0.000118345">
+        </testcase>
+        <testcase classname="calculator.test.js" name="calculator &gt; 7 * 5 = 35" time="0.000051729">
+        </testcase>
+        <testcase classname="calculator.test.js" name="calculator &gt; 7 / 2 = 3.5" time="0.000035869">
+        </testcase>
+        <testcase classname="calculator.test.js" name="calculator &gt; rejects invalid input 1 / 0" time="0.000343031">
+        </testcase>
+        <testcase classname="calculator.test.js" name="calculator &gt; rejects invalid input NaN + 1" time="0.000081254">
+        </testcase>
+        <testcase classname="calculator.test.js" name="calculator &gt; rejects invalid input 1 ? 2" time="0.000055776">
+        </testcase>
+    </testsuite>
+</testsuites>

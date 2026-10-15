@@ -1,0 +1,11 @@
+  Calculator -> /tmp/gp06-toolchains/runs/csharp-warm/workspace/Calculator/bin/Debug/net8.0/Calculator.dll
+  Calculator.Tests -> /tmp/gp06-toolchains/runs/csharp-warm/workspace/Calculator.Tests/bin/Debug/net8.0/Calculator.Tests.dll
+Test run for /tmp/gp06-toolchains/runs/csharp-warm/workspace/Calculator.Tests/bin/Debug/net8.0/Calculator.Tests.dll (.NETCoreApp,Version=v8.0)
+Microsoft (R) Test Execution Command Line Tool Version 17.8.0 (x64)
+Copyright (c) Microsoft Corporation.  All rights reserved.
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/gp06-toolchains/runs/csharp-warm/out/net8.0.trx
+
+Passed!  - Failed:     0, Passed:     6, Skipped:     0, Total:     6, Duration: 17 ms - Calculator.Tests.dll (net8.0)

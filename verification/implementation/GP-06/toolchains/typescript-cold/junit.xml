@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="6" failures="0" errors="0" time="0.001760831">
+    <testsuite name="calculator.test.ts" timestamp="2026-10-15T12:01:25.895Z" hostname="k8s-master" tests="6" failures="0" errors="0" skipped="0" time="0.001760831">
+        <testcase classname="calculator.test.ts" name="calculator &gt; 7 + 5 = 12" time="0.00050552">
+        </testcase>
+        <testcase classname="calculator.test.ts" name="calculator &gt; 7 - 5 = 2" time="0.000121781">
+        </testcase>
+        <testcase classname="calculator.test.ts" name="calculator &gt; 7 * 5 = 35" time="0.000052771">
+        </testcase>
+        <testcase classname="calculator.test.ts" name="calculator &gt; 7 / 2 = 3.5" time="0.000036218">
+        </testcase>
+        <testcase classname="calculator.test.ts" name="calculator &gt; rejects division by zero" time="0.000345625">
+        </testcase>
+        <testcase classname="calculator.test.ts" name="calculator &gt; rejects non-finite input" time="0.000099298">
+        </testcase>
+    </testsuite>
+</testsuites>

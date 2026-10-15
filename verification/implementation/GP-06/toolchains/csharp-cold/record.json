@@ -1,0 +1,119 @@
+{
+  "name": "csharp-cold",
+  "language": "csharp",
+  "cache_state": "cold",
+  "cache_files_before": 0,
+  "cache_files_after": 510,
+  "source_sha256": "e58a36c3a66fb0c3464b4f1c98292afc7cfa97a21b37b5ff93e83b0d4f36ad16",
+  "source_files": {
+    "Calculator.sln": "45ca3ee77caed3fed59ab0d4183d4fddd1c0de0e3c177310c07f45486d01c4de",
+    "global.json": "28efa283c3fb00d913e3022e8dfe964d8a91a5e32b4e037ea26f949d93ae7f4b",
+    "Directory.Build.props": "0f631537e035fc17d179814b99a5c817774d5ff79724d338819fe9ad22ea11b4",
+    "NuGet.Config": "026760bf198d064aab475ee175033c6db3c732abb90672a652e5b36fe4fdefc7",
+    ".runner/project.json": "47fff529bb2aa9621c042d94db0533b98e3a12eec969fb8bcbc4a42dca31129b",
+    "Calculator.Tests/ArithmeticTests.cs": "9c31283ee0a8ede76e28821cb8968dadbd756208bd6c11349199b3ab5abfb3a4",
+    "Calculator.Tests/packages.lock.json": "33bfe77b57fd7a659af4876040d765899ce1ea0f6f0001b0b3a1455c6e36e938",
+    "Calculator.Tests/Calculator.Tests.csproj": "607516ba1a311fb7c78b138e9bb01f990d0ba6c22cef396bf1112075ca433810",
+    "Calculator/Program.cs": "2a7cc2dd9d94ef2f2b9b3d2e49d7f20b68e2a0090e02b4c4b95bd055b4245d2b",
+    "Calculator/Calculator.csproj": "88dd96e87e72037af88cd8d96f471678f70b508b9234c8e81ac8c623d1c06968",
+    "Calculator/packages.lock.json": "22308ad23ccd417b5d96020fb92e203b85fad8c3788b3feadb2ca403d8ad596c"
+  },
+  "project_digest": "33ef1ea3c86bf74a875dba76f4ff143139e97d6de05c3c38830c15c85fea4f04",
+  "task_digest": "540b5f1a015c414c3fbb7af3f212fffb31835e1bd0addc20cf48b121d4bb6233",
+  "lock_hashes": {
+    "global.json": "28efa283c3fb00d913e3022e8dfe964d8a91a5e32b4e037ea26f949d93ae7f4b"
+  },
+  "tool_bindings": [
+    {
+      "id": "dotnet",
+      "argv_prefix": [
+        "/usr/bin/dotnet"
+      ],
+      "version": "8.0.131",
+      "version_status": "SUPPLIED",
+      "version_probe_argv": [
+        "/usr/bin/dotnet",
+        "--version"
+      ],
+      "availability": "PRESENT"
+    }
+  ],
+  "installed_tools": {},
+  "steps": [
+    {
+      "id": "restore",
+      "phase": "prepare",
+      "argv": [
+        "/usr/bin/dotnet",
+        "restore"
+      ],
+      "cwd": "/tmp/gp06-toolchains/runs/csharp-cold/workspace",
+      "outcome": "PASSED",
+      "exit_code": 0,
+      "cleanup_verified": true,
+      "duration_seconds": 6.713,
+      "error_code": null,
+      "stdout_sha256": "40395c574867c320a193108fa73697d893d63f913a5e5189769eb58e4e0cb5e9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "test",
+      "phase": "test",
+      "argv": [
+        "/usr/bin/dotnet",
+        "test",
+        "--no-restore",
+        "--framework",
+        "net8.0",
+        "--logger",
+        "trx;LogFileName=net8.0.trx",
+        "--results-directory",
+        "/tmp/gp06-toolchains/runs/csharp-cold/out"
+      ],
+      "cwd": "/tmp/gp06-toolchains/runs/csharp-cold/workspace",
+      "outcome": "PASSED",
+      "exit_code": 0,
+      "cleanup_verified": true,
+      "duration_seconds": 3.12,
+      "error_code": null,
+      "stdout_sha256": "4531c9d491e07fcf759d406304a52f884670d55f52e3228525fa1415f10bbd10",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "reports": [
+    {
+      "id": "trx",
+      "path": "csharp-cold/net8.0.trx",
+      "sha256": "026bba3098578f09f497d948967bff9e46fff00097bdb5cb0b948f3904338764",
+      "bytes": 8126,
+      "parse_status": "PARSED",
+      "summary": {
+        "tests": 6,
+        "passed": 6,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failed_ids": [],
+        "counts_source": "UnitTestResult-elements",
+        "report_sha256": "026bba3098578f09f497d948967bff9e46fff00097bdb5cb0b948f3904338764"
+      },
+      "findings": []
+    }
+  ],
+  "quality": {
+    "quality_gate": "PASSED",
+    "test_outcome": "PASSED",
+    "counts": {
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "findings": []
+  },
+  "duration_seconds": 9.84,
+  "qualification_scope": "tools/profile/report boundary; not full Runner route",
+  "host_os": "Linux",
+  "host_arch": "x86_64"
+}

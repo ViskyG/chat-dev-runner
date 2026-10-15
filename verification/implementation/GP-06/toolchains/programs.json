@@ -1,0 +1,47 @@
+[
+  {
+    "language": "python",
+    "argv": [
+      "/tmp/gp06-toolchains/runs/python-warm/out/.environment/python/bin/python",
+      "calculator.py",
+      "12",
+      "/",
+      "4"
+    ],
+    "outcome": "PASSED",
+    "exit_code": 0,
+    "cleanup_verified": true,
+    "stdout": "3.0",
+    "stdout_sha256": "66e4c000f2000eb1cca164f97c441e14d438ca2599c8e79f4de6ecade0de8b32"
+  },
+  {
+    "language": "javascript",
+    "argv": [
+      "/home/visky/.nvm/versions/node/v22.22.2/bin/node",
+      "cli.js",
+      "12",
+      "/",
+      "4"
+    ],
+    "outcome": "PASSED",
+    "exit_code": 0,
+    "cleanup_verified": true,
+    "stdout": "3",
+    "stdout_sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
+  },
+  {
+    "language": "csharp",
+    "argv": [
+      "/usr/bin/dotnet",
+      "/tmp/gp06-toolchains/runs/csharp-warm/workspace/Calculator/bin/Debug/net8.0/Calculator.dll",
+      "12",
+      "/",
+      "4"
+    ],
+    "outcome": "PASSED",
+    "exit_code": 0,
+    "cleanup_verified": true,
+    "stdout": "3",
+    "stdout_sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
+  }
+]

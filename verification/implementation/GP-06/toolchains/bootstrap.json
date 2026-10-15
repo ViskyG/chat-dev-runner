@@ -1,0 +1,43 @@
+[
+  {
+    "name": "javascript-lock",
+    "argv": [
+      "/home/visky/.nvm/versions/node/v22.22.2/bin/node",
+      "/home/visky/.nvm/versions/node/v22.22.2/lib/node_modules/npm/bin/npm-cli.js",
+      "install",
+      "--package-lock-only",
+      "--ignore-scripts",
+      "--no-audit",
+      "--no-fund"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 13.533
+  },
+  {
+    "name": "typescript-lock",
+    "argv": [
+      "/home/visky/.nvm/versions/node/v22.22.2/bin/node",
+      "/home/visky/.nvm/versions/node/v22.22.2/lib/node_modules/npm/bin/npm-cli.js",
+      "install",
+      "--package-lock-only",
+      "--ignore-scripts",
+      "--no-audit",
+      "--no-fund"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 0.815
+  },
+  {
+    "name": "csharp-lock",
+    "argv": [
+      "/usr/bin/dotnet",
+      "restore",
+      "--configfile",
+      "/tmp/gp06-toolchains/csharp-seed/NuGet.Config",
+      "-p:RestorePackagesWithLockFile=true",
+      "-p:RestoreLockedMode=false"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 5.276
+  }
+]

@@ -1,0 +1,3 @@
+  Determining projects to restore...
+  Restored /tmp/gp06-toolchains/runs/csharp-cold/workspace/Calculator/Calculator.csproj (in 1.42 sec).
+  Restored /tmp/gp06-toolchains/runs/csharp-cold/workspace/Calculator.Tests/Calculator.Tests.csproj (in 6.03 sec).

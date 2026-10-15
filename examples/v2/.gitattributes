@@ -1,0 +1,2 @@
+# Preserve dotnet-generated solution bytes across platform checkouts.
+*.sln text eol=crlf

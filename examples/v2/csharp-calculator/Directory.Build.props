@@ -1,0 +1,1 @@
+<Project><PropertyGroup><RestorePackagesWithLockFile>true</RestorePackagesWithLockFile><RestoreLockedMode>true</RestoreLockedMode><UseSharedCompilation>false</UseSharedCompilation></PropertyGroup></Project>

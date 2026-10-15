@@ -1,0 +1,23 @@
+Looking in links: /home/visky/Work/GPTRunner/chat-dev-runner-gp-toolchains-v2/runner_app/git/python_quick_wheels
+Collecting iniconfig==2.3.0
+  Downloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+Collecting packaging==26.3
+  Downloading packaging-26.3-py3-none-any.whl (129 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 130.0/130.0 KB 2.0 MB/s eta 0:00:00
+Collecting pluggy==1.6.0
+  Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+Collecting Pygments==2.21.0
+  Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 8.5 MB/s eta 0:00:00
+Collecting pytest==9.1.1
+  Downloading pytest-9.1.1-py3-none-any.whl (386 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 386.5/386.5 KB 3.9 MB/s eta 0:00:00
+Collecting exceptiongroup==1.3.1
+  Downloading exceptiongroup-1.3.1-py3-none-any.whl (16 kB)
+Collecting tomli==2.4.1
+  Downloading tomli-2.4.1-py3-none-any.whl (14 kB)
+Collecting typing_extensions==4.15.0
+  Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.6/44.6 KB 4.3 MB/s eta 0:00:00
+Installing collected packages: typing_extensions, tomli, Pygments, pluggy, packaging, iniconfig, exceptiongroup, pytest
+Successfully installed Pygments-2.21.0 exceptiongroup-1.3.1 iniconfig-2.3.0 packaging-26.3 pluggy-1.6.0 pytest-9.1.1 tomli-2.4.1 typing_extensions-4.15.0

@@ -1,0 +1,7 @@
+node_modules/
+.environment/
+.cache/
+__pycache__/
+.pytest_cache/
+bin/
+obj/

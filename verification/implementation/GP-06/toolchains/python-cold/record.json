@@ -1,0 +1,149 @@
+{
+  "name": "python-cold",
+  "language": "python",
+  "cache_state": "cold",
+  "cache_files_before": 0,
+  "cache_files_after": 16,
+  "source_sha256": "305abf33d8d4a2f7bfb66e10e91ef5a1b8ae8cffa1563147a766098d4c98947a",
+  "source_files": {
+    "test_calculator.py": "5a8ce379b8c79da5912f71d9dd58eb7f0542070677fdaf20542598a746f98c3d",
+    "calculator.py": "7ceaa3f4ea50c5a41d17ec7e9f101d7f25566cb3a18ca1d8cd28d4b081d44772",
+    "requirements.lock": "ea9d6eb26257b2490691237446a6f1b14c888cf2fe77a586ea529a569da72250",
+    ".runner/project.json": "07dcf755f477e44e24d04ae53e42c03a456e3282108a206fbee0adb964db1c18"
+  },
+  "project_digest": "617a68eed1e64cd62733debfeb1f7459e05d77bc7bae6423791baac7ae428b74",
+  "task_digest": "63afa9bb0c149d284914778cde3b14c0227d6ed2211d87d0bdaa4f4eed842985",
+  "lock_hashes": {
+    "requirements.lock": "ea9d6eb26257b2490691237446a6f1b14c888cf2fe77a586ea529a569da72250"
+  },
+  "tool_bindings": [
+    {
+      "id": "python",
+      "argv_prefix": [
+        "/usr/bin/python3"
+      ],
+      "version": "3.10.12",
+      "version_status": "SUPPLIED",
+      "version_probe_argv": [
+        "/usr/bin/python3",
+        "--version"
+      ],
+      "availability": "PRESENT"
+    },
+    {
+      "id": "venv_python",
+      "argv_prefix": [
+        "/tmp/gp06-toolchains/runs/python-cold/out/.environment/python/bin/python"
+      ],
+      "version": null,
+      "version_status": "NOT_PROBED",
+      "version_probe_argv": [
+        "/tmp/gp06-toolchains/runs/python-cold/out/.environment/python/bin/python",
+        "--version"
+      ],
+      "availability": "AFTER_PREPARATION"
+    }
+  ],
+  "installed_tools": {
+    "pytest": {
+      "exit_code": 0,
+      "version": "pytest 9.1.1"
+    }
+  },
+  "steps": [
+    {
+      "id": "cdr-create-venv",
+      "phase": "prepare",
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "venv",
+        "/tmp/gp06-toolchains/runs/python-cold/out/.environment/python"
+      ],
+      "cwd": "/tmp/gp06-toolchains/runs/python-cold/workspace",
+      "outcome": "PASSED",
+      "exit_code": 0,
+      "cleanup_verified": true,
+      "duration_seconds": 1.288,
+      "error_code": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "install",
+      "phase": "prepare",
+      "argv": [
+        "/tmp/gp06-toolchains/runs/python-cold/out/.environment/python/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--requirement",
+        "requirements.lock"
+      ],
+      "cwd": "/tmp/gp06-toolchains/runs/python-cold/workspace",
+      "outcome": "PASSED",
+      "exit_code": 0,
+      "cleanup_verified": true,
+      "duration_seconds": 2.326,
+      "error_code": null,
+      "stdout_sha256": "465b2bb09a0d53bb7692fa5fb7463b22046fb4afdc4546604f87c4468a4352c9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "test",
+      "phase": "test",
+      "argv": [
+        "/tmp/gp06-toolchains/runs/python-cold/out/.environment/python/bin/python",
+        "-m",
+        "pytest",
+        "--junitxml",
+        "/tmp/gp06-toolchains/runs/python-cold/out/junit.xml"
+      ],
+      "cwd": "/tmp/gp06-toolchains/runs/python-cold/workspace",
+      "outcome": "PASSED",
+      "exit_code": 0,
+      "cleanup_verified": true,
+      "duration_seconds": 0.139,
+      "error_code": null,
+      "stdout_sha256": "efea764cab445fdb5285a7e7dee3e6219640af905593baa28904534afa98999f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "reports": [
+    {
+      "id": "junit",
+      "path": "python-cold/junit.xml",
+      "sha256": "eb3a25d91548eac29f63ff8c7442956cac58172672a439f6378994f75a7b236d",
+      "bytes": 871,
+      "parse_status": "PARSED",
+      "summary": {
+        "tests": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "duration_seconds": 0.0,
+        "failed_ids": [],
+        "counts_source": "testcase-elements",
+        "report_sha256": "eb3a25d91548eac29f63ff8c7442956cac58172672a439f6378994f75a7b236d"
+      },
+      "findings": []
+    }
+  ],
+  "quality": {
+    "quality_gate": "PASSED",
+    "test_outcome": "PASSED",
+    "counts": {
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "findings": []
+  },
+  "duration_seconds": 3.813,
+  "qualification_scope": "tools/profile/report boundary; not full Runner route",
+  "host_os": "Linux",
+  "host_arch": "x86_64"
+}
