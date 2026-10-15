@@ -65,8 +65,10 @@ def test_relative_paths_are_rejected(tmp_path: Path, key: str) -> None:
 def test_private_roots_do_not_chmod_existing_ancestors(tmp_path: Path) -> None:
     home = tmp_path / "home"
     home.mkdir(mode=0o755)
+    home.chmod(0o755)
     config_parent = home / ".config"
     config_parent.mkdir(mode=0o755)
+    config_parent.chmod(0o755)
     paths = Paths.discover({"HOME": str(home)})
     paths.ensure_private()
     for path in (paths.config_dir, paths.state_dir, paths.cache_dir, paths.token_dir, paths.evidence_dir):

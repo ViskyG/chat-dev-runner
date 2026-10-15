@@ -202,6 +202,12 @@ def confirmed_create_effects_proof(
 
 
 class Ledger:
+    @staticmethod
+    def _has_v2(connection: sqlite3.Connection) -> bool:
+        # Historical migration fixtures/readers may deliberately open v1 data.
+        # A schema-10 database with missing tables still fails closed below.
+        return bool(connection.execute("PRAGMA user_version").fetchone()[0] >= 10)
+
     def __init__(self, database: Database, runner_id: str = "local-runner", max_parallel: int = 2,
                  *, single_execution_lane: bool = False):
         if isinstance(max_parallel, bool) or not isinstance(max_parallel, int) or max_parallel < 1:
@@ -311,7 +317,7 @@ class Ledger:
             uncertain_v2_lane = connection.execute(
                 "SELECT 1 FROM execution_lane l JOIN v2_requests r USING(request_id) "
                 "WHERE l.protocol='v2' AND r.status IN ('INTERRUPTED','NEEDS_RECONCILIATION') LIMIT 1"
-            ).fetchone()
+            ).fetchone() if self._has_v2(connection) else None
             if retained or unknown_effect or uncertain_v2_lane:
                 raise LedgerError("NEEDS_RECONCILIATION", "Reconcile uncertain workers and effects before arming")
             connection.execute("UPDATE runner_state SET armed=1,epoch=?,updated_at=? WHERE singleton=1",
@@ -358,7 +364,8 @@ class Ledger:
                              {"original_digest": previous["digest"], "observed_digest": digest,
                               "source_changed": previous["source_id"] != source_id}, timestamp)
                 return Admission(_receipt(request_id, digest, "REJECTED", "REQUEST_ID_REUSED", timestamp), False)
-            if connection.execute("SELECT 1 FROM v2_requests WHERE request_id=?", (request_id,)).fetchone():
+            if (self._has_v2(connection) and connection.execute(
+                    "SELECT 1 FROM v2_requests WHERE request_id=?", (request_id,)).fetchone()):
                 return Admission(_receipt(request_id, digest, "REJECTED", "REQUEST_ID_REUSED", timestamp), False)
             state = self._state(connection)
             code = rejection_code
@@ -541,8 +548,9 @@ class Ledger:
             )
             if not retained:
                 connection.execute("DELETE FROM locks WHERE request_id=?", (request_id,))
-                connection.execute("DELETE FROM execution_lane WHERE protocol='v1' AND request_id=?",
-                                   (request_id,))
+                if self._has_v2(connection):
+                    connection.execute("DELETE FROM execution_lane WHERE protocol='v1' AND request_id=?",
+                                       (request_id,))
             if (row["action"] == "PUBLISH_REPORT" and status == "COMPLETED"
                     and row["delivery_status"] == "DELIVERED"):
                 connection.execute(
@@ -578,8 +586,9 @@ class Ledger:
                 raise LedgerError("CONTAINER_PROOF_REQUIRED",
                                   "Every owned container must have an exact removal proof") from None
             connection.execute("DELETE FROM locks WHERE request_id=?", (request_id,))
-            connection.execute("DELETE FROM execution_lane WHERE protocol='v1' AND request_id=?",
-                               (request_id,))
+            if self._has_v2(connection):
+                connection.execute("DELETE FROM execution_lane WHERE protocol='v1' AND request_id=?",
+                                   (request_id,))
             connection.execute(
                 "UPDATE operations SET capacity_held=0,reconcile_required=0,updated_at=? "
                 "WHERE request_id=?", (utcnow(), request_id),

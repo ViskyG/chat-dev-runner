@@ -269,12 +269,12 @@ def test_v8_to_v9_adoption_migration_preserves_prior_effect_and_is_atomic(
         assert connection.execute(
             "SELECT name FROM sqlite_master WHERE name='migration_must_rollback'",
         ).fetchone() is None
-    assert database.migrate() == 9
+    assert database.migrate() == database_module.SCHEMA_VERSION
     stored = ledger.get(command["request_id"])
     assert stored is not None and stored["effects"][0]["effect_id"] == effect_id
     assert stored["effects"][0]["provider_id"] == "421"
     with database.connect() as connection:
-        assert connection.execute("PRAGMA user_version").fetchone()[0] == 9
+        assert connection.execute("PRAGMA user_version").fetchone()[0] == database_module.SCHEMA_VERSION
         assert connection.execute(
             "SELECT name FROM sqlite_master WHERE name='effect_adoptions'",
         ).fetchone() == ("effect_adoptions",)

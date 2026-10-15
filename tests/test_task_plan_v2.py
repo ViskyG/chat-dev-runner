@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
+from threading import Event
 
 import pytest
 
 from runner_app.domain.project_v2 import parse_project
+from runner_app.executors.native_v2 import execute_native
 from runner_app.executors.task_plan_v2 import PlanError, plan_task, standard_project
 
 
@@ -21,6 +24,23 @@ def roots(tmp_path):
     return workspace, tmp_path / "artifacts"
 
 
+@pytest.mark.skipif(sys.platform != "linux", reason="Actual Linux environment/backup boundary")
+def test_prepared_venv_keeps_its_interpreters_inside_backup_state(tmp_path):
+    workspace, out = roots(tmp_path)
+    out.mkdir(mode=0o700)
+    plan = plan_task(standard_project("example", "python"), "test", workspace=workspace, out=out,
+                     tool_paths={"python": Path(sys.executable)}, timeout_budget_seconds=500)
+    prepare = plan.steps[0]
+    result = execute_native(list(prepare.argv), cwd=prepare.cwd, env=plan.environment,
+                            output_dir=tmp_path / "capture", artifact_dir=out,
+                            timeout_seconds=30, cancel=Event(), max_log_bytes=16384)
+    assert result.outcome == "PASSED" and result.cleanup_verified
+    interpreter = out / ".environment/python/bin/python"
+    assert interpreter.is_file() and not interpreter.is_symlink()
+    for path in interpreter.parent.iterdir():
+        assert not path.is_symlink() or not path.readlink().is_absolute()
+
+
 def test_python_venv_is_a_finite_preparation_plan_not_a_side_effect(tmp_path):
     workspace, out = roots(tmp_path)
     python = executable(tmp_path / "python")
@@ -30,7 +50,7 @@ def test_python_venv_is_a_finite_preparation_plan_not_a_side_effect(tmp_path):
                      tool_paths={"python": python}, timeout_budget_seconds=800,
                      run_id="run-1", source_sha="a" * 40, tool_versions={"python": "3.11.0"})
     assert not out.exists()
-    assert plan.steps[0].argv == (str(python), "-m", "venv", str(out / ".environment/python"))
+    assert plan.steps[0].argv == (str(python), "-m", "venv", "--copies", str(out / ".environment/python"))
     assert plan.steps[1].argv[0] == str(out / ".environment/python/bin/python")
     assert plan.steps[2].argv[-2:] == ("--junitxml", str(out / "junit.xml"))
     assert all(step.cwd == workspace for step in plan.steps)

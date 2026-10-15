@@ -201,7 +201,7 @@ def plan_task(project: FrozenProject | dict[str, Any], task_id: str, *, workspac
         if any(step["id"] == "cdr-create-venv" for step in task["steps"]):
             raise PlanError("INVALID_PLAN", "Task step uses a reserved preparation ID.")
         steps.append(ResolvedStep("cdr-create-venv", "prepare",
-                                  (*bindings["python"], "-m", "venv", str(venv_root)),
+                                  (*bindings["python"], "-m", "venv", "--copies", str(venv_root)),
                                   workspace, 120))
     for step in task["steps"]:
         cwd = _confined(workspace, step["cwd"], allow_root=True)

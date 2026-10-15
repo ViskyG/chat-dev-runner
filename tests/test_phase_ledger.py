@@ -346,7 +346,7 @@ def test_schema_six_attempt_migrates_to_test_and_failed_upgrade_rolls_back(
         ).fetchone() is None
     finally:
         connection.close()
-    assert database.migrate() == 9
+    assert database.migrate() == database_module.SCHEMA_VERSION
     connection = database.connect()
     try:
         assert connection.execute(
@@ -386,7 +386,7 @@ def test_preparation_retention_migration_preserves_existing_phase_result(
         ).fetchone() == ("FAILED", _EVIDENCE)
     finally:
         connection.close()
-    assert database.migrate() == 9
+    assert database.migrate() == database_module.SCHEMA_VERSION
     connection = database.connect()
     try:
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
