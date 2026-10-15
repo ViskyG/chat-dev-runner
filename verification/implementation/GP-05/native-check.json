@@ -1,0 +1,55 @@
+{
+  "packet": "GP-05",
+  "scope": "ordinary-user native disposable subprocess lifecycle",
+  "base_commit": "02f446c",
+  "host_os": "linux",
+  "host_arch": "x86_64",
+  "interpreter": "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+  "checks": [
+    {
+      "command": "python -m pytest tests/test_native_v2.py -q",
+      "result": "17 passed in 2.81s",
+      "exit_code": 0
+    },
+    {
+      "command": "python -m ruff check runner_app/executors/native_v2.py tests/test_native_v2.py",
+      "result": "All checks passed",
+      "exit_code": 0
+    },
+    {
+      "command": "python -m mypy --follow-imports=silent runner_app/executors/native_v2.py",
+      "result": "Success: no issues found in 1 source file",
+      "exit_code": 0
+    }
+  ],
+  "real_cases": [
+    "pass/fail/signal",
+    "closed stdin and explicit cwd/output routing",
+    "sanitized explicit env and private HOME/TMPDIR",
+    "raw byte logs",
+    "4 MiB dual-stream draining with 1 KiB combined saved budget",
+    "TERM-ignoring child/grandchild cancel and timeout",
+    "observed descendant in another session",
+    "inherited child pipes after leader exits",
+    "saved process start identity"
+  ],
+  "platform_qualification": {
+    "linux_lifecycle": "PASSED_ON_TARGET",
+    "macos": "NOT_RUN",
+    "windows": "NOT_RUN"
+  },
+  "limitations": [
+    "Windows Job Object backend is PLATFORM_UNAVAILABLE.",
+    "macOS POSIX implementation is not qualified by these Linux tests.",
+    "This check does not qualify service crash/restart, language toolchains, artifacts, or delivery.",
+    "Native process tracking is not a sandbox against deliberate unobserved daemon escape.",
+    "Caller must block its next lane when cleanup_verified is false."
+  ],
+  "execution_constraints": [
+    "No network",
+    "No installs",
+    "No service or SDK changes",
+    "No global environment or credential reads",
+    "No broad regression"
+  ]
+}
