@@ -1,0 +1,53 @@
+{
+  "protocol": "cdr-project/2",
+  "project_id": "example-project",
+  "tasks": {
+    "test": {
+      "language": "javascript",
+      "profile_id": "javascript-basic",
+      "steps": [
+        {
+          "id": "prepare-1",
+          "phase": "prepare",
+          "argv": [
+            "{npm}",
+            "ci"
+          ],
+          "cwd": ".",
+          "timeout_seconds": 900
+        },
+        {
+          "id": "test-2",
+          "phase": "test",
+          "argv": [
+            "{vitest}",
+            "run",
+            "--reporter=junit",
+            "--outputFile",
+            "{output:junit}"
+          ],
+          "cwd": ".",
+          "timeout_seconds": 900
+        }
+      ],
+      "outputs": [
+        {
+          "id": "junit",
+          "source_root": "out",
+          "path": "tests/junit.xml",
+          "kind": "test_result",
+          "format": "junit",
+          "required": true,
+          "publish": "git_if_fits"
+        }
+      ],
+      "quality_gate": {
+        "test_required": true,
+        "minimum_executed": 1,
+        "required_outputs": [
+          "junit"
+        ]
+      }
+    }
+  }
+}

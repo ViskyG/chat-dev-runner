@@ -1,0 +1,354 @@
+{
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "const": "cdr-mailbox/2"
+    },
+    "runner_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+    },
+    "slot_token": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "dispatch": {
+      "enum": [
+        "DRAFT",
+        "READY",
+        "ACCEPTED",
+        "REJECTED",
+        "NEEDS_RESUBMIT"
+      ]
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "action": {
+          "enum": [
+            "RUN_TASK",
+            "SHELL",
+            "CANCEL",
+            "STATUS",
+            "REDELIVER"
+          ]
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "enum": [
+                "github_branch",
+                "local_workspace"
+              ]
+            },
+            "branch": {
+              "type": "string",
+              "minLength": 1
+            },
+            "workspace_id": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+            }
+          },
+          "required": [
+            "kind",
+            "branch"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "local_workspace"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "workspace_id"
+                ]
+              }
+            }
+          ]
+        },
+        "task": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+        },
+        "execution": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "enum": [
+                "native",
+                "container"
+              ]
+            },
+            "expected_os": {
+              "enum": [
+                "linux",
+                "windows",
+                "macos"
+              ]
+            },
+            "backend_id": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+            },
+            "profile_id": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+            },
+            "timeout_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 86400
+            }
+          },
+          "required": [
+            "mode",
+            "expected_os",
+            "timeout_seconds"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "container"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "backend_id"
+                ]
+              }
+            }
+          ]
+        },
+        "shell": {
+          "type": "object",
+          "properties": {
+            "dialect": {
+              "enum": [
+                "bash",
+                "sh",
+                "pwsh",
+                "cmd"
+              ]
+            },
+            "script": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32768
+            }
+          },
+          "required": [
+            "dialect",
+            "script"
+          ],
+          "additionalProperties": false
+        },
+        "target_request_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "request_id",
+        "action"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "RUN_TASK"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "source",
+              "task",
+              "execution"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "shell"
+                  ]
+                },
+                {
+                  "required": [
+                    "target_request_id"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "SHELL"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "source",
+              "shell",
+              "execution"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "task"
+                  ]
+                },
+                {
+                  "required": [
+                    "target_request_id"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "enum": [
+                  "CANCEL",
+                  "STATUS",
+                  "REDELIVER"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "target_request_id"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "source"
+                  ]
+                },
+                {
+                  "required": [
+                    "task"
+                  ]
+                },
+                {
+                  "required": [
+                    "execution"
+                  ]
+                },
+                {
+                  "required": [
+                    "shell"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "receipt": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "request_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "accepted_slot_token": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "payload_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "status": {
+              "enum": [
+                "ACCEPTED",
+                "REJECTED",
+                "NEEDS_RESUBMIT",
+                "ACK_UNKNOWN"
+              ]
+            },
+            "queue_sequence": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1
+            },
+            "code": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "request_id",
+            "accepted_slot_token",
+            "payload_sha256",
+            "status",
+            "queue_sequence",
+            "code"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "protocol",
+    "runner_id",
+    "project_id",
+    "slot_token",
+    "dispatch",
+    "request",
+    "receipt"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cdr:mailbox:2",
+  "title": "Proposed reusable live-intake mailbox; NOT implemented in baseline"
+}

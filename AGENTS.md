@@ -1,5 +1,30 @@
 # Agent entry contract
 
+## Approved v2 frontier
+The owner approved implementation of the 2026-10-15 GP-00–GP-09 stage with
+“Давай, можно использовать субагентов” after its complete implementation plan.
+Use `design/github-native-v2/00_START_HERE.md` and the selected GP packet.
+This approval permits the proposed source changes, focused construction/integration
+checks, necessary operator instructions, and bounded subagent work. Reuse unchanged
+evidence; perform broad regression only at a stable integration/release boundary.
+Do not restart unrelated old EP-07 acceptance before developing this stage.
+
+For new v2 bindings, final owner decisions supersede the historical no-queue,
+mandatory-Drive, container-only, admission-time source and draft-PR assumptions.
+Implement live-session FIFO with one execution lane, optional GitHub/Docs,
+current-at-start frozen source, explicit ordinary-user native/container execution,
+and additive results in the tested branch. No offline replay or model loop.
+Preserve v1 historical readers and original explicit-base semantics. Keep the
+existing Drive root/index and credentials outside the repository. Missing real
+OS/provider qualification must be reported, never inferred from a mock.
+
+The implementation worktree is separate from the owner's Magic Scissors branch.
+Do not modify unrelated work or register global skills as part of local imports.
+The owner's stage approval is the authorization source; do not claim that it
+individually approved a later exact diff or an unrelated OS/tool installation.
+
+## Historical v1 context
+
 Read `STATUS.json`, then `codex/START_HERE.md`. Execute only the selected packet.
 EP-00 through EP-06 are verified. EP-07 has an installed owner-user `0.2.7`
 service from a locked wheel, active and enabled on loopback. `Linger=yes` is

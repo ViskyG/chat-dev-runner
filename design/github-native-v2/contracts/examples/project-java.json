@@ -1,0 +1,41 @@
+{
+  "protocol": "cdr-project/2",
+  "project_id": "example-project",
+  "tasks": {
+    "test": {
+      "language": "java",
+      "profile_id": "java-basic",
+      "steps": [
+        {
+          "id": "test-1",
+          "phase": "test",
+          "argv": [
+            "{maven}",
+            "--batch-mode",
+            "test"
+          ],
+          "cwd": ".",
+          "timeout_seconds": 900
+        }
+      ],
+      "outputs": [
+        {
+          "id": "junit",
+          "source_root": "workspace",
+          "path": "target/surefire-reports/TEST-*.xml",
+          "kind": "test_result",
+          "format": "junit",
+          "required": true,
+          "publish": "git_if_fits"
+        }
+      ],
+      "quality_gate": {
+        "test_required": true,
+        "minimum_executed": 1,
+        "required_outputs": [
+          "junit"
+        ]
+      }
+    }
+  }
+}

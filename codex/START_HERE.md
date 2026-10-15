@@ -1,5 +1,17 @@
 # Codex entry point
 
+Current frontier: **GP-01**, after read-only GP-00 matched commit `ac7d55d`
+and all 17 design source anchors. Read the selected packet under
+[the approved v2 design](../design/github-native-v2/00_START_HERE.md).
+The owner approved the complete proposed GP implementation stage in chat on
+2026-10-15. Preserve old EP evidence and v1 routes; carry relevant recovery gaps
+forward without making unrelated EP-07 sign-off a prerequisite. Use focused
+checks while building, integration proof at capability boundaries and one
+justified broad regression after source freeze. No repeated unchanged-state
+re-proving or extensive intermediate documentation cycles.
+
+The text below describes the historical v1 frontier, not the current GP order.
+
 This repository is the source for an **installed owner-user runner**; EP-07 release
 acceptance is still in progress. EP-00 through EP-06 are verified: transient loopback
 intake, the existing Drive installation, private GitHub writes,

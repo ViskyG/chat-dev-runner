@@ -1,6 +1,6 @@
 {
   "version": "0.4.0-EP07-in-progress",
-  "date": "2026-09-29",
+  "date": "2026-10-15",
   "ui": "EP-06 VERIFIED packaged same-origin control centre. Installed 0.2.6 browser/API acceptance matched the prior passing/failing runs, JUnit, 18 dark/light/reduced-motion screenshots, keyboard/viewport behavior and exact-workspace VS Code open request. Focused installed 0.2.7 Chromium readback passed keyboard Console/Tests tab selection and registered JUnit inspection GETs for both runs; the disabled GitHub import option exposed its exact visible/accessibility reason, and the enabled local-context dialog explained local-only scope and unavailable diff. The browser-only context form was not submitted during that UI probe; a separate installed owner-local API EXPORT_CONTEXT operation later completed. These runs contain no structured application-log output, so installed Console inspection GET for that format is not claimed. A focused installed browser GET-failure probe showed truthful partial/global offline status, disabled command reasons, accessible retry and online recovery while retaining the same historical run; old run badges stay visible beneath the global offline strip. See verification/implementation/EP-07/installed-ui-0.2.7.json, installed-ui-0.2.7-offline.json and ui-evidence-installed-20260928.md.",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
@@ -25,7 +25,7 @@
     "source": "Owner update after archive creation; seed is a reference specification"
   },
   "implementation": {
-    "selected_packet": "EP-07",
+    "selected_packet": "GP-01",
     "packets": {
       "EP-00": "VERIFIED",
       "EP-01": "VERIFIED",
@@ -131,7 +131,17 @@
     "ep07_live_retarget_027": "verification/implementation/EP-07/live-workspace-retarget-0.2.7.json",
     "ep07_installed_ui_027": "verification/implementation/EP-07/installed-ui-0.2.7.json",
     "ep07_context_live": "verification/implementation/EP-07/installed-context-0.2.7.json",
-    "ep07_installed_offline_ui": "verification/implementation/EP-07/installed-ui-0.2.7-offline.json"
+    "ep07_installed_offline_ui": "verification/implementation/EP-07/installed-ui-0.2.7-offline.json",
+    "gp_stage": {
+      "design": "design/github-native-v2",
+      "baseline_commit": "ac7d55ddce58bcb422bae821b2550483592f7975",
+      "status": "IN_PROGRESS",
+      "owner_authorization": "2026-10-15 chat: Давай, можно использовать субагентов",
+      "scope": "Approved complete preceding GP-00–GP-09 implementation plan; no claim of per-diff approval",
+      "installed_release_changed": false,
+      "previous_v1_status_is_historical": true,
+      "verification_policy": "Focused construction checks, real integration boundaries, broad regression at source freeze; reuse applicable evidence"
+    }
   },
   "implementation_source_repository": {
     "local_git": "EP07_IN_PROGRESS_MAIN",

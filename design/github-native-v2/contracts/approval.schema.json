@@ -1,0 +1,91 @@
+{
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "const": "cdr-approval/1"
+    },
+    "proposal_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "paths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1
+          },
+          "without_change": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diff_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "baseline_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "temporary_alternative": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rollback": {
+            "type": "string",
+            "minLength": 1
+          },
+          "owner_decision": {
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "DECLINED"
+            ]
+          },
+          "decision_source": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "item_id",
+          "paths",
+          "purpose",
+          "without_change",
+          "diff_sha256",
+          "baseline_sha256",
+          "temporary_alternative",
+          "rollback",
+          "owner_decision",
+          "decision_source"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "protocol",
+    "proposal_id",
+    "items"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cdr:approval:1"
+}

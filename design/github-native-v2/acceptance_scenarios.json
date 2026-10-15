@@ -1,0 +1,1395 @@
+{
+  "schema": "cdr-design-acceptance/1",
+  "requirements": {
+    "R01": "GitHub-only autonomous operation",
+    "R02": "Optional existing Google Docs transport",
+    "R03": "Remote-only DRAFT/READY/runner ACK cycle",
+    "R04": "Immutable accepted intent and no duplicate execution",
+    "R05": "Single lane and live FIFO, no active BUSY rejection",
+    "R06": "Current source at execution start then frozen snapshot",
+    "R07": "No offline replay or accumulated command-history queue",
+    "R08": "Concrete runner and repository-writer trust",
+    "R09": "Real native Linux/Windows/macOS plus explicit container option",
+    "R10": "Same repository and tested branch result-only publication",
+    "R11": "Environment/source/evidence provenance",
+    "R12": "Local sibling fallback; no unsolicited alternate upload/retry",
+    "R13": "Typed tests and program outputs with truthful quality gates",
+    "R14": "Five first languages with qualified profiles",
+    "R15": "Per-item personal approval and reversible temporary option",
+    "R16": "Ordinary-user native shell as a supported option",
+    "R17": "Safe concurrent author/provider changes",
+    "R18": "Recoverable migration preserving existing setup/evidence",
+    "R19": "Finite Compose lifecycle after core",
+    "R20": "Unity last, bounded Editor qualification"
+  },
+  "scenarios": [
+    {
+      "id": "SC-01",
+      "title": "Live GitHub happy path",
+      "initial_and_trigger": "READY written with current token while idle",
+      "expected": "ACK in same file; one run; current branch snapshot; report in tested branch",
+      "packet": "GP-03",
+      "requirements": [
+        "R01",
+        "R03",
+        "R06"
+      ],
+      "design_evidence": "model+git-local",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-02",
+      "title": "Docs human happy path",
+      "initial_and_trigger": "Human edits DRAFT and sets READY last",
+      "expected": "Runner sets ACCEPTED without local CLI; human can reuse document",
+      "packet": "GP-04",
+      "requirements": [
+        "R02",
+        "R03"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-03",
+      "title": "Docs chat happy path",
+      "initial_and_trigger": "A chat uses the same registered Doc and revision-aware tool",
+      "expected": "Same protocol, receipt and results as human; no hidden local send step",
+      "packet": "GP-04",
+      "requirements": [
+        "R02",
+        "R03"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-04",
+      "title": "GitHub-only startup",
+      "initial_and_trigger": "No Google account/SDK/configuration is present",
+      "expected": "Healthy GitHub intake and native tasks; zero required Google calls",
+      "packet": "GP-02",
+      "requirements": [
+        "R01"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-05",
+      "title": "Drive outage with healthy GitHub",
+      "initial_and_trigger": "Enabled Drive provider fails independently",
+      "expected": "GitHub remains usable; Drive shows its own stale/failed state",
+      "packet": "GP-02",
+      "requirements": [
+        "R01",
+        "R02"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-06",
+      "title": "DRAFT or incomplete JSON",
+      "initial_and_trigger": "Author pauses mid-edit",
+      "expected": "No candidate/running process; readable non-destructive intake diagnosis",
+      "packet": "GP-04",
+      "requirements": [
+        "R03"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-07",
+      "title": "Malformed READY",
+      "initial_and_trigger": "Syntactically invalid command text",
+      "expected": "No execution and no guessed request ID; keep user text intact",
+      "packet": "GP-04",
+      "requirements": [
+        "R03"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-08",
+      "title": "READY edited before ACK",
+      "initial_and_trigger": "Correct payload changes between read and conditional write",
+      "expected": "INPUT_CHANGED; no execution; changed draft not overwritten",
+      "packet": "GP-03",
+      "requirements": [
+        "R03",
+        "R04"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-09",
+      "title": "ACK lost response",
+      "initial_and_trigger": "Provider applies ACK but response is lost",
+      "expected": "ACK_UNKNOWN; no spawn until exact proof; never guess",
+      "packet": "GP-03",
+      "requirements": [
+        "R03",
+        "R04"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-10",
+      "title": "ACK lost and proof retained",
+      "initial_and_trigger": "Readback contains exact accepted token/request/hash",
+      "expected": "Reconcile within same session, at most one queue entry",
+      "packet": "GP-04",
+      "requirements": [
+        "R03",
+        "R04"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-11",
+      "title": "ACK lost and overwritten",
+      "initial_and_trigger": "Newer command replaced old response; no exact proof remains",
+      "expected": "Explicit unresolved acceptance; no automatic run from guessed old intent",
+      "packet": "GP-04",
+      "requirements": [
+        "R03",
+        "R04"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-12",
+      "title": "Human identifiers",
+      "initial_and_trigger": "Human repeats same task after prior ACCEPTED",
+      "expected": "Runner-generated ID/token advances; no UUID calculation required",
+      "packet": "GP-04",
+      "requirements": [
+        "R03"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-13",
+      "title": "Repeated observation",
+      "initial_and_trigger": "Identical accepted file observed repeatedly",
+      "expected": "No second queue entry/run, even after result commit",
+      "packet": "GP-03",
+      "requirements": [
+        "R04"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-14",
+      "title": "Same ID through two transports",
+      "initial_and_trigger": "Identical explicit request ID and payload in Docs/GitHub",
+      "expected": "Return same identity, no second execution",
+      "packet": "GP-04",
+      "requirements": [
+        "R04"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-15",
+      "title": "ID reused with changed payload",
+      "initial_and_trigger": "New command changes intent under old explicit ID",
+      "expected": "REQUEST_ID_REUSED; frozen original unchanged",
+      "packet": "GP-02",
+      "requirements": [
+        "R04"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-16",
+      "title": "Live queue while busy",
+      "initial_and_trigger": "One run active; second and third submissions ACKed",
+      "expected": "Single execution lane; others FIFO in acceptance order",
+      "packet": "GP-02",
+      "requirements": [
+        "R05"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-17",
+      "title": "Concurrent authors same slot",
+      "initial_and_trigger": "Two agents read same file revision then publish different payloads",
+      "expected": "Second conditional writer detects conflict; no silent merge of intents",
+      "packet": "GP-03",
+      "requirements": [
+        "R03",
+        "R17"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-18",
+      "title": "Queue capacity",
+      "initial_and_trigger": "Bound reached during continuous submission",
+      "expected": "Explicit QUEUE_FULL, never accepted-and-dropped",
+      "packet": "GP-02",
+      "requirements": [
+        "R05"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-19",
+      "title": "No offline backlog",
+      "initial_and_trigger": "Runner starts with pre-existing READY",
+      "expected": "NEEDS_RESUBMIT; no history scan or automatic code execution",
+      "packet": "GP-02",
+      "requirements": [
+        "R05",
+        "R07"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-20",
+      "title": "Remote resubmission",
+      "initial_and_trigger": "After startup baseline author resends via same slot",
+      "expected": "New live acceptance with no required local action",
+      "packet": "GP-02",
+      "requirements": [
+        "R03",
+        "R07"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-21",
+      "title": "Observation gap",
+      "initial_and_trigger": "Provider unavailable/sleep breaks continuous observation",
+      "expected": "Baseline latest slot on recovery; unaccepted READY requires resubmission",
+      "packet": "GP-02",
+      "requirements": [
+        "R07"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-22",
+      "title": "Already accepted queue / provider outage",
+      "initial_and_trigger": "Docs breaks but an accepted local-source run is ready",
+      "expected": "May execute accepted task within same session; do not discover old requests",
+      "packet": "GP-02",
+      "requirements": [
+        "R05",
+        "R07"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-23",
+      "title": "Restart with queued tasks",
+      "initial_and_trigger": "Controller restarts before queued task started",
+      "expected": "SUSPENDED_RESTART; records retained, no automatic replay",
+      "packet": "GP-02",
+      "requirements": [
+        "R05",
+        "R07"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-24",
+      "title": "Crash after claim before spawn",
+      "initial_and_trigger": "STARTING is durable; no process-start evidence",
+      "expected": "INTERRUPTED/uncertain; do not assume safe automatic rerun",
+      "packet": "GP-05",
+      "requirements": [
+        "R04",
+        "R07"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-25",
+      "title": "Crash while running",
+      "initial_and_trigger": "Worker/process may survive controller",
+      "expected": "Reconcile process identity/cleanup, preserve partial evidence; no double run",
+      "packet": "GP-05",
+      "requirements": [
+        "R04",
+        "R07",
+        "R09"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-26",
+      "title": "Queue cancellation",
+      "initial_and_trigger": "Task B waits behind long task A; cancel B via mailbox",
+      "expected": "Control bypasses FIFO; B never spawns",
+      "packet": "GP-02",
+      "requirements": [
+        "R05",
+        "R03"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-27",
+      "title": "Running cancellation",
+      "initial_and_trigger": "Cancel active task with child/grandchild",
+      "expected": "Native lifecycle cleanup and partial output; prompt control response",
+      "packet": "GP-05",
+      "requirements": [
+        "R09"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-28",
+      "title": "Complete old / new draft",
+      "initial_and_trigger": "A completes while author writes B in COMMAND",
+      "expected": "A result saved separately; B text and status unchanged",
+      "packet": "GP-04",
+      "requirements": [
+        "R03"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-29",
+      "title": "Current-at-start",
+      "initial_and_trigger": "Branch changes while request waits",
+      "expected": "Run resolves latest fetched HEAD at start, not submission SHA",
+      "packet": "GP-03",
+      "requirements": [
+        "R06"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-30",
+      "title": "Source edit while running",
+      "initial_and_trigger": "Author modifies workspace/branch after snapshot",
+      "expected": "Frozen input remains valid historically; no new-source pass claim",
+      "packet": "GP-05",
+      "requirements": [
+        "R06"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-31",
+      "title": "Remote unavailable at start",
+      "initial_and_trigger": "Only stale remote-tracking cache exists",
+      "expected": "SOURCE_UNAVAILABLE; cached code not labelled current",
+      "packet": "GP-03",
+      "requirements": [
+        "R06"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-32",
+      "title": "Local dirty snapshot",
+      "initial_and_trigger": "Explicit local_workspace includes dirty/untracked files",
+      "expected": "Record actual file snapshot and dirty provenance; never claim pure commit",
+      "packet": "GP-05",
+      "requirements": [
+        "R06",
+        "R11"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-33",
+      "title": "File changes during capture",
+      "initial_and_trigger": "Editor writes while local snapshot copied",
+      "expected": "Retry bounded or INPUT_CHANGED; no mixed snapshot advertised",
+      "packet": "GP-05",
+      "requirements": [
+        "R06"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-34",
+      "title": "Branch disappeared",
+      "initial_and_trigger": "Selected source/result branch is deleted",
+      "expected": "Source or delivery blocker; do not guess main or recreate branch",
+      "packet": "GP-03",
+      "requirements": [
+        "R06",
+        "R10"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-35",
+      "title": "Results while branch advances",
+      "initial_and_trigger": "Test A, author pushes B during run",
+      "expected": "Append results to latest branch preserving B; report says tested A",
+      "packet": "GP-03",
+      "requirements": [
+        "R10"
+      ],
+      "design_evidence": "git-local",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-36",
+      "title": "Publication race",
+      "initial_and_trigger": "Another commit wins after result parent was selected",
+      "expected": "Reject stale non-force push, rebuild only result patch; bounded attempts",
+      "packet": "GP-03",
+      "requirements": [
+        "R10"
+      ],
+      "design_evidence": "git-local",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-37",
+      "title": "Two runners one branch",
+      "initial_and_trigger": "Different concrete runner IDs publish simultaneously",
+      "expected": "Distinct result subtrees retained; additive commit races handled",
+      "packet": "GP-03",
+      "requirements": [
+        "R08",
+        "R10"
+      ],
+      "design_evidence": "git-local",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-38",
+      "title": "Protected branch",
+      "initial_and_trigger": "Result direct push denied",
+      "expected": "Keep complete local bundle beside source; no unsolicited PR/other branch",
+      "packet": "GP-03",
+      "requirements": [
+        "R10",
+        "R12"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-39",
+      "title": "GitHub down at finish",
+      "initial_and_trigger": "Task completes, upload unavailable",
+      "expected": "Local result is truthful; no claim even pointer reached GitHub",
+      "packet": "GP-03",
+      "requirements": [
+        "R12"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-40",
+      "title": "Delivery response lost",
+      "initial_and_trigger": "Push may have succeeded, confirmation missing",
+      "expected": "Exact commit/digest readback or UNKNOWN; no rerun",
+      "packet": "GP-03",
+      "requirements": [
+        "R04",
+        "R10"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-41",
+      "title": "Explicit redelivery",
+      "initial_and_trigger": "Author requests existing local result again",
+      "expected": "Delivery only, same bytes/source, invocation count unchanged",
+      "packet": "GP-03",
+      "requirements": [
+        "R12",
+        "R04"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-42",
+      "title": "Oversized output",
+      "initial_and_trigger": "Program produces result exceeding Git/provider budget",
+      "expected": "Keep original locally; report exact path/machine/hash/size/reason",
+      "packet": "GP-03",
+      "requirements": [
+        "R12"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-43",
+      "title": "Disk full",
+      "initial_and_trigger": "Even minimal local write may fail",
+      "expected": "LOCAL_PERSISTENCE_FAILED, no false saved assertion; do not overwrite old evidence",
+      "packet": "GP-05",
+      "requirements": [
+        "R12"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-44",
+      "title": "Normal test failure",
+      "initial_and_trigger": "Tests fail in a healthy execution route",
+      "expected": "Operation completes; test FAILED distinct from infra/delivery",
+      "packet": "GP-06",
+      "requirements": [
+        "R13"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-45",
+      "title": "Zero/all-skipped tests",
+      "initial_and_trigger": "Exit 0 but no test executed",
+      "expected": "INSUFFICIENT by default, not PASSED",
+      "packet": "GP-06",
+      "requirements": [
+        "R13"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-46",
+      "title": "Damaged report",
+      "initial_and_trigger": "Exit 0 with invalid required XML",
+      "expected": "Keep raw output, parse warning and insufficient gate; no invented counts",
+      "packet": "GP-06",
+      "requirements": [
+        "R13"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-47",
+      "title": "Missing program artifact",
+      "initial_and_trigger": "Tests pass but required JSON/CSV/build is absent",
+      "expected": "Required-output gate fails independently of process code",
+      "packet": "GP-06",
+      "requirements": [
+        "R13"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-48",
+      "title": "Build-only project",
+      "initial_and_trigger": "Task requests build without tests",
+      "expected": "Build result valid without invented test run/cases",
+      "packet": "GP-06",
+      "requirements": [
+        "R13"
+      ],
+      "design_evidence": "model",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-49",
+      "title": "Python native profiles",
+      "initial_and_trigger": "Prepared pytest CLI/package on each OS",
+      "expected": "Real report, environment and declared program output",
+      "packet": "GP-06",
+      "requirements": [
+        "R14",
+        "R09"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-50",
+      "title": "JavaScript native profiles",
+      "initial_and_trigger": "npm/Vitest project, cold and warm cache",
+      "expected": "Genuine reporter output and bundle; failed tests remain failed",
+      "packet": "GP-06",
+      "requirements": [
+        "R14",
+        "R09"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-51",
+      "title": "TypeScript typecheck failure",
+      "initial_and_trigger": "Type errors but runtime tests could pass",
+      "expected": "Separate typecheck FAILED; do not hide behind test success",
+      "packet": "GP-06",
+      "requirements": [
+        "R14"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-52",
+      "title": "Java compile/dependency failure",
+      "initial_and_trigger": "Maven fails before Surefire ran",
+      "expected": "Tests NOT_RUN; resolved deps/compile logs show actual phase",
+      "packet": "GP-06",
+      "requirements": [
+        "R14"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-53",
+      "title": "C# test host distinction",
+      "initial_and_trigger": "VSTest vs MTP/target frameworks",
+      "expected": "Correct recipe and native reports; no silent logger assumption",
+      "packet": "GP-06",
+      "requirements": [
+        "R14"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-54",
+      "title": "Unknown framework/manager",
+      "initial_and_trigger": "Jest/Gradle/pnpm or missing lock not qualified",
+      "expected": "Specific preparation proposal, not automatic framework migration",
+      "packet": "GP-06",
+      "requirements": [
+        "R14",
+        "R15"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-55",
+      "title": "Native Windows process tree",
+      "initial_and_trigger": "Child/grandchild + cancel/crash/quoted Unicode paths",
+      "expected": "Job lifecycle tested; no POSIX imports, truthful outputs",
+      "packet": "GP-05",
+      "requirements": [
+        "R09"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-56",
+      "title": "Native macOS process tree",
+      "initial_and_trigger": "Paths/locale/service+sleep/cancel fixture",
+      "expected": "Actual macOS execution, cleanup and LaunchAgent evidence",
+      "packet": "GP-05",
+      "requirements": [
+        "R09"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-57",
+      "title": "Native Linux process tree",
+      "initial_and_trigger": "Existing service + ordinary-user tasks",
+      "expected": "Cancellation/process identity/storage evidence; existing rootless unaffected",
+      "packet": "GP-05",
+      "requirements": [
+        "R09"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-58",
+      "title": "Native shell",
+      "initial_and_trigger": "Any repository writer selects shell with enrolled ordinary-user mode",
+      "expected": "No forced container/special account/per-command operator approval",
+      "packet": "GP-05",
+      "requirements": [
+        "R08",
+        "R16"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-59",
+      "title": "Container on different host",
+      "initial_and_trigger": "Linux container on Windows/macOS",
+      "expected": "Host and guest recorded; not counted as native Windows/macOS",
+      "packet": "GP-05",
+      "requirements": [
+        "R09",
+        "R11"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-60",
+      "title": "Native output leakage check",
+      "initial_and_trigger": "Program emits token-like value/ANSI/HTML",
+      "expected": "Raw local vs sanitized published variant distinguished; inert display",
+      "packet": "GP-06",
+      "requirements": [
+        "R11",
+        "R13"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-61",
+      "title": "Environment explanation",
+      "initial_and_trigger": "Two runs differ in runtime/arch/locks/profile",
+      "expected": "Manifest captures differences, unknown facts remain null/unknown",
+      "packet": "GP-06",
+      "requirements": [
+        "R11"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-62",
+      "title": "Approval per item",
+      "initial_and_trigger": "Owner approves only some proposed preparation changes",
+      "expected": "Only named approved diffs applied; no other file/CI/SDK changes",
+      "packet": "GP-07",
+      "requirements": [
+        "R15"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-63",
+      "title": "Temporary preparation",
+      "initial_and_trigger": "Owner selects reversible per-run overlay",
+      "expected": "Original unchanged; overlay and tested source both recorded; checked rollback",
+      "packet": "GP-07",
+      "requirements": [
+        "R15",
+        "R06"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-64",
+      "title": "Permission model",
+      "initial_and_trigger": "Trusted repository collaborator sends task",
+      "expected": "Accepted without additional operator ACL; scope remains enrolled repo/runner",
+      "packet": "GP-03",
+      "requirements": [
+        "R08"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-65",
+      "title": "Fresh chat without memory",
+      "initial_and_trigger": "Read enrolled START HERE then send task",
+      "expected": "All IDs/contracts discoverable; no hidden workflow state or local send command",
+      "packet": "GP-07",
+      "requirements": [
+        "R01",
+        "R02",
+        "R03"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-66",
+      "title": "Upgrade rollback",
+      "initial_and_trigger": "Migrate existing DB/service and roll back controlled copy",
+      "expected": "Historical evidence/Drive IDs preserved; old binary never opens new schema",
+      "packet": "GP-07",
+      "requirements": [
+        "R18"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-67",
+      "title": "Optional runtime unavailable",
+      "initial_and_trigger": "Docker absent but native configured",
+      "expected": "Native works; unavailable container reports exact blocker",
+      "packet": "GP-05",
+      "requirements": [
+        "R09"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-68",
+      "title": "Compose readiness",
+      "initial_and_trigger": "Container starts before DB is healthy",
+      "expected": "Explicit health readiness before test, not a fixed sleep",
+      "packet": "GP-08",
+      "requirements": [
+        "R19"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-69",
+      "title": "Compose cleanup failure",
+      "initial_and_trigger": "Timeout/cancel and uncertain volumes/processes",
+      "expected": "Collect partial results; mark cleanup uncertain and block lane if necessary",
+      "packet": "GP-08",
+      "requirements": [
+        "R19"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-70",
+      "title": "Unity EditMode",
+      "initial_and_trigger": "Installed compatible Editor/license and tiny pass/fail fixture",
+      "expected": "Real NUnit result, environment; no claim of visual/device coverage",
+      "packet": "GP-09",
+      "requirements": [
+        "R20"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-71",
+      "title": "Unity missing capability",
+      "initial_and_trigger": "License/module/Test Framework unavailable",
+      "expected": "Specific blocker and retained logs, no fabricated failure/pass count",
+      "packet": "GP-09",
+      "requirements": [
+        "R20"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-72",
+      "title": "No results recursion",
+      "initial_and_trigger": "Result/ACK commits become branch HEAD",
+      "expected": "No new submission; prior results excluded from next workload snapshot",
+      "packet": "GP-03",
+      "requirements": [
+        "R04",
+        "R06",
+        "R10"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-73",
+      "title": "Path/reference safety",
+      "initial_and_trigger": "Output symlink/reparse/traversal or result-path collision",
+      "expected": "Do not collect unrelated path/overwrite other result; explicit error",
+      "packet": "GP-06",
+      "requirements": [
+        "R13"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    },
+    {
+      "id": "SC-74",
+      "title": "Queue IDs on two installations",
+      "initial_and_trigger": "Same runner ID reused accidentally",
+      "expected": "Enrolment conflict warning; no claim of distributed exactly-once",
+      "packet": "GP-07",
+      "requirements": [
+        "R08"
+      ],
+      "design_evidence": "unrun-live",
+      "live_status": "NOT_RUN",
+      "live_evidence_required": [
+        "actual source/versions",
+        "observed transition/receipt",
+        "invocation count/effects",
+        "result or exact blocker"
+      ]
+    }
+  ],
+  "warning": "Model/local-Git coverage is not live acceptance. All live_status values intentionally NOT_RUN."
+}

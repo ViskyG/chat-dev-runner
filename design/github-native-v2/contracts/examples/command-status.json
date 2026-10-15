@@ -1,0 +1,13 @@
+{
+  "protocol": "cdr-mailbox/2",
+  "runner_id": "linux-master",
+  "project_id": "example-project",
+  "slot_token": "d3f160c5-5f74-4e62-aa32-03512d825d4a",
+  "dispatch": "DRAFT",
+  "request": {
+    "request_id": null,
+    "action": "STATUS",
+    "target_request_id": "41e4b458-140e-4e39-a2ca-9afc84744aca"
+  },
+  "receipt": null
+}

@@ -1,0 +1,402 @@
+{
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "const": "cdr-environment/2"
+    },
+    "evidence_level": {
+      "enum": [
+        "EXAMPLE",
+        "OBSERVED_RUN"
+      ]
+    },
+    "runner_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "host": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "build": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "architecture": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "family",
+        "version",
+        "build",
+        "architecture"
+      ],
+      "additionalProperties": false
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "native",
+            "container"
+          ]
+        },
+        "system": {
+          "type": "object",
+          "properties": {
+            "family": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "build": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "architecture": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "family",
+            "version",
+            "build",
+            "architecture"
+          ],
+          "additionalProperties": false
+        },
+        "virtualization": {
+          "enum": [
+            "none",
+            "wsl",
+            "vm",
+            "container",
+            "unknown"
+          ]
+        },
+        "emulation": {
+          "enum": [
+            "none",
+            "translated",
+            "unknown"
+          ]
+        },
+        "ordinary_user": {
+          "type": "boolean"
+        },
+        "isolation_claim": {
+          "enum": [
+            "none",
+            "qualified_container",
+            "unqualified"
+          ]
+        }
+      },
+      "required": [
+        "mode",
+        "system",
+        "virtualization",
+        "emulation",
+        "ordinary_user",
+        "isolation_claim"
+      ],
+      "additionalProperties": false
+    },
+    "runner": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_commit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "profile_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "task_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "version",
+        "source_commit",
+        "profile_id",
+        "profile_sha256",
+        "task_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "executable_identity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "probe_status": {
+            "enum": [
+              "OBSERVED",
+              "UNAVAILABLE",
+              "NOT_PROBED"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "executable_identity",
+          "probe_status"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "locked",
+            "resolved_only",
+            "unknown"
+          ]
+        },
+        "lock_hashes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "resolved_manifest_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cache": {
+          "enum": [
+            "cold",
+            "warm",
+            "mixed",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "mode",
+        "lock_hashes",
+        "resolved_manifest_path",
+        "cache"
+      ],
+      "additionalProperties": false
+    },
+    "runtime": {
+      "type": "object",
+      "properties": {
+        "utc_started": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "utc_finished": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "duration_monotonic_seconds": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "locale": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "timezone": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stdout_encoding": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stderr_encoding": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "utc_started",
+        "utc_finished",
+        "duration_monotonic_seconds",
+        "locale",
+        "timezone",
+        "stdout_encoding",
+        "stderr_encoding"
+      ],
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requested": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "enforcement": {
+            "enum": [
+              "hard",
+              "best_effort",
+              "not_enforced",
+              "unknown"
+            ]
+          },
+          "observed_peak": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          }
+        },
+        "required": [
+          "resource",
+          "requested",
+          "unit",
+          "enforcement",
+          "observed_peak"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "container": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "backend": {
+          "type": "string",
+          "minLength": 1
+        },
+        "daemon_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "image_digest": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "network_policy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "required": [
+    "protocol",
+    "evidence_level",
+    "runner_id",
+    "host",
+    "execution",
+    "runner",
+    "tools",
+    "dependencies",
+    "runtime",
+    "limits",
+    "container",
+    "warnings"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cdr:environment:2"
+}

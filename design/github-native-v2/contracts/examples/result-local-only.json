@@ -1,0 +1,60 @@
+{
+  "protocol": "cdr-result/2",
+  "evidence_level": "EXAMPLE",
+  "request_id": "41e4b458-140e-4e39-a2ca-9afc84744aca",
+  "runner_id": "linux-master",
+  "project_id": "example-project",
+  "source": {
+    "kind": "github_branch",
+    "branch": "feature/runner-check",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "workload_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "dirty": false,
+    "overlay_sha256": null
+  },
+  "operation_status": "COMPLETED",
+  "execution": {
+    "outcome": "FAILED",
+    "exit_code": 1,
+    "quality_gate": "FAILED",
+    "cleanup": "CONFIRMED"
+  },
+  "environment": {
+    "host_os": "linux",
+    "host_arch": "x86_64",
+    "execution_os": "linux",
+    "execution_arch": "x86_64",
+    "mode": "native",
+    "runner_version": "EXAMPLE_NOT_OBSERVED",
+    "profile_id": "python-basic",
+    "tool_versions": {
+      "python": null,
+      "pytest": null
+    },
+    "reproducibility": "unknown",
+    "details_path": "environment.json"
+  },
+  "delivery": {
+    "status": "LOCAL_ONLY",
+    "branch": "feature/runner-check",
+    "local_bundle_path": "/example/managed-project/runner-results/linux-master/41e4b458-140e-4e39-a2ca-9afc84744aca",
+    "reason": "PUBLICATION_FAILED"
+  },
+  "artifacts": [
+    {
+      "id": "junit",
+      "kind": "test_result",
+      "format": "junit",
+      "bytes": 150,
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "availability": "LOCAL_ONLY",
+      "local_path": "/example/managed-project/runner-results/linux-master/41e4b458-140e-4e39-a2ca-9afc84744aca/tests/junit.xml",
+      "remote_path": null,
+      "reason": "PUBLICATION_FAILED",
+      "complete": true
+    }
+  ],
+  "warnings": [
+    "Illustrative fixture; no real project run is described."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "scope": "Disposable local bare Git; no GitHub API or network",
+  "git_version": "git version 2.47.3",
+  "tested_commit": "6b8e21d108e5ea5aeabd88a9cee9377dd383c075",
+  "parent_before_race": "9c983a0bf1a08f40caa314a30c6c7c6286229674",
+  "stale_result_commit": "a58e4bf79622816a9759973b8469f240f829e537",
+  "concurrent_developer_commit": "f9182f935478acb010fe6227948447822eeb2c8b",
+  "published_result_commit": "655eaf6d42fb9d301d3befb8ec7139c7232c5b40",
+  "non_fast_forward_rejected": true,
+  "source_preserved": true,
+  "result_only_diff": [
+    ".runner/results/linux-runner/request-fixture/result.json"
+  ],
+  "two_runner_paths_preserved": true,
+  "temporary_repositories_removed_on_exit": true
+}

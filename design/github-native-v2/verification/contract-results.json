@@ -1,0 +1,87 @@
+{
+  "scope": "Design JSON schemas and inert examples only; not runtime integration",
+  "schema_count": 5,
+  "valid_examples": [
+    {
+      "example": "contracts/examples/approval-pending.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/command-cancel.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/command-container-linux.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/command-native-linux.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/command-native-macos.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/command-native-windows.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/command-redeliver.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/command-shell.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/command-status.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/environment-native.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/project-csharp.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/project-java.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/project-javascript.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/project-python.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/project-typescript.json",
+      "status": "PASS"
+    },
+    {
+      "example": "contracts/examples/result-local-only.json",
+      "status": "PASS"
+    }
+  ],
+  "negative_checks": [
+    "bad-slot-uuid",
+    "run-missing-source",
+    "shell-missing-script",
+    "control-cannot-hide-shell",
+    "unknown-envelope-field",
+    "container-needs-backend",
+    "invalid-result-hash",
+    "cannot-assume-approval",
+    "unsafe-path:../secret",
+    "unsafe-path:/etc/passwd",
+    "unsafe-path:C:/secret",
+    "unsafe-path:a\\b",
+    "unsafe-path:a//b",
+    "no-fictional-native-sandbox"
+  ],
+  "status": "PASS"
+}

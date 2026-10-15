@@ -1,0 +1,45 @@
+{
+  "design_session_id": "cdr-design-20261015-github-native-v2",
+  "status": "DESIGN_COMPLETE_IMPLEMENTATION_PENDING",
+  "completed_utc": "2026-10-15T08:21:21.525739+00:00",
+  "owner_request": "Current conversation: design next GitHub/multilanguage stage for Codex integration",
+  "baseline_repository": "ViskyG/chat-dev-runner",
+  "baseline_commit": "ac7d55ddce58bcb422bae821b2550483592f7975",
+  "owner_confirms_local_checkout_matches": true,
+  "production_mutations_performed": false,
+  "live_runner_probed": false,
+  "external_registry_or_transit_mutations_performed": false,
+  "external_registry_note": "This handoff uses the local packet graph; no global scheduling/publication action was requested.",
+  "deliverable": "Design sidecar, proposed schemas, draft bilingual skills, offline reference model and evidence",
+  "entrypoint": "00_START_HERE.md",
+  "initial_frontier": "GP-00: read-only source/approval proposal; changes require itemized owner approval",
+  "outstanding_implementation_packets": [
+    "GP-00",
+    "GP-01",
+    "GP-02",
+    "GP-03",
+    "GP-04",
+    "GP-05",
+    "GP-06",
+    "GP-07",
+    "GP-08",
+    "GP-09"
+  ],
+  "measured_checks": {
+    "model_tests": 62,
+    "event_permutations": 120,
+    "schemas": 5,
+    "examples": 16,
+    "negative_checks": 14,
+    "local_git_experiment": "PASS"
+  },
+  "unperformed_checks": [
+    "actual Runner source/regression",
+    "live GitHub/Google API",
+    "multiprocess provider races",
+    "native Windows/macOS installation",
+    "five-language projects",
+    "Compose",
+    "Unity"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "executed_utc": "2026-10-15T08:16:21.241911+00:00",
+  "duration_seconds": 2.959,
+  "environment": {
+    "python": "3.13.5",
+    "os": "Linux",
+    "arch": "x86_64"
+  },
+  "model_tests": 62,
+  "model_failures": 0,
+  "model_errors": 0,
+  "sequential_event_permutations_inside_one_test": 120,
+  "other_checks": [
+    {
+      "script": "check_contracts.py",
+      "exit_code": 0,
+      "stdout": "PASS: 5 schemas, 16 inert examples, 14 negative checks\n",
+      "stderr": ""
+    },
+    {
+      "script": "git_publication_experiment.py",
+      "exit_code": 0,
+      "stdout": "PASS: stale publication rejected; same-branch result-only retry preserves current source and both runner results\n",
+      "stderr": ""
+    }
+  ],
+  "scope": "Offline state model, proposed schemas, and disposable local Git only",
+  "not_tested": [
+    "actual Runner source/regression",
+    "live GitHub/Google API",
+    "multiprocess provider races",
+    "native Windows/macOS installation",
+    "five-language projects",
+    "Compose",
+    "Unity"
+  ],
+  "caveats": [
+    "FakeMailbox substitutes for provider conditional writes.",
+    "Model payload/IDs abstract the full transport schema, which is validated separately.",
+    "Model cancellation assumes the stop transition; native cleanup is not implemented by this model.",
+    "Sequence permutations are sequential logical orderings, not actual thread concurrency."
+  ]
+}

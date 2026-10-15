@@ -1,0 +1,22 @@
+{
+  "protocol": "cdr-mailbox/2",
+  "runner_id": "macos-runner",
+  "project_id": "example-project",
+  "slot_token": "d3f160c5-5f74-4e62-aa32-03512d825d4a",
+  "dispatch": "DRAFT",
+  "request": {
+    "request_id": null,
+    "action": "RUN_TASK",
+    "source": {
+      "kind": "github_branch",
+      "branch": "feature/runner-check"
+    },
+    "task": "test",
+    "execution": {
+      "mode": "native",
+      "expected_os": "macos",
+      "timeout_seconds": 900
+    }
+  },
+  "receipt": null
+}

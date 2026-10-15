@@ -1,0 +1,67 @@
+{
+  "protocol": "cdr-environment/2",
+  "evidence_level": "EXAMPLE",
+  "runner_id": "linux-master",
+  "host": {
+    "family": "linux",
+    "version": null,
+    "build": null,
+    "architecture": "x86_64"
+  },
+  "execution": {
+    "mode": "native",
+    "system": {
+      "family": "linux",
+      "version": null,
+      "build": null,
+      "architecture": "x86_64"
+    },
+    "virtualization": "none",
+    "emulation": "none",
+    "ordinary_user": true,
+    "isolation_claim": "none"
+  },
+  "runner": {
+    "version": "EXAMPLE_NOT_OBSERVED",
+    "source_commit": null,
+    "profile_id": "python-basic",
+    "profile_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "task_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "tools": [
+    {
+      "name": "python",
+      "version": null,
+      "executable_identity": null,
+      "probe_status": "NOT_PROBED"
+    }
+  ],
+  "dependencies": {
+    "mode": "unknown",
+    "lock_hashes": {},
+    "resolved_manifest_path": null,
+    "cache": "unknown"
+  },
+  "runtime": {
+    "utc_started": null,
+    "utc_finished": null,
+    "duration_monotonic_seconds": null,
+    "locale": null,
+    "timezone": null,
+    "stdout_encoding": null,
+    "stderr_encoding": null
+  },
+  "limits": [
+    {
+      "resource": "memory",
+      "requested": null,
+      "unit": "bytes",
+      "enforcement": "not_enforced",
+      "observed_peak": null
+    }
+  ],
+  "container": null,
+  "warnings": [
+    "Synthetic structure only. No native runtime is claimed to have been probed."
+  ]
+}

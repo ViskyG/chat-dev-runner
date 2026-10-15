@@ -1,0 +1,20 @@
+{
+  "protocol": "cdr-approval/1",
+  "proposal_id": "8cc70d4b-cb2b-4e98-b7e8-a1d8ed76db74",
+  "items": [
+    {
+      "item_id": "AP-EXAMPLE",
+      "paths": [
+        ".runner/project.json"
+      ],
+      "purpose": "Declare current test and output contract",
+      "without_change": "Runner cannot confirm required artifacts",
+      "diff_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "baseline_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "temporary_alternative": "Use a reviewed per-run overlay in a disposable work copy",
+      "rollback": "Remove only the approved generated file if its post-change hash still matches",
+      "owner_decision": "PENDING",
+      "decision_source": null
+    }
+  ]
+}

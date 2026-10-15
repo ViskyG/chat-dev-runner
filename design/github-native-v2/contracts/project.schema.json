@@ -1,0 +1,186 @@
+{
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "const": "cdr-project/2"
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+    },
+    "tasks": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "enum": [
+              "python",
+              "javascript",
+              "typescript",
+              "java",
+              "csharp"
+            ]
+          },
+          "profile_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+                },
+                "phase": {
+                  "enum": [
+                    "prepare",
+                    "typecheck",
+                    "test",
+                    "build",
+                    "run"
+                  ]
+                },
+                "argv": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1,
+                  "maxItems": 64
+                },
+                "cwd": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "timeout_seconds": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 86400
+                }
+              },
+              "required": [
+                "id",
+                "phase",
+                "argv",
+                "cwd",
+                "timeout_seconds"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 32
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+                },
+                "source_root": {
+                  "enum": [
+                    "out",
+                    "workspace"
+                  ]
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                "kind": {
+                  "enum": [
+                    "test_result",
+                    "coverage",
+                    "application_log",
+                    "report",
+                    "artifact",
+                    "screenshot"
+                  ]
+                },
+                "format": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "publish": {
+                  "enum": [
+                    "git_if_fits",
+                    "local_only"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "source_root",
+                "path",
+                "kind",
+                "format",
+                "required",
+                "publish"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 64
+          },
+          "quality_gate": {
+            "type": "object",
+            "properties": {
+              "test_required": {
+                "type": "boolean"
+              },
+              "minimum_executed": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "required_outputs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+                },
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "test_required",
+              "minimum_executed",
+              "required_outputs"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "language",
+          "profile_id",
+          "steps",
+          "outputs",
+          "quality_gate"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "protocol",
+    "project_id",
+    "tasks"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cdr:project:2"
+}

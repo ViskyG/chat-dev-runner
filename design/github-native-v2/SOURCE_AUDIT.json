@@ -1,0 +1,131 @@
+{
+  "repository": "ViskyG/chat-dev-runner",
+  "commit": "ac7d55ddce58bcb422bae821b2550483592f7975",
+  "observed_branch": "main",
+  "observed_commit_date": "2026-09-29T09:31:14Z",
+  "checked_on": "2026-10-15",
+  "owner_confirms_local_checkout_matches": true,
+  "live_service_probed": false,
+  "inspection_scope": "Targeted source/doc inspection, not a complete line-by-line audit",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "blob_sha": "dd2dc85a40de90d33f8ae9c811f252d86c5cf2ba",
+      "read_scope": "full",
+      "finding": "Old no-queue/rootless/local-authority constraints require explicit superseding design migration.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/AGENTS.md"
+    },
+    {
+      "path": "STATUS.json",
+      "blob_sha": "8ccc115ef49f3384de4220c82b42ad105f7817a9",
+      "read_scope": "relevant status excerpt",
+      "finding": "EP-07 incomplete; installed routes/evidence are reported, not re-run here.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/STATUS.json"
+    },
+    {
+      "path": "codex/START_HERE.md",
+      "blob_sha": "d5fd155e170b870c9db382f7d95d3fe0b36ba438",
+      "read_scope": "full",
+      "finding": "Reuse coherent packet workflow but do not blindly execute unrelated old frontier.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/codex/START_HERE.md"
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "blob_sha": "6c6c237759af0f55fe9a77ed6bb644706698ed8b",
+      "read_scope": "full",
+      "finding": "Existing layering, immutable snapshots, no queue and Drive command authority.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/docs/ARCHITECTURE.md"
+    },
+    {
+      "path": "docs/ENVIRONMENTS.md",
+      "blob_sha": "d357dc91ff74d107f173fc37b9f78c96f87f796f",
+      "read_scope": "full",
+      "finding": "Installed narrow python-basic route, rootless and hard quota limits; node design only.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/docs/ENVIRONMENTS.md"
+    },
+    {
+      "path": "docs/OUTPUTS.md",
+      "blob_sha": "f1a707ddb03ecfed80d581f5366a266ee91a0d3c",
+      "read_scope": "full",
+      "finding": "Separate outcomes, raw evidence, formats, privacy, existing retention constraints.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/docs/OUTPUTS.md"
+    },
+    {
+      "path": "docs/DRIVE_PROTOCOL.md",
+      "blob_sha": "a2f3faf42324d99ea4aaa4a7e6cd10dea5aca0aa",
+      "read_scope": "lines 1-180",
+      "finding": "Exact registered IDs/revision snapshots; currently command is not runner-written.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/docs/DRIVE_PROTOCOL.md"
+    },
+    {
+      "path": "docs/SCENARIOS_AND_ACCEPTANCE.md",
+      "blob_sha": "857e2a11ca470239a41d607fee6b4901e9001067",
+      "read_scope": "full",
+      "finding": "Preserve useful failure/recovery scenarios; replace obsolete queue requirements.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/docs/SCENARIOS_AND_ACCEPTANCE.md"
+    },
+    {
+      "path": "schemas/command.schema.json",
+      "blob_sha": "196202a53b1a8b9044b3d6270ccab342ac05c5d4",
+      "read_scope": "lines 1-220",
+      "finding": "Existing v1 strict schema and operation families; version new envelope separately.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/schemas/command.schema.json"
+    },
+    {
+      "path": "runner_app/engine/service.py",
+      "blob_sha": "2ce5f34ad67542cf0374b12cf00d445a93be4084",
+      "read_scope": "lines 1-260",
+      "finding": "Engine policy/route registration and immediate worker admission; one lane refactor.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/runner_app/engine/service.py"
+    },
+    {
+      "path": "runner_app/engine/runtime.py",
+      "blob_sha": "576a5ff557501d4101c421475163a269601fb415",
+      "read_scope": "full",
+      "finding": "Runtime composition and arm_on_startup require Drive; must decouple.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/runner_app/engine/runtime.py"
+    },
+    {
+      "path": "runner_app/engine/drive_bridge.py",
+      "blob_sha": "5d2882b8b6d345baaa09a260a2b36a1090fcb0a8",
+      "read_scope": "full",
+      "finding": "Periodic Drive polling, state publication, arm and backoff; reuse scheduling.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/runner_app/engine/drive_bridge.py"
+    },
+    {
+      "path": "runner_app/storage/ledger.py",
+      "blob_sha": "af1db1b86fbf23ba7ed3bd6ba50813d20c93ebb3",
+      "read_scope": "lines 1-240",
+      "finding": "Existing journal, effects, BEGIN IMMEDIATE and Admission shape; preserve history.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/runner_app/storage/ledger.py"
+    },
+    {
+      "path": "runner_app/adapters/drive_poller.py",
+      "blob_sha": "91b46340e0e95a1b4d4286482aa72bd89533db53",
+      "read_scope": "lines 1-220",
+      "finding": "FrozenSlotStore and Linux-only renameat2/OS flags need platform treatment.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/runner_app/adapters/drive_poller.py"
+    },
+    {
+      "path": "runner_app/adapters/github.py",
+      "blob_sha": "6f527a516e156dcea39bdd7f7d6b43143eec5593",
+      "read_scope": "lines 1-145",
+      "finding": "Existing REST transport limits and identities; lacks generic mailbox operations.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/runner_app/adapters/github.py"
+    },
+    {
+      "path": "runner_app/executors/profiles.py",
+      "blob_sha": "c36a931ae15a0edac581de2aacc0c3bf55d799e6",
+      "read_scope": "lines 1-245",
+      "finding": "ApprovedProfile restricts backend to rootless_container and Linux platforms.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/runner_app/executors/profiles.py"
+    },
+    {
+      "path": "runner_app/executors/broker.py",
+      "blob_sha": "bf3dfa5fb3606bfc082437ee9b9f2bf450444cb8",
+      "read_scope": "lines 1-155",
+      "finding": "Rootless socket/backend and Linux host path assumptions, budgets.",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/ac7d55ddce58bcb422bae821b2550483592f7975/runner_app/executors/broker.py"
+    }
+  ]
+}

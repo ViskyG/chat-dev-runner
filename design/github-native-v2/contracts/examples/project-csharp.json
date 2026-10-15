@@ -1,0 +1,66 @@
+{
+  "protocol": "cdr-project/2",
+  "project_id": "example-project",
+  "tasks": {
+    "test": {
+      "language": "csharp",
+      "profile_id": "csharp-basic",
+      "steps": [
+        {
+          "id": "prepare-1",
+          "phase": "prepare",
+          "argv": [
+            "{dotnet}",
+            "restore"
+          ],
+          "cwd": ".",
+          "timeout_seconds": 900
+        },
+        {
+          "id": "build-2",
+          "phase": "build",
+          "argv": [
+            "{dotnet}",
+            "build",
+            "--no-restore"
+          ],
+          "cwd": ".",
+          "timeout_seconds": 900
+        },
+        {
+          "id": "test-3",
+          "phase": "test",
+          "argv": [
+            "{dotnet}",
+            "test",
+            "--no-build",
+            "--logger",
+            "trx",
+            "--results-directory",
+            "{out}"
+          ],
+          "cwd": ".",
+          "timeout_seconds": 900
+        }
+      ],
+      "outputs": [
+        {
+          "id": "trx",
+          "source_root": "out",
+          "path": "*.trx",
+          "kind": "test_result",
+          "format": "trx",
+          "required": true,
+          "publish": "git_if_fits"
+        }
+      ],
+      "quality_gate": {
+        "test_required": true,
+        "minimum_executed": 1,
+        "required_outputs": [
+          "trx"
+        ]
+      }
+    }
+  }
+}
