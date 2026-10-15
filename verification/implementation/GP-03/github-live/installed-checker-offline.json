@@ -1,0 +1,9 @@
+{
+  "checker_sha256": "3c7222027969e02ee59d6a0b61ea594611fefcdee9800044678f3ff8665599c0",
+  "credential_reads": 0,
+  "live_database_reads": 0,
+  "network_calls": 0,
+  "provider_writes": 0,
+  "scope": "real temporary schema10 baseline snapshot plus fake current-file client; no installed runtime or remote observation",
+  "status": "OFFLINE_CHECKER_SMOKE_PASSED"
+}
