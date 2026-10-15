@@ -126,6 +126,26 @@ class IntakeStore:
             self._event(c, None, "SESSION_STARTED", {"session_id": session_id})
         return session_id
 
+    def end_session(self, session_id: str) -> None:
+        with self._transaction() as c:
+            c.execute("UPDATE v2_sessions SET ended_at=COALESCE(ended_at,?) WHERE session_id=?",
+                      (_now(), session_id))
+            rows = c.execute("SELECT request_id,status FROM v2_requests WHERE session_id=? "
+                             "AND status IN ('ACK_PENDING','QUEUED','STARTING','RUNNING','CONTROL','CONTROL_RUNNING')",
+                             (session_id,)).fetchall()
+            for row in rows:
+                state = "INTERRUPTED" if row["status"] in {"STARTING", "RUNNING"} else "SUSPENDED_RESTART"
+                c.execute("UPDATE v2_requests SET status=?,code='SESSION_ENDED',updated_at=? WHERE request_id=?",
+                          (state, _now(), row["request_id"]))
+                self._event(c, row["request_id"], state)
+            c.execute("UPDATE v2_mailboxes SET continuous=0 WHERE session_id=?", (session_id,))
+
+    def record_event(self, request_id: str, event: str, detail: Mapping[str, Any]) -> None:
+        with self._transaction() as c:
+            if c.execute("SELECT 1 FROM v2_requests WHERE request_id=?", (request_id,)).fetchone() is None:
+                raise IntakeError("REQUEST_NOT_FOUND")
+            self._event(c, request_id, event, detail)
+
     @staticmethod
     def _live_session(c: sqlite3.Connection, session_id: str) -> sqlite3.Row:
         row = c.execute("SELECT * FROM v2_sessions WHERE session_id=? AND ended_at IS NULL",

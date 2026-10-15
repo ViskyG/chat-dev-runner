@@ -202,12 +202,14 @@ def confirmed_create_effects_proof(
 
 
 class Ledger:
-    def __init__(self, database: Database, runner_id: str = "local-runner", max_parallel: int = 2):
+    def __init__(self, database: Database, runner_id: str = "local-runner", max_parallel: int = 2,
+                 *, single_execution_lane: bool = False):
         if isinstance(max_parallel, bool) or not isinstance(max_parallel, int) or max_parallel < 1:
             raise ValueError("max_parallel must be a positive integer")
         if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,47}", runner_id):
             raise ValueError("Invalid runner identity")
         self.database, self.runner_id, self.max_parallel = database, runner_id, max_parallel
+        self.single_execution_lane = single_execution_lane
         database.migrate()
         with self._transaction() as connection:
             timestamp = utcnow()
@@ -306,7 +308,11 @@ class Ledger:
             unknown_effect = connection.execute(
                 "SELECT 1 FROM effects WHERE state IN ('INTENDED','UNKNOWN') LIMIT 1"
             ).fetchone()
-            if retained or unknown_effect:
+            uncertain_v2_lane = connection.execute(
+                "SELECT 1 FROM execution_lane l JOIN v2_requests r USING(request_id) "
+                "WHERE l.protocol='v2' AND r.status IN ('INTERRUPTED','NEEDS_RECONCILIATION') LIMIT 1"
+            ).fetchone()
+            if retained or unknown_effect or uncertain_v2_lane:
                 raise LedgerError("NEEDS_RECONCILIATION", "Reconcile uncertain workers and effects before arming")
             connection.execute("UPDATE runner_state SET armed=1,epoch=?,updated_at=? WHERE singleton=1",
                                (str(uuid4()), utcnow()))
@@ -352,6 +358,8 @@ class Ledger:
                              {"original_digest": previous["digest"], "observed_digest": digest,
                               "source_changed": previous["source_id"] != source_id}, timestamp)
                 return Admission(_receipt(request_id, digest, "REJECTED", "REQUEST_ID_REUSED", timestamp), False)
+            if connection.execute("SELECT 1 FROM v2_requests WHERE request_id=?", (request_id,)).fetchone():
+                return Admission(_receipt(request_id, digest, "REJECTED", "REQUEST_ID_REUSED", timestamp), False)
             state = self._state(connection)
             code = rejection_code
             if code is None and (command.get("runner_id") != state["runner_id"] or command.get("epoch") != state["epoch"]):
@@ -378,6 +386,9 @@ class Ledger:
                 held_scopes = [row[0] for row in connection.execute("SELECT scope FROM locks")]
                 busy = any(_scope_conflict(scope, held) for scope in normalized_scopes for held in held_scopes)
                 capacity = connection.execute("SELECT count(*) FROM operations WHERE capacity_held=1").fetchone()[0]
+                if (self.single_execution_lane and not exempt_capacity
+                        and connection.execute("SELECT 1 FROM execution_lane").fetchone() is not None):
+                    code = "BUSY"
                 if busy or (not exempt_capacity and capacity >= self.max_parallel):
                     code = "BUSY"
             if code is None and command.get("action") == "RESUME_RETARGET":
@@ -468,6 +479,9 @@ class Ledger:
             if code is None:
                 connection.executemany("INSERT INTO locks VALUES(?,?,?)",
                                        [(scope, request_id, timestamp) for scope in normalized_scopes])
+                if self.single_execution_lane and not exempt_capacity:
+                    connection.execute("INSERT INTO execution_lane VALUES(1,'v1',?,?)",
+                                       (request_id, timestamp))
                 if report_run_id is not None:
                     connection.execute(
                         "INSERT INTO run_delivery_claims(delivery_request_id,run_id,created_at) "
@@ -527,6 +541,8 @@ class Ledger:
             )
             if not retained:
                 connection.execute("DELETE FROM locks WHERE request_id=?", (request_id,))
+                connection.execute("DELETE FROM execution_lane WHERE protocol='v1' AND request_id=?",
+                                   (request_id,))
             if (row["action"] == "PUBLISH_REPORT" and status == "COMPLETED"
                     and row["delivery_status"] == "DELIVERED"):
                 connection.execute(
@@ -562,6 +578,8 @@ class Ledger:
                 raise LedgerError("CONTAINER_PROOF_REQUIRED",
                                   "Every owned container must have an exact removal proof") from None
             connection.execute("DELETE FROM locks WHERE request_id=?", (request_id,))
+            connection.execute("DELETE FROM execution_lane WHERE protocol='v1' AND request_id=?",
+                               (request_id,))
             connection.execute(
                 "UPDATE operations SET capacity_held=0,reconcile_required=0,updated_at=? "
                 "WHERE request_id=?", (utcnow(), request_id),
