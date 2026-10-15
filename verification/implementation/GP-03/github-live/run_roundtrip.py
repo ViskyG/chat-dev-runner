@@ -426,7 +426,8 @@ def execute(approved: str) -> None:
             "mailboxes": [{"id": BINDING, "provider": "github", "project_id": PROJECT,
                            "branch": BRANCH, "path": SLOT}],
         }))
-        ledger = Ledger(Database(paths.database_path), max_parallel=1, single_execution_lane=True)
+        ledger = Ledger(Database(paths.database_path), runner_id=RUNNER,
+                        max_parallel=1, single_execution_lane=True)
         ledger.startup()
         assembly = V2Assembly(configuration, paths, ledger,
                               github_factory=lambda repository, token: GitHubV2Client(repository, token, transport=audit))

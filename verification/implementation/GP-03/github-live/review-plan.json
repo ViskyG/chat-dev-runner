@@ -146,7 +146,7 @@
   "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500",
   "runner_id": "gp03-linux-github",
   "scope": "foreground temporary V2Assembly; not installed service or ChatGPT connector acceptance",
-  "script_sha256": "c39d0d44e54aaf62d58862e028efe06a2974ed43b9b46a77ddca80d21d7f506c",
+  "script_sha256": "aa9857cee7449b151deee26fcb96e7eb58070853871cc31d18f948501649675f",
   "source_commit": "1bce389885fb4ec007496afba76ca0a95ccfcf1f",
   "source_commit_message": "GP-03 disposable v2 source acceptance\n\nAcceptance-Id: 86223f6f-9e10-456d-8df7-1f63d4195228\n",
   "source_tree": "866005ab46bc2ef471fe3f1013e82fdb83071c48",
