@@ -1,0 +1,155 @@
+{
+  "branch": "acceptance/gp03-v2-pass-20261015-a1",
+  "command_path": ".runner/commands/gp03-linux-github.json",
+  "commit_file": "commit-object.txt",
+  "commit_timestamp": 1792068222,
+  "created_at": "2026-10-15T12:43:42.432590+00:00",
+  "exact_after": {
+    "bytes": 617,
+    "dispatch": "DRAFT",
+    "file": "slot-after-draft.json",
+    "git_blob": "bebbb08c5dab707be31e54a7c61f2aff64b564dd",
+    "request_id": "4b9de43b-722e-40c7-bbfa-ac95b980edc7",
+    "runner_id": "local-runner",
+    "sha256": "21cde561eae846f11cd795d06dd3ab3e6bb91188c5fd95d121fe80e3e1fd6634"
+  },
+  "exact_base_tree": "d28f4125fc6510200ba744594b4c035860defb87",
+  "exact_before": {
+    "bytes": 744,
+    "dispatch": "ACCEPTED",
+    "file": "slot-before.json",
+    "git_blob": "07903c6d4293ef6d9add50eff9ec7148e83342a9",
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500",
+    "runner_id": "gp03-linux-github",
+    "sha256": "25368c3a9df0f77966ede65b39039b66c8c880c1b35d5026822eee8a97f9aa8d",
+    "terminal_proof": "../run-86223f6f-9e10-456d-8df7-1f63d4195228/postflight.json"
+  },
+  "exact_parent_required": "4e0b3ebabccc64bed0f591d014a632521462a3d3",
+  "intended_commit": "d8af2e6da805ccde8791235a4283b0642e7da0b2",
+  "intended_tree": "b7743f5eb00b523aacce3d4523121b87e717d817",
+  "mutation_protocol": [
+    "Durably append a local mutation intent including body SHA256/expected object SHA before each POST/PATCH.",
+    "Upload only the exact new command blob, one replacement tree, and the one standard deterministic commit below.",
+    "Each lost object response requires GET of its exact expected immutable SHA or STOP UNKNOWN; never blind-retry a POST.",
+    "Immediately before the single existing-ref PATCH, re-read exact enrolled identity, existing HEAD and old blob bytes; require exact preconditions still hold.",
+    "PATCH existing acceptance ref with force=false once; never POST refs/create branch or force push.",
+    "After response or lost response, exact branch HEAD=intended_commit plus current slot bytes=exact_after is required; otherwise STOP UNKNOWN without replay.",
+    "Independently verify diff is exactly M command_path; all24 other file mode/OID tuples and main/otherrefs remain unchanged."
+  ],
+  "mutations": [
+    {
+      "body": {
+        "content": "ewogICJkaXNwYXRjaCI6ICJEUkFGVCIsCiAgInByb2plY3RfaWQiOiAiZ3AwMy1naXRodWItcGFzcyIsCiAgInByb3RvY29sIjogImNkci1tYWlsYm94LzIiLAogICJyZWNlaXB0IjogbnVsbCwKICAicmVxdWVzdCI6IHsKICAgICJhY3Rpb24iOiAiUlVOX1RBU0siLAogICAgImV4ZWN1dGlvbiI6IHsKICAgICAgImJhY2tlbmRfaWQiOiAicm9vdGxlc3MtZG9ja2VyIiwKICAgICAgImV4cGVjdGVkX29zIjogImxpbnV4IiwKICAgICAgIm1vZGUiOiAiY29udGFpbmVyIiwKICAgICAgInByb2ZpbGVfaWQiOiAicHl0aG9uLXF1aWNrIiwKICAgICAgInRpbWVvdXRfc2Vjb25kcyI6IDkwMAogICAgfSwKICAgICJyZXF1ZXN0X2lkIjogIjRiOWRlNDNiLTcyMmUtNDBjNy1iYmZhLWFjOTViOTgwZWRjNyIsCiAgICAic291cmNlIjogewogICAgICAiYnJhbmNoIjogImFjY2VwdGFuY2UvZ3AwMy12Mi1wYXNzLTIwMjYxMDE1LWExIiwKICAgICAgImtpbmQiOiAiZ2l0aHViX2JyYW5jaCIKICAgIH0sCiAgICAidGFzayI6ICJ0ZXN0IgogIH0sCiAgInJ1bm5lcl9pZCI6ICJsb2NhbC1ydW5uZXIiLAogICJzbG90X3Rva2VuIjogIjIxMzA3NDU3LTliNmMtNDA2NC05ZjU3LTRkZTRjZTkyODkxMyIKfQo=",
+        "encoding": "base64"
+      },
+      "expected_object_sha": "bebbb08c5dab707be31e54a7c61f2aff64b564dd",
+      "method": "POST",
+      "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/blobs"
+    },
+    {
+      "body": {
+        "base_tree": "d28f4125fc6510200ba744594b4c035860defb87",
+        "tree": [
+          {
+            "mode": "100644",
+            "path": ".runner/commands/gp03-linux-github.json",
+            "sha": "bebbb08c5dab707be31e54a7c61f2aff64b564dd",
+            "type": "blob"
+          }
+        ]
+      },
+      "expected_object_sha": "b7743f5eb00b523aacce3d4523121b87e717d817",
+      "method": "POST",
+      "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/trees"
+    },
+    {
+      "body": {
+        "author": {
+          "date": "2026-10-15T12:43:42+00:00",
+          "email": "runner-results@localhost",
+          "name": "Runner Results"
+        },
+        "committer": {
+          "date": "2026-10-15T12:43:42+00:00",
+          "email": "runner-results@localhost",
+          "name": "Runner Results"
+        },
+        "message": "GP-03 installed preview inert mailbox retarget\n\nPrevious-Request-Id: e6b47bdf-75eb-4de0-becf-f00d2ab16500\nRequest-Id: 4b9de43b-722e-40c7-bbfa-ac95b980edc7\n",
+        "parents": [
+          "4e0b3ebabccc64bed0f591d014a632521462a3d3"
+        ],
+        "tree": "b7743f5eb00b523aacce3d4523121b87e717d817"
+      },
+      "expected_object_sha": "d8af2e6da805ccde8791235a4283b0642e7da0b2",
+      "method": "POST",
+      "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/commits"
+    },
+    {
+      "body": {
+        "force": false,
+        "sha": "d8af2e6da805ccde8791235a4283b0642e7da0b2"
+      },
+      "expected_head": "d8af2e6da805ccde8791235a4283b0642e7da0b2",
+      "method": "PATCH",
+      "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/refs/heads/acceptance/gp03-v2-pass-20261015-a1"
+    }
+  ],
+  "no_new_branch_repository_pr_or_result_mutation": true,
+  "post_retarget_protocol": [
+    "DRAFT does not grant execution. Start/bind installed candidate separately only after exact retarget readback.",
+    "Installed runtime must retain existing local-runner DB identity and baseline DRAFT to a freshly read slot token.",
+    "A later installed-boundary READY publication must use fresh baseline bytes/token and explicit separate authorization; never replay this foreground request."
+  ],
+  "preconditions": [
+    "Explicit ROOT GO for this exact proposal hash is required before any POST/PATCH.",
+    "Re-read exact numeric repository and owner identity; branch must already exist at exact_parent_required.",
+    "Fresh branch HEAD and command blob must equal exact_before including bytes, mode100644 and git blob SHA.",
+    "Require no other actor writing this branch during intent/upload/ref/readback; installed candidate must not baseline/poll this slot until retarget exact readback is recorded.",
+    "If any head or slot change occurs, STOP; do not rebase, merge, retry on a newer head or overwrite any pending intent."
+  ],
+  "project_manifest_blob_unchanged": "1809902230768dfcfa29cac586f9f08c90e71411",
+  "remote_writes_performed": 0,
+  "repository": {
+    "full_name": "ViskyG/cdr-ep07-ui-20260928",
+    "id": 1392469828,
+    "node_id": "R_kgDOUv9nRA",
+    "owner_id": 12452296,
+    "private": true
+  },
+  "scope": "Retarget only terminal foreground acceptance slot to inert installed local-runner DRAFT; no execution or baseline performed by this proposal",
+  "source_and_results_preserved": {
+    "changed_paths": [
+      ".runner/commands/gp03-linux-github.json"
+    ],
+    "preserved_file_modes_and_oids": {
+      ".gitignore": "100644 blob f1b38364a4294ac62e69caabc165eb56106147aa",
+      ".runner/project.json": "100644 blob 1809902230768dfcfa29cac586f9f08c90e71411",
+      ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/.runner-bundle.json": "100644 blob bd5f8f0783001b92d576dbb97d796487c7cb2f96",
+      ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/artifacts.json": "100644 blob d9650e4478010ae21d717aa3dbb415dbf0fdded6",
+      ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/artifacts/container-stderr/container-stderr.bin": "100644 blob e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/artifacts/container-stdout/container-stdout.bin": "100644 blob 5710f802bfcf2a038aac3d12609cdee8e3dffef8",
+      ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/artifacts/junit/junit.xml": "100644 blob 483cb547b3dfa9dfa8957cfc15fb02971f7f4c02",
+      ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/environment.json": "100644 blob 63c61193ebe7aa6f54326ea8250eef66b884ec2a",
+      ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/phases.json": "100644 blob 7892b7386a3e9619b7737e1ee370b16d2d1f1e71",
+      ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/result.json": "100644 blob 727f240f67376054cf0ba1d4698b40bc5a1e13a4",
+      ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/source.json": "100644 blob eedcdad3a60e6ef652b89bf4bdbaadb686fa6c38",
+      ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/summary.md": "100644 blob 60c95a30087a62c394c2e1245dc0ce2dfda43eef",
+      ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/tests.json": "100644 blob c8e6ed17e7eb3e38383d2fd681b99ad06d8c9df4",
+      "README.md": "100644 blob fa99ea3d87d4af1050fe556ba432cf4297513929",
+      "pyproject.toml": "100644 blob 97168014f241f8887535a8d588c608544ae9fd19",
+      "requirements.lock": "100644 blob ff38f5c9c807918096e53f0f05f6827a9dc84ea8",
+      "src/__init__.py": "100644 blob e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "src/app.py": "100644 blob 1e21eeb789ae554c1f971216adae3517169720ff",
+      "tests/test_app.py": "100644 blob d361fbb5321e22725aacb2bd2746a50d445a2067",
+      "vendor/wheels/iniconfig-2.3.0-py3-none-any.whl": "100644 blob f8cd4b9e75a54be90664cab36e085a486b17b95b",
+      "vendor/wheels/packaging-26.3-py3-none-any.whl": "100644 blob d54f57121300d9a854404b6fe8bdcd651429f53d",
+      "vendor/wheels/pluggy-1.6.0-py3-none-any.whl": "100644 blob 1f7e6268d5c9008599fc3d18053973c86c94b06b",
+      "vendor/wheels/pygments-2.21.0-py3-none-any.whl": "100644 blob 82c0df884665c4bf8491e9a3932e252f94961bba",
+      "vendor/wheels/pytest-9.1.1-py3-none-any.whl": "100644 blob 8da88c1751e63abc1215683d74cbe60a69983105"
+    },
+    "results_subtree": ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/",
+    "total_paths": 25,
+    "unchanged_paths": 24
+  },
+  "state": "PROPOSED_NOT_EXECUTED"
+}
