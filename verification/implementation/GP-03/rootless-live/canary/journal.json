@@ -1,0 +1,317 @@
+[
+  {
+    "created_at": "2026-10-15T12:11:23.677156+00:00",
+    "detail_json": "{\"session_id\":\"17705209-8278-4235-9ade-c8556869f2a3\"}",
+    "event": "SESSION_STARTED",
+    "event_id": 1,
+    "request_id": null
+  },
+  {
+    "created_at": "2026-10-15T12:11:23.888175+00:00",
+    "detail_json": "{}",
+    "event": "RESERVED",
+    "event_id": 2,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:23.911373+00:00",
+    "detail_json": "{}",
+    "event": "QUEUED",
+    "event_id": 3,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:23.928714+00:00",
+    "detail_json": "{}",
+    "event": "STARTING",
+    "event_id": 4,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:24.052709+00:00",
+    "detail_json": "{\"qualification\":\"host-rootless-boundary\",\"source_commit\":\"ab9b98de12b66232e00526ce6019b5baa3791982\",\"workload_sha256\":\"a75362f2768f34cfba9b1feadae7bb6daaa86d36cc3ac60e139748ab25cfd236\"}",
+    "event": "RUNNING",
+    "event_id": 5,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:24.145413+00:00",
+    "detail_json": "{\"phase\":\"TEST\",\"run_id\":\"5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\",\"snapshot_id\":\"5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\"}",
+    "event": "ROOTLESS_PHASE_RESERVED",
+    "event_id": 6,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:24.159098+00:00",
+    "detail_json": "{\"budget_bytes\":268435456,\"profile_id\":\"python-quick\",\"run_id\":\"5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\"}",
+    "event": "ROOTLESS_VOLUME_INTENDED",
+    "event_id": 7,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:24.200156+00:00",
+    "detail_json": "{\"path\":\"/var/lib/chat-dev-runner/volumes/5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\",\"run_id\":\"5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\"}",
+    "event": "ROOTLESS_VOLUME_ALLOCATED",
+    "event_id": 8,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:24.215052+00:00",
+    "detail_json": "{\"budget_bytes\":67108864,\"profile_id\":\"python-prepare\",\"run_id\":\"3a19162b-a6ae-5e5d-8cb2-275ea51645c7\"}",
+    "event": "ROOTLESS_VOLUME_INTENDED",
+    "event_id": 9,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:24.254443+00:00",
+    "detail_json": "{\"path\":\"/var/lib/chat-dev-runner/volumes/3a19162b-a6ae-5e5d-8cb2-275ea51645c7\",\"run_id\":\"3a19162b-a6ae-5e5d-8cb2-275ea51645c7\"}",
+    "event": "ROOTLESS_VOLUME_ALLOCATED",
+    "event_id": 10,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:24.269246+00:00",
+    "detail_json": "{\"phase\":\"PREPARATION\",\"run_id\":\"3a19162b-a6ae-5e5d-8cb2-275ea51645c7\",\"snapshot_id\":\"5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\"}",
+    "event": "ROOTLESS_PHASE_RESERVED",
+    "event_id": 11,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:24.321343+00:00",
+    "detail_json": "{\"argv_sha256\":\"ea619c4db186aa4a95e506b1282f8d5afc0ddd8b2710bdb977f2a67e8d754e5d\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"image\":\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"image_id\":\"sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"nonce\":\"623f82ef26624bb18e0fcc5cd691395c\",\"phase\":\"PREPARATION\",\"profile_id\":\"python-prepare\",\"profile_revision_sha256\":\"602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9\",\"run_id\":\"3a19162b-a6ae-5e5d-8cb2-275ea51645c7\",\"source_path\":\"/tmp/cdr-gp03-rootless-live-yoktl0xc/pass/source-runs/5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78/source\"}",
+    "event": "ROOTLESS_CONTAINER_INTENDED",
+    "event_id": 12,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:25.667597+00:00",
+    "detail_json": "{\"container_id\":\"089e4e28b8812e5777a29a3d2cadc6036632d0caedee9efbaa8f3a2969fb9949\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"phase\":\"PREPARATION\",\"run_id\":\"3a19162b-a6ae-5e5d-8cb2-275ea51645c7\",\"state\":\"REMOVED\"}",
+    "event": "ROOTLESS_CONTAINER_CLEANUP",
+    "event_id": 13,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:25.726722+00:00",
+    "detail_json": "{\"capture_complete\":true,\"cleanup_verified\":true,\"evidence_sha256\":\"be4c76e56feb3d5592f63bc4e6b5f9f6d66f0b2d6deb57feedc914252263b4e9\",\"exit_code\":0,\"image\":\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"outcome\":\"PASSED\",\"plan_identity_sha256\":\"a0bf39dd519fe3afba183fa3a687b455ea5f974721d10f65d2971d379796bf4a\",\"preparation_profile_revision_sha256\":\"602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9\",\"run_id\":\"3a19162b-a6ae-5e5d-8cb2-275ea51645c7\",\"snapshot_id\":\"5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\"}",
+    "event": "ROOTLESS_PREPARATION_RESULT",
+    "event_id": 14,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:25.775889+00:00",
+    "detail_json": "{\"build_tree_sha256\":\"2b3f4a22ebd212bc81df585d47fc38fdcef6dca880c55661c36abea17dacf4a3\",\"evidence_sha256\":\"be4c76e56feb3d5592f63bc4e6b5f9f6d66f0b2d6deb57feedc914252263b4e9\",\"image\":\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"plan_identity_sha256\":\"a0bf39dd519fe3afba183fa3a687b455ea5f974721d10f65d2971d379796bf4a\",\"preparation_profile_revision_sha256\":\"602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9\",\"run_id\":\"3a19162b-a6ae-5e5d-8cb2-275ea51645c7\",\"snapshot_id\":\"5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\",\"test_run_id\":\"5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\",\"test_volume_path\":\"/var/lib/chat-dev-runner/volumes/5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\"}",
+    "event": "ROOTLESS_PREPARATION_HANDOFF",
+    "event_id": 15,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:25.842383+00:00",
+    "detail_json": "{\"argv_sha256\":\"becf73adf6c2a43e458cea0db4e2a093394ba130764f2120f2ee035b696b93ae\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"image\":\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"image_id\":\"sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"nonce\":\"a3e4fa67df794b2cb28f6571ecb96044\",\"phase\":\"TEST\",\"profile_id\":\"python-quick\",\"profile_revision_sha256\":\"b47160af8e5abd5ea7cc4b9624ee1a929216a5705c394fd4e287468590efd182\",\"run_id\":\"5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\",\"source_path\":\"/tmp/cdr-gp03-rootless-live-yoktl0xc/pass/source-runs/5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78/source\"}",
+    "event": "ROOTLESS_CONTAINER_INTENDED",
+    "event_id": 16,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:26.712760+00:00",
+    "detail_json": "{\"container_id\":\"9727b12f053b76e24da3a8de608991246a80f30c09416f470c412ac5e1c075ac\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"phase\":\"TEST\",\"run_id\":\"5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\",\"state\":\"REMOVED\"}",
+    "event": "ROOTLESS_CONTAINER_CLEANUP",
+    "event_id": 17,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:26.778449+00:00",
+    "detail_json": "{\"sha256\":\"6a220e9fb8b9ba0cd1f0b045a59d52ef8badbfb3b0524bc8cb99e3cb64b3e578\"}",
+    "event": "ROOTLESS_EVIDENCE_SEALED",
+    "event_id": 18,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:26.791143+00:00",
+    "detail_json": "{\"phase\":\"PREPARATION\",\"run_id\":\"3a19162b-a6ae-5e5d-8cb2-275ea51645c7\"}",
+    "event": "ROOTLESS_VOLUME_RETIRE_INTENDED",
+    "event_id": 19,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:26.835458+00:00",
+    "detail_json": "{\"phase\":\"PREPARATION\",\"run_id\":\"3a19162b-a6ae-5e5d-8cb2-275ea51645c7\"}",
+    "event": "ROOTLESS_VOLUME_RELEASED",
+    "event_id": 20,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:26.847435+00:00",
+    "detail_json": "{\"phase\":\"TEST\",\"run_id\":\"5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\"}",
+    "event": "ROOTLESS_VOLUME_RETIRE_INTENDED",
+    "event_id": 21,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:26.888495+00:00",
+    "detail_json": "{\"phase\":\"TEST\",\"run_id\":\"5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78\"}",
+    "event": "ROOTLESS_VOLUME_RELEASED",
+    "event_id": 22,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:26.905634+00:00",
+    "detail_json": "{\"code\":null}",
+    "event": "COMPLETED",
+    "event_id": 23,
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78"
+  },
+  {
+    "created_at": "2026-10-15T12:11:27.111257+00:00",
+    "detail_json": "{}",
+    "event": "RESERVED",
+    "event_id": 24,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:27.140252+00:00",
+    "detail_json": "{}",
+    "event": "QUEUED",
+    "event_id": 25,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:27.158091+00:00",
+    "detail_json": "{}",
+    "event": "STARTING",
+    "event_id": 26,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:27.283127+00:00",
+    "detail_json": "{\"qualification\":\"host-rootless-boundary\",\"source_commit\":\"2f25c7e3c70e0a91dce76031a1276aab10fb969c\",\"workload_sha256\":\"840d18bcdcde722f42e89044698df09ec8cefb59bc8bffd2ad68ed28d8b53720\"}",
+    "event": "RUNNING",
+    "event_id": 27,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:27.366730+00:00",
+    "detail_json": "{\"phase\":\"TEST\",\"run_id\":\"84470189-b847-580c-8d3c-3e8b9912a4ef\",\"snapshot_id\":\"84470189-b847-580c-8d3c-3e8b9912a4ef\"}",
+    "event": "ROOTLESS_PHASE_RESERVED",
+    "event_id": 28,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:27.385753+00:00",
+    "detail_json": "{\"budget_bytes\":268435456,\"profile_id\":\"python-quick\",\"run_id\":\"84470189-b847-580c-8d3c-3e8b9912a4ef\"}",
+    "event": "ROOTLESS_VOLUME_INTENDED",
+    "event_id": 29,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:27.432752+00:00",
+    "detail_json": "{\"path\":\"/var/lib/chat-dev-runner/volumes/84470189-b847-580c-8d3c-3e8b9912a4ef\",\"run_id\":\"84470189-b847-580c-8d3c-3e8b9912a4ef\"}",
+    "event": "ROOTLESS_VOLUME_ALLOCATED",
+    "event_id": 30,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:27.455254+00:00",
+    "detail_json": "{\"budget_bytes\":67108864,\"profile_id\":\"python-prepare\",\"run_id\":\"5de0ae79-11b5-565b-9b1c-e10ffd040dcb\"}",
+    "event": "ROOTLESS_VOLUME_INTENDED",
+    "event_id": 31,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:27.492942+00:00",
+    "detail_json": "{\"path\":\"/var/lib/chat-dev-runner/volumes/5de0ae79-11b5-565b-9b1c-e10ffd040dcb\",\"run_id\":\"5de0ae79-11b5-565b-9b1c-e10ffd040dcb\"}",
+    "event": "ROOTLESS_VOLUME_ALLOCATED",
+    "event_id": 32,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:27.508121+00:00",
+    "detail_json": "{\"phase\":\"PREPARATION\",\"run_id\":\"5de0ae79-11b5-565b-9b1c-e10ffd040dcb\",\"snapshot_id\":\"84470189-b847-580c-8d3c-3e8b9912a4ef\"}",
+    "event": "ROOTLESS_PHASE_RESERVED",
+    "event_id": 33,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:27.560256+00:00",
+    "detail_json": "{\"argv_sha256\":\"ea619c4db186aa4a95e506b1282f8d5afc0ddd8b2710bdb977f2a67e8d754e5d\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"image\":\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"image_id\":\"sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"nonce\":\"254ca24dd59b4dea98c304e47f9b069c\",\"phase\":\"PREPARATION\",\"profile_id\":\"python-prepare\",\"profile_revision_sha256\":\"602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9\",\"run_id\":\"5de0ae79-11b5-565b-9b1c-e10ffd040dcb\",\"source_path\":\"/tmp/cdr-gp03-rootless-live-yoktl0xc/fail/source-runs/84470189-b847-580c-8d3c-3e8b9912a4ef/source\"}",
+    "event": "ROOTLESS_CONTAINER_INTENDED",
+    "event_id": 34,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:28.737511+00:00",
+    "detail_json": "{\"container_id\":\"d87008aa2cf9180888987e53a7202918a2866cbcb36ba94622cd0abb3c1e4ba1\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"phase\":\"PREPARATION\",\"run_id\":\"5de0ae79-11b5-565b-9b1c-e10ffd040dcb\",\"state\":\"REMOVED\"}",
+    "event": "ROOTLESS_CONTAINER_CLEANUP",
+    "event_id": 35,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:28.798621+00:00",
+    "detail_json": "{\"capture_complete\":true,\"cleanup_verified\":true,\"evidence_sha256\":\"91927e0aaaa8ac09e120b828d05588a0fd55cf67b4f13c31249fffd51d1d412f\",\"exit_code\":0,\"image\":\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"outcome\":\"PASSED\",\"plan_identity_sha256\":\"faa9d6bf874039435e9614218b1b60845a98ca07185bc5a1c578a8aba00d0c92\",\"preparation_profile_revision_sha256\":\"602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9\",\"run_id\":\"5de0ae79-11b5-565b-9b1c-e10ffd040dcb\",\"snapshot_id\":\"84470189-b847-580c-8d3c-3e8b9912a4ef\"}",
+    "event": "ROOTLESS_PREPARATION_RESULT",
+    "event_id": 36,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:28.851085+00:00",
+    "detail_json": "{\"build_tree_sha256\":\"2b3f4a22ebd212bc81df585d47fc38fdcef6dca880c55661c36abea17dacf4a3\",\"evidence_sha256\":\"91927e0aaaa8ac09e120b828d05588a0fd55cf67b4f13c31249fffd51d1d412f\",\"image\":\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"plan_identity_sha256\":\"faa9d6bf874039435e9614218b1b60845a98ca07185bc5a1c578a8aba00d0c92\",\"preparation_profile_revision_sha256\":\"602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9\",\"run_id\":\"5de0ae79-11b5-565b-9b1c-e10ffd040dcb\",\"snapshot_id\":\"84470189-b847-580c-8d3c-3e8b9912a4ef\",\"test_run_id\":\"84470189-b847-580c-8d3c-3e8b9912a4ef\",\"test_volume_path\":\"/var/lib/chat-dev-runner/volumes/84470189-b847-580c-8d3c-3e8b9912a4ef\"}",
+    "event": "ROOTLESS_PREPARATION_HANDOFF",
+    "event_id": 37,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:28.913440+00:00",
+    "detail_json": "{\"argv_sha256\":\"becf73adf6c2a43e458cea0db4e2a093394ba130764f2120f2ee035b696b93ae\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"image\":\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"image_id\":\"sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"nonce\":\"d8f6cc51a9c347bbabc18ef971050aca\",\"phase\":\"TEST\",\"profile_id\":\"python-quick\",\"profile_revision_sha256\":\"b47160af8e5abd5ea7cc4b9624ee1a929216a5705c394fd4e287468590efd182\",\"run_id\":\"84470189-b847-580c-8d3c-3e8b9912a4ef\",\"source_path\":\"/tmp/cdr-gp03-rootless-live-yoktl0xc/fail/source-runs/84470189-b847-580c-8d3c-3e8b9912a4ef/source\"}",
+    "event": "ROOTLESS_CONTAINER_INTENDED",
+    "event_id": 38,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:29.792253+00:00",
+    "detail_json": "{\"container_id\":\"510a8cf1165c0f27840ffe53893670ea4e261862895baddc1280da38375f2def\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"phase\":\"TEST\",\"run_id\":\"84470189-b847-580c-8d3c-3e8b9912a4ef\",\"state\":\"REMOVED\"}",
+    "event": "ROOTLESS_CONTAINER_CLEANUP",
+    "event_id": 39,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:29.844040+00:00",
+    "detail_json": "{\"sha256\":\"fef87140a39a6e511606d86962410ee15fd61e9199bffa7e2734a7559bd8b508\"}",
+    "event": "ROOTLESS_EVIDENCE_SEALED",
+    "event_id": 40,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:29.856202+00:00",
+    "detail_json": "{\"phase\":\"PREPARATION\",\"run_id\":\"5de0ae79-11b5-565b-9b1c-e10ffd040dcb\"}",
+    "event": "ROOTLESS_VOLUME_RETIRE_INTENDED",
+    "event_id": 41,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:29.896984+00:00",
+    "detail_json": "{\"phase\":\"PREPARATION\",\"run_id\":\"5de0ae79-11b5-565b-9b1c-e10ffd040dcb\"}",
+    "event": "ROOTLESS_VOLUME_RELEASED",
+    "event_id": 42,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:29.914144+00:00",
+    "detail_json": "{\"phase\":\"TEST\",\"run_id\":\"84470189-b847-580c-8d3c-3e8b9912a4ef\"}",
+    "event": "ROOTLESS_VOLUME_RETIRE_INTENDED",
+    "event_id": 43,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:29.952739+00:00",
+    "detail_json": "{\"phase\":\"TEST\",\"run_id\":\"84470189-b847-580c-8d3c-3e8b9912a4ef\"}",
+    "event": "ROOTLESS_VOLUME_RELEASED",
+    "event_id": 44,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  },
+  {
+    "created_at": "2026-10-15T12:11:29.970082+00:00",
+    "detail_json": "{\"code\":null}",
+    "event": "COMPLETED",
+    "event_id": 45,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef"
+  }
+]

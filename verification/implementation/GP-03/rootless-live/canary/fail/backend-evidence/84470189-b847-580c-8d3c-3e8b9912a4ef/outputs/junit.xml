@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="0.012" timestamp="2026-10-15T12:11:29.613856+00:00" hostname="510a8cf1165c"><testcase classname="tests.test_app" name="test_greet" time="0.000" /><testcase classname="tests.test_expected_failure" name="test_deliberate_canary_failure" time="0.000"><failure message="AssertionError: GP-03 deliberate failure&#10;assert False">def test_deliberate_canary_failure():
+&gt;       assert False, "GP-03 deliberate failure"
+E       AssertionError: GP-03 deliberate failure
+E       assert False
+
+tests/test_expected_failure.py:2: AssertionError</failure></testcase></testsuite></testsuites>

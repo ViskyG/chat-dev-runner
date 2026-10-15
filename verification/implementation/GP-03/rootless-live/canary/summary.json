@@ -1,0 +1,99 @@
+{
+  "backend_source_sha256": "e9012c295102c352966de9fde97aa8337398f955cf7080b2189f879afd5f19c0",
+  "canary_script_sha256": "388a65a73faeb46f697916fdf73a8853daf2f7c33942a462a3366bb99513c973",
+  "cases": [
+    {
+      "check_passed": true,
+      "exact_preparation_and_test_mounts_absent": true,
+      "expected_outcome": "PASSED",
+      "mode": "pass",
+      "quality_gate": "PASSED",
+      "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78",
+      "sequence": 1,
+      "source_commit": "ab9b98de12b66232e00526ce6019b5baa3791982",
+      "test_counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 1,
+        "skipped": 0,
+        "tests": 1
+      },
+      "workload_sha256": "a75362f2768f34cfba9b1feadae7bb6daaa86d36cc3ac60e139748ab25cfd236"
+    },
+    {
+      "check_passed": true,
+      "exact_preparation_and_test_mounts_absent": true,
+      "expected_outcome": "FAILED",
+      "mode": "fail",
+      "quality_gate": "FAILED",
+      "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef",
+      "sequence": 2,
+      "source_commit": "2f25c7e3c70e0a91dce76031a1276aab10fb969c",
+      "test_counts": {
+        "errors": 0,
+        "failed": 1,
+        "passed": 1,
+        "skipped": 0,
+        "tests": 2
+      },
+      "workload_sha256": "840d18bcdcde722f42e89044698df09ec8cefb59bc8bffd2ad68ed28d8b53720"
+    }
+  ],
+  "ended_at": "2026-10-15T12:11:30.027405+00:00",
+  "euid": 1000,
+  "final_guard": {
+    "ledger": {
+      "armed": false,
+      "available": true,
+      "capacity_held": 0,
+      "idle_without_pending_intent": true,
+      "operations_running": 0,
+      "pending_effects": 0,
+      "reconcile_required": 0
+    },
+    "observed_at": "2026-10-15T12:11:30.027397+00:00",
+    "service": {
+      "ActiveState": "inactive",
+      "ExecMainStatus": "15",
+      "LoadState": "loaded",
+      "MainPID": "0",
+      "SubState": "dead",
+      "XDG_DATA_HOME": "/home/visky/Work/GPTRunner/.runner-data",
+      "available": true
+    }
+  },
+  "initial_guard": {
+    "ledger": {
+      "armed": false,
+      "available": true,
+      "capacity_held": 0,
+      "idle_without_pending_intent": true,
+      "operations_running": 0,
+      "pending_effects": 0,
+      "reconcile_required": 0
+    },
+    "observed_at": "2026-10-15T12:11:23.621220+00:00",
+    "service": {
+      "ActiveState": "inactive",
+      "ExecMainStatus": "15",
+      "LoadState": "loaded",
+      "MainPID": "0",
+      "SubState": "dead",
+      "XDG_DATA_HOME": "/home/visky/Work/GPTRunner/.runner-data",
+      "available": true
+    }
+  },
+  "journal_state": {
+    "integrity_check": "ok",
+    "lane_count": 0,
+    "v1_operation_count": 0
+  },
+  "persistent_evidence": "/home/visky/Work/GPTRunner/chat-dev-runner-gp03-rootless-live/verification/implementation/GP-03/rootless-live/canary",
+  "scope": "actual HOST rootless backend, SourceResolver and durable v2 journal",
+  "scratch": "/tmp/cdr-gp03-rootless-live-yoktl0xc",
+  "source_commit": "e9bd4e79d79fbe2fbf23f066d46884ef0625f0d1",
+  "started_at": "2026-10-15T12:11:23.694368+00:00",
+  "status": "PASSED",
+  "transport": "private local-file conditional ACK under scratch schema github tag; GitHub/Docs NOT_RUN",
+  "uid": 1000
+}

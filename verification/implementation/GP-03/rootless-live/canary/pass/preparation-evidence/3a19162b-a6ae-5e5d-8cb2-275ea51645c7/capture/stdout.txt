@@ -1,0 +1,8 @@
+Looking in links: /src/vendor/wheels
+Processing ./vendor/wheels/iniconfig-2.3.0-py3-none-any.whl (from -r /src/requirements.lock (line 2))
+Processing ./vendor/wheels/packaging-26.3-py3-none-any.whl (from -r /src/requirements.lock (line 3))
+Processing ./vendor/wheels/pluggy-1.6.0-py3-none-any.whl (from -r /src/requirements.lock (line 4))
+Processing ./vendor/wheels/pygments-2.21.0-py3-none-any.whl (from -r /src/requirements.lock (line 5))
+Processing ./vendor/wheels/pytest-9.1.1-py3-none-any.whl (from -r /src/requirements.lock (line 6))
+Installing collected packages: pytest, pygments, pluggy, packaging, iniconfig
+Successfully installed iniconfig-2.3.0 packaging-26.3 pluggy-1.6.0 pygments-2.21.0 pytest-9.1.1

@@ -1,0 +1,82 @@
+[
+  {
+    "action": "RUN_TASK",
+    "cancel_requested": 0,
+    "code": null,
+    "created_at": "2026-10-15T12:11:27.111159+00:00",
+    "digest": "f2bcb0d82a59b07e422ff3861d26be2abcb26a26013fbc3a12339bc1ddaf3d95",
+    "payload": {
+      "project_id": "gp03-rootless-fail",
+      "request": {
+        "action": "RUN_TASK",
+        "execution": {
+          "backend_id": "rootless-python",
+          "expected_os": "linux",
+          "mode": "container",
+          "profile_id": "python-quick",
+          "timeout_seconds": 600
+        },
+        "request_id": null,
+        "source": {
+          "branch": "gp03-canary",
+          "kind": "local_workspace",
+          "workspace_id": "starter"
+        },
+        "task": "test"
+      },
+      "runner_id": "gp03-host-canary"
+    },
+    "project_id": "gp03-rootless-fail",
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef",
+    "result": {
+      "cleanup_verified": true,
+      "outcome": "FAILED",
+      "quality_gate": "FAILED"
+    },
+    "runner_id": "gp03-host-canary",
+    "sequence": 2,
+    "session_id": "17705209-8278-4235-9ade-c8556869f2a3",
+    "status": "COMPLETED",
+    "updated_at": "2026-10-15T12:11:29.970032+00:00"
+  },
+  {
+    "action": "RUN_TASK",
+    "cancel_requested": 0,
+    "code": null,
+    "created_at": "2026-10-15T12:11:23.888126+00:00",
+    "digest": "8af0188449c6774f8ed9ee2a62a0a53642f7c0aec3f1f669afa72a2181c58133",
+    "payload": {
+      "project_id": "gp03-rootless-pass",
+      "request": {
+        "action": "RUN_TASK",
+        "execution": {
+          "backend_id": "rootless-python",
+          "expected_os": "linux",
+          "mode": "container",
+          "profile_id": "python-quick",
+          "timeout_seconds": 600
+        },
+        "request_id": null,
+        "source": {
+          "branch": "gp03-canary",
+          "kind": "local_workspace",
+          "workspace_id": "starter"
+        },
+        "task": "test"
+      },
+      "runner_id": "gp03-host-canary"
+    },
+    "project_id": "gp03-rootless-pass",
+    "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78",
+    "result": {
+      "cleanup_verified": true,
+      "outcome": "PASSED",
+      "quality_gate": "PASSED"
+    },
+    "runner_id": "gp03-host-canary",
+    "sequence": 1,
+    "session_id": "17705209-8278-4235-9ade-c8556869f2a3",
+    "status": "COMPLETED",
+    "updated_at": "2026-10-15T12:11:26.905585+00:00"
+  }
+]

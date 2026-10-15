@@ -1,0 +1,4 @@
+{"sequence":1,"stream":"stdout","monotonic_seconds":0.597903309,"observed_bytes":1,"retained_bytes":1}
+{"sequence":2,"stream":"stdout","monotonic_seconds":0.605234655,"observed_bytes":1,"retained_bytes":1}
+{"sequence":3,"stream":"stdout","monotonic_seconds":0.605431258,"observed_bytes":77,"retained_bytes":77}
+{"sequence":4,"stream":"stdout","monotonic_seconds":0.611433022,"observed_bytes":565,"retained_bytes":565}

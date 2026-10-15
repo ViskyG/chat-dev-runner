@@ -1,0 +1,32 @@
+{
+  "dispatch": "ACCEPTED",
+  "project_id": "gp03-rootless-fail",
+  "protocol": "cdr-mailbox/2",
+  "receipt": {
+    "accepted_slot_token": "46ee697f-2264-40b3-a6e9-12c9fc86a708",
+    "code": null,
+    "payload_sha256": "f2bcb0d82a59b07e422ff3861d26be2abcb26a26013fbc3a12339bc1ddaf3d95",
+    "queue_sequence": null,
+    "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef",
+    "status": "ACCEPTED"
+  },
+  "request": {
+    "action": "RUN_TASK",
+    "execution": {
+      "backend_id": "rootless-python",
+      "expected_os": "linux",
+      "mode": "container",
+      "profile_id": "python-quick",
+      "timeout_seconds": 600
+    },
+    "request_id": null,
+    "source": {
+      "branch": "gp03-canary",
+      "kind": "local_workspace",
+      "workspace_id": "starter"
+    },
+    "task": "test"
+  },
+  "runner_id": "gp03-host-canary",
+  "slot_token": "ee484619-3c29-4da2-9e2f-29a7e0a8b472"
+}

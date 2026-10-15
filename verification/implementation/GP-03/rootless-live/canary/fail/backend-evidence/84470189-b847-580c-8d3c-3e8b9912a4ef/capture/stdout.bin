@@ -1,0 +1,13 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+________________________ test_deliberate_canary_failure ________________________
+
+    def test_deliberate_canary_failure():
+>       assert False, "GP-03 deliberate failure"
+E       AssertionError: GP-03 deliberate failure
+E       assert False
+
+tests/test_expected_failure.py:2: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_expected_failure.py::test_deliberate_canary_failure - Asser...
+1 failed, 1 passed in 0.01s

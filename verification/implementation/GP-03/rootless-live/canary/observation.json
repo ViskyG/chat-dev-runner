@@ -1,0 +1,107 @@
+{
+  "checks": [
+    {
+      "copied_generated_source_files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "requirements.lock",
+        "src/__init__.py",
+        "src/app.py",
+        "tests/test_app.py"
+      ],
+      "durable_events": 22,
+      "mode": "pass",
+      "offline_wheels": "Exact original wheel hashes and sizes preserved in source.json; existing audited starter wheelhouse used, no network.",
+      "owned_container_and_mount_proofs": [
+        {
+          "container_id": "089e4e28b8812e5777a29a3d2cadc6036632d0caedee9efbaa8f3a2969fb9949",
+          "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+          "exact_mount_absent_at_completion": true,
+          "phase": "PREPARATION",
+          "run_id": "3a19162b-a6ae-5e5d-8cb2-275ea51645c7",
+          "state": "REMOVED"
+        },
+        {
+          "container_id": "9727b12f053b76e24da3a8de608991246a80f30c09416f470c412ac5e1c075ac",
+          "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+          "exact_mount_absent_at_completion": true,
+          "phase": "TEST",
+          "run_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78",
+          "state": "REMOVED"
+        }
+      ],
+      "raw_junit_counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 1,
+        "skipped": 0,
+        "tests": 1
+      },
+      "request_id": "5bb8f19f-5c70-5a72-aa2c-1d0ae9adbb78",
+      "verified_output_descriptors": 13
+    },
+    {
+      "copied_generated_source_files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "requirements.lock",
+        "src/__init__.py",
+        "src/app.py",
+        "tests/test_app.py",
+        "tests/test_expected_failure.py"
+      ],
+      "durable_events": 22,
+      "mode": "fail",
+      "offline_wheels": "Exact original wheel hashes and sizes preserved in source.json; existing audited starter wheelhouse used, no network.",
+      "owned_container_and_mount_proofs": [
+        {
+          "container_id": "d87008aa2cf9180888987e53a7202918a2866cbcb36ba94622cd0abb3c1e4ba1",
+          "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+          "exact_mount_absent_at_completion": true,
+          "phase": "PREPARATION",
+          "run_id": "5de0ae79-11b5-565b-9b1c-e10ffd040dcb",
+          "state": "REMOVED"
+        },
+        {
+          "container_id": "510a8cf1165c0f27840ffe53893670ea4e261862895baddc1280da38375f2def",
+          "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+          "exact_mount_absent_at_completion": true,
+          "phase": "TEST",
+          "run_id": "84470189-b847-580c-8d3c-3e8b9912a4ef",
+          "state": "REMOVED"
+        }
+      ],
+      "raw_junit_counts": {
+        "errors": 0,
+        "failed": 1,
+        "passed": 1,
+        "skipped": 0,
+        "tests": 2
+      },
+      "request_id": "84470189-b847-580c-8d3c-3e8b9912a4ef",
+      "verified_output_descriptors": 13
+    }
+  ],
+  "not_run": [
+    "GitHub admission or publication",
+    "Google Docs admission or publication",
+    "macOS",
+    "Windows",
+    "full release matrix"
+  ],
+  "observed_at": "2026-10-15T12:15:32.046502+00:00",
+  "process_hud": {
+    "exit_code": 0,
+    "job_id": "d74ce7d1ef174dc5a1302d318049ebd6",
+    "monitor_removed": true,
+    "observation": "complete; direct child and adopted descendants reaped",
+    "state": "succeeded",
+    "workload_signalled_on_removal": false
+  },
+  "schema": "cdr-gp03-host-observation/1",
+  "scope": "Actual Linux amd64 HOST rootless backend with actual source resolver and disposable durable v2 journal; generated pass and expected-fail Python starters.",
+  "service": "Inactive and installed ledger idle/disarmed at final workload guard; no restart performed.",
+  "workload_rerun": false
+}

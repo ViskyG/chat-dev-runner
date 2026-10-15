@@ -1,0 +1,8 @@
+{"sequence":1,"stream":"stdout","monotonic_seconds":1.01426103,"observed_bytes":37,"retained_bytes":37}
+{"sequence":2,"stream":"stdout","monotonic_seconds":1.015231471,"observed_bytes":102,"retained_bytes":102}
+{"sequence":3,"stream":"stdout","monotonic_seconds":1.017791627,"observed_bytes":101,"retained_bytes":101}
+{"sequence":4,"stream":"stdout","monotonic_seconds":1.019225326,"observed_bytes":99,"retained_bytes":99}
+{"sequence":5,"stream":"stdout","monotonic_seconds":1.020735942,"observed_bytes":102,"retained_bytes":102}
+{"sequence":6,"stream":"stdout","monotonic_seconds":1.024137864,"observed_bytes":99,"retained_bytes":99}
+{"sequence":7,"stream":"stdout","monotonic_seconds":1.027348645,"observed_bytes":78,"retained_bytes":78}
+{"sequence":8,"stream":"stdout","monotonic_seconds":1.066705446,"observed_bytes":96,"retained_bytes":96}
