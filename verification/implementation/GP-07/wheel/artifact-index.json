@@ -1,0 +1,18 @@
+{
+  "files": [
+    {
+      "path": "audit.py",
+      "sha256": "ee6d3c7b2e6405184b81e803844f04c84c129984c14545b3f096bec1d7084eac",
+      "size_bytes": 12971
+    },
+    {
+      "path": "result.json",
+      "sha256": "62b05473c754d4cf14f6d9b6ab7861d6f9d0c71056a120a43b8260c3fc43af08",
+      "size_bytes": 35890
+    }
+  ],
+  "schema": "cdr-evidence-index/1",
+  "source_freeze": "a26fe8ca64d25442ce80f2f80f1f0c6bb5302974",
+  "wheel_path": "/home/visky/Work/GPTRunner/.runner-install/wheels/gp07-a26fe8c/chat_dev_runner-0.3.0.dev1-py3-none-any.whl",
+  "wheel_sha256": "039b2e6bd8a3dab145a831168586772bbdcec36e65365e8080ca12fdd09e1cae"
+}

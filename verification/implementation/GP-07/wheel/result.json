@@ -1,0 +1,917 @@
+{
+  "audit_script_sha256": "ee6d3c7b2e6405184b81e803844f04c84c129984c14545b3f096bec1d7084eac",
+  "cli_version": "0.3.0.dev1",
+  "command_environment": {
+    "HOME": "/tmp/cdr-gp07-wheel-crua1zf_",
+    "LANG": "C.UTF-8",
+    "PATH": "/usr/bin:/bin",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+    "PIP_NO_INDEX": "1"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/git",
+        "diff",
+        "--quiet",
+        "a26fe8ca64d25442ce80f2f80f1f0c6bb5302974",
+        "--",
+        "pyproject.toml",
+        "runner_app",
+        "bridge_reference",
+        "schemas"
+      ],
+      "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner-gp07-wheel-audit",
+      "exit_code": 0,
+      "log": "/tmp/cdr-gp07-wheel-crua1zf_/command-01.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "ls-tree",
+        "-r",
+        "--name-only",
+        "a26fe8ca64d25442ce80f2f80f1f0c6bb5302974",
+        "--",
+        "runner_app",
+        "bridge_reference",
+        "schemas"
+      ],
+      "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner-gp07-wheel-audit",
+      "exit_code": 0,
+      "log": "/tmp/cdr-gp07-wheel-crua1zf_/command-02.log",
+      "log_sha256": "b28afa9b7b01b0475470dbcf2444100672d1253fabb0b4615c3269459b34a12b"
+    },
+    {
+      "argv": [
+        "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+        "-m",
+        "build",
+        "--wheel",
+        "--no-isolation",
+        "--outdir",
+        "/home/visky/Work/GPTRunner/.runner-install/wheels/gp07-a26fe8c"
+      ],
+      "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner-gp07-wheel-audit",
+      "exit_code": 0,
+      "log": "/tmp/cdr-gp07-wheel-crua1zf_/command-03.log",
+      "log_sha256": "3cdc9969120bae86b1184ab86ca7d3a45d837cc5d11e5d744f176f3f06a89cd3"
+    },
+    {
+      "argv": [
+        "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+        "-m",
+        "venv",
+        "--system-site-packages",
+        "--copies",
+        "/tmp/cdr-gp07-wheel-crua1zf_/venv"
+      ],
+      "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner-gp07-wheel-audit",
+      "exit_code": 0,
+      "log": "/tmp/cdr-gp07-wheel-crua1zf_/command-04.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/tmp/cdr-gp07-wheel-crua1zf_/venv/bin/python",
+        "-I",
+        "-c",
+        "import sysconfig;print(sysconfig.get_path('purelib'))"
+      ],
+      "cwd": "/tmp/cdr-gp07-wheel-crua1zf_",
+      "exit_code": 0,
+      "log": "/tmp/cdr-gp07-wheel-crua1zf_/command-05.log",
+      "log_sha256": "cdee59d9e42c25dc89674398d2068fcccb93df0a138222339d064510ca7ac74f"
+    },
+    {
+      "argv": [
+        "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+        "-I",
+        "-c",
+        "import sysconfig;print(sysconfig.get_path('purelib'))"
+      ],
+      "cwd": "/tmp/cdr-gp07-wheel-crua1zf_",
+      "exit_code": 0,
+      "log": "/tmp/cdr-gp07-wheel-crua1zf_/command-06.log",
+      "log_sha256": "eb3ed7ab282fd3dcee975639ddda8f85e2f2e802dace0a77cb234736b360a66d"
+    },
+    {
+      "argv": [
+        "/tmp/cdr-gp07-wheel-crua1zf_/venv/bin/python",
+        "-I",
+        "-m",
+        "pip",
+        "--isolated",
+        "install",
+        "--no-index",
+        "--no-deps",
+        "--no-compile",
+        "--disable-pip-version-check",
+        "/home/visky/Work/GPTRunner/.runner-install/wheels/gp07-a26fe8c/chat_dev_runner-0.3.0.dev1-py3-none-any.whl"
+      ],
+      "cwd": "/tmp/cdr-gp07-wheel-crua1zf_",
+      "exit_code": 0,
+      "log": "/tmp/cdr-gp07-wheel-crua1zf_/command-07.log",
+      "log_sha256": "9dee081b5861467f6ef2c83755067dc22a0c24511e762270df544aadf8c282df"
+    },
+    {
+      "argv": [
+        "/tmp/cdr-gp07-wheel-crua1zf_/venv/bin/python",
+        "-I",
+        "-m",
+        "pip",
+        "--isolated",
+        "check"
+      ],
+      "cwd": "/tmp/cdr-gp07-wheel-crua1zf_",
+      "exit_code": 0,
+      "log": "/tmp/cdr-gp07-wheel-crua1zf_/command-08.log",
+      "log_sha256": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09"
+    },
+    {
+      "argv": [
+        "/tmp/cdr-gp07-wheel-crua1zf_/venv/bin/runner",
+        "--version"
+      ],
+      "cwd": "/tmp/cdr-gp07-wheel-crua1zf_",
+      "exit_code": 0,
+      "log": "/tmp/cdr-gp07-wheel-crua1zf_/command-09.log",
+      "log_sha256": "fe2bd4a861cebd1401c9af8f95e99894549a2a62aafd4265fbac560e94d5b88a"
+    },
+    {
+      "argv": [
+        "/tmp/cdr-gp07-wheel-crua1zf_/venv/bin/runner",
+        "--help"
+      ],
+      "cwd": "/tmp/cdr-gp07-wheel-crua1zf_",
+      "exit_code": 0,
+      "log": "/tmp/cdr-gp07-wheel-crua1zf_/command-10.log",
+      "log_sha256": "625a39666c74566ed2670d5a3715e5ce5d386fe546d881af771c791d517b8f68"
+    },
+    {
+      "argv": [
+        "/tmp/cdr-gp07-wheel-crua1zf_/venv/bin/python",
+        "-I",
+        "/tmp/cdr-gp07-wheel-crua1zf_/installed-smoke.py",
+        "/tmp/cdr-gp07-wheel-crua1zf_/smoke",
+        "/tmp/cdr-gp07-wheel-crua1zf_/venv/lib/python3.10/site-packages"
+      ],
+      "cwd": "/tmp/cdr-gp07-wheel-crua1zf_",
+      "exit_code": 0,
+      "log": "/tmp/cdr-gp07-wheel-crua1zf_/command-11.log",
+      "log_sha256": "80ad3e92a5d072d4010bb1afa36f09e05834b208e3ce8cc49c837c7e6959f8a7"
+    }
+  ],
+  "counts": {
+    "all_payload_files": 153,
+    "python_files": 128,
+    "record_entries": 158,
+    "schema_files": 12,
+    "starter_wheels": 5,
+    "v2_schema_files": 5,
+    "web_resources": 7
+  },
+  "dependency_mode": "Existing development dependencies referenced by plain temporary .pth; none downloaded or changed",
+  "ended_at": "2026-10-15T12:40:15.668177+00:00",
+  "existing_dependency_path": "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/lib/python3.10/site-packages",
+  "installed_difference_paths": [],
+  "installed_smoke": {
+    "attached_routes": [
+      "/api/v2/requests",
+      "/api/v2/requests/{request_id}",
+      "/api/v2/status"
+    ],
+    "composition_status": {
+      "armed": false,
+      "capability_status": "IMPLEMENTED_NOT_QUALIFIED",
+      "channels": {},
+      "configured": false,
+      "container_backends": {},
+      "native_profiles": [],
+      "projects": [
+        "wheel-project"
+      ],
+      "protocol": "cdr-runtime/2",
+      "queue_limit": 100,
+      "runner_id": "wheel-runner",
+      "session_id": "0cf5f3b9-e13f-4797-a3ce-f7b9b115899a"
+    },
+    "execution_requests": 0,
+    "loaded_modules": {
+      "bridge_reference": "bridge_reference/__init__.py",
+      "bridge_reference.protocol": "bridge_reference/protocol.py",
+      "runner_app": "runner_app/__init__.py",
+      "runner_app.adapters": "runner_app/adapters/__init__.py",
+      "runner_app.adapters.github": "runner_app/adapters/github.py",
+      "runner_app.adapters.github_mailbox_v2": "runner_app/adapters/github_mailbox_v2.py",
+      "runner_app.config_v2": "runner_app/config_v2.py",
+      "runner_app.domain": "runner_app/domain/__init__.py",
+      "runner_app.domain.commands": "runner_app/domain/commands.py",
+      "runner_app.domain.contracts_v2": "runner_app/domain/contracts_v2.py",
+      "runner_app.domain.mailbox_v2": "runner_app/domain/mailbox_v2.py",
+      "runner_app.domain.project_v2": "runner_app/domain/project_v2.py",
+      "runner_app.engine": "runner_app/engine/__init__.py",
+      "runner_app.engine.intake_v2": "runner_app/engine/intake_v2.py",
+      "runner_app.engine.queue_v2": "runner_app/engine/queue_v2.py",
+      "runner_app.engine.runtime_v2": "runner_app/engine/runtime_v2.py",
+      "runner_app.engine.task_v2": "runner_app/engine/task_v2.py",
+      "runner_app.executors": "runner_app/executors/__init__.py",
+      "runner_app.executors.broker": "runner_app/executors/broker.py",
+      "runner_app.executors.native_v2": "runner_app/executors/native_v2.py",
+      "runner_app.executors.preparation_coordinator": "runner_app/executors/preparation_coordinator.py",
+      "runner_app.executors.preparation_handoff": "runner_app/executors/preparation_handoff.py",
+      "runner_app.executors.preparation_plan": "runner_app/executors/preparation_plan.py",
+      "runner_app.executors.profiles": "runner_app/executors/profiles.py",
+      "runner_app.executors.rootless_v2": "runner_app/executors/rootless_v2.py",
+      "runner_app.executors.run_service": "runner_app/executors/run_service.py",
+      "runner_app.executors.task_plan_v2": "runner_app/executors/task_plan_v2.py",
+      "runner_app.executors.tool_versions_v2": "runner_app/executors/tool_versions_v2.py",
+      "runner_app.executors.volume_provider": "runner_app/executors/volume_provider.py",
+      "runner_app.git": "runner_app/git/__init__.py",
+      "runner_app.git.argv": "runner_app/git/argv.py",
+      "runner_app.git.changes": "runner_app/git/changes.py",
+      "runner_app.git.github_transport": "runner_app/git/github_transport.py",
+      "runner_app.git.materialize": "runner_app/git/materialize.py",
+      "runner_app.git.registry": "runner_app/git/registry.py",
+      "runner_app.git.results_v2": "runner_app/git/results_v2.py",
+      "runner_app.git.snapshots": "runner_app/git/snapshots.py",
+      "runner_app.git.source_v2": "runner_app/git/source_v2.py",
+      "runner_app.git.templates": "runner_app/git/templates.py",
+      "runner_app.git.worktrees": "runner_app/git/worktrees.py",
+      "runner_app.outputs": "runner_app/outputs/__init__.py",
+      "runner_app.outputs.bundle_v2": "runner_app/outputs/bundle_v2.py",
+      "runner_app.outputs.capture": "runner_app/outputs/capture.py",
+      "runner_app.outputs.collection": "runner_app/outputs/collection.py",
+      "runner_app.outputs.parsers": "runner_app/outputs/parsers.py",
+      "runner_app.outputs.quality_v2": "runner_app/outputs/quality_v2.py",
+      "runner_app.resources": "runner_app/resources.py",
+      "runner_app.storage": "runner_app/storage/__init__.py",
+      "runner_app.storage.database": "runner_app/storage/database.py",
+      "runner_app.storage.intake_v2": "runner_app/storage/intake_v2.py",
+      "runner_app.storage.ledger": "runner_app/storage/ledger.py",
+      "runner_app.storage.migrations_v2": "runner_app/storage/migrations_v2.py",
+      "runner_app.storage.paths": "runner_app/storage/paths.py",
+      "runner_app.storage.preparation_evidence": "runner_app/storage/preparation_evidence.py",
+      "runner_app.storage.run_evidence": "runner_app/storage/run_evidence.py",
+      "runner_app.web": "runner_app/web/__init__.py",
+      "schemas": "schemas/__init__.py"
+    },
+    "pollers_started": false,
+    "provider_calls": 0,
+    "request_id": "6005e77c-132e-5c83-b9d6-a94a940d285e",
+    "schema_count": 12,
+    "schema_version": 10,
+    "scratch_database_integrity": "ok",
+    "semantic_digest": "7cbeb99a3c596b1dd24f80c36cd8790629c1474ef7f0c551e71347b5aac428c7",
+    "service_started": false,
+    "v2_schema_count": 5,
+    "v2_ui_sha256": "baefe61ffdc8d46859ee108d1ea1a61556cdde7968d2838489d41179350efd00",
+    "version": "0.3.0.dev1"
+  },
+  "missing_paths": [],
+  "not_performed": [
+    "service startup/shutdown",
+    "actual installed runtime replacement",
+    "live configuration/database changes",
+    "provider/network calls",
+    "global installation",
+    "dependency changes",
+    "broad regression"
+  ],
+  "package_name": "chat-dev-runner",
+  "package_version": "0.3.0.dev1",
+  "payload": {
+    "bridge_reference/__init__.py": {
+      "bytes": 98,
+      "sha256": "69993b1aea1aaec20f6b3803d8fc2673fc78afba0aa5b8a3d1823b66df166bd3"
+    },
+    "bridge_reference/changes.py": {
+      "bytes": 2981,
+      "sha256": "de9ce39ac87cacd7bb832ba58cbe5efe58be65690b69ad5b34e36e0048d8a177"
+    },
+    "bridge_reference/demo.py": {
+      "bytes": 5364,
+      "sha256": "6cd32cee9cf882aaf387ac23cf66519d941e06448856c4f41e81b9bede0f13ba"
+    },
+    "bridge_reference/execution.py": {
+      "bytes": 4792,
+      "sha256": "79696bf6f243bc58dbdcabb47e4824ff20d91e1be26024f6b8cde0ad2b1ba024"
+    },
+    "bridge_reference/ledger.py": {
+      "bytes": 4772,
+      "sha256": "48e569c0dbe28a753270b576cda77dc1afdae46f423fdca13d5adc056a849f32"
+    },
+    "bridge_reference/protocol.py": {
+      "bytes": 4719,
+      "sha256": "7bf27559bf8abb96ac9cb332dde37196ce773aedb4bd4bc1284ede1c9b431532"
+    },
+    "runner_app/__init__.py": {
+      "bytes": 108,
+      "sha256": "dee43c2246a83848b0a19b8a3a60c0297e42abfa70c5415c1b039ec9206b7d20"
+    },
+    "runner_app/adapters/__init__.py": {
+      "bytes": 46,
+      "sha256": "b9dedb19b784c7c27508b77caf29fa15b33fc0fe95e5a1af449018b3b80f9911"
+    },
+    "runner_app/adapters/drive_auth.py": {
+      "bytes": 13061,
+      "sha256": "bf4517d2520fe9d71fa593ae7ba229e7fa47e8a707f87dc5c34758e744ea7c66"
+    },
+    "runner_app/adapters/drive_check.py": {
+      "bytes": 3379,
+      "sha256": "6afb3f20743af1788dba2b484ed1e8d80f04e8a43d2f1309dbf8067f4026d6bd"
+    },
+    "runner_app/adapters/drive_context.py": {
+      "bytes": 16268,
+      "sha256": "3737b1733eba4295043d2a15bc2bd3e39ce7285a51bab838d779f49d522c9539"
+    },
+    "runner_app/adapters/drive_delivery.py": {
+      "bytes": 14890,
+      "sha256": "d7740542e71a6aab6d91871abf8cec86a04bd197a3e19f779cc020c1e3f93ab2"
+    },
+    "runner_app/adapters/drive_docs.py": {
+      "bytes": 16455,
+      "sha256": "35f949e6870f1ac21fd0086a5e959d3990eef2ac0a6412727f7b698b9f3314f0"
+    },
+    "runner_app/adapters/drive_fake.py": {
+      "bytes": 4935,
+      "sha256": "92cd93832437cc614a14e0ecb3a3e014ca9dd8b15b08387386d802d69441a142"
+    },
+    "runner_app/adapters/drive_google.py": {
+      "bytes": 11364,
+      "sha256": "daa63d6262c095e573b3c4bfa794d98906190d96eab74a7df08dd92fbbe8b4fe"
+    },
+    "runner_app/adapters/drive_index.py": {
+      "bytes": 25057,
+      "sha256": "174e43ac74ca0f07c2a638a43371e2c8fd8d58f625f60b8486f94fbd3a5c9403"
+    },
+    "runner_app/adapters/drive_mailbox_v2.py": {
+      "bytes": 15463,
+      "sha256": "c05c93acf8856728f32a8ae99f09118b9166f89d710850503fb90cd6c9877ba5"
+    },
+    "runner_app/adapters/drive_poller.py": {
+      "bytes": 23623,
+      "sha256": "a6133926727fdf7a30f72591a0e85babef297f03394a2a8f4ef50ff0e84bb41f"
+    },
+    "runner_app/adapters/drive_project_receipt.py": {
+      "bytes": 10197,
+      "sha256": "8174819da1d2ef9bacc44185441fac1101a957d32416041eb88285ee78644f74"
+    },
+    "runner_app/adapters/drive_provision.py": {
+      "bytes": 44343,
+      "sha256": "e638a66e42355f07c59b3a75648839e908f962c4ee80e24847f37fd0161de39d"
+    },
+    "runner_app/adapters/drive_publish.py": {
+      "bytes": 36836,
+      "sha256": "48e728f6e06fd4a23b5392ab54c87795e376fe2d4bec912baa127fc322a5c1f5"
+    },
+    "runner_app/adapters/drive_registry.py": {
+      "bytes": 26964,
+      "sha256": "e2fedb5ff73f8384e8d6e7304d32bd909be31786897acf60d568ed0578c34863"
+    },
+    "runner_app/adapters/drive_root_receipt.py": {
+      "bytes": 42172,
+      "sha256": "d472979028e1c21635201aa4a95e974d187e95a65e8b9676a788b2cbecef5f2f"
+    },
+    "runner_app/adapters/drive_system_state.py": {
+      "bytes": 7522,
+      "sha256": "ba6704a9a5da6777e0901725103424740793a2c7fe7d7d3c453d4a7b0098d941"
+    },
+    "runner_app/adapters/drive_transport.py": {
+      "bytes": 2314,
+      "sha256": "0c1344f6ca8e6433a60200ead055bac7fcc3e9c7d99c028c60c768a32cefb92e"
+    },
+    "runner_app/adapters/drive_upload.py": {
+      "bytes": 23617,
+      "sha256": "4383f10662d27efdd1aff83d76ed10fe727282f50879ca280295fd5e4d0d3745"
+    },
+    "runner_app/adapters/drive_workspace_receipt.py": {
+      "bytes": 11884,
+      "sha256": "6bd79863a636727a3990ffbd119002d7a7a4dfa985b0afbdcebc044d9f1862e6"
+    },
+    "runner_app/adapters/drive_writer.py": {
+      "bytes": 17523,
+      "sha256": "f8d4b18f49f7035966ae92e9663b409c5496a2132d624ae10ac90a55518b907e"
+    },
+    "runner_app/adapters/github.py": {
+      "bytes": 39026,
+      "sha256": "e0967bf4a30e7818c48f3ce994a93ccf37f3bcd326afb98ba68e134ef6845349"
+    },
+    "runner_app/adapters/github_mailbox_v2.py": {
+      "bytes": 31830,
+      "sha256": "a767c5b4e2a82c885e3254fa0d0dc572700b9c92c62e2330a1e05756eac2a5e4"
+    },
+    "runner_app/api/__init__.py": {
+      "bytes": 41,
+      "sha256": "241ac309bb342606a4f80347ebde0d72a19219d1b6287c3aad40215a9bbec4a1"
+    },
+    "runner_app/api/app.py": {
+      "bytes": 2274,
+      "sha256": "8dde71d9e3b87221d0d5db0091b384cbfc3735893209ea571a99a96a78ea40fe"
+    },
+    "runner_app/api/auth.py": {
+      "bytes": 3023,
+      "sha256": "c39c5956227ff78f742b198963bfe5ebd6e3bd2044e83ff97c9afd9af93b613b"
+    },
+    "runner_app/api/editor.py": {
+      "bytes": 1575,
+      "sha256": "60c3f8ac6de21852ef268bef39f5332e202b1703d229768f9633b3ef96509d5d"
+    },
+    "runner_app/api/runtime.py": {
+      "bytes": 30554,
+      "sha256": "e54d4e60b6488c237872010245ea8cfa7dca2897d1bd407bbe3870f8bf001e09"
+    },
+    "runner_app/api/source_view.py": {
+      "bytes": 2139,
+      "sha256": "bdc53fb349b73eed93e8dd6125764143df5525dd947ededaf699dd14c138328f"
+    },
+    "runner_app/cli.py": {
+      "bytes": 10770,
+      "sha256": "55fb6c0dac36ac24997b6f276525d92d1deb59cf5b439f39702f558948d87ead"
+    },
+    "runner_app/config.py": {
+      "bytes": 2855,
+      "sha256": "e135699dc7c51a0b2ff35a081604a07ac087fc91898402b1bdb406c09b3d419f"
+    },
+    "runner_app/config_v2.py": {
+      "bytes": 11884,
+      "sha256": "87a13c7204535522f518b437dfdd214686e3347f254dabaa576cc9bbd6a5a819"
+    },
+    "runner_app/domain/__init__.py": {
+      "bytes": 44,
+      "sha256": "0f84c6e2d65f997f12c8edfdde6291025a6cf833c0280e5c7db715c04ee61d91"
+    },
+    "runner_app/domain/commands.py": {
+      "bytes": 15065,
+      "sha256": "76a69495f273877f4c221db8c46f445eec0f29183ed01fada9fa437c89e577dc"
+    },
+    "runner_app/domain/contracts_v2.py": {
+      "bytes": 4679,
+      "sha256": "cc05b7e1d01aa1f84a5b20fce407af08d129578e760a240b93295b46b66722ae"
+    },
+    "runner_app/domain/mailbox_v2.py": {
+      "bytes": 6085,
+      "sha256": "86d863d07c84fad012333ddfbc6198a091c42c277fe1f3ff077ec7b396aa4b41"
+    },
+    "runner_app/domain/project_v2.py": {
+      "bytes": 2175,
+      "sha256": "1b2538c00e5f6a9960f52cdb63e8998244916748167c58356b10e67442187584"
+    },
+    "runner_app/engine/__init__.py": {
+      "bytes": 44,
+      "sha256": "c0bc57f493dc84d41a5691e814319e36aaff67ce4d6159037ac6f685f6dd0880"
+    },
+    "runner_app/engine/connection_checks.py": {
+      "bytes": 8886,
+      "sha256": "ed2eac46d4a625988db6fd37950e9266e9542fa74b5206c95fec09eeab1f5c30"
+    },
+    "runner_app/engine/context_route.py": {
+      "bytes": 2269,
+      "sha256": "6870c40192bc43d7664dc77a2b9c5685ddb22db1a3fb3766617e7fa227ff0700"
+    },
+    "runner_app/engine/docs_v2.py": {
+      "bytes": 5750,
+      "sha256": "64f905eec66b54e5827eab8f251cb2e4db5cfdd1e5a138780d5670497bf4ce45"
+    },
+    "runner_app/engine/drive_bridge.py": {
+      "bytes": 6953,
+      "sha256": "4b141d16ae45ea803a5eed9d11be8112ac0113609b84ec8f83f82e8d3e4e7981"
+    },
+    "runner_app/engine/execution_assembly.py": {
+      "bytes": 2917,
+      "sha256": "44c8dccdb565b6c987beaf54ec06e6f41f18f79821dbd219d9155d8d8e12ab51"
+    },
+    "runner_app/engine/full_route.py": {
+      "bytes": 6974,
+      "sha256": "ed07f17e11b2a8e022ab1a939c0cd38af576449d3363f623f847d7bbc7e83033"
+    },
+    "runner_app/engine/intake_v2.py": {
+      "bytes": 8603,
+      "sha256": "7de2cb5dd5b8598728f0ace6a811d060d3e9ad8410568ea3014b1574339d2fd3"
+    },
+    "runner_app/engine/integrations.py": {
+      "bytes": 18828,
+      "sha256": "9612ff3192b39dd78cf72f5b9e5f2621b95008b2e8080f8b973f8007c2b92535"
+    },
+    "runner_app/engine/queue_v2.py": {
+      "bytes": 6431,
+      "sha256": "a0605f27cbe1c5d7266cbe30f74e5cff64135620c33017b33aa25ee4ab3a541e"
+    },
+    "runner_app/engine/report_route.py": {
+      "bytes": 3703,
+      "sha256": "e9e66cfcbd5895983122ecf08a4f9f8fc003d2d170609c7a0938bbb85b23ec5c"
+    },
+    "runner_app/engine/runtime.py": {
+      "bytes": 15704,
+      "sha256": "bc6616b061bfe5477a5c8f703cb31c6a7ec2adc3110b2048dab9816fdd1415a4"
+    },
+    "runner_app/engine/runtime_v2.py": {
+      "bytes": 9821,
+      "sha256": "84f6ebc370c70f9720e7993b65541664178c78ca2ff7c63ff8122192d80d019b"
+    },
+    "runner_app/engine/service.py": {
+      "bytes": 23134,
+      "sha256": "c7be5c02316a025c13245c52c7a4e0606214f7b1de4d288b1fd0ddf13d9f6f12"
+    },
+    "runner_app/engine/singleton.py": {
+      "bytes": 793,
+      "sha256": "1c5400e67478aef0a3eb32613003710f7836c97fb3255f1c777a8745085e325b"
+    },
+    "runner_app/engine/task_v2.py": {
+      "bytes": 30917,
+      "sha256": "c2be50dcbb7fea43133a5f4164314f6bf85ef42c767a6e2d1a727f8463cb4b51"
+    },
+    "runner_app/engine/workspace_mailboxes.py": {
+      "bytes": 15976,
+      "sha256": "8a0cd590a2e683cc382df8499f6d8dbda7d78245b7024f37d2d13783228fb928"
+    },
+    "runner_app/executors/__init__.py": {
+      "bytes": 47,
+      "sha256": "6fa3e8b41634c12d3cf7f609389e59b31508394173f8d1188ea780d42ac01b5f"
+    },
+    "runner_app/executors/broker.py": {
+      "bytes": 59364,
+      "sha256": "45c6d01c88ed9a38bb54499c25832c8b60abd0581a812dd4dda8136b3c554bd0"
+    },
+    "runner_app/executors/native_v2.py": {
+      "bytes": 16710,
+      "sha256": "268c7c0259bd073399faac24582a52d79faef84a93dcf4145e8b2f42e9a218d0"
+    },
+    "runner_app/executors/preparation_coordinator.py": {
+      "bytes": 19413,
+      "sha256": "1a8eb4a63414e67ab99067fce18c995078c562b2b3742acb07a716d0816a05c6"
+    },
+    "runner_app/executors/preparation_handoff.py": {
+      "bytes": 17336,
+      "sha256": "af2a8484749ea8ac9b4df9d80e79ad9509d324f1ce7e305ea6464f349c88c95f"
+    },
+    "runner_app/executors/preparation_plan.py": {
+      "bytes": 8458,
+      "sha256": "9b48d5313c34d520e146c568c2c3f4f64a2230089505b57fddc69612629d0ed1"
+    },
+    "runner_app/executors/profiles.py": {
+      "bytes": 13332,
+      "sha256": "5b8dc46427cdb48b582cb598e9e52e3c4f16544f02a414c502990b1dc8a8aadc"
+    },
+    "runner_app/executors/reconciliation.py": {
+      "bytes": 6272,
+      "sha256": "d66cf44d7b4b8505554c58687da9fe078eab4ef283a77fae7171f7151d489733"
+    },
+    "runner_app/executors/rootless_v2.py": {
+      "bytes": 24093,
+      "sha256": "faf28b8650d637b50cbd01ac71b2c4f4c72013185779ba6bfc95d2305d3fb34b"
+    },
+    "runner_app/executors/run_service.py": {
+      "bytes": 30989,
+      "sha256": "3ee589633b5bcfc72ffdce771462eeb5232bc1ce897ead80a2987b23aad0fba6"
+    },
+    "runner_app/executors/task_plan_v2.py": {
+      "bytes": 20444,
+      "sha256": "4331dc12c57082465d75af7a86e3df09ade15ccb21c1e0387b40484634e2c710"
+    },
+    "runner_app/executors/tool_versions_v2.py": {
+      "bytes": 4132,
+      "sha256": "d1d5d637b9bb7d954f472cbcb2d2a137569f02fb92257f6f523bd517d1e0c8fd"
+    },
+    "runner_app/executors/verify_handler.py": {
+      "bytes": 12052,
+      "sha256": "293cc0fb83ce8c5b8f7c595e62a42a5025f4bf83149e7f3069b647166a9f1f12"
+    },
+    "runner_app/executors/volume_provider.py": {
+      "bytes": 32869,
+      "sha256": "5275a742e81d94af8482b584d4b487d56e456d28ea35dcfb04975d90c5a7506a"
+    },
+    "runner_app/git/__init__.py": {
+      "bytes": 87,
+      "sha256": "9ee141b92e670b46b487d11595e582c74d212d75bfbd93284cf43632f55fc1c4"
+    },
+    "runner_app/git/argv.py": {
+      "bytes": 9764,
+      "sha256": "27e4a9c5d6f02100fb154f5c76ceb6f2d615f5e3146b75ac3b3c82e68d68b066"
+    },
+    "runner_app/git/changes.py": {
+      "bytes": 6406,
+      "sha256": "ee463de1b0a359dce84cd80edd75b485e57dae2dcc097d37ccb1ce5cb5fb2bbd"
+    },
+    "runner_app/git/github_import.py": {
+      "bytes": 13368,
+      "sha256": "1d1d2bd95203a7d72095f2e1eaac318507027426b03218bf3a1c51f9f7a50045"
+    },
+    "runner_app/git/github_transport.py": {
+      "bytes": 33594,
+      "sha256": "e3a5ba115ebc20b985d748350202c0399b95b8355d426f6e32af1bba62586543"
+    },
+    "runner_app/git/imports.py": {
+      "bytes": 11143,
+      "sha256": "dc88a448e039dd07544ee6b0ecc324aefd9ef5dc3a448a42a094edf4586dd7c6"
+    },
+    "runner_app/git/materialize.py": {
+      "bytes": 13992,
+      "sha256": "8f31e09c4334576cff44d48cbd2f98e0201bd05a64b445b1cc4c0c837057ff18"
+    },
+    "runner_app/git/publish.py": {
+      "bytes": 21356,
+      "sha256": "e0fe0c4f24ed4bb3b7f951415d18de9eb44948eacdfe0821c9954bab59cd1ee2"
+    },
+    "runner_app/git/python_quick_wheels/iniconfig-2.3.0-py3-none-any.whl": {
+      "bytes": 7484,
+      "sha256": "f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12"
+    },
+    "runner_app/git/python_quick_wheels/packaging-26.3-py3-none-any.whl": {
+      "bytes": 129956,
+      "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+    },
+    "runner_app/git/python_quick_wheels/pluggy-1.6.0-py3-none-any.whl": {
+      "bytes": 20538,
+      "sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"
+    },
+    "runner_app/git/python_quick_wheels/pygments-2.21.0-py3-none-any.whl": {
+      "bytes": 1250147,
+      "sha256": "2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9"
+    },
+    "runner_app/git/python_quick_wheels/pytest-9.1.1-py3-none-any.whl": {
+      "bytes": 386536,
+      "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c"
+    },
+    "runner_app/git/registry.py": {
+      "bytes": 45629,
+      "sha256": "99abfae2e2f5b1222f8d03cca48841e0708b7c6ec37382515769f30caf4ee2b0"
+    },
+    "runner_app/git/results_v2.py": {
+      "bytes": 27127,
+      "sha256": "7dc2aaf5c9686f7ecbca91fec6a3d3c46da603b4c89115ce86b53cf682847f4c"
+    },
+    "runner_app/git/service.py": {
+      "bytes": 22594,
+      "sha256": "5df4c12a1363aef320b3e8384cc2f3d15dcd7013fc00f9926c0cd7691e136d12"
+    },
+    "runner_app/git/snapshots.py": {
+      "bytes": 29263,
+      "sha256": "9faf5fa4b07b8ab92cb81fba4eb9e1a384092958e368f5d92ebf5a2551329e2a"
+    },
+    "runner_app/git/source_v2.py": {
+      "bytes": 27096,
+      "sha256": "ee5d012677401ce875bfd6d149459f8933872104c10e881de023711e955a2e1b"
+    },
+    "runner_app/git/templates.py": {
+      "bytes": 4013,
+      "sha256": "58fb7fa1211e16e0fee6cbf2a7699169ebf6abb5d250e52907c5b8a23558fc79"
+    },
+    "runner_app/git/worktrees.py": {
+      "bytes": 23069,
+      "sha256": "c5491d089273dea12cd1a37181ae5243dc981bd7290330cea03cec918aaca00c"
+    },
+    "runner_app/outputs/__init__.py": {
+      "bytes": 45,
+      "sha256": "5e59fdd2c4078eb110a68272dfa6e2593582fa2e2d1a2df91e6f9695a7be57ab"
+    },
+    "runner_app/outputs/bundle_v2.py": {
+      "bytes": 7098,
+      "sha256": "f04db6f35a0fc90480c91aa661784a59641c098e22218771401f1f70ec26044a"
+    },
+    "runner_app/outputs/capture.py": {
+      "bytes": 18589,
+      "sha256": "23470ccc198550532620726bc7f658fe89e08e9c662752d1819709b9f013e9c8"
+    },
+    "runner_app/outputs/collection.py": {
+      "bytes": 16935,
+      "sha256": "aa85cde201f507d9a7b438056df6a9d2c8cd0d160bb3ae8f30a79a07a4935a44"
+    },
+    "runner_app/outputs/inspection.py": {
+      "bytes": 5499,
+      "sha256": "bc3b209e9293814e7687e06be765819ec07c5cb53b61b8ad85ff5c39ea6c2c5e"
+    },
+    "runner_app/outputs/parsers.py": {
+      "bytes": 12939,
+      "sha256": "fdf541c459c4e1900b090aa98f0e3e3fa508f0c43ef13bb1eebc194bb49beedc"
+    },
+    "runner_app/outputs/quality_v2.py": {
+      "bytes": 13588,
+      "sha256": "b71207cf42c4ecdc665b825470264bc80c12bb22110d8fedd7be94563f4b9088"
+    },
+    "runner_app/outputs/redaction.py": {
+      "bytes": 4164,
+      "sha256": "9d4952615c6430a8c16dc7c3dda6a9533838b0e5122e36492cff7b859de047e4"
+    },
+    "runner_app/production.service.in": {
+      "bytes": 881,
+      "sha256": "c6249d75e09d5b558c84482909dcf9d136f330facaeb0bd1729625991698e9dc"
+    },
+    "runner_app/resources.py": {
+      "bytes": 662,
+      "sha256": "fa9f9951938e3261463f0834aab127a3311a3f2721203e2c204dfdf311a63fab"
+    },
+    "runner_app/service_install.py": {
+      "bytes": 18389,
+      "sha256": "44c49e138be3ab9094a23e6e694833ff7541f43cee53553d6d45148dae97b1b1"
+    },
+    "runner_app/storage/__init__.py": {
+      "bytes": 439,
+      "sha256": "617f9a894fb989304bdee884b00534ff731e78519ad1e7dea9afc5abc90e450c"
+    },
+    "runner_app/storage/backup.py": {
+      "bytes": 24711,
+      "sha256": "ffa38f815adaa3eb8a2b17fea26170bb5ebae065429f9ac3e10aedde57eab51f"
+    },
+    "runner_app/storage/database.py": {
+      "bytes": 31849,
+      "sha256": "e86fddab091de7299be8c3b604a0a394b13bf975fd47c3f027c0d03527b0af96"
+    },
+    "runner_app/storage/intake_v2.py": {
+      "bytes": 26709,
+      "sha256": "9acb7e0054a7a98eb485c409943116dfd47cfa9094e8eb7d3afefa4bda01f33f"
+    },
+    "runner_app/storage/ledger.py": {
+      "bytes": 134579,
+      "sha256": "d8ff7da1764f0a4b64ae15085b31b9bef01c0886cefed61dd1e052ce9720afdd"
+    },
+    "runner_app/storage/migrations_v2.py": {
+      "bytes": 4341,
+      "sha256": "68ce15c52e27c8895f50087543ceac6bc36632b2a0710519e52b559afa996935"
+    },
+    "runner_app/storage/paths.py": {
+      "bytes": 6915,
+      "sha256": "37242f7723fa4c5df45564d1093feac6458dc3958eda68ec511500d14940407f"
+    },
+    "runner_app/storage/preparation_evidence.py": {
+      "bytes": 20180,
+      "sha256": "5a6a0953ca96fff56afa289dc706a36d534878730c82999b55f5f2caaed31298"
+    },
+    "runner_app/storage/run_evidence.py": {
+      "bytes": 43825,
+      "sha256": "245478208287d609f6505b46a8820867b81e31321a55b60d21f1fd9d62922d64"
+    },
+    "runner_app/web/__init__.py": {
+      "bytes": 41,
+      "sha256": "a053a52f790b52cee194293ce39584fb55926ed990118c2b0434b7744812335b"
+    },
+    "runner_app/web/api.js": {
+      "bytes": 5105,
+      "sha256": "f7c30413c817a6614fef42ea756633df4422f422b8c6e221d10d85748043a317"
+    },
+    "runner_app/web/app.js": {
+      "bytes": 43372,
+      "sha256": "483abb5a46643174b71f4d52936455a6cf5f7eb39f50fd62037fee281fd26bd1"
+    },
+    "runner_app/web/index.html": {
+      "bytes": 771,
+      "sha256": "eec399fea8c5834d9463eb1c1fe3e6a646d6806b2ee5650965bf1e66573a53d4"
+    },
+    "runner_app/web/model.js": {
+      "bytes": 10497,
+      "sha256": "751e311212b066ec4af4cecf11c4459eff018f160c2f1fc4634f637fb5cbd75e"
+    },
+    "runner_app/web/render.js": {
+      "bytes": 57311,
+      "sha256": "536d683ce806bcfd4c6362ab809d2667e49f3b884a4dfc986bb79e67683ed70f"
+    },
+    "runner_app/web/styles.css": {
+      "bytes": 29632,
+      "sha256": "7129922e869e009a9636ecd0ed2e527593b4fd950f077e9758eaa0f70a21f08d"
+    },
+    "runner_app/web/v2.js": {
+      "bytes": 13238,
+      "sha256": "baefe61ffdc8d46859ee108d1ea1a61556cdde7968d2838489d41179350efd00"
+    },
+    "runner_app/workflows/__init__.py": {
+      "bytes": 43,
+      "sha256": "f233701195d5c4826fd31786f1d8fda96c1ecebb56743ac02da547268aa86b83"
+    },
+    "runner_app/workflows/create_project.py": {
+      "bytes": 26757,
+      "sha256": "bc5cab0a25fd5d36ee23cd26e66a7775b0aa692dd635f4e3791c7d374bd200a8"
+    },
+    "runner_app/workflows/create_workspace.py": {
+      "bytes": 8412,
+      "sha256": "874921ea0f77be506398f5bdcc39e22047f9e9b93f7e1b598970feb14f361858"
+    },
+    "runner_app/workflows/deliver_verify_publish.py": {
+      "bytes": 19133,
+      "sha256": "979d16488a69e04d77654fdcf2e3551061711b85d2df2755272b0ce6f4a11b48"
+    },
+    "runner_app/workflows/fetch.py": {
+      "bytes": 5599,
+      "sha256": "d966b92ff8a0ec57c1dffd90320e294801d46d9c004866b5deb23a3356c42ad2"
+    },
+    "runner_app/workflows/provision_resume.py": {
+      "bytes": 9373,
+      "sha256": "3ab7f62d4fb244298ec33af0e8cf2acbc48990cc1f0334e4f4cc3077e173755b"
+    },
+    "runner_app/workflows/provision_resume_complete.py": {
+      "bytes": 21392,
+      "sha256": "1eb0b5a0977f69ebe0ba42068ed76e6962958c785c033374c3ca8c8ea4cf6e19"
+    },
+    "runner_app/workflows/provision_resume_partial.py": {
+      "bytes": 15585,
+      "sha256": "d05f81aed11b2cb997ad8ca5b095e12ba872039f5bdbbff058bbd6b58fa32e48"
+    },
+    "runner_app/workflows/publish_report.py": {
+      "bytes": 12938,
+      "sha256": "3e42409a99df21cc1897efea876d30950b09eff8b17f6140a752d1477ba613ff"
+    },
+    "runner_app/workflows/publish_run.py": {
+      "bytes": 32678,
+      "sha256": "96ca0688d17dc56901d5ecc5c32a152a199141c5bc900cfa64ae6c1b58e79726"
+    },
+    "runner_app/workflows/reconcile.py": {
+      "bytes": 17333,
+      "sha256": "8d76ecff92ef061dc7f9e3eacf6659c67cafd45fd82219889d793ff7051a38ce"
+    },
+    "runner_app/workflows/reconcile_drive.py": {
+      "bytes": 9877,
+      "sha256": "d8af936e1722fe03543fd729fbbb254a3d8644d65791fb9e5822285fe5e68536"
+    },
+    "runner_app/workflows/reconcile_github.py": {
+      "bytes": 9771,
+      "sha256": "42853b02f1cc2e176d79fcfa0cce4426bef17419c62578f629e25e2ee51779ae"
+    },
+    "runner_app/workflows/reconcile_local.py": {
+      "bytes": 15756,
+      "sha256": "9b8328de6655af3d98769c424a9bb1a96f3feb3549beb84140fd2daf89e8a77f"
+    },
+    "runner_app/workflows/retarget_drive_state.py": {
+      "bytes": 9891,
+      "sha256": "b9a614ce2e3f2f7310c60f799ba89c2a5a3a891093a66ecb44b0198af9ec35aa"
+    },
+    "runner_app/workflows/retarget_resume.py": {
+      "bytes": 7557,
+      "sha256": "7c50ef0fb9eda4ff798779b2e09de302c83a6fae6fa63c01b6896447e0f267c2"
+    },
+    "runner_app/workflows/retarget_workspace.py": {
+      "bytes": 4812,
+      "sha256": "3c3a97d3c17e24806cb7fee7abbe599b8a5fac4e357eddb80dd8d251e6a42898"
+    },
+    "schemas/__init__.py": {
+      "bytes": 83,
+      "sha256": "978d66b40ca6f353c0aa9b6ec84e3558e6860179eeb4b7626d515e47023ddcb3"
+    },
+    "schemas/application-log.schema.json": {
+      "bytes": 1227,
+      "sha256": "edc4f6da7e82d2661231cf346e68bae59b1f2571a433160a8043e1167831255a"
+    },
+    "schemas/changeset.schema.json": {
+      "bytes": 2442,
+      "sha256": "1ebf709247ed3c02291b91ce79991303427808a0c4d494b1e8eb1d91281f0f11"
+    },
+    "schemas/command.schema.json": {
+      "bytes": 20113,
+      "sha256": "c370c0bf32d0843ce67b66a33b8d6f22a130f4b71b65cbce140aa2bc4199b86d"
+    },
+    "schemas/operation-manifest.schema.json": {
+      "bytes": 5571,
+      "sha256": "5b314be75c66592f30489558ac125a02ea0b0836dbebfb2504fbd67087ac5567"
+    },
+    "schemas/output.schema.json": {
+      "bytes": 1449,
+      "sha256": "47551ae7ad4a8425076933ae666ce838cd6018051ea16adba813b362dad18e4b"
+    },
+    "schemas/receipt.schema.json": {
+      "bytes": 1100,
+      "sha256": "1c000dd95c2e5ebd6dd0213400d0e4efd3ece75b4cb2142b4f1a92e625f5fdde"
+    },
+    "schemas/run-manifest.schema.json": {
+      "bytes": 4397,
+      "sha256": "d924c0771bd8638b7510e9a1c0b77b24d05daa9090f6eb6d2aaa5c6b3f61cb0e"
+    },
+    "schemas/v2-approval.schema.json": {
+      "bytes": 2027,
+      "sha256": "2c4a0979439f367e69fe640f31cbe16ac187d7c808c771c0f3a52e3731e8dbc7"
+    },
+    "schemas/v2-environment.schema.json": {
+      "bytes": 8066,
+      "sha256": "17c57f56a908edb122c4150c66c813804906c606f11163753252f36e405a7e60"
+    },
+    "schemas/v2-mailbox.schema.json": {
+      "bytes": 7881,
+      "sha256": "a309bcbbc1b5c2bb0b28f1a1864bed9e0098923e6677b8da51ce077064ebb3e8"
+    },
+    "schemas/v2-project.schema.json": {
+      "bytes": 4874,
+      "sha256": "10dcd82ffeca46920bd8a5593a91032ad3250e2532cb46906f394ad026d53bf0"
+    },
+    "schemas/v2-result.schema.json": {
+      "bytes": 6645,
+      "sha256": "28469bf676f016a4d926b29221c70c363f5b9117b2b4a7ad8030aa4c7780deca"
+    }
+  },
+  "payload_manifest_sha256": "07984817778ed2a6797a07210b919f0f6610a68ecd28307dcec784b8f0bad926",
+  "pip_check": "No broken requirements found.",
+  "production_requirements": [
+    "jsonschema==4.26.0",
+    "fastapi==0.141.1",
+    "uvicorn==0.54.0"
+  ],
+  "schema": "cdr-frozen-wheel-audit/1",
+  "scratch": "/tmp/cdr-gp07-wheel-crua1zf_",
+  "smoke_script_sha256": "ab69fc82abb090f4246d313e443dd6508cd043e7993ab9c7504ca2e32c5a7169",
+  "source_difference_paths": [],
+  "source_freeze": "a26fe8ca64d25442ce80f2f80f1f0c6bb5302974",
+  "started_at": "2026-10-15T12:40:12.912276+00:00",
+  "status": "PASSED",
+  "temporary_site_packages": "/tmp/cdr-gp07-wheel-crua1zf_/venv/lib/python3.10/site-packages",
+  "unexpected_paths": [],
+  "wheel_bytes": 2318219,
+  "wheel_path": "/home/visky/Work/GPTRunner/.runner-install/wheels/gp07-a26fe8c/chat_dev_runner-0.3.0.dev1-py3-none-any.whl",
+  "wheel_sha256": "039b2e6bd8a3dab145a831168586772bbdcec36e65365e8080ca12fdd09e1cae"
+}
