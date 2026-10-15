@@ -44,3 +44,13 @@ html,body{max-width:100%;overflow-x:hidden}code{font-family:var(--mono);overflow
 .structured-event small{color:var(--quiet)}
 .structured-event p{margin:5px 0;color:var(--muted);white-space:pre-wrap}
 .preview-image{display:block;max-width:100%;max-height:60vh;object-fit:contain;margin:14px auto;border:1px solid var(--line);border-radius:9px;background:var(--panel2)}
+
+/* Optional v2 read model shares the existing quiet cards and typography. */
+.v2-runtime .definition{margin:9px 0}.v2-channels{font-size:11px;border-top:1px solid var(--line);padding-top:13px;margin-top:15px}
+.v2-channels summary{cursor:pointer;color:var(--muted)}.v2-layout{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:18px;align-items:start}
+.v2-layout .card{padding:20px}.v2-table .table{font-size:10px}.v2-table .table td{white-space:normal;vertical-align:top;padding:12px 10px;min-width:90px}
+.v2-table .table td:first-child{min-width:170px}.v2-table .table th{padding:12px 10px}.v2-selected{background:var(--panel2)}
+.v2-axes{border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:18px 0;padding:4px 0}.v2-axes .definition{margin:10px 0}
+.v2-artifacts .definition{font-size:11px;grid-template-columns:125px minmax(0,1fr)}.v2-artifacts h3{overflow-wrap:anywhere}.v2-artifacts code{min-width:0;user-select:text}
+@media(max-width:1250px){.v2-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:750px){.v2-layout .card{padding:17px}.v2-artifacts .definition{grid-template-columns:90px minmax(0,1fr)}.v2-table .table{min-width:480px}}

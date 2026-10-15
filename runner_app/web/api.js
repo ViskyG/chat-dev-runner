@@ -13,9 +13,12 @@ export class ApiError extends Error {
 export class LocalApi {
   constructor() { this.csrf = null; }
 
-  async request(path, {method = 'GET', body, responseType = 'json'} = {}) {
+  async request(path, {method = 'GET', body, responseType = 'json', version = 'v1'} = {}) {
     if (!/^[-a-zA-Z0-9_/?=&.]+$/.test(path) || path.startsWith('/')) {
       throw new Error('Invalid local API path');
+    }
+    if (!['v1', 'v2'].includes(version) || (version === 'v2' && method !== 'GET')) {
+      throw new Error('Invalid local API version or method');
     }
     const headers = {Accept: responseType === 'blob' ? 'application/octet-stream' : 'application/json'};
     if (method !== 'GET') {
@@ -25,7 +28,7 @@ export class LocalApi {
     }
     let response;
     try {
-      response = await fetch(ROOT + path, {
+      response = await fetch((version === 'v2' ? '/api/v2/' : ROOT) + path, {
         method, credentials: 'same-origin', headers,
         body: body === undefined ? undefined : JSON.stringify(body),
         cache: 'no-store', redirect: 'error',
@@ -55,6 +58,9 @@ export class LocalApi {
   }
 
   system() { return this.request('system'); }
+  v2Status() { return this.request('status', {version: 'v2'}); }
+  v2Requests() { return this.request('requests', {version: 'v2'}); }
+  v2Request(id) { return this.request(`requests/${encodeURIComponent(id)}`, {version: 'v2'}); }
   projects() { return this.request('projects'); }
   project(id) { return this.request(`projects/${encodeURIComponent(id)}`); }
   workspaces(id) { return this.request(`projects/${encodeURIComponent(id)}/workspaces`); }

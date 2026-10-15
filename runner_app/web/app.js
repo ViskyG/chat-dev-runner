@@ -12,6 +12,8 @@ const state = {
   operations: [], runs: {}, runErrors: {}, outputs: {}, outputErrors: {}, retention: {}, retentionReadAt: {},
   inspections: {}, inspectionErrors: {}, logErrorsOnly: false,
   partialOperations: false, partialRunEvidence: false,
+  v2: {available: false, status: null, requests: [], error: '', checkedAt: null,
+    selectedId: null, detail: null, detailError: ''},
   projectId: null, workspaceId: null, operationId: null,
   view: 'work', tab: 'summary', dialog: null, preview: null,
   theme: readPreference('runner-theme', 'dark'),
@@ -153,7 +155,9 @@ async function refresh({quiet = false} = {}) {
   if (refreshPromise) return refreshPromise;
   refreshPromise = (async () => {
     try {
-      const [system, projectPage, firstPage] = await Promise.all([api.system(), api.projects(), api.operations()]);
+      const [system, projectPage, firstPage] = await Promise.all([
+        api.system(), api.projects(), api.operations(), refreshV2(),
+      ]);
       if (!Array.isArray(projectPage.items) || !Array.isArray(firstPage.items)) throw new Error('Локальный API вернул неожиданный формат списка.');
       let operations = [...firstPage.items];
       let cursor = firstPage.next_cursor;
@@ -223,6 +227,47 @@ async function refresh({quiet = false} = {}) {
     }
   })();
   return refreshPromise;
+}
+
+async function refreshV2() {
+  let supported = false;
+  try {
+    const status = await api.v2Status();
+    if (status?.protocol !== 'cdr-runtime/2') throw new Error('Неизвестный формат статуса v2.');
+    supported = true;
+    state.v2.available = true;
+    state.v2.status = status;
+    const page = await api.v2Requests();
+    if (!Array.isArray(page?.requests)) throw new Error('Неизвестный формат списка запросов v2.');
+    state.v2.requests = page.requests.filter(item => item && typeof item === 'object');
+    state.v2.error = '';
+    state.v2.checkedAt = new Date().toISOString();
+    const selected = state.v2.requests.find(item => item.request_id === state.v2.selectedId);
+    if (selected) { state.v2.detail = selected; state.v2.detailError = ''; }
+    else if (isUuid(state.v2.selectedId)) await loadV2Request(state.v2.selectedId);
+  } catch (error) {
+    if (!supported && error instanceof ApiError && error.status === 404) {
+      state.v2 = {available: false, status: null, requests: [], error: '', checkedAt: null,
+        selectedId: null, detail: null, detailError: ''};
+      if (state.view === 'v2') state.view = 'work';
+      return;
+    }
+    state.v2.available = true;
+    state.v2.error = errorText(error);
+  }
+}
+
+async function loadV2Request(id) {
+  if (!isUuid(id)) return;
+  try {
+    const request = await api.v2Request(id);
+    if (request?.request_id !== id) throw new Error('Ответ v2 относится к другому запросу.');
+    if (state.v2.selectedId !== id) return;
+    state.v2.detail = request;
+    state.v2.detailError = '';
+  } catch (error) {
+    if (state.v2.selectedId === id) state.v2.detailError = errorText(error);
+  }
 }
 
 async function loadSelectedConnection() {
@@ -572,6 +617,14 @@ root.addEventListener('click', async event => {
   else if (action === 'tab') { state.tab = value; paint(); void loadTabInspections(); }
   else if (action === 'log-errors-only') { state.logErrorsOnly = !state.logErrorsOnly; paint(); }
   else if (action === 'operation') { state.operationId = value; state.view = 'operations'; paint(); }
+  else if (action === 'v2-request' && isUuid(value)) {
+    state.v2.selectedId = value;
+    state.v2.detail = state.v2.requests.find(item => item.request_id === value) || null;
+    state.v2.detailError = '';
+    state.view = 'v2'; paint();
+    await loadV2Request(value);
+    if (state.view === 'v2') paint();
+  }
   else if (action === 'theme') { state.theme = state.theme === 'dark' ? 'light' : 'dark'; writePreference('runner-theme', state.theme); paint(); }
   else if (action === 'motion') { state.motionOff = !state.motionOff; writePreference('runner-motion', state.motionOff ? 'on' : 'off'); paint(); }
   else if (action === 'palette') openDialog('palette');

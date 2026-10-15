@@ -1,0 +1,24 @@
+{
+  "packet": "GP-07",
+  "scope": "fixture-backed additive v2 UI",
+  "status": "PASSED",
+  "browser": "151.0.7922.34",
+  "browser_path": "/home/visky/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell",
+  "checks": [
+    "optional v2 status, qualification and queue",
+    "separate result axes, exact escaped local locator, no invented links",
+    "missing quality/cleanup/delivery never inherit process pass",
+    "control target stays separate from execution result",
+    "latest delivery refresh replaces frozen publication-pending status",
+    "v2 refresh failure retains marked-stale data without a v1 error banner",
+    "existing authenticated arm control remains available for a v2-only runtime",
+    "legacy v2 404 is silent; v1 navigation and arm rules remain unchanged"
+  ],
+  "browser_errors": [],
+  "mutations": [],
+  "screenshot": "v2-ui.png",
+  "live_provider_or_service_qualification": "NOT_RUN",
+  "base_commit": "ff82594",
+  "command": "python verification/implementation/GP-07/v2_ui_check.py --browser /home/visky/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell",
+  "integration_dependency": "Root-owned runtime _WEB_ASSETS must allow v2.js"
+}

@@ -3,6 +3,7 @@ import {
   retargetReason, runIdFrom, short, snapshotState, sourceHead, sortedOperations, timeText, tone,
   workspaceOperations,
 } from './model.js';
+import {hasV2, navigation, renderV2View, v2Configured} from './v2.js';
 
 // Every interpolated value is escaped. Output bytes are inserted with textContent by app.js.
 export const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -68,19 +69,19 @@ function connectionStrip(state) {
 }
 
 function sidebar(state) {
-  const nav = [['work', 'Рабочие области'], ['operations', 'Операции'], ['results', 'Результаты'], ['drive', 'Google Drive'], ['system', 'Система']];
+  const nav = navigation(state);
   return `<aside class="sidebar"><div class="brand"><span class="brandmark" aria-hidden="true"></span><span><strong>Runner</strong><small>Мастерская разработки</small></span></div>
     <nav aria-label="Разделы">${nav.map(([id, title]) => `<button type="button" class="navitem ${state.view === id ? 'on' : ''}" data-action="view" data-value="${id}" ${state.view === id ? 'aria-current="page"' : ''}>${title}</button>`).join('')}</nav>
     <div class="sidecap">Проекты <span>${state.projects.length}</span></div>
     <div class="projectlist" data-testid="project-list">${state.projects.map(project => `<button type="button" class="projectpick ${project.project_id === state.projectId ? 'on' : ''}" data-action="project" data-value="${esc(project.project_id)}"><span class="projecticon" aria-hidden="true">${esc(project.display_name?.slice(0, 1) || 'P')}</span><span class="projectlabel">${esc(project.display_name || project.project_id)}</span></button>`).join('') || '<p class="side-note">Проектов пока нет.</p>'}</div>
     ${button('new-project', '＋ Новый проект', eligibility(state, 'CREATE_PROJECT'), 'newproject')}
-    <div class="sidefoot"><div class="local"><span class="dot ${state.offline ? 'red' : 'gray'}"></span>Только на этом компьютере</div><span>Один запрос — одна конечная операция. Очереди нет.</span></div>
+    <div class="sidefoot"><div class="local"><span class="dot ${state.offline ? 'red' : 'gray'}"></span>Только на этом компьютере</div><span>${hasV2(state) ? 'v1 — без очереди. v2 — FIFO в живой сессии, одна линия.' : 'Один запрос — одна конечная операция. Очереди нет.'}</span></div>
   </aside>`;
 }
 
 function toolbar(state) {
   const project = currentProject(state);
-  return `<header class="topbar"><div class="crumb">Мастерская / <strong>${esc(project?.display_name || state.viewTitle)}</strong></div><div class="topcontrols">
+  return `<header class="topbar"><div class="crumb">Мастерская / <strong>${esc(state.view === 'v2' ? 'Задачи v2' : project?.display_name || state.viewTitle)}</strong></div><div class="topcontrols">
     <button type="button" class="cmdkey" data-action="palette" data-testid="palette-open">Перейти к… <span class="kbd">Ctrl K</span></button>
     <button type="button" class="iconbtn" data-action="refresh" aria-label="Обновить реальные данные" title="Обновить реальные данные">↻</button>
     <button type="button" class="iconbtn" data-action="theme" data-testid="theme-toggle" aria-label="Сменить тему" title="Сменить тему">${state.theme === 'dark' ? '☼' : '☾'}</button>
@@ -266,8 +267,8 @@ function systemView(state) {
   const system = state.system || {};
   const armed = !!system.armed;
   return `<div class="content"><div class="eyebrow">Локальное управление</div><h1 class="pagetitle">Система</h1><p class="subtitle">Состояние runner и подключений. Ошибки тестов проекта показаны рядом с запуском, а не как авария сервиса.</p>${connectionStrip(state)}
-    <div class="twocol"><section class="card"><h2>Runner</h2>${row('Приём команд', armed ? 'Включён' : 'Выключен')}${row('Эпоха', system.epoch)}${row('Занято слотов', system.reserved_capacity == null ? null : `${system.reserved_capacity} / ${system.max_parallel}`)}${row('Очередь', 'Отсутствует')}${row('Локальные маршруты', (system.capabilities || []).map(actionLabel).join(', ') || 'Не подключены')}
-      <div class="actions">${button(armed ? 'disarm' : 'arm', armed ? 'Остановить приём' : 'Включить приём', armed ? null : (system.capabilities || []).length ? null : 'Ни один производственный маршрут не подключён.', 'primary')}</div></section>
+    <div class="twocol"><section class="card"><h2>Runner</h2>${row('Приём команд', armed ? 'Включён' : 'Выключен')}${row('Эпоха', system.epoch)}${row('Занято слотов', system.reserved_capacity == null ? null : `${system.reserved_capacity} / ${system.max_parallel}`)}${row(hasV2(state) ? 'Очередь v1' : 'Очередь', 'Отсутствует')}${hasV2(state) ? row('Очередь v2', 'FIFO · одна линия исполнения') : ''}${row('Локальные маршруты', (system.capabilities || []).map(actionLabel).join(', ') || 'Не подключены')}
+      <div class="actions">${button(armed ? 'disarm' : 'arm', armed ? 'Остановить приём' : 'Включить приём', armed ? null : ((system.capabilities || []).length || v2Configured(state)) ? null : 'Ни один производственный маршрут не подключён.', 'primary')}</div></section>
     <section class="card"><h2>Оформление</h2><div class="setting-row"><div><strong>Тема</strong><p>Светлая или тёмная мастерская.</p></div>${button('theme', state.theme === 'dark' ? 'Светлая' : 'Тёмная')}</div><div class="setting-row"><div><strong>Снизить движение</strong><p>Убирает анимацию, не меняя скорость работы.</p></div><button type="button" class="toggle ${state.motionOff ? 'on' : ''}" role="switch" aria-checked="${state.motionOff}" aria-label="Снизить движение" data-action="motion"></button></div></section></div>
     <section class="card"><h2>Отдельные подключения</h2><p>Проверка Drive, удалённой Git-ветки и GitHub API имеет собственную дату и результат. Проверка ветки использует ls-remote; она не выполняет fetch. Успешная проверка GitHub подтверждает учётную запись API; право создавать draft PR отдельно не проверяется.</p><div class="actions">${button('check-drive', 'Проверить Drive')}${button('check-github', 'Проверить GitHub API')}</div></section></div>`;
 }
@@ -275,7 +276,8 @@ function systemView(state) {
 export function renderApp(state) {
   if (state.loading) return `<main class="loading-shell" data-testid="app"><div class="brandmark" aria-hidden="true"></div><h1>Runner</h1><p>Загружаем локальные данные…</p></main>`;
   if (!state.authenticated) return `<main class="login-shell" data-testid="login"><div class="login-card"><div class="brandmark" aria-hidden="true"></div><h1>Runner</h1><p>Локальная сессия владельца истекла или ещё не открыта.</p><form id="login-form"><label class="field"><span>Одноразовый локальный код</span><input id="bootstrap-input" data-testid="bootstrap-input" type="password" autocomplete="off" spellcheck="false" required></label><p class="subtitle">Код находится в локальном файле <code>session-bootstrap.json</code> вашего профиля runner. Он не сохраняется в браузере.</p><button class="btn primary" type="submit">Открыть сессию</button></form>${state.error ? `<p class="errorline" role="alert">${esc(state.error)}</p>` : ''}</div></main>`;
-  const views = {work: workView, operations: operationsView, results: resultsView, drive: driveView, system: systemView};
+  const views = {work: workView, operations: operationsView, results: resultsView,
+    v2: renderV2View, drive: driveView, system: systemView};
   return `<div class="shell" data-testid="app">${sidebar(state)}<main class="main">${toolbar(state)}${(views[state.view] || workView)(state)}</main></div>`;
 }
 
@@ -294,7 +296,7 @@ export function renderDialog(state) {
   const project = currentProject(state), workspace = currentWorkspace(state);
   if (dialog.type === 'palette') {
     title = 'Перейти к…';
-    body = `<label class="field"><span>Поиск</span><input id="palette-search" autocomplete="off" placeholder="Раздел или область"></label><div class="menu-list" id="palette-items">${[['work', 'Рабочие области'], ['operations', 'Операции'], ['results', 'Результаты'], ['drive', 'Google Drive'], ['system', 'Система']].map(([id, caption]) => `<button type="button" class="menu-item" data-action="palette-view" data-value="${id}">${caption}</button>`).join('')}${Object.entries(state.workspaces).flatMap(([pid, list]) => list.map(w => `<button type="button" class="menu-item" data-action="palette-workspace" data-project="${esc(pid)}" data-value="${esc(w.workspace_id)}">${esc(w.display_name || w.workspace_id)} <small>${esc(pid)} / ${esc(w.branch)}</small></button>`)).join('')}</div>`;
+    body = `<label class="field"><span>Поиск</span><input id="palette-search" autocomplete="off" placeholder="Раздел или область"></label><div class="menu-list" id="palette-items">${navigation(state).map(([id, caption]) => `<button type="button" class="menu-item" data-action="palette-view" data-value="${id}">${caption}</button>`).join('')}${Object.entries(state.workspaces).flatMap(([pid, list]) => list.map(w => `<button type="button" class="menu-item" data-action="palette-workspace" data-project="${esc(pid)}" data-value="${esc(w.workspace_id)}">${esc(w.display_name || w.workspace_id)} <small>${esc(pid)} / ${esc(w.branch)}</small></button>`)).join('')}</div>`;
   } else if (dialog.type === 'new-project') {
     title = dialog.step === 2 ? 'Проверка нового проекта' : 'Новый проект';
     if (dialog.step === 2) {
