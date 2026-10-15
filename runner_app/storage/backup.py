@@ -37,13 +37,14 @@ from .paths import (
 )
 
 _FORMAT = "chat-dev-runner-state-backup"
-_VERSION = 1
+_VERSION = 2
 _MAX_MANIFEST = 64 * 1024 * 1024
 _CHUNK = 1024 * 1024
 _STATE_DIRS = frozenset({
     "managed", "outputs", "preparation-evidence", "drive-registrations",
     "drive-frozen-root", "drive-frozen-workspaces", "delivery-bundles",
     "import-handles", "execution-runs", "execution-sources",
+    "projects-v2", "executions-v2",
 })
 _IGNORED = frozenset({"runner.lock", "state.sqlite-wal", "state.sqlite-shm", "state.sqlite-journal"})
 
@@ -136,7 +137,8 @@ def _copy_state_tree(source_fd: int, archive_root: Path, prefix: str,
                 if not _same_file(before, os.fstat(child)):
                     raise BackupError("STATE_CHANGED_DURING_BACKUP")
                 ensure_private_directory(archive_root / relative)
-                entries.append({"path": relative, "type": "directory"})
+                entries.append({"path": relative, "type": "directory",
+                                "read_only": not bool(before.st_mode & stat.S_IWUSR)})
                 _copy_state_tree(child, archive_root, relative, root_dev, entries)
                 if not _same_file(before, os.fstat(child)):
                     raise BackupError("STATE_CHANGED_DURING_BACKUP")
@@ -163,7 +165,8 @@ def _copy_state_tree(source_fd: int, archive_root: Path, prefix: str,
             if size != before.st_size or not _same_file(before, os.fstat(source)):
                 raise BackupError("STATE_CHANGED_DURING_BACKUP")
             entries.append({"path": relative, "type": "file", "sha256": digest.hexdigest(),
-                            "size": size, "executable": bool(before.st_mode & 0o111)})
+                            "size": size, "executable": bool(before.st_mode & stat.S_IXUSR),
+                            "read_only": not bool(before.st_mode & stat.S_IWUSR)})
         finally:
             os.close(source)
 
@@ -227,6 +230,14 @@ def _private_parent(path: Path) -> None:
     os.close(descriptor)
 
 
+def _discard_stage(stage: Path) -> None:
+    # A failed restore may already have sealed some private source directories.
+    # Unseal only the newly created stage; never change the archive or original.
+    for directory, _, _ in os.walk(stage, followlinks=False):
+        os.chmod(directory, 0o700, follow_symlinks=False)
+    shutil.rmtree(stage)
+
+
 def create_backup(paths: Paths, archive_path: Path) -> dict[str, Any]:
     """Snapshot all known durable state while the runner singleton is stopped.
 
@@ -268,7 +279,7 @@ def create_backup(paths: Paths, archive_path: Path) -> dict[str, Any]:
         database_hash, database_size = _hash_file(state_copy / "state.sqlite")
         entries: list[dict[str, Any]] = [{
             "path": "state.sqlite", "type": "file", "sha256": database_hash,
-            "size": database_size, "executable": False,
+            "size": database_size, "executable": False, "read_only": False,
         }]
         root_fd = os.open(source_root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
         try:
@@ -287,7 +298,8 @@ def create_backup(paths: Paths, archive_path: Path) -> dict[str, Any]:
                     if not _same_file(before, os.fstat(child)):
                         raise BackupError("STATE_CHANGED_DURING_BACKUP")
                     ensure_private_directory(state_copy / item.name)
-                    entries.append({"path": item.name, "type": "directory"})
+                    entries.append({"path": item.name, "type": "directory",
+                                    "read_only": not bool(before.st_mode & stat.S_IWUSR)})
                     _copy_state_tree(child, state_copy, item.name, root_dev, entries)
                     if not _same_file(before, os.fstat(child)):
                         raise BackupError("STATE_CHANGED_DURING_BACKUP")
@@ -334,7 +346,7 @@ def create_backup(paths: Paths, archive_path: Path) -> dict[str, Any]:
     finally:
         singleton.close()
         if stage is not None and stage.exists():
-            shutil.rmtree(stage)
+            _discard_stage(stage)
 
 
 def _manifest(archive: Path) -> tuple[dict[str, Any], bytes]:
@@ -359,7 +371,8 @@ def _manifest(archive: Path) -> tuple[dict[str, Any], bytes]:
     if (not isinstance(value, dict) or set(value) != {
         "format", "version", "created_at", "source_state_dir",
         "database_schema_version", "entries",
-    } or value["format"] != _FORMAT or value["version"] != _VERSION
+    } or value["format"] != _FORMAT or type(value["version"]) is not int
+            or value["version"] not in {1, _VERSION}
             or not isinstance(value["created_at"], str)
             or type(value["database_schema_version"]) is not int
             or not 1 <= value["database_schema_version"] <= SCHEMA_VERSION
@@ -376,6 +389,7 @@ def _manifest(archive: Path) -> tuple[dict[str, Any], bytes]:
     previous = ""
     directories: set[str] = set()
     expected_files: set[str] = set()
+    permission_keys = {"read_only"} if value["version"] >= 2 else set()
     for entry in entries:
         if not isinstance(entry, dict) or "path" not in entry or "type" not in entry:
             raise BackupError("BACKUP_MANIFEST_INVALID")
@@ -388,17 +402,19 @@ def _manifest(archive: Path) -> tuple[dict[str, Any], bytes]:
         if parent and parent not in directories:
             raise BackupError("BACKUP_MANIFEST_INVALID")
         if kind == "directory":
-            if set(entry) != {"path", "type"} or path == "state.sqlite":
+            if (set(entry) != {"path", "type"} | permission_keys or path == "state.sqlite"
+                    or (permission_keys and type(entry["read_only"]) is not bool)):
                 raise BackupError("BACKUP_MANIFEST_INVALID")
             directories.add(path)
         elif kind == "file":
-            if (set(entry) != {"path", "type", "sha256", "size", "executable"}
+            if (set(entry) != {"path", "type", "sha256", "size", "executable"} | permission_keys
                     or not isinstance(entry["sha256"], str)
                     or len(entry["sha256"]) != 64
                     or any(letter not in "0123456789abcdef" for letter in entry["sha256"])
                     or type(entry["size"]) is not int or entry["size"] < 0
                     or type(entry["executable"]) is not bool
-                    or (path == "state.sqlite" and entry["executable"])):
+                    or (permission_keys and type(entry["read_only"]) is not bool)
+                    or (path == "state.sqlite" and (entry["executable"] or entry.get("read_only", False)))):
                 raise BackupError("BACKUP_MANIFEST_INVALID")
             expected_files.add(path)
         elif kind == "symlink":
@@ -459,11 +475,12 @@ def _restore_file(source: Path, target: Path, entry: dict[str, Any]) -> None:
         if (not _same_file(before, os.fstat(reader)) or digest.hexdigest() != entry["sha256"]
                 or size != entry["size"]):
             raise BackupError("BACKUP_HASH_MISMATCH")
+        mode = (0o400 if entry.get("read_only", False) else 0o600) | (0o100 if entry["executable"] else 0)
+        os.fchmod(writer, mode)
+        os.fsync(writer)
     finally:
         os.close(reader)
         os.close(writer)
-    if entry["executable"]:
-        os.chmod(target, 0o700)
 
 
 def restore_backup(archive_path: Path, target_state_dir: Path) -> dict[str, Any]:
@@ -500,6 +517,11 @@ def restore_backup(archive_path: Path, target_state_dir: Path) -> dict[str, Any]
             if entry["type"] == "symlink":
                 path = stage / entry["path"]
                 os.symlink(entry["target"], path)
+        # All descendants and metadata links must exist before a source tree is
+        # sealed again. Restore owner-only access even if originals used 0444/0555.
+        for entry in reversed(manifest["entries"]):
+            if entry["type"] == "directory" and entry.get("read_only", False):
+                os.chmod(stage / entry["path"], 0o500, follow_symlinks=False)
         _sync_directories(stage)
         try:
             _rename_new(stage, target)
@@ -520,4 +542,4 @@ def restore_backup(archive_path: Path, target_state_dir: Path) -> dict[str, Any]
         raise BackupError("RESTORE_IO_FAILED") from None
     finally:
         if stage is not None and stage.exists():
-            shutil.rmtree(stage)
+            _discard_stage(stage)

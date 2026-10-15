@@ -1,0 +1,21 @@
+{
+  "files": [
+    {
+      "bytes": 7503,
+      "path": "roundtrip-proof.json",
+      "sha256": "a373908c50f7945fe51823f0059a52dd39ac59952f0c7df3edeaed1b9cf2b6d1"
+    },
+    {
+      "bytes": 4007,
+      "path": "focused-tests.xml",
+      "sha256": "32b4dce56e5fcf2765f390104f7b615ea462a05194f60933064975e859a6759c"
+    },
+    {
+      "bytes": 2428,
+      "path": "result.json",
+      "sha256": "353faf2fecae9f3ca3e6fa708557d3967cf914335566f377f798c7b0b1b8daff"
+    }
+  ],
+  "schema": "cdr-evidence-index/1",
+  "scope": "Metadata/test results only; disposable DB/artifact bytes remain in private /tmp"
+}

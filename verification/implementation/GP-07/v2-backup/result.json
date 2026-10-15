@@ -1,0 +1,52 @@
+{
+  "archive_reader_revisions": [
+    1,
+    2
+  ],
+  "archive_writer_revision": 2,
+  "checks": [
+    "Actual public create_backup/restore_backup on absent original state path",
+    "Every pre-existing database table/row hash identical before session restart",
+    "Actual SourceResolver sealed source/manifest and owner execute/read-only modes preserved",
+    "Artifact larger than Git publication per-file limit retained with original SHA256",
+    "Retained rootless preparation/capture/backend fixture bytes preserved; no container execution",
+    "Safe relative lib64 environment link restored as metadata without dereference",
+    "Configuration credential references excluded; no token files created",
+    "Queued and uncertain requests restored exactly then suspended by new session, no replay",
+    "Legacy archive revision1 restore preserved",
+    "External/escaping links, hard links and FIFO refused under both v2 roots",
+    "Cross-device quota mount guard exercised with stat device mismatch; no mount allocated",
+    "Invalid readonly metadata rejected before restore target creation",
+    "Failed sealed-tree promotion cleans temporary stage and preserves archive"
+  ],
+  "command": [
+    "/usr/bin/env",
+    "PYTHONPATH=/home/visky/Work/GPTRunner/chat-dev-runner-gp07-v2-backup",
+    "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/test_backup_restore.py",
+    "tests/test_backup_cli.py",
+    "--basetemp=/tmp/cdr-gp07-v2-backup-jqse0mh1",
+    "--junitxml=verification/implementation/GP-07/v2-backup/focused-tests.xml",
+    "-q"
+  ],
+  "errors": 0,
+  "failures": 0,
+  "limitations": [
+    "No live state mutation or installed restore",
+    "No actual mount allocation in these backup tests; device boundary is simulated",
+    "External/out-of-state links remain UNSAFE_STATE_LINK, preserving original policy"
+  ],
+  "result": "27 passed in 3.75s",
+  "scope": "Secure stopped scratch schema10 backup/restore; no live ledger, installation, provider or service changes",
+  "source_base": "9005b625",
+  "source_module_sha256": "ffa38f815adaa3eb8a2b17fea26170bb5ebae065429f9ac3e10aedde57eab51f",
+  "static_checks": [
+    "ruff check runner_app/storage/backup.py tests/test_backup_restore.py: passed",
+    "git diff --check: passed"
+  ],
+  "status": "PASSED",
+  "test_module_sha256": "2e2ccc260d9747d42f5c6eb9e59d8eee845abd0bbaf48a25997f25a0eb6d89c0",
+  "tests": 27
+}
