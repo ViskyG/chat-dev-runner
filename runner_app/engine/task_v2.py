@@ -27,6 +27,7 @@ from runner_app.engine.queue_v2 import TaskOutcome
 from runner_app.executors.native_v2 import execute_native, shell_argv
 from runner_app.executors.rootless_v2 import RootlessError, RootlessTaskBackend
 from runner_app.executors.task_plan_v2 import ResolvedStep, TaskPlan, plan_task
+from runner_app.executors.tool_versions_v2 import observe_tool
 from runner_app.git.argv import GitError
 from runner_app.git.results_v2 import (
     ResultError,
@@ -280,6 +281,9 @@ class NativeTaskRunner:
             gate: Mapping[str, Any] = plan.quality_gate
             task_digest = plan.task_digest
             env = {**profile.environment, **plan.environment}
+            if "PATH" not in profile.environment:
+                directories = dict.fromkeys(str(Path(tool.argv_prefix[0]).parent) for tool in plan.tools)
+                env["PATH"] = os.pathsep.join([*directories, os.defpath])
         else:
             shell = request["shell"]
             if shell["dialect"] not in profile.shell_dialects:
@@ -302,8 +306,38 @@ class NativeTaskRunner:
         roots = {"workspace": workspace, "out": out}
         cleanup = True
         outcome, exit_code = "NOT_RUN", None
+        observed_tools: set[str] = set()
         for index, step in enumerate(steps):
             capture = snapshot.path.parent / f"capture-{index}"
+            for tool in plan.tools if plan else ():
+                if tool.id in observed_tools:
+                    continue
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    break
+                observation = observe_tool(
+                    tool, cwd=step.cwd, env=env, capture_dir=snapshot.path.parent / f"version-{tool.id}",
+                    artifact_dir=out, timeout_seconds=min(2.0, remaining), cancel=cancel,
+                    record_intent=lambda detail: self.store.record_event(request_id, "TOOL_PROBE_INTENT", detail),
+                )
+                if observation.state == "NOT_READY":
+                    continue
+                observed_tools.add(tool.id)
+                observed = asdict(observation)
+                process = observation.execution
+                if process is not None:
+                    observed["execution"]["stdout_path"] = str(process.stdout_path)
+                    observed["execution"]["stderr_path"] = str(process.stderr_path)
+                    cleanup = cleanup and process.cleanup_verified
+                phase_results.append({"step": f"version-{tool.id}", "phase": "probe",
+                                      "outcome": process.outcome if process else "NOT_RUN",
+                                      "tool_observation": observed})
+                self.store.record_event(request_id, "TOOL_OBSERVED", observed)
+                if not cleanup:
+                    break
+            if not cleanup:
+                outcome = "UNKNOWN"
+                break
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 outcome = "TIMED_OUT"
@@ -366,6 +400,9 @@ class NativeTaskRunner:
         _write_json(bundle / "phases.json", phase_results)
         _write_json(bundle / "tests.json", {key: asdict(value) for key, value in reports.items()})
         reproducibility = "unknown"
+        observations = [phase["tool_observation"] for phase in phase_results if phase["phase"] == "probe"]
+        versions = {tool.id: next((item["version"] for item in observations if item["id"] == tool.id), None)
+                    for tool in plan.tools} if plan else {}
         backend_details = dict(backend_details or {})
         mode = backend_details.get("mode", "native")
         execution_os = backend_details.get("execution_os", host_os)
@@ -376,6 +413,7 @@ class NativeTaskRunner:
             "execution_os": execution_os, "execution_arch": execution_arch, "mode": mode,
             "runner_version": __version__, "profile_id": profile_id, "task_digest": task_digest,
             "tools": [asdict(tool) for tool in plan.tools] if plan else [],
+            "tool_observations": observations,
             "locks": dict(plan.lock_hashes) if plan else {}, "reproducibility": reproducibility,
             "budgets": {"timeout_seconds": budget,
                         "saved_log_bytes_per_phase": profile.max_log_bytes if profile else None,
@@ -400,7 +438,7 @@ class NativeTaskRunner:
             "environment": {"host_os": host_os, "host_arch": platform.machine() or "unknown",
                             "execution_os": execution_os, "execution_arch": execution_arch,
                             "mode": mode, "runner_version": __version__, "profile_id": profile_id,
-                            "tool_versions": {}, "reproducibility": reproducibility,
+                            "tool_versions": versions, "reproducibility": reproducibility,
                             "details_path": "environment.json"},
             "delivery": {"status": "LOCAL_ONLY", "branch": snapshot.branch,
                          "local_bundle_path": str(bundle), "reason": "PUBLICATION_PENDING"},

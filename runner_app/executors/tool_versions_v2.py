@@ -13,7 +13,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from threading import Event
-from typing import Any, Literal, cast
+from typing import Any, Literal
 
 from runner_app.storage.paths import UnsafePathError, open_private_file
 
@@ -85,9 +85,7 @@ def observe_tool(tool: ToolProvenance, *, cwd: Path, env: Mapping[str, str],
     execution = execute_native(
         list(tool.version_probe_argv), cwd=cwd, env=env, output_dir=capture_dir,
         artifact_dir=artifact_dir,
-        # Type-only compatibility with the pre-fractional native annotation;
-        # cast does not round, convert or otherwise change the caller's timeout.
-        timeout_seconds=cast(int, timeout_seconds), cancel=cancel,
+        timeout_seconds=timeout_seconds, cancel=cancel,
         max_log_bytes=_MAX_CAPTURE_BYTES)
     unknown = ToolObservation(tool.id, "UNKNOWN", None, execution)
     if (execution.outcome != "PASSED" or execution.exit_code != 0

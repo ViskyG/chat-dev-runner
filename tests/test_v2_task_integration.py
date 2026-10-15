@@ -104,6 +104,7 @@ def test_real_pytest_reports_and_program_output_publish_in_tested_branch(tmp_pat
     expected = "FAILED" if failing else "PASSED"
     assert manifest["execution"]["outcome"] == expected
     assert manifest["execution"]["quality_gate"] == expected
+    assert manifest["environment"]["tool_versions"]["python"].startswith("Python ")
     assert result["delivery"]["status"] == "DELIVERED"
     assert (fixture.source / ".git/index").read_bytes() == index
     assert git(fixture.source, "rev-parse", "HEAD") == current

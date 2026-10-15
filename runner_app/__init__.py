@@ -1,3 +1,3 @@
 """Production runner foundation. Live capabilities are gated by local setup."""
 
-__version__ = "0.2.7"
+__version__ = "0.3.0.dev1"
