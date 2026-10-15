@@ -19,7 +19,9 @@
   "original_bytes_backup": "PRIVATE_OUTSIDE_REPOSITORY",
   "backup_file_mode": "0600",
   "backup_directory_mode": "0700",
-  "live_write_gate": "AWAITING_ROOT_GO",
+  "live_write_gate": "AUTO_REVIEW_REJECTED_BEFORE_LAUNCH",
+  "live_write_gate_reason": "Explicit owner authorization for the exact cloud mutations and worker run was not present in retained user instructions; root agent approval was not accepted as authorization evidence.",
+  "live_write_gate_process_started": false,
   "reviewed_script_sha256": "844b669295577b701485fe1f7d669cb3df08d42195bf63602f18d8cb6704c6d2",
   "checks": [
     "AST/import",
