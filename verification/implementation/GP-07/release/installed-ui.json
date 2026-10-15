@@ -1,0 +1,35 @@
+{
+  "status": "PASSED",
+  "checked_at": "2026-10-15T13:03:46.863022+00:00",
+  "browser_version": "151.0.7922.34",
+  "service_origin": "http://127.0.0.1:8765",
+  "request_id": "4b9de43b-722e-40c7-bbfa-ac95b980edc7",
+  "axes": {
+    "Операция": {
+      "code": "COMPLETED",
+      "label": "Обслужена"
+    },
+    "Исполнение": {
+      "code": "PASSED",
+      "label": "Пройдено"
+    },
+    "Критерий качества": {
+      "code": "PASSED",
+      "label": "Пройдено"
+    },
+    "Очистка": {
+      "code": "CONFIRMED",
+      "label": "Подтверждена"
+    },
+    "Доставка сейчас": {
+      "code": "DELIVERED",
+      "label": "Доставлено"
+    }
+  },
+  "javascript_errors": [],
+  "ui_task_mutations": [],
+  "source": "ACTUAL_INSTALLED_SERVICE",
+  "screenshot": "installed-v2.png",
+  "cookie_or_csrf_values_recorded": false,
+  "probe_correction": "Initial generic span selector matched outer and nested spans; narrowed to badge. No product/source change or task rerun."
+}

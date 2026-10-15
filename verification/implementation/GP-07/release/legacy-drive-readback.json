@@ -1,0 +1,22 @@
+{
+  "status": "EXACT_EXISTING_SYSTEM_STATE_MATCH",
+  "checked_at": "2026-10-15T12:54:31.572287+00:00",
+  "document_id": "1UXNE8Vt-73inAKm4i949TpyGT5rb3ve9bv_521QwXS0",
+  "sha256": "15cd19c7c35486fc516b8e8eee2b760ae7cb40779fee512cb86ce5bf0f4f692d",
+  "runner_id": "local-runner",
+  "epoch": "ecf6fd0d-4bbb-4592-a4aa-725a83c4feec",
+  "armed": true,
+  "existing_root": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+  "existing_index": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+  "available_actions": [
+    "CREATE_PROJECT",
+    "CREATE_WORKSPACE",
+    "DELIVER_VERIFY_PUBLISH",
+    "EXPORT_CONTEXT",
+    "FETCH",
+    "PUBLISH_REPORT",
+    "RETARGET_WORKSPACE"
+  ],
+  "writes_by_probe": 0,
+  "docs_v2_canary_writes": 0
+}

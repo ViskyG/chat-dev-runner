@@ -1,0 +1,41 @@
+{
+  "status": "PREVIEW_RESTORED_AFTER_ACTUAL_ROLLBACK",
+  "checked_at": "2026-10-15T12:53:36.675323+00:00",
+  "version": "0.3.0.dev1",
+  "schema": 10,
+  "legacy_operations": 26,
+  "v2_requests_before_ready": 0,
+  "execution_lane_rows": 0,
+  "bindings": [
+    [
+      "gp07-github-preview",
+      1
+    ]
+  ],
+  "v2_status": {
+    "protocol": "cdr-runtime/2",
+    "runner_id": "local-runner",
+    "session_id": "c02ac5af-7e82-47a3-a181-ab0e2cbf20f6",
+    "armed": true,
+    "configured": true,
+    "channels": {
+      "gp07-github-preview": "IDLE"
+    },
+    "projects": [
+      "gp03-github-pass"
+    ],
+    "queue_limit": 100,
+    "native_profiles": [
+      "native-python"
+    ],
+    "container_backends": {
+      "rootless-docker": "CONFIGURED_NOT_PROBED"
+    },
+    "capability_status": "IMPLEMENTED_NOT_QUALIFIED"
+  },
+  "restored_archive_manifest_sha256": "41dbf9ff89c13dd4be2103864d48f24abeb416357f1ecccfe713f136dd9b1758",
+  "restored_files": 822,
+  "unit_active": true,
+  "unit_enabled": true,
+  "docs_v2_enrolled": false
+}

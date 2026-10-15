@@ -1,6 +1,9 @@
 # Codex entry point
 
-Current frontier: **GP-01**, after read-only GP-00 matched commit `ac7d55d`
+Current frontier: **GP-07**, with actual GitHub/Linux integration evidenced and
+the exact Docs canary write awaiting direct owner authorization after an
+automatic approval-review rejection. Read `checkpoints/GP-07.md`; do not retry
+the rejected action or start a duplicate runtime. Read-only GP-00 matched commit `ac7d55d`
 and all 17 design source anchors. Read the selected packet under
 [the approved v2 design](../design/github-native-v2/00_START_HERE.md).
 The owner approved the complete proposed GP implementation stage in chat on

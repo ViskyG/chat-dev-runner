@@ -1,0 +1,18 @@
+{
+  "status": "VERIFIED",
+  "archive": "/home/visky/Work/GPTRunner/.runner-backups/pre-gp-v2-20261015",
+  "archive_format_version": 1,
+  "database_schema_version": 9,
+  "manifest_sha256": "67ce186d05e71595157a7bf9e4a7beaf365ba625f626d83b78f472a5c67788e2",
+  "verified_file_hashes": 805,
+  "runner_id": "local-runner",
+  "counts": {
+    "operations": 26,
+    "retained": 0,
+    "running": 0
+  },
+  "service_active": false,
+  "old_binary_version": "0.2.7",
+  "credentials_included": false,
+  "restore_copy_proof": "../migration/result.json"
+}

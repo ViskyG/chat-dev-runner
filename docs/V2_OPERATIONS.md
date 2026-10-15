@@ -1,8 +1,9 @@
-# Runner v2 operations — source preview / предварительные инструкции
+# Runner v2 operations — Linux preview / предварительные инструкции
 
-**SOURCE_PREVIEW, package 0.3.0.dev1.** These instructions describe the current
-source interfaces; they are not evidence that an installed service or provider
-binding has passed deployment acceptance. The bilingual entrypoints are in
+**Linux preview, package 0.3.0.dev1.** Installed-wheel upgrade/rollback and the
+existing v1 readback are recorded under `verification/implementation/GP-07/release`.
+Provider and target qualification remains specific to its evidence; Docs v2 and
+other native OS targets are not qualified. The bilingual entrypoints are in
 [skills/v2](../skills/v2/README.md). Their verbatim design sources remain unchanged
 under [design/github-native-v2/skills](../design/github-native-v2/skills/README.md).
 Source-stage approval does not itself authorize live deployment, global skill
@@ -216,9 +217,10 @@ existing service stopped, for the pre-upgrade backup:
 Record and verify the backup's schema/version/digest and restoration on a
 disposable copy. Config and credential values are excluded from `runner backup`;
 retain owner-local config references and protected configuration separately.
-For post-upgrade backups, the candidate's backup support must include its v2
-source/execution/result directories; this remains a deployment gate until that
-support and restoration are verified. Do not substitute a partial archive.
+Candidate backup revision 2 includes v2 source/execution/result directories and
+preserves sealed files and executable modes; revision-1 archives remain readable.
+The actual scratch round trip is recorded in
+`verification/implementation/GP-07/v2-backup/result.json`.
 After approved wheel/config changes, `runner install --dry-run` inspects the
 existing user-service plan; apply only the authorized deployment and then
 qualify real mailbox/provider/result readback before claiming deployed support.

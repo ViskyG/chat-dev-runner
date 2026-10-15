@@ -1,0 +1,23 @@
+{
+  "status": "READ_ONLY_PREFLIGHT",
+  "repository": {
+    "id": 1392469828,
+    "node_id": "R_kgDOUv9nRA",
+    "owner": "ViskyG",
+    "owner_id": 12452296,
+    "name": "cdr-ep07-ui-20260928",
+    "full_name": "ViskyG/cdr-ep07-ui-20260928",
+    "html_url": "https://github.com/ViskyG/cdr-ep07-ui-20260928",
+    "clone_url": "https://github.com/ViskyG/cdr-ep07-ui-20260928.git",
+    "ssh_url": "git@github.com:ViskyG/cdr-ep07-ui-20260928.git",
+    "private": true,
+    "default_branch": "main",
+    "description": "cdr:v1:71289ae8c91be70d3715e2dcf3ae3adbd61f1febf9c416c39113f82659c674b7"
+  },
+  "default_head": {
+    "name": "main",
+    "sha": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+    "protected": false
+  },
+  "writes": 0
+}

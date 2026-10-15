@@ -1,0 +1,49 @@
+{
+  "status": "INSTALLED_LINUX_PREVIEW",
+  "version": "0.3.0.dev1",
+  "schema": 10,
+  "integrity": "ok",
+  "runner_id": "local-runner",
+  "armed": true,
+  "execution_lane_rows": 0,
+  "legacy_operations_preserved": 26,
+  "v1_projects_http": 200,
+  "v1_operations_http": 200,
+  "v2_status": {
+    "protocol": "cdr-runtime/2",
+    "runner_id": "local-runner",
+    "session_id": "b28052b6-9ca8-4052-a5dd-eb930f8687cf",
+    "armed": true,
+    "configured": true,
+    "channels": {
+      "gp07-github-preview": "CONFIGURED_NOT_OBSERVED"
+    },
+    "projects": [
+      "gp03-github-pass"
+    ],
+    "queue_limit": 100,
+    "native_profiles": [
+      "native-python"
+    ],
+    "container_backends": {
+      "rootless-docker": "CONFIGURED_NOT_PROBED"
+    },
+    "capability_status": "IMPLEMENTED_NOT_QUALIFIED"
+  },
+  "v2_requests_before_ready": {
+    "requests": []
+  },
+  "bindings": [
+    [
+      "gp07-github-preview",
+      0
+    ]
+  ],
+  "v2_asset_sha256": "baefe61ffdc8d46859ee108d1ea1a61556cdde7968d2838489d41179350efd00",
+  "v2_unauthenticated_status": 403,
+  "sessions_printed": false,
+  "old_binary_retained": true,
+  "docs_v2_enrolled": false,
+  "unit_active": true,
+  "unit_enabled": true
+}

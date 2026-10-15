@@ -1,0 +1,18 @@
+{
+  "status": "ACTUAL_ROLLBACK_VERIFIED",
+  "checked_at": "2026-10-15T12:52:25.094129+00:00",
+  "binary_version": "0.2.7",
+  "schema": 9,
+  "legacy_operations": 26,
+  "integrity": "ok",
+  "armed": true,
+  "v2_table_count": 0,
+  "unit_matches_retained_original": true,
+  "unit_sha256": "a6a05b19bea5dbd9c5548e2bc34eea1e66eb4a7603c0df6ef743eb0a07716d66",
+  "restored_files": 805,
+  "schema10_retained_separately": true,
+  "v2_config_temporarily_disabled": true,
+  "task_submissions": 0,
+  "automatic_replay": false,
+  "service_active": true
+}

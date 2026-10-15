@@ -1,0 +1,41 @@
+{
+  "protocol": "cdr-runtime/2",
+  "runner_id": "local-runner",
+  "enable_v1": true,
+  "github_token_file": "/home/visky/.config/chat-dev-runner/github-token",
+  "rootless_profile_dir": "/home/visky/Work/GPTRunner/owner-profiles",
+  "queue_limit": 100,
+  "poll_seconds": 2,
+  "projects": [
+    {
+      "project_id": "gp03-github-pass",
+      "github": {
+        "id": 1392469828,
+        "node_id": "R_kgDOUv9nRA",
+        "owner": "ViskyG",
+        "owner_id": 12452296,
+        "name": "cdr-ep07-ui-20260928"
+      },
+      "native_profiles": ["native-python"],
+      "container_profiles": ["python-quick"]
+    }
+  ],
+  "native_profiles": {
+    "native-python": {
+      "tools": {"python": "/usr/bin/python3.10"},
+      "shell_dialects": [],
+      "environment": {"LANG": "C.UTF-8"},
+      "timeout_seconds": 900,
+      "max_log_bytes": 1048576
+    }
+  },
+  "mailboxes": [
+    {
+      "id": "gp07-github-preview",
+      "provider": "github",
+      "project_id": "gp03-github-pass",
+      "branch": "acceptance/gp03-v2-pass-20261015-a1",
+      "path": ".runner/commands/gp03-linux-github.json"
+    }
+  ]
+}

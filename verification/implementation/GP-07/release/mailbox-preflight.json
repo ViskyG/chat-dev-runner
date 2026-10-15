@@ -1,0 +1,137 @@
+{
+  "checked_at": "2026-10-15T12:40:56.147714+00:00",
+  "cloud_writes": 0,
+  "status": "CLEAR",
+  "mailboxes_checked": 16,
+  "mailboxes": [
+    {
+      "document_id": "13hWSyXOJse7MeXabHG8y4WBXsrA87yrnlVltSSQnQbo",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "ready": false,
+      "request_id": null,
+      "terminal_local_status": null,
+      "pending": false
+    },
+    {
+      "document_id": "1833RLnOaEuKvO-W20kkNX2LYfHBbIakVWb40uTZDXu0",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "ready": false,
+      "request_id": null,
+      "terminal_local_status": null,
+      "pending": false
+    },
+    {
+      "document_id": "1DmncoOobr67INBYU598ho3fzL5T1_hoY82huB-FwMsE",
+      "sha256": "1478382a7543c73b6023392c886b9dbd22d2b4ae06c3b5c4ff4e161643c57afa",
+      "ready": true,
+      "request_id": "62eb309b-a1d6-4a27-97b4-bc8449b84c8d",
+      "terminal_local_status": "COMPLETED",
+      "pending": false
+    },
+    {
+      "document_id": "1HJF2nVDIfbtika3EMiskss_aR9HHeMW2aQpYuZ9JTOc",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "ready": false,
+      "request_id": null,
+      "terminal_local_status": null,
+      "pending": false
+    },
+    {
+      "document_id": "1MRAc-eYMoem8ozMOAggzRV7VHKAYQSR_lxXtWDjtjJQ",
+      "sha256": "d5839473bd54caea3df5a3b517615b0942745ed755ccc332d7b9f6471ac2aa8a",
+      "ready": true,
+      "request_id": "f45d920a-3c6e-4516-a30f-9e74d8e6b7b1",
+      "terminal_local_status": "COMPLETED",
+      "pending": false
+    },
+    {
+      "document_id": "1Mok2sU3964wxEqqhyUw4SAqrQhCGUoL-KVQ_NZ0jSt8",
+      "sha256": "2493c4501c59a2f5d8bb269abf6d789c76ba2c6cdf51a9145189327e2ab11721",
+      "ready": true,
+      "request_id": "d4e83e2e-cb8f-4768-84bf-13784aa9072f",
+      "terminal_local_status": "COMPLETED",
+      "pending": false
+    },
+    {
+      "document_id": "1PtwM_sVJR16qnOZS972omPf1J9gSiOUwLhH1NOCGxn4",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "ready": false,
+      "request_id": null,
+      "terminal_local_status": null,
+      "pending": false
+    },
+    {
+      "document_id": "1XTA26PC-9DIbGDka3ec5tkNxttYYouwT39aEe2XxEdY",
+      "sha256": "1d35480ed3381974510d5b9c02a3d105735019f9fca747c74b75a3f564823f1a",
+      "ready": true,
+      "request_id": "5649a6df-f6a9-4ea0-ba9c-487bf530e432",
+      "terminal_local_status": "COMPLETED",
+      "pending": false
+    },
+    {
+      "document_id": "1c9ESBYm9k8bCYHBOBDeRYdyYubr38KEcEuX0lpNBdBw",
+      "sha256": "86b0ed2037c01a07c22a35c10042f6e4619b7f0edf2ff1d72f552f79ae9a9711",
+      "ready": true,
+      "request_id": "f1abdb14-6538-4a22-92d3-e2afbb2493c6",
+      "terminal_local_status": "COMPLETED",
+      "pending": false
+    },
+    {
+      "document_id": "1gziNBA1B8QsPpuiW515E34j7XzebW_ctkazjcIsUtRA",
+      "sha256": "c228f64f7ce955866b9286a012020ffac8586da8913ab1a610ea6bfb4abc13fe",
+      "ready": true,
+      "request_id": "2237da57-227c-4434-8f21-973582472b41",
+      "terminal_local_status": "COMPLETED",
+      "pending": false
+    },
+    {
+      "document_id": "1jyEB73np1SaAnN-l61yn0tRX90JomuihKVpgVUNkZf8",
+      "sha256": "6425e29c88061d2b758443e05365c294b76a68dc85bfe9d90ab5cef9c95d220f",
+      "ready": true,
+      "request_id": "cbc20739-bfe2-451e-9440-07118e08105a",
+      "terminal_local_status": "COMPLETED",
+      "pending": false
+    },
+    {
+      "document_id": "1l5ux3kvSvelF_urKfcXImYPYmtTVoMAr8d7u-6XnVHc",
+      "sha256": "a8ccc0b1cdc098cc89c33afd1fbab48b080990218a6c986f6eda8688f78d63ef",
+      "ready": true,
+      "request_id": "a4e28957-08ef-4cad-8153-4054dea74ccb",
+      "terminal_local_status": "COMPLETED",
+      "pending": false
+    },
+    {
+      "document_id": "1mnpZpmhjYzwG4L8wl4y2BCqd_QHpDDXwaWlu8nmQeEc",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "ready": false,
+      "request_id": null,
+      "terminal_local_status": null,
+      "pending": false
+    },
+    {
+      "document_id": "1pDVUazB8RZG9x5IG5eNjdkXDxk2DRVEYmVd0JJpMVhs",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "ready": false,
+      "request_id": null,
+      "terminal_local_status": null,
+      "pending": false
+    },
+    {
+      "document_id": "1sfSwN2pSBtZ1JMV11u_riKvGf0iQ5dwtb9591LMVe0I",
+      "sha256": "98bb1551e0736174868aeeb9f75f376b599273e0b32d884938f668f6167f9c2b",
+      "ready": true,
+      "request_id": "c1efcfa2-b23b-4c14-b2c8-8a49166c0f4f",
+      "terminal_local_status": "REJECTED",
+      "pending": false
+    },
+    {
+      "document_id": "1z6PopYysU9fP-K68IA1ExiN_0lYk5mGbxKu-pZvTkLs",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "ready": false,
+      "request_id": null,
+      "terminal_local_status": null,
+      "pending": false
+    }
+  ],
+  "matching_provider_receipts_rechecked": false
+}
