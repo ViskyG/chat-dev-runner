@@ -1,0 +1,1 @@
+{"capability_status":"IMPLEMENTED_NOT_QUALIFIED","code":"VOLUME_HELPER_UNAVAILABLE","hard_quota_base_exists":true,"installed_helper_safe":false,"live_canary":"NOT_RUN","rootless_socket_exists":true,"scope":"Read-only fixed-path prerequisite checks only; no helper, Docker, mount, installation or provider mutation attempted."}
