@@ -1,0 +1,96 @@
+{
+  "scope": "read-only prerequisites, no workload or allocation",
+  "context": "host",
+  "observed_at": "2026-10-15T12:04:48.393870+00:00",
+  "uid": 1000,
+  "euid": 1000,
+  "gid": 1000,
+  "os": "Linux",
+  "arch": "x86_64",
+  "helper": {
+    "exists": true,
+    "uid": 0,
+    "gid": 0,
+    "mode": "0755",
+    "nlink": 1,
+    "regular_file": true,
+    "directory": false
+  },
+  "helper_parent": {
+    "exists": true,
+    "uid": 0,
+    "gid": 0,
+    "mode": "0755",
+    "nlink": 2,
+    "regular_file": false,
+    "directory": true
+  },
+  "installed_helper_safe": true,
+  "rootless_socket": {
+    "exists": true,
+    "uid": 1000,
+    "gid": 100998,
+    "mode": "1660",
+    "nlink": 1,
+    "regular_file": false,
+    "directory": false
+  },
+  "workload": "NOT_RUN",
+  "allocations": "NOT_ATTEMPTED",
+  "service_changes": "NONE",
+  "service": {
+    "available": true,
+    "MainPID": "2536",
+    "ExecMainStatus": "0",
+    "LoadState": "loaded",
+    "ActiveState": "active",
+    "SubState": "running",
+    "XDG_DATA_HOME": "/home/visky/Work/GPTRunner/.runner-data"
+  },
+  "live_database_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/state.sqlite",
+  "unit_environment_fields_consumed": [
+    "XDG_DATA_HOME"
+  ],
+  "live_ledger": {
+    "available": true,
+    "operations_running": 0,
+    "capacity_held": 0,
+    "reconcile_required": 0,
+    "pending_effects": 0,
+    "armed": true,
+    "idle_without_pending_intent": true
+  },
+  "owner_config_fields_consumed": [
+    "execution_profile_dir"
+  ],
+  "profiles": {
+    "available": true,
+    "directory": "/home/visky/Work/GPTRunner/owner-profiles",
+    "execution_revision_sha256": "b47160af8e5abd5ea7cc4b9624ee1a929216a5705c394fd4e287468590efd182",
+    "preparation_revision_sha256": "602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9",
+    "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "platform": "linux/amd64",
+    "grant_template": "python-basic"
+  },
+  "rootless_runtime": {
+    "available": true,
+    "code": "READY",
+    "version": "29.8.1",
+    "cgroup_version": "2",
+    "cgroup_driver": "systemd",
+    "controllers": [
+      "cpu",
+      "memory",
+      "pids"
+    ]
+  },
+  "pinned_image": {
+    "verified": true,
+    "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111"
+  },
+  "helper_probe": {
+    "ready": true
+  },
+  "existing_volume_directories": null,
+  "canary_prerequisites_ready": true
+}

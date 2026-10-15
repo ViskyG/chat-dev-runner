@@ -1,0 +1,72 @@
+{
+  "scope": "read-only host versus sandbox prerequisite comparison",
+  "backend_source_base": "e9bd4e79d79fbe2fbf23f066d46884ef0625f0d1",
+  "ordinary_account_uid": {
+    "host": 1000,
+    "sandbox": 1000
+  },
+  "helper_owner_uid": {
+    "host": 0,
+    "sandbox": 65534
+  },
+  "helper_owner_gid": {
+    "host": 0,
+    "sandbox": 65534
+  },
+  "helper_parent_owner_uid": {
+    "host": 0,
+    "sandbox": 65534
+  },
+  "installed_helper_safe": {
+    "host": true,
+    "sandbox": false
+  },
+  "explanation": "The sandbox maps the root-owned installed helper and parent to nobody (65534). The ordinary host account sees UID/GID0 and the installed policy passes. This is a sandbox identity-mapping refusal, not a missing host helper.",
+  "host_rootless_runtime": {
+    "available": true,
+    "code": "READY",
+    "version": "29.8.1",
+    "cgroup_version": "2",
+    "cgroup_driver": "systemd",
+    "controllers": [
+      "cpu",
+      "memory",
+      "pids"
+    ]
+  },
+  "host_pinned_image": {
+    "verified": true,
+    "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111"
+  },
+  "host_helper_probe": {
+    "ready": true
+  },
+  "host_live_ledger_at_readiness": {
+    "available": true,
+    "operations_running": 0,
+    "capacity_held": 0,
+    "reconcile_required": 0,
+    "pending_effects": 0,
+    "armed": true,
+    "idle_without_pending_intent": true
+  },
+  "host_service_at_readiness": {
+    "available": true,
+    "MainPID": "2536",
+    "ExecMainStatus": "0",
+    "LoadState": "loaded",
+    "ActiveState": "active",
+    "SubState": "running",
+    "XDG_DATA_HOME": "/home/visky/Work/GPTRunner/.runner-data"
+  },
+  "credential_contents_read_or_printed": false,
+  "config_fields_consumed": [
+    "execution_profile_dir"
+  ],
+  "generated_unit_environment_fields_consumed": [
+    "XDG_DATA_HOME"
+  ],
+  "service_stop": "Performed separately by root after idle readiness; not by this slice.",
+  "workload_evidence": "canary/summary.json (separate actual boundary qualification)",
+  "hud_job_id": "d74ce7d1ef174dc5a1302d318049ebd6"
+}

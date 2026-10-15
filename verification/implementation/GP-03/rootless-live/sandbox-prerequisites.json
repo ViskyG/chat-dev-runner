@@ -1,0 +1,41 @@
+{
+  "scope": "read-only prerequisites, no workload or allocation",
+  "context": "sandbox",
+  "observed_at": "2026-10-15T12:03:36.252767+00:00",
+  "uid": 1000,
+  "euid": 1000,
+  "gid": 1000,
+  "os": "Linux",
+  "arch": "x86_64",
+  "helper": {
+    "exists": true,
+    "uid": 65534,
+    "gid": 65534,
+    "mode": "0755",
+    "nlink": 1,
+    "regular_file": true,
+    "directory": false
+  },
+  "helper_parent": {
+    "exists": true,
+    "uid": 65534,
+    "gid": 65534,
+    "mode": "0755",
+    "nlink": 2,
+    "regular_file": false,
+    "directory": true
+  },
+  "installed_helper_safe": false,
+  "rootless_socket": {
+    "exists": true,
+    "uid": 1000,
+    "gid": 65534,
+    "mode": "1660",
+    "nlink": 1,
+    "regular_file": false,
+    "directory": false
+  },
+  "workload": "NOT_RUN",
+  "allocations": "NOT_ATTEMPTED",
+  "service_changes": "NONE"
+}
