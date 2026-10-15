@@ -1,0 +1,62 @@
+{
+  "packet": "GP-06",
+  "scope": "read-only task planning, initial proposed recipes, bounded test-report quality, shared native artifact routing",
+  "base_commit": "3f3558c",
+  "interpreter": "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+  "checks": [
+    {
+      "command": "python -m pytest tests/test_task_plan_v2.py tests/test_quality_v2.py tests/test_native_v2.py -q",
+      "exit_code": 0,
+      "result": "48 passed in 3.02s"
+    },
+    {
+      "command": "python -m ruff check runner_app/executors/task_plan_v2.py runner_app/outputs/quality_v2.py runner_app/executors/native_v2.py tests/test_task_plan_v2.py tests/test_quality_v2.py tests/test_native_v2.py",
+      "exit_code": 0,
+      "result": "All checks passed"
+    },
+    {
+      "command": "python -m mypy --follow-imports=silent runner_app/executors/task_plan_v2.py runner_app/outputs/quality_v2.py runner_app/executors/native_v2.py",
+      "exit_code": 0,
+      "result": "Success: no issues found in 3 source files"
+    }
+  ],
+  "construction_cases": [
+    "whole tokens and Unicode output paths",
+    "selected interpreter path preserved",
+    "finite venv preparation without creating a venv",
+    "module-local npm/Vitest/tsc without npx",
+    "lockfile and preparation-order gates",
+    "Maven wrapper and per-run repository",
+    "explicit VSTest/MTP and SDK pin",
+    "cwd and time budgets",
+    "JUnit actual counts and inconsistency handling",
+    "module/phase-scoped Surefire/Failsafe aggregation",
+    "TRX actual results and contradictory/unknown facts",
+    "required outputs and zero/all-skipped tests",
+    "known test failure separate from runner fault",
+    "real two-phase native capture with one shared artifact root"
+  ],
+  "qualification": {
+    "python_profile_execution": "NOT_RUN",
+    "javascript_profile_execution": "NOT_RUN",
+    "typescript_profile_execution": "NOT_RUN",
+    "java_profile_execution": "NOT_RUN",
+    "csharp_profile_execution": "NOT_RUN",
+    "macos": "NOT_RUN",
+    "windows": "NOT_RUN"
+  },
+  "limitations": [
+    "Planner tool fixtures are files only, not real toolchain qualification.",
+    "Tool version commands are returned for supervised probing; missing observations remain NOT_PROBED.",
+    "MTP requires an explicit enrolled command and reporter configuration.",
+    "Recipes are proposed task declarations and never modify a user project.",
+    "Planning executes no installs, probes or project code; approved runtime preparation remains caller-owned."
+  ],
+  "execution_constraints": [
+    "No installs",
+    "No network/cloud calls",
+    "No global environment/credential reads",
+    "No shared runtime/database/task-runner edits",
+    "No broad regression"
+  ]
+}

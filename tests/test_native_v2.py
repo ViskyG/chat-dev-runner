@@ -226,6 +226,24 @@ def test_windows_backend_is_truthfully_unavailable(tmp_path, monkeypatch):
     assert exc.value.code == "PLATFORM_UNAVAILABLE"
 
 
+def test_phases_have_separate_capture_dirs_and_one_shared_artifact_root(tmp_path):
+    artifacts = tmp_path / "artifacts"
+    artifacts.mkdir()
+    script = """import os,pathlib
+p = pathlib.Path(os.environ['CDR_OUTPUT_DIR']) / 'shared.txt'
+with p.open('a') as stream:
+    stream.write('phase\\n')
+print('captured')
+"""
+    first = execute(tmp_path, script, output_dir=tmp_path / "phase-1", artifact_dir=artifacts)
+    second = execute(tmp_path, script, output_dir=tmp_path / "phase-2", artifact_dir=artifacts)
+    assert first.outcome == second.outcome == "PASSED"
+    assert first.cleanup_verified and second.cleanup_verified
+    assert first.stdout_path != second.stdout_path
+    assert first.stdout_path.read_bytes() == second.stdout_path.read_bytes() == b"captured\n"
+    assert (artifacts / "shared.txt").read_bytes() == b"phase\nphase\n"
+
+
 @pytest.mark.parametrize("argv", [[], ["python", "-V"], [sys.executable, "bad\x00arg"]])
 def test_invalid_argv_never_starts_a_process(tmp_path, argv):
     result = execute_native(argv, cwd=tmp_path, env={}, output_dir=tmp_path / "evidence",

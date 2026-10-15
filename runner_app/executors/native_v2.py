@@ -94,7 +94,8 @@ def shell_argv(dialect: str, script: str) -> list[str]:
     return [str(Path(executable).absolute()), *options[dialect], script]
 
 
-def _environment(env: Mapping[str, str], output_dir: Path) -> dict[str, str]:
+def _environment(env: Mapping[str, str], output_dir: Path,
+                 artifact_dir: Path | None = None) -> dict[str, str]:
     result = {"PATH": os.defpath, "LANG": "C.UTF-8"}
     for key, value in env.items():
         if (not isinstance(key, str) or not isinstance(value, str)
@@ -107,7 +108,7 @@ def _environment(env: Mapping[str, str], output_dir: Path) -> dict[str, str]:
         result[key] = value
     # No inherited account home, credential caches or controller scratch directories.
     result.update(HOME=str(output_dir / "home"), TMPDIR=str(output_dir / "tmp"),
-                  CDR_OUTPUT_DIR=str(output_dir))
+                  CDR_OUTPUT_DIR=str(artifact_dir if artifact_dir is not None else output_dir))
     return result
 
 
@@ -196,7 +197,8 @@ def _terminate_owned(process: subprocess.Popen[bytes], identities: dict[int, str
 
 
 def execute_native(argv: list[str], *, cwd: Path, env: Mapping[str, str], output_dir: Path,
-                   timeout_seconds: int, cancel: Event, max_log_bytes: int) -> NativeResult:
+                   timeout_seconds: int, cancel: Event, max_log_bytes: int,
+                   artifact_dir: Path | None = None) -> NativeResult:
     """Run an absolute executable; max_log_bytes bounds both raw logs combined.
 
     The timeout bounds workload time. TERM/KILL/capture receive at most one further
@@ -235,10 +237,12 @@ def execute_native(argv: list[str], *, cwd: Path, env: Mapping[str, str], output
             or type(max_log_bytes) is not int or not 0 <= max_log_bytes <= 100 * 1024 * 1024):
         return result("NOT_RUN", True, "INVALID_EXECUTION")
     if (not cwd.is_absolute() or not cwd.is_dir() or cwd.resolve() != cwd
-            or not output_dir.is_absolute() or output_dir.resolve() != output_dir):
+            or not output_dir.is_absolute() or output_dir.resolve() != output_dir
+            or (artifact_dir is not None and (not artifact_dir.is_absolute()
+                or not artifact_dir.is_dir() or artifact_dir.resolve() != artifact_dir))):
         return result("NOT_RUN", True, "INVALID_EXECUTION_PATH")
     try:
-        child_env = _environment(env, output_dir)
+        child_env = _environment(env, output_dir, artifact_dir)
     except NativeError as exc:
         return result("NOT_RUN", True, exc.code)
     if cancel.is_set():
