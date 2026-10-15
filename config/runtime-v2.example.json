@@ -1,0 +1,54 @@
+{
+  "protocol": "cdr-runtime/2",
+  "runner_id": "local-runner",
+  "enable_v1": true,
+  "github_token_file": "/absolute/owner-config/tokens/github-token",
+  "google_config_file": "/absolute/owner-config/docs-provider-v2.json",
+  "rootless_profile_dir": "/absolute/owner-config/rootless-profiles",
+  "queue_limit": 100,
+  "poll_seconds": 2,
+  "native_profiles": {
+    "python-native": {
+      "tools": {"python": "/absolute/owner-toolchains/python/bin/python"},
+      "shell_dialects": [],
+      "environment": {},
+      "timeout_seconds": 900,
+      "max_log_bytes": 1048576
+    },
+    "node-native": {
+      "tools": {
+        "node": "/absolute/owner-toolchains/node/bin/node",
+        "npm": [
+          "/absolute/owner-toolchains/node/bin/node",
+          "/absolute/owner-toolchains/node/lib/node_modules/npm/bin/npm-cli.js"
+        ]
+      },
+      "shell_dialects": [],
+      "environment": {"PATH": "/absolute/owner-toolchains/node/bin:/usr/bin:/bin"},
+      "timeout_seconds": 1200,
+      "max_log_bytes": 1048576
+    },
+    "dotnet-vstest-native": {
+      "tools": {"dotnet": "/absolute/owner-toolchains/dotnet/dotnet"},
+      "shell_dialects": [],
+      "environment": {},
+      "timeout_seconds": 900,
+      "max_log_bytes": 1048576
+    }
+  },
+  "projects": [
+    {
+      "project_id": "example-project",
+      "github": {"id": 1, "node_id": "EXAMPLE_REPOSITORY_NODE_ID", "owner": "example-owner", "owner_id": 1, "name": "example-project"},
+      "workspaces": {
+        "editor": {"path": "/absolute/owner-workspaces/example-project", "include_dirty": false, "include_untracked": []}
+      },
+      "native_profiles": ["python-native", "node-native", "dotnet-vstest-native"],
+      "container_profiles": ["python-quick"]
+    }
+  ],
+  "mailboxes": [
+    {"id": "github-example-slot", "provider": "github", "project_id": "example-project", "branch": "runner-commands-example", "path": ".runner/commands/local-runner.json"},
+    {"id": "docs-example-slot", "provider": "drive", "project_id": "example-project", "document_id": "EXAMPLE_V2_DOCUMENT_ID", "tab_id": "EXAMPLE_TAB_ID"}
+  ]
+}

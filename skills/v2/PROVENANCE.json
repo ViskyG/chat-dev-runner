@@ -1,0 +1,38 @@
+{
+  "status": "SOURCE_PREVIEW",
+  "registration": "NOT_PERFORMED",
+  "source_revision": "9005b6255888e0a9ae579d6b42b1bf8eecce4bde",
+  "method": "Adapt current interfaces without modifying or duplicating the existing verbatim design imports; English entrypoints have full Russian companions.",
+  "sources": [
+    {
+      "verbatim_design_source": "design/github-native-v2/skills/install-runner/SKILL.md",
+      "source_sha256": "9814903a3e3c71a224974c0e8b54536dffea5701c7be323ba733fa3c50d4b24a",
+      "adaptation": "skills/v2/install-runner-v2/SKILL.md"
+    },
+    {
+      "verbatim_design_source": "design/github-native-v2/skills/install-runner/SKILL.ru.md",
+      "source_sha256": "b3fe9cfd83996dad7e180475cc6eb16774874cf3791ac2af1f9adf78271ae7f5",
+      "adaptation": "skills/v2/install-runner-v2/SKILL.ru.md"
+    },
+    {
+      "verbatim_design_source": "design/github-native-v2/skills/prepare-runner-project/SKILL.md",
+      "source_sha256": "f1f3de02954e87fd8967dd350c883b8e8337f87e46dad6f7209ce7def7fb4b40",
+      "adaptation": "skills/v2/prepare-runner-project-v2/SKILL.md"
+    },
+    {
+      "verbatim_design_source": "design/github-native-v2/skills/prepare-runner-project/SKILL.ru.md",
+      "source_sha256": "badab6ba757b2f3d6d4ee1535833340c40bb9866aa122e91f60726f8910962ee",
+      "adaptation": "skills/v2/prepare-runner-project-v2/SKILL.ru.md"
+    },
+    {
+      "verbatim_design_source": "design/github-native-v2/skills/operate-runner/SKILL.md",
+      "source_sha256": "0b1a6524e30dfac8e505a9be5ad364ae0419c71b1ea1e88ecf42ad203c872cc9",
+      "adaptation": "skills/v2/operate-runner-v2/SKILL.md"
+    },
+    {
+      "verbatim_design_source": "design/github-native-v2/skills/operate-runner/SKILL.ru.md",
+      "source_sha256": "9c6b6e02b284f344d8c0b9b429e11dc93feb533e56838f26c59bd6979f7d9aee",
+      "adaptation": "skills/v2/operate-runner-v2/SKILL.ru.md"
+    }
+  ]
+}
