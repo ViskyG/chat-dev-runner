@@ -1,0 +1,32 @@
+{
+  "packet": "GP-01",
+  "scope": "v2 packaged schemas and immutable mailbox/project contract validation",
+  "evidence_level": "CONSTRUCTION_CHECK",
+  "base_commit": "931861ce23fc735658073c62ae75d98884926945",
+  "interpreter": "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+  "pythonpath": "/home/visky/Work/GPTRunner/chat-dev-runner-gp01-contracts",
+  "checks": [
+    {
+      "command": "python -m pytest tests/test_mailbox_v2.py tests/test_project_v2.py tests/test_v2_schemas.py -q",
+      "exit_code": 0,
+      "result": "71 passed in 0.14s",
+      "output": "contracts-check.txt"
+    },
+    {
+      "command": "python -m ruff check runner_app/domain/contracts_v2.py runner_app/domain/mailbox_v2.py runner_app/domain/project_v2.py runner_app/resources.py tests/test_mailbox_v2.py tests/test_project_v2.py tests/test_v2_schemas.py",
+      "exit_code": 0,
+      "result": "All checks passed"
+    },
+    {
+      "command": "python -m mypy --follow-imports=silent runner_app/domain/contracts_v2.py runner_app/domain/mailbox_v2.py runner_app/domain/project_v2.py runner_app/resources.py",
+      "exit_code": 0,
+      "result": "Success: no issues found in 4 source files"
+    }
+  ],
+  "notes": [
+    "No installs, network calls, provider calls or broad regression runs.",
+    "Mypy initially found an Any return on FrozenMailbox.ready; a bool wrapper resolved it after the focused test run without changing parsed-mailbox behavior.",
+    "Installation IDs are canonical UUID namespaces; generated names use compact UTF-8 JSON [mailbox_id, slot_token].",
+    "Mailbox/project intent parsing rejects all floating point syntax. Environment/result numeric schemas are preserved without a new production parser."
+  ]
+}
