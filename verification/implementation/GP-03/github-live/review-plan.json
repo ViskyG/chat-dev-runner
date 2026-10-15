@@ -1,0 +1,154 @@
+{
+  "acceptance_id": "86223f6f-9e10-456d-8df7-1f63d4195228",
+  "binding_id": "gp03-github-slot",
+  "branch": "acceptance/gp03-v2-pass-20261015-a1",
+  "command_path": ".runner/commands/gp03-linux-github.json",
+  "commit_timestamp": 1792067443,
+  "draft_slot_token": "4815a548-ad92-4a65-a87e-40376d83f38c",
+  "excluded_operations": [
+    "no Drive calls",
+    "no new repositories or PRs",
+    "no force pushes",
+    "no main/existing-branch changes",
+    "no installed service/state changes"
+  ],
+  "files": [
+    {
+      "bytes": 41,
+      "git_blob": "f1b38364a4294ac62e69caabc165eb56106147aa",
+      "path": ".gitignore",
+      "sha256": "a2c5d1b1e8fc2d00576f130634feec851372f52aa103d99d891f4533e011a3ff"
+    },
+    {
+      "bytes": 622,
+      "git_blob": "5c33aa31ad8fcfdf0fe07b80dbab2d5aef532f42",
+      "path": ".runner/commands/gp03-linux-github.json",
+      "sha256": "2e7483ff2f0714c0ea6505d1a48377b90eff5faa3703b847b27515ed2c269f8b"
+    },
+    {
+      "bytes": 1293,
+      "git_blob": "1809902230768dfcfa29cac586f9f08c90e71411",
+      "path": ".runner/project.json",
+      "sha256": "1d7e9ae1390de7537865bccba0e358b05babfb525d8781aaf1ba38bdad6a05cc"
+    },
+    {
+      "bytes": 211,
+      "git_blob": "fa99ea3d87d4af1050fe556ba432cf4297513929",
+      "path": "README.md",
+      "sha256": "50429725eceb2a44751002f3d06bc7de6cc5050e09570523920db83104fcc6a3"
+    },
+    {
+      "bytes": 130,
+      "git_blob": "97168014f241f8887535a8d588c608544ae9fd19",
+      "path": "pyproject.toml",
+      "sha256": "c3e32c4602889719b2cce3b8ad96d45e94da2d33dbc485ebf0266d45de8fd797"
+    },
+    {
+      "bytes": 538,
+      "git_blob": "ff38f5c9c807918096e53f0f05f6827a9dc84ea8",
+      "path": "requirements.lock",
+      "sha256": "80552f69df4490903989b9a0d00f58de587ea28da165b3fc4b8a006ca54ec0c7"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "src/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 58,
+      "git_blob": "1e21eeb789ae554c1f971216adae3517169720ff",
+      "path": "src/app.py",
+      "sha256": "7d180e1afb7777ad22495996b5c0d3fa3cf8df9e420f400e2dc7782dcfaec91b"
+    },
+    {
+      "bytes": 99,
+      "git_blob": "d361fbb5321e22725aacb2bd2746a50d445a2067",
+      "path": "tests/test_app.py",
+      "sha256": "eebdad2bcadf61f048280b18af07034c01fd20b50899607074423f1313e7d3ff"
+    },
+    {
+      "bytes": 7484,
+      "git_blob": "f8cd4b9e75a54be90664cab36e085a486b17b95b",
+      "path": "vendor/wheels/iniconfig-2.3.0-py3-none-any.whl",
+      "sha256": "f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12"
+    },
+    {
+      "bytes": 129956,
+      "git_blob": "d54f57121300d9a854404b6fe8bdcd651429f53d",
+      "path": "vendor/wheels/packaging-26.3-py3-none-any.whl",
+      "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+    },
+    {
+      "bytes": 20538,
+      "git_blob": "1f7e6268d5c9008599fc3d18053973c86c94b06b",
+      "path": "vendor/wheels/pluggy-1.6.0-py3-none-any.whl",
+      "sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"
+    },
+    {
+      "bytes": 1250147,
+      "git_blob": "82c0df884665c4bf8491e9a3932e252f94961bba",
+      "path": "vendor/wheels/pygments-2.21.0-py3-none-any.whl",
+      "sha256": "2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9"
+    },
+    {
+      "bytes": 386536,
+      "git_blob": "8da88c1751e63abc1215683d74cbe60a69983105",
+      "path": "vendor/wheels/pytest-9.1.1-py3-none-any.whl",
+      "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c"
+    }
+  ],
+  "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+  "main_head_must_equal": "1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+  "platform": "linux/amd64",
+  "preparation_profile_id": "python-prepare",
+  "preparation_revision_sha256": "602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9",
+  "prepared_implementation_revision": "9005b6255888e0a9ae579d6b42b1bf8eecce4bde",
+  "production_base": "9005b6255888e0a9ae579d6b42b1bf8eecce4bde",
+  "profile_dir": "/home/visky/Work/GPTRunner/owner-profiles",
+  "profile_revision_sha256": "b47160af8e5abd5ea7cc4b9624ee1a929216a5705c394fd4e287468590efd182",
+  "project_id": "gp03-github-pass",
+  "read_only_preflight_sha256": "0fbd0110fcc1eaf533be8004102a013173b6f5ff881b86dc930737db748e84d7",
+  "ref_operations": [
+    {
+      "endpoint": "/git/refs",
+      "method": "POST",
+      "only_if_absent": true,
+      "purpose": "ONE fresh acceptance SOURCE branch; parent is unchanged main anchor",
+      "ref": "refs/heads/acceptance/gp03-v2-pass-20261015-a1"
+    },
+    {
+      "endpoint": "/git/refs/heads/acceptance/gp03-v2-pass-20261015-a1",
+      "force": false,
+      "method": "PATCH",
+      "purposes": [
+        "baseline DRAFT token rotation",
+        "operator READY",
+        "coordinator ACK",
+        "additive same-branch result"
+      ]
+    }
+  ],
+  "repository": {
+    "clone_url": "https://github.com/ViskyG/cdr-ep07-ui-20260928.git",
+    "default_branch": "main",
+    "description": "cdr:v1:71289ae8c91be70d3715e2dcf3ae3adbd61f1febf9c416c39113f82659c674b7",
+    "full_name": "ViskyG/cdr-ep07-ui-20260928",
+    "html_url": "https://github.com/ViskyG/cdr-ep07-ui-20260928",
+    "id": 1392469828,
+    "name": "cdr-ep07-ui-20260928",
+    "node_id": "R_kgDOUv9nRA",
+    "owner": "ViskyG",
+    "owner_id": 12452296,
+    "private": true,
+    "ssh_url": "git@github.com:ViskyG/cdr-ep07-ui-20260928.git"
+  },
+  "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500",
+  "runner_id": "gp03-linux-github",
+  "scope": "foreground temporary V2Assembly; not installed service or ChatGPT connector acceptance",
+  "script_sha256": "c39d0d44e54aaf62d58862e028efe06a2974ed43b9b46a77ddca80d21d7f506c",
+  "source_commit": "1bce389885fb4ec007496afba76ca0a95ccfcf1f",
+  "source_commit_message": "GP-03 disposable v2 source acceptance\n\nAcceptance-Id: 86223f6f-9e10-456d-8df7-1f63d4195228\n",
+  "source_tree": "866005ab46bc2ef471fe3f1013e82fdb83071c48",
+  "state": "PREPARED_NOT_EXECUTED"
+}

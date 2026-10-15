@@ -1,0 +1,54 @@
+{
+  "project_id": "gp03-github-pass",
+  "protocol": "cdr-project/2",
+  "tasks": {
+    "test": {
+      "language": "python",
+      "outputs": [
+        {
+          "format": "junit-xml",
+          "id": "junit",
+          "kind": "test_result",
+          "path": "junit.xml",
+          "publish": "git_if_fits",
+          "required": true,
+          "source_root": "out"
+        },
+        {
+          "format": "application-log/v1",
+          "id": "app-log",
+          "kind": "application_log",
+          "path": "app.jsonl",
+          "publish": "git_if_fits",
+          "required": false,
+          "source_root": "out"
+        }
+      ],
+      "profile_id": "python-quick",
+      "quality_gate": {
+        "minimum_executed": 1,
+        "required_outputs": [
+          "junit"
+        ],
+        "test_required": true
+      },
+      "steps": [
+        {
+          "argv": [
+            "python",
+            "-c",
+            "import sys;sys.path[:0]=['/build','/src'];import pytest;raise SystemExit(pytest.main(sys.argv[1:]))",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--junitxml=/out/junit.xml"
+          ],
+          "cwd": ".",
+          "id": "pytest",
+          "phase": "test",
+          "timeout_seconds": 600
+        }
+      ]
+    }
+  }
+}
