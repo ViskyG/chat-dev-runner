@@ -1,0 +1,29 @@
+.................F                                                       [100%]
+=================================== FAILURES ===================================
+__________________ test_exact_scope_and_registered_paths_only __________________
+
+fixture = <test_v2_source.Fixture object at 0x7e31d86e6140>
+
+    def test_exact_scope_and_registered_paths_only(fixture: Fixture) -> None:
+        resolver = fixture.resolver()
+        with pytest.raises(SourceError, match="WORKSPACE_NOT_REGISTERED"):
+            resolver.resolve_current("demo", str(uuid4()), {
+                "kind": "local_workspace", "branch": "tested", "workspace_id": "/tmp"})
+        with pytest.raises(SourceError, match="INVALID_SOURCE_SELECTOR"):
+            resolver.resolve_current("demo", str(uuid4()), {
+                "kind": "github_branch", "branch": "tested", "path": "/tmp"})
+        request = str(uuid4())
+        selector = {"kind": "github_branch", "branch": "tested"}
+        resolver.resolve_current("demo", request, selector)
+        with pytest.raises(SourceError, match="SOURCE_SNAPSHOT_EXISTS"):
+            resolver.resolve_current("demo", request, selector)
+        unsafe = SourceResolver({"demo": SourceProject(fixture.repo, fixture.workspace / "runs")})
+>       with pytest.raises(SourceError, match="UNSAFE_RUNS_ROOT"):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'UNSAFE_RUNS_ROOT'
+E         Actual message: 'SOURCE_FETCH_UNAVAILABLE'
+
+tests/test_v2_source.py:261: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_v2_source.py::test_exact_scope_and_registered_paths_only - ...
+1 failed, 17 passed in 1.39s
