@@ -1,0 +1,24 @@
+{
+  "database": {
+    "execution_lane_count": 0,
+    "legacy_operation_count": 26,
+    "nonterminal_count": 0,
+    "runner_id": "local-runner",
+    "schema": 10,
+    "v2_request_count": 0
+  },
+  "mailbox": {
+    "binding_id": "gp07-github-preview",
+    "blob": "3425e59b5d0543cddcb382e7005c838c864b01f5",
+    "continuous": true,
+    "dispatch": "DRAFT",
+    "head": "9db336660e1f4f290c8b6cf249c312f029473414",
+    "runner_id": "local-runner",
+    "sha256": "09947f7e93bc73df6f4583e70973e434ba5d19b165cf11a971b66ea0089afd77",
+    "slot_token_matches_database": true
+  },
+  "observed_at": "2026-10-15T12:54:32.201449+00:00",
+  "remote_mutations": 0,
+  "request_id": "4b9de43b-722e-40c7-bbfa-ac95b980edc7",
+  "status": "BASELINE_CONFIRMED"
+}

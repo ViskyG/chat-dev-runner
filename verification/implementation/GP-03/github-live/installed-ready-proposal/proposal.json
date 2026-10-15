@@ -1,0 +1,100 @@
+{
+  "after": {
+    "blob": "f73e8600b5cf7f4f5cfda415ae2b8d4ef5093e1a",
+    "bytes": 488,
+    "file": "after-ready.json",
+    "sha256": "a220870856b60129aefc49d501df07de8dbed1d222edb0cc8750ff9519231481"
+  },
+  "approved_execution_scope": "ONE installed service RUN_TASK; actual execution/results/cleanup evidence will be checked afterward. No Drive, config, DB, unit or other-ref mutation by this operator action.",
+  "base_tree": "db07480f7d14045ad742a76defdc499d2ba25195",
+  "baseline_proof": "../installed-baseline-readonly.json",
+  "before": {
+    "blob": "3425e59b5d0543cddcb382e7005c838c864b01f5",
+    "bytes": 488,
+    "file": "before-draft.json",
+    "sha256": "09947f7e93bc73df6f4583e70973e434ba5d19b165cf11a971b66ea0089afd77"
+  },
+  "branch": "acceptance/gp03-v2-pass-20261015-a1",
+  "changed_paths": {
+    "M": ".runner/commands/gp03-linux-github.json"
+  },
+  "commit": "d3647f17f7260ca93035e61c25ad13f31fc41922",
+  "guards": [
+    "Require explicit ROOT GO for exact plan SHA before POST/PATCH.",
+    "Fresh enrolled repository identity, installed continuous baseline/token/request-absent state, existing HEAD and exact DRAFT bytes must still match; otherwise STOP without rebase/replay.",
+    "Durable intent before each of these four writes; unknown object response exact SHA readback or STOP; never create a ref or retry a mutation.",
+    "Before PATCH recheck exact old HEAD/blob/bytes. Installed service remains active and may ACK immediately after publication.",
+    "Readback exact immutable READY commit/blob/bytes plus PATCH200/objectSHA or exact current-ref ancestry proves publication; active-consumer ACK/result may advance HEAD. Require matching request and receipt accepted_slot_token/payload_sha256 for consumer ACK; never replay READY on lost response or rejection."
+  ],
+  "intent_payload_sha256": "59b215f75e4bb0799989f3aa5abbe07c3b96a8e2383b920cf042606bb1eab37f",
+  "mutations": [
+    {
+      "body": {
+        "content": "eyJkaXNwYXRjaCI6IlJFQURZIiwicHJvamVjdF9pZCI6ImdwMDMtZ2l0aHViLXBhc3MiLCJwcm90b2NvbCI6ImNkci1tYWlsYm94LzIiLCJyZWNlaXB0IjpudWxsLCJyZXF1ZXN0Ijp7ImFjdGlvbiI6IlJVTl9UQVNLIiwiZXhlY3V0aW9uIjp7ImJhY2tlbmRfaWQiOiJyb290bGVzcy1kb2NrZXIiLCJleHBlY3RlZF9vcyI6ImxpbnV4IiwibW9kZSI6ImNvbnRhaW5lciIsInByb2ZpbGVfaWQiOiJweXRob24tcXVpY2siLCJ0aW1lb3V0X3NlY29uZHMiOjkwMH0sInJlcXVlc3RfaWQiOiI0YjlkZTQzYi03MjJlLTQwYzctYmJmYS1hYzk1Yjk4MGVkYzciLCJzb3VyY2UiOnsiYnJhbmNoIjoiYWNjZXB0YW5jZS9ncDAzLXYyLXBhc3MtMjAyNjEwMTUtYTEiLCJraW5kIjoiZ2l0aHViX2JyYW5jaCJ9LCJ0YXNrIjoidGVzdCJ9LCJydW5uZXJfaWQiOiJsb2NhbC1ydW5uZXIiLCJzbG90X3Rva2VuIjoiMDZiZjA5YWUtNWIyYi00MGMyLWE0ODAtNzAyYzQwMDM0N2VmIn0=",
+        "encoding": "base64"
+      },
+      "expected_sha": "f73e8600b5cf7f4f5cfda415ae2b8d4ef5093e1a",
+      "method": "POST",
+      "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/blobs"
+    },
+    {
+      "body": {
+        "base_tree": "db07480f7d14045ad742a76defdc499d2ba25195",
+        "tree": [
+          {
+            "mode": "100644",
+            "path": ".runner/commands/gp03-linux-github.json",
+            "sha": "f73e8600b5cf7f4f5cfda415ae2b8d4ef5093e1a",
+            "type": "blob"
+          }
+        ]
+      },
+      "expected_sha": "8b030115c43109f487e0efb1383d5427ee1fe7df",
+      "method": "POST",
+      "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/trees"
+    },
+    {
+      "body": {
+        "author": {
+          "date": "2026-10-15T12:57:00+00:00",
+          "email": "runner-results@localhost",
+          "name": "Runner Results"
+        },
+        "committer": {
+          "date": "2026-10-15T12:57:00+00:00",
+          "email": "runner-results@localhost",
+          "name": "Runner Results"
+        },
+        "message": "GP-03 installed preview operator READY\n\nRequest-Id: 4b9de43b-722e-40c7-bbfa-ac95b980edc7\n",
+        "parents": [
+          "9db336660e1f4f290c8b6cf249c312f029473414"
+        ],
+        "tree": "8b030115c43109f487e0efb1383d5427ee1fe7df"
+      },
+      "expected_sha": "d3647f17f7260ca93035e61c25ad13f31fc41922",
+      "method": "POST",
+      "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/commits"
+    },
+    {
+      "body": {
+        "force": false,
+        "sha": "d3647f17f7260ca93035e61c25ad13f31fc41922"
+      },
+      "expected_sha": "d3647f17f7260ca93035e61c25ad13f31fc41922",
+      "method": "PATCH",
+      "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/refs/heads/acceptance/gp03-v2-pass-20261015-a1"
+    }
+  ],
+  "node_id": "R_kgDOUv9nRA",
+  "owner_id": 12452296,
+  "parent": "9db336660e1f4f290c8b6cf249c312f029473414",
+  "path": ".runner/commands/gp03-linux-github.json",
+  "preserves": "Every byte outside the single top-level dispatch value, including request, runner, project, slot token and receipt; all source/results modes and blobs unchanged.",
+  "project_id": "gp03-github-pass",
+  "remote_writes_performed": 0,
+  "repository_id": 1392469828,
+  "request_id": "4b9de43b-722e-40c7-bbfa-ac95b980edc7",
+  "runner_id": "local-runner",
+  "state": "PROPOSED_NOT_EXECUTED",
+  "tree": "8b030115c43109f487e0efb1383d5427ee1fe7df"
+}
