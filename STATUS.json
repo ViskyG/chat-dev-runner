@@ -25,7 +25,7 @@
     "source": "Owner update after archive creation; seed is a reference specification"
   },
   "implementation": {
-    "selected_packet": "GP-02",
+    "selected_packet": "GP-03",
     "packets": {
       "EP-00": "VERIFIED",
       "EP-01": "VERIFIED",
@@ -141,7 +141,8 @@
       "installed_release_changed": false,
       "previous_v1_status_is_historical": true,
       "verification_policy": "Focused construction checks, real integration boundaries, broad regression at source freeze; reuse applicable evidence",
-      "implemented": "Versioned contracts, schema-10 durable candidates/session/FIFO, conditional ACK coordinator; worker/provider runtime integration in progress"
+      "implemented": "v2 contracts + durable session FIFO + one v1/v2 lane; exact GitHub/Docs ports; current-source snapshots; native and fixed rootless handlers; same-branch publisher, delivery-only reuse; optional Runtime/API/UI; four native tool/report families qualified cold and warm",
+      "next": "Real rootless host canary, runtime tool provenance, provider roundtrip and controlled release acceptance; Java awaits owner decision on missing SDK/Maven"
     }
   },
   "implementation_source_repository": {

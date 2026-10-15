@@ -48,6 +48,7 @@ _WEB_ASSETS = {
     "api.js": "text/javascript",
     "model.js": "text/javascript",
     "render.js": "text/javascript",
+    "v2.js": "text/javascript",
     "styles.css": "text/css",
 }
 _WEB_CSP = (

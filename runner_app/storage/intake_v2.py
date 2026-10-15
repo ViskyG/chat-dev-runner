@@ -375,6 +375,27 @@ class IntakeStore:
                             "USING(request_id) WHERE r.request_id=?", (request_id,)).fetchone()
             return self._view(row) if row else None
 
+    def record_redelivery(self, request_id: str, *, actor_id: str,
+                          delivery: Mapping[str, Any]) -> None:
+        """Update only the current delivery view; frozen result evidence stays exact."""
+        with self._transaction() as c:
+            target = c.execute("SELECT * FROM v2_requests WHERE request_id=?", (request_id,)).fetchone()
+            actor = c.execute("SELECT * FROM v2_requests WHERE request_id=?", (actor_id,)).fetchone()
+            if (target is None or actor is None or actor["status"] != "STARTING"
+                    or target["runner_id"] != actor["runner_id"]
+                    or target["project_id"] != actor["project_id"] or not target["result_json"]):
+                raise IntakeError("RESULT_SCOPE_MISMATCH")
+            intent = json.loads(actor["payload"])["request"]
+            result = json.loads(target["result_json"])
+            if (intent["action"] != "REDELIVER" or intent["target_request_id"] != request_id
+                    or delivery.get("bundle_sha256") != result.get("bundle_sha256")):
+                raise IntakeError("RESULT_IDENTITY_MISMATCH")
+            result["delivery"] = dict(delivery)
+            c.execute("UPDATE v2_requests SET result_json=?,updated_at=? WHERE request_id=?",
+                      (_json(result), _now(), request_id))
+            self._event(c, request_id, "DELIVERY_UPDATED", {"actor_request_id": actor_id,
+                                                          "delivery": dict(delivery)})
+
     def list_requests(self, *, limit: int = 100) -> list[dict[str, Any]]:
         if not 1 <= limit <= 1000:
             raise ValueError("Invalid request limit")

@@ -158,8 +158,10 @@ def main(argv: list[str] | None = None) -> int:
                         bridge.start()
                         if runtime.workspace_mailboxes is not None:
                             runtime.workspace_mailboxes.start()
-                        if not args.start_unarmed:
-                            runtime.arm_on_startup()
+                    if runtime.v2 is not None:
+                        runtime.v2.start()
+                    if not args.start_unarmed:
+                        runtime.arm_on_startup()
                     uvicorn.run(runtime.app, host=config.listen_host, port=config.listen_port,
                                 workers=1, proxy_headers=False, access_log=False, server_header=False)
                 finally:

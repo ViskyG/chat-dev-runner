@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="34" time="0.156" timestamp="2026-10-15T15:49:36.491287+04:00" hostname="k8s-master"><testcase classname="tests.test_drive_mailbox_v2" name="test_construction_inert_exact_nested_tab_and_revision_binding" time="0.004" /><testcase classname="tests.test_drive_mailbox_v2" name="test_ack_exact_bytes_utf16_cas_and_other_tabs_preserved" time="0.002" /><testcase classname="tests.test_drive_mailbox_v2" name="test_changed_tab_or_document_revision_is_never_retried[revision_only]" time="0.002" /><testcase classname="tests.test_drive_mailbox_v2" name="test_changed_tab_or_document_revision_is_never_retried[payload]" time="0.001" /><testcase classname="tests.test_drive_mailbox_v2" name="test_changed_tab_or_document_revision_is_never_retried[other_tab]" time="0.002" /><testcase classname="tests.test_drive_mailbox_v2" name="test_required_revision_rejects_race_and_preserves_newer_text[False]" time="0.002" /><testcase classname="tests.test_drive_mailbox_v2" name="test_required_revision_rejects_race_and_preserves_newer_text[True]" time="0.002" /><testcase classname="tests.test_drive_mailbox_v2" name="test_lost_write_response_requires_exact_readback_without_retry[False]" time="0.002" /><testcase classname="tests.test_drive_mailbox_v2" name="test_lost_write_response_requires_exact_readback_without_retry[True]" time="0.002" /><testcase classname="tests.test_drive_mailbox_v2" name="test_accepted_write_followed_by_edit_is_unknown_and_new_text_survives" time="0.002" /><testcase classname="tests.test_drive_mailbox_v2" name="test_ack_cannot_change_user_payload_or_cross_binding[request]" time="0.002" /><testcase classname="tests.test_drive_mailbox_v2" name="test_ack_cannot_change_user_payload_or_cross_binding[slot]" time="0.001" /><testcase classname="tests.test_drive_mailbox_v2" name="test_ack_cannot_change_user_payload_or_cross_binding[other_doc]" time="0.001" /><testcase classname="tests.test_drive_mailbox_v2" name="test_ack_cannot_change_user_payload_or_cross_binding[other_tab]" time="0.001" /><testcase classname="tests.test_drive_mailbox_v2" name="test_metadata_identity_and_grant_fail_closed[metadata0]" time="0.000" /><testcase classname="tests.test_drive_mailbox_v2" name="test_metadata_identity_and_grant_fail_closed[metadata1]" time="0.000" /><testcase classname="tests.test_drive_mailbox_v2" name="test_metadata_identity_and_grant_fail_closed[metadata2]" time="0.000" /><testcase classname="tests.test_drive_mailbox_v2" name="test_metadata_identity_and_grant_fail_closed[metadata3]" time="0.000" /><testcase classname="tests.test_drive_mailbox_v2" name="test_metadata_identity_and_grant_fail_closed[metadata4]" time="0.000" /><testcase classname="tests.test_drive_mailbox_v2" name="test_nonplain_or_nonjson_registered_tab_is_refused[missing_tab]" time="0.000" /><testcase classname="tests.test_drive_mailbox_v2" name="test_nonplain_or_nonjson_registered_tab_is_refused[duplicate_tab]" time="0.001" /><testcase classname="tests.test_drive_mailbox_v2" name="test_nonplain_or_nonjson_registered_tab_is_refused[inline_object]" time="0.000" /><testcase classname="tests.test_drive_mailbox_v2" name="test_nonplain_or_nonjson_registered_tab_is_refused[bad_span]" time="0.000" /><testcase classname="tests.test_drive_mailbox_v2" name="test_nonplain_or_nonjson_registered_tab_is_refused[markdown]" time="0.000" /><testcase classname="tests.test_drive_mailbox_v2" name="test_nonplain_or_nonjson_registered_tab_is_refused[duplicate_json]" time="0.000" /><testcase classname="tests.test_drive_mailbox_v2" name="test_local_byte_budget_refuses_read_and_write" time="0.001" /><testcase classname="tests.test_drive_mailbox_v2" name="test_owner_config_loads_only_references_and_keeps_existing_credential_layout" time="0.001"><failure message="runner_app.adapters.drive_mailbox_v2.DocsMailboxError: DOCS_CONFIG_REFERENCE_INVALID">tmp_path = PosixPath('/tmp/pytest-of-visky/pytest-56/test_owner_config_loads_only_r0')
+
+    def test_owner_config_loads_only_references_and_keeps_existing_credential_layout(tmp_path: Path) -&gt; None:
+        path, value = owner_config(tmp_path)
+&gt;       loaded = DocsProviderConfig.from_file(path)
+
+tests/test_drive_mailbox_v2.py:319: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+runner_app/adapters/drive_mailbox_v2.py:107: in from_file
+    return cls(reference("oauth_client_file"), reference("token_file"),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'oauth_client_file'
+
+    def reference(name: str) -&gt; Path:
+        raw_path = value[name]
+        if not isinstance(raw_path, str):
+            raise DocsMailboxError("DOCS_CONFIG_REFERENCE_INVALID")
+        path = Path(raw_path)
+        if (not path.is_absolute() or ".." in path.parts or path.resolve() != path
+                or Path(__file__).resolve().parents[2] in path.parents
+                or any((parent / ".git").exists() or parent.name.endswith(".git")
+                       for parent in path.parents)):
+&gt;           raise DocsMailboxError("DOCS_CONFIG_REFERENCE_INVALID")
+E           runner_app.adapters.drive_mailbox_v2.DocsMailboxError: DOCS_CONFIG_REFERENCE_INVALID
+
+runner_app/adapters/drive_mailbox_v2.py:100: DocsMailboxError</failure></testcase><testcase classname="tests.test_drive_mailbox_v2" name="test_config_rejects_wrong_identity_scope_or_permissions[mode]" time="0.001" /><testcase classname="tests.test_drive_mailbox_v2" name="test_config_rejects_wrong_identity_scope_or_permissions[scope]" time="0.001" /><testcase classname="tests.test_drive_mailbox_v2" name="test_config_rejects_wrong_identity_scope_or_permissions[root]" time="0.001" /><testcase classname="tests.test_drive_mailbox_v2" name="test_config_rejects_wrong_identity_scope_or_permissions[index]" time="0.001" /><testcase classname="tests.test_drive_mailbox_v2" name="test_config_rejects_wrong_identity_scope_or_permissions[unknown_field]" time="0.000" /><testcase classname="tests.test_drive_mailbox_v2" name="test_config_rejects_wrong_identity_scope_or_permissions[linked_token]" time="0.001" /><testcase classname="tests.test_drive_mailbox_v2" name="test_config_attachment_calls_existing_read_only_gate" time="0.001"><failure message="runner_app.adapters.drive_mailbox_v2.DocsMailboxError: DOCS_CONFIG_REFERENCE_INVALID">tmp_path = PosixPath('/tmp/pytest-of-visky/pytest-56/test_config_attachment_calls_e0')
+provider = &lt;test_drive_mailbox_v2.FakeDocs object at 0x7067ec9c90f0&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7067ec9c96c0&gt;
+
+    def test_config_attachment_calls_existing_read_only_gate(tmp_path: Path, provider: FakeDocs, monkeypatch: pytest.MonkeyPatch) -&gt; None:
+        path, _ = owner_config(tmp_path)
+&gt;       config = DocsProviderConfig.from_file(path)
+
+tests/test_drive_mailbox_v2.py:354: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+runner_app/adapters/drive_mailbox_v2.py:107: in from_file
+    return cls(reference("oauth_client_file"), reference("token_file"),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'oauth_client_file'
+
+    def reference(name: str) -&gt; Path:
+        raw_path = value[name]
+        if not isinstance(raw_path, str):
+            raise DocsMailboxError("DOCS_CONFIG_REFERENCE_INVALID")
+        path = Path(raw_path)
+        if (not path.is_absolute() or ".." in path.parts or path.resolve() != path
+                or Path(__file__).resolve().parents[2] in path.parents
+                or any((parent / ".git").exists() or parent.name.endswith(".git")
+                       for parent in path.parents)):
+&gt;           raise DocsMailboxError("DOCS_CONFIG_REFERENCE_INVALID")
+E           runner_app.adapters.drive_mailbox_v2.DocsMailboxError: DOCS_CONFIG_REFERENCE_INVALID
+
+runner_app/adapters/drive_mailbox_v2.py:100: DocsMailboxError</failure></testcase></testsuite></testsuites>

@@ -373,12 +373,19 @@ def _proof_commit(repo: Path, head: str, result_path: str, intended: str | None)
         return head
 
 
+def bundle_digest(result_dir: Path, *, runner_id: str, request_id: str,
+                  limits: ResultLimits = DEFAULT_RESULT_LIMITS) -> str:
+    """Verify the immutable local bundle identity, including on a local-only run."""
+    return _read_bundle(result_dir, _identifier(runner_id), _identifier(request_id), limits).digest
+
+
 def publish_results(
     repo: Path, transport: ResultTransport, *, tested_branch: str,
     runner_id: str, request_id: str, result_dir: Path,
     record_intent: Callable[[ResultPublishIntent], None],
     limits: ResultLimits = DEFAULT_RESULT_LIMITS, max_conflict_retries: int = 3,
     publication_marker: str | None = None, commit_timestamp: int | None = None,
+    expected_bundle_sha256: str | None = None,
 ) -> ResultPublication:
     """Publish one sealed bundle; keep every failure local and finitely bounded.
 
@@ -417,6 +424,8 @@ def publish_results(
             raise ResultError("RESULT_SOURCE_PATH_OVERLAP")
         bundle = _read_bundle(result_dir, runner_id, request_id, limits)
         local_available = True
+        if expected_bundle_sha256 is not None and bundle.digest != expected_bundle_sha256:
+            return answer("LOCAL_ONLY", "RESULT_BUNDLE_CHANGED")
         subtree = _bundle_tree(repo, bundle)
         result_path = f".runner/results/{runner_id}/{request_id}"
         parts = tuple(part.encode("ascii") for part in result_path.split("/"))

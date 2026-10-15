@@ -253,6 +253,11 @@ class RootlessTaskBackend:
             raise RootlessError("PROFILE_NOT_GRANTED", cleanup_verified=True)
         return self.profiles.require(profile_id)
 
+    def timeout_seconds(self, profile_id: str) -> int:
+        """The request must cover both finite preparation and test phases."""
+        return (self.profile(profile_id).timeout_seconds
+                + self.profiles.require(self.grant.preparation_profile_id).timeout_seconds)
+
     def run(self, snapshot: SourceSnapshot, *, request_id: str, profile_id: str,
             cancel: Event | None = None) -> RootlessTaskResult:
         try:

@@ -7,6 +7,7 @@ isolation guarantee. Platform qualification requires real checks on that platfor
 from __future__ import annotations
 
 import json
+import math
 import os
 import platform
 import re
@@ -197,7 +198,7 @@ def _terminate_owned(process: subprocess.Popen[bytes], identities: dict[int, str
 
 
 def execute_native(argv: list[str], *, cwd: Path, env: Mapping[str, str], output_dir: Path,
-                   timeout_seconds: int, cancel: Event, max_log_bytes: int,
+                   timeout_seconds: float, cancel: Event, max_log_bytes: int,
                    artifact_dir: Path | None = None) -> NativeResult:
     """Run an absolute executable; max_log_bytes bounds both raw logs combined.
 
@@ -233,7 +234,8 @@ def execute_native(argv: list[str], *, cwd: Path, env: Mapping[str, str], output
     if (not isinstance(argv, list) or not argv or len(argv) > 128
             or any(not isinstance(arg, str) or not arg or "\x00" in arg for arg in argv)
             or not Path(argv[0]).is_absolute()
-            or type(timeout_seconds) is not int or not 1 <= timeout_seconds <= 86400
+            or type(timeout_seconds) not in (int, float)
+            or not math.isfinite(timeout_seconds) or not 0 < timeout_seconds <= 86400
             or type(max_log_bytes) is not int or not 0 <= max_log_bytes <= 100 * 1024 * 1024):
         return result("NOT_RUN", True, "INVALID_EXECUTION")
     if (not cwd.is_absolute() or not cwd.is_dir() or cwd.resolve() != cwd

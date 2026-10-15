@@ -9,7 +9,7 @@ import threading
 import time
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from fastapi import FastAPI
 
@@ -17,6 +17,7 @@ from runner_app.adapters.drive_workspace_receipt import WorkspaceTerminalReceipt
 from runner_app.api.auth import Sessions
 from runner_app.api.runtime import create_runtime_app
 from runner_app.config import DRIVE_INDEX_ID, DRIVE_ROOT_ID, Settings
+from runner_app.config_v2 import load_v2_config
 from runner_app.domain.commands import PROJECT_ACTIONS
 from runner_app.engine.connection_checks import (
     ConnectionChecks,
@@ -44,6 +45,9 @@ from runner_app.storage.run_evidence import RunEvidenceStore
 
 _LOGGER = logging.getLogger(__name__)
 
+if TYPE_CHECKING:
+    from runner_app.engine.runtime_v2 import V2Assembly
+
 
 class _DriveBridge(Protocol):
     def request_stop(self) -> None: ...
@@ -51,6 +55,7 @@ class _DriveBridge(Protocol):
 
 
 class Runtime:
+    v2: V2Assembly | None = None
     sessions: Sessions
     _bootstrap_path: Path
     _bootstrap_stop: threading.Event
@@ -104,16 +109,21 @@ class Runtime:
         paths.ensure_private()
         self.paths = paths
         self.drive_bridge: _DriveBridge | None = None
+        self.v2: V2Assembly | None = None
         self._singleton = Singleton(paths.state_dir / "runner.lock")
         self._bootstrap_path = paths.token_dir / "session-bootstrap.json"
         self._bootstrap_stop = threading.Event()
         self._bootstrap_refresh = threading.Event()
         self._bootstrap_thread = None
         try:
+            v2_config = load_v2_config(paths)
             self.ledger = Ledger(Database(paths.database_path),
-                                 max_parallel=settings.max_parallel_executions)
+                                 runner_id=v2_config.runner_id if v2_config is not None else "local-runner",
+                                 max_parallel=settings.max_parallel_executions,
+                                 single_execution_lane=v2_config is not None)
             self.ledger.startup()
-            owner_config = load_owner_runtime_config(paths)
+            owner_config = (load_owner_runtime_config(paths)
+                            if v2_config is None or v2_config.enable_v1 else None)
             if owner_config is not None and import_roots:
                 raise IntegrationConfigError("RUNTIME_IMPORT_ROOTS_AMBIGUOUS")
             if (owner_config is not None
@@ -193,6 +203,10 @@ class Runtime:
                     ),
                 ) if connections is not None else None
             )
+            if v2_config is not None:
+                from runner_app.engine.runtime_v2 import V2Assembly
+
+                self.v2 = V2Assembly(v2_config, paths, self.ledger)
             self.sessions = Sessions()
             self.sessions.issue_bootstrap(self._publish_bootstrap)
             self.app: FastAPI = create_runtime_app(settings, self.engine, self.sessions,
@@ -213,8 +227,12 @@ class Runtime:
                                                            "github_user_id": self.integrations.config.github_user_id,
                                                            "draft_pr_capability": "NOT_PROBED",
                                                            "execution_readiness": self.execution_readiness_code,
-                                                       } if self.integrations is not None else None
+                                                       } if self.integrations is not None else (
+                                                           self.v2.status() if self.v2 is not None else None
+                                                       )
                                                    ))
+            if self.v2 is not None:
+                self.v2.attach_api(self.app)
             # Uvicorn re-raises SIGTERM after completing its ASGI shutdown. Run cleanup
             # during the shutdown event, before that signal bypasses the CLI finally block.
             self.app.router.add_event_handler("startup", self._start_bootstrap_rotation)
@@ -245,8 +263,10 @@ class Runtime:
         Ledger.arm keeps interrupted or uncertain operations disarmed until the
         owner reconciles them. An unconfigured local foundation stays inert.
         """
-        if (self.integrations is None or self.drive_bridge is None
-                or self.workspace_mailboxes is None or self.engine.storage_faulted):
+        v1_ready = (self.integrations is not None and self.drive_bridge is not None
+                    and self.workspace_mailboxes is not None)
+        if (not v1_ready and not (self.v2 is not None and self.v2.configured)
+                or self.engine.storage_faulted):
             return False
         try:
             self.ledger.arm()
@@ -265,6 +285,8 @@ class Runtime:
         self._bootstrap_refresh.set()
         manager = self.workspace_mailboxes
         bridge = self.drive_bridge
+        if self.v2 is not None:
+            self.v2.request_stop()
         if manager is not None:
             manager.request_stop()
         if bridge is not None:
@@ -279,6 +301,8 @@ class Runtime:
                     manager.close(deadline=deadline)
                 if bridge is not None:
                     bridge.close(deadline=deadline)
+                if self.v2 is not None:
+                    self.v2.close(deadline=deadline)
             finally:
                 self.engine.shutdown(timeout=min(2.0, max(0.0, deadline - time.monotonic())))
                 self._bootstrap_path.unlink(missing_ok=True)

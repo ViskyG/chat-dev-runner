@@ -1,0 +1,26 @@
+{
+  "source_parent": "782fc45",
+  "scope": "Optional v2 composition in existing Runtime; real native/local Git and controlled rootless bridge composition; live service not upgraded",
+  "files": {
+    "runner_app/config_v2.py": "87a13c7204535522f518b437dfdd214686e3347f254dabaa576cc9bbd6a5a819",
+    "runner_app/engine/runtime_v2.py": "84f6ebc370c70f9720e7993b65541664178c78ca2ff7c63ff8122192d80d019b",
+    "runner_app/engine/task_v2.py": "4d3c0ba07e6bd28af996029222d97cf396bc762091a3559d9e011eac76a65070",
+    "runner_app/outputs/bundle_v2.py": "f04db6f35a0fc90480c91aa661784a59641c098e22218771401f1f70ec26044a",
+    "runner_app/engine/runtime.py": "bc6616b061bfe5477a5c8f703cb31c6a7ec2adc3110b2048dab9816fdd1415a4",
+    "runner_app/executors/native_v2.py": "268c7c0259bd073399faac24582a52d79faef84a93dcf4145e8b2f42e9a218d0",
+    "runner_app/storage/intake_v2.py": "9acb7e0054a7a98eb485c409943116dfd47cfa9094e8eb7d3afefa4bda01f33f"
+  },
+  "checks": {
+    "task_integration": "4 passed, actual pytest pass/fail + local Git publication and delivery-only reuse",
+    "review_corrections": "3 passed: fractional one-second budget, project/controller log ID collision, artifact filename/hash collision",
+    "bundle_container": "3 passed; actual preparation/collection code, Docker/quota test doubles",
+    "runtime_legacy": "13 passed, local API/auth + unchanged legacy runtime seams; extra selected recheck after Docs factory wiring passed",
+    "static": "targeted Ruff and strict mypy passed"
+  },
+  "limitations": [
+    "No broad regression yet: new source still in construction",
+    "Default sandbox TestClient blocked before app startup; same bounded local API check passed outside sandbox in 0.39s",
+    "Windows/macOS not qualified",
+    "GitHub/Docs real v2 mailbox route and deployed migration not yet qualified"
+  ]
+}
