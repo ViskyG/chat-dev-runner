@@ -25,7 +25,7 @@
     "source": "Owner update after archive creation; seed is a reference specification"
   },
   "implementation": {
-    "selected_packet": "GP-01",
+    "selected_packet": "GP-02",
     "packets": {
       "EP-00": "VERIFIED",
       "EP-01": "VERIFIED",
@@ -140,7 +140,8 @@
       "scope": "Approved complete preceding GP-00–GP-09 implementation plan; no claim of per-diff approval",
       "installed_release_changed": false,
       "previous_v1_status_is_historical": true,
-      "verification_policy": "Focused construction checks, real integration boundaries, broad regression at source freeze; reuse applicable evidence"
+      "verification_policy": "Focused construction checks, real integration boundaries, broad regression at source freeze; reuse applicable evidence",
+      "implemented": "Versioned contracts, schema-10 durable candidates/session/FIFO, conditional ACK coordinator; worker/provider runtime integration in progress"
     }
   },
   "implementation_source_repository": {

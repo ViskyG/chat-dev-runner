@@ -1,0 +1,25 @@
+{
+  "scope": "GP-01 additive schema 10 and GP-02 provider-neutral intake construction",
+  "checks": {
+    "new_intake_cases": 12,
+    "storage_integration_passed": 115,
+    "storage_integration_initial_failure": "one historical test enumerated versions only through 9; generalized to SCHEMA_VERSION",
+    "corrected_case_passed": 1,
+    "ruff": "PASS",
+    "mypy": "PASS_3_SOURCE_FILES"
+  },
+  "evidence": [
+    "intake-junit.xml",
+    "intake-storage-junit.xml",
+    "migration-version-correction.xml"
+  ],
+  "source_sha256": {
+    "runner_app/storage/database.py": "e86fddab091de7299be8c3b604a0a394b13bf975fd47c3f027c0d03527b0af96",
+    "runner_app/storage/migrations_v2.py": "68ce15c52e27c8895f50087543ceac6bc36632b2a0710519e52b559afa996935",
+    "runner_app/storage/intake_v2.py": "a1999d42d782a7a1d553ee75c6414f84626d7fef0856b0e06321273d2b11c721",
+    "runner_app/engine/intake_v2.py": "6b31c6b3e298c449c4fa8ad7a7026282a7f67e925908ca612dc2271e1cc72a26"
+  },
+  "live_database_changed": false,
+  "provider_calls": 0,
+  "full_regression": "NOT_RUN_CONSTRUCTION_BOUNDARY_ONLY"
+}

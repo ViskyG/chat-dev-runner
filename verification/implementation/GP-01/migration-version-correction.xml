@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="0.094" timestamp="2026-10-15T15:26:14.465837+04:00" hostname="k8s-master"><testcase classname="tests.test_foundation_storage" name="test_domain_upgrade_preserves_v1_metadata" time="0.058" /></testsuite></testsuites>

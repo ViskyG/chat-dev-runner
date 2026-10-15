@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import quote
 
+from .migrations_v2 import V2_MIGRATION
 from .paths import UnsafePathError, _absolute, _check_private, _open_directory
 
 # SQLite's POSIX byte-range locks belong to the process, not to one descriptor.
@@ -23,7 +24,7 @@ from .paths import UnsafePathError, _absolute, _check_private, _open_directory
 # https://www.sqlite.org/howtocorrupt.html#posix_advisory_locks_canceled_by_a_separate_thread_doing_close
 _CREATE_LOCK = threading.Lock()
 
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 _MIGRATIONS: dict[int, tuple[str, ...]] = {
     1: (
         (
@@ -394,6 +395,7 @@ _MIGRATIONS: dict[int, tuple[str, ...]] = {
         ),
         "INSERT INTO schema_migrations(version, name) VALUES (9, 'provision-effect-adoption')",
     ),
+    10: V2_MIGRATION,
 }
 
 
