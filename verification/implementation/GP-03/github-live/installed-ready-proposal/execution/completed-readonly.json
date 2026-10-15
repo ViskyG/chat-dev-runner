@@ -1,0 +1,87 @@
+{
+  "bundle_sha256": "a0944f5ae8cb1bf12864ad3c879901f516f3e392669b22f1148646eb153f207c",
+  "cleanup_events": [
+    {
+      "detail": {
+        "container_id": "aa4c94604ed8f5efe8a3adc42d3fabf8cdcbdab2452ca5154fd4c7ed64eb360b",
+        "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+        "phase": "PREPARATION",
+        "run_id": "cac63b05-0943-5a4c-91a1-ee15c5a59956",
+        "state": "REMOVED"
+      },
+      "event": "ROOTLESS_CONTAINER_CLEANUP"
+    },
+    {
+      "detail": {
+        "container_id": "6b0d9ac0eba80073277ec1cf1b592d4bb6cf8d3bba1147feb798104a4e4510d0",
+        "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+        "phase": "TEST",
+        "run_id": "4b9de43b-722e-40c7-bbfa-ac95b980edc7",
+        "state": "REMOVED"
+      },
+      "event": "ROOTLESS_CONTAINER_CLEANUP"
+    },
+    {
+      "detail": {
+        "phase": "PREPARATION",
+        "run_id": "cac63b05-0943-5a4c-91a1-ee15c5a59956"
+      },
+      "event": "ROOTLESS_VOLUME_RELEASED"
+    },
+    {
+      "detail": {
+        "phase": "TEST",
+        "run_id": "4b9de43b-722e-40c7-bbfa-ac95b980edc7"
+      },
+      "event": "ROOTLESS_VOLUME_RELEASED"
+    }
+  ],
+  "database": {
+    "execution_lane_count": 0,
+    "legacy_operation_count": 26,
+    "nonterminal_count": 0,
+    "runner_id": "local-runner",
+    "schema": 10,
+    "v2_request_count": 1
+  },
+  "execution": {
+    "cleanup": "CONFIRMED",
+    "exit_code": 0,
+    "outcome": "PASSED",
+    "quality_gate": "PASSED"
+  },
+  "mailbox": {
+    "binding_id": "gp07-github-preview",
+    "blob": "036bedc5869f90d6760c9467e07432d04348e836",
+    "continuous": true,
+    "dispatch": "ACCEPTED",
+    "head": "3146eec8fe743408500b974778fd385b8299917a",
+    "runner_id": "local-runner",
+    "sha256": "62a8ec03ba40c7b24416cdbe1de6e7e349e15c97921420d88b093a898626abb6",
+    "slot_token_matches_database": true
+  },
+  "observed_at": "2026-10-15T13:01:15.799536+00:00",
+  "operation": {
+    "code": null,
+    "digest": "59b215f75e4bb0799989f3aa5abbe07c3b96a8e2383b920cf042606bb1eab37f",
+    "project_id": "gp03-github-pass",
+    "request_id": "4b9de43b-722e-40c7-bbfa-ac95b980edc7",
+    "runner_id": "local-runner",
+    "sequence": 1,
+    "status": "COMPLETED"
+  },
+  "remote_mutations": 0,
+  "remote_slot_git_hash_verified": true,
+  "request_id": "4b9de43b-722e-40c7-bbfa-ac95b980edc7",
+  "result_commit": "3146eec8fe743408500b974778fd385b8299917a",
+  "source": {
+    "branch": "acceptance/gp03-v2-pass-20261015-a1",
+    "commit": "11752abfb07839529f32d6785c43d89acb729954",
+    "dirty": false,
+    "kind": "github_branch",
+    "overlay_sha256": null,
+    "workload_sha256": "a31126df303d979648c6743abd11ccad5e95c860ac47fdacb7a134f3ecfbe146"
+  },
+  "status": "COMPLETED_RESULT_READBACK_CONFIRMED",
+  "verified_bundle_files": 10
+}

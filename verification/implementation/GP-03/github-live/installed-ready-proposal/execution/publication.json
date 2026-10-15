@@ -1,0 +1,23 @@
+{
+  "consumed_by_installed_service": false,
+  "duration_seconds": 18.325970279998728,
+  "finished_at": "2026-10-15T13:00:36.274734+00:00",
+  "installed_state_mutated_by_operator": false,
+  "old_head": "9db336660e1f4f290c8b6cf249c312f029473414",
+  "patch_response_status": 200,
+  "plan_sha256": "6faeac05c428e402ccb3a41da6b8cb518a62b7b4d46781ae07d5ffd3126d1e64",
+  "provider_writes": 4,
+  "readback_dispatch": "READY",
+  "readback_head": "d3647f17f7260ca93035e61c25ad13f31fc41922",
+  "ready_ancestry": [
+    "d3647f17f7260ca93035e61c25ad13f31fc41922"
+  ],
+  "ready_blob": "f73e8600b5cf7f4f5cfda415ae2b8d4ef5093e1a",
+  "ready_commit": "d3647f17f7260ca93035e61c25ad13f31fc41922",
+  "ready_sha256": "a220870856b60129aefc49d501df07de8dbed1d222edb0cc8750ff9519231481",
+  "request_id": "4b9de43b-722e-40c7-bbfa-ac95b980edc7",
+  "runner_id": "local-runner",
+  "source_and_results_changed_by_operator": false,
+  "started_at": "2026-10-15T13:00:17.948775+00:00",
+  "status": "EXACT_READY_PUBLICATION_CONFIRMED"
+}

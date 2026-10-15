@@ -1,0 +1,108 @@
+{
+  "ack_and_tested_source_commit": "11752abfb07839529f32d6785c43d89acb729954",
+  "ack_proof": {
+    "payload_sha256": "62a8ec03ba40c7b24416cdbe1de6e7e349e15c97921420d88b093a898626abb6",
+    "provider_identity": "gp07-github-preview",
+    "revision": "github-v2:eyJibG9iIjoiMDM2YmVkYzU4NjlmOTBkNjc2MGM5NDY3ZTA3NDMyZDA0MzQ4ZTgzNiIsImJyYW5jaCI6ImFjY2VwdGFuY2UvZ3AwMy12Mi1wYXNzLTIwMjYxMDE1LWExIiwiaGVhZCI6IjExNzUyYWJmYjA3ODM5NTI5ZjMyZDY3ODVjNDNkODlhY2I3Mjk5NTQiLCJtb2RlIjoiMTAwNjQ0Iiwib3duZXIiOjEyNDUyMjk2LCJwYXRoIjoiLnJ1bm5lci9jb21tYW5kcy9ncDAzLWxpbnV4LWdpdGh1Yi5qc29uIiwicmVwbyI6MTM5MjQ2OTgyOCwidHJlZSI6IjRkMmJiY2QzMWEzYzIzZTcwOTkxNmU4ZTk2NjViNzNiZThjY2JkNDMifQ=="
+  },
+  "all_other_branch_heads_preserved": true,
+  "branch": "acceptance/gp03-v2-pass-20261015-a1",
+  "branch_ref_count_after": 4,
+  "branch_ref_count_before": 4,
+  "bundle_sha256": "a0944f5ae8cb1bf12864ad3c879901f516f3e392669b22f1148646eb153f207c",
+  "cleanup": "CONFIRMED",
+  "delivery": "DELIVERED",
+  "execution": "PASSED",
+  "installed_database_readonly_counts": {
+    "execution_lane": 0,
+    "legacy_capacity_held": 0,
+    "legacy_operations": 26,
+    "nonterminal": 0,
+    "v2_requests": 1
+  },
+  "no_ready_replay": true,
+  "observed_at": "2026-10-15T13:04:12.167841+00:00",
+  "operator_drive_calls": 0,
+  "operator_installed_state_writes": 0,
+  "operator_provider_mutations": 4,
+  "operator_provider_responses": [
+    201,
+    201,
+    201,
+    200
+  ],
+  "operator_unknown_responses": 0,
+  "prior_non_command_paths_preserved": 24,
+  "project_id": "gp03-github-pass",
+  "quality": "PASSED",
+  "ready_commit": "d3647f17f7260ca93035e61c25ad13f31fc41922",
+  "released_volume_paths_absent": [
+    "/var/lib/chat-dev-runner/volumes/cac63b05-0943-5a4c-91a1-ee15c5a59956",
+    "/var/lib/chat-dev-runner/volumes/4b9de43b-722e-40c7-bbfa-ac95b980edc7"
+  ],
+  "remaining_exact_containers": {
+    "4b9de43b-722e-40c7-bbfa-ac95b980edc7": [],
+    "cac63b05-0943-5a4c-91a1-ee15c5a59956": []
+  },
+  "remaining_exact_mounts": [],
+  "remote_bundle_files_verified": 11,
+  "request_id": "4b9de43b-722e-40c7-bbfa-ac95b980edc7",
+  "reserve_to_terminal_seconds": 34.539617,
+  "reserved_at": "2026-10-15T13:00:33.470232+00:00",
+  "result_commit": "3146eec8fe743408500b974778fd385b8299917a",
+  "result_only_changes": [
+    {
+      "path": ".runner/results/local-runner/4b9de43b-722e-40c7-bbfa-ac95b980edc7/.runner-bundle.json",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/local-runner/4b9de43b-722e-40c7-bbfa-ac95b980edc7/artifacts.json",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/local-runner/4b9de43b-722e-40c7-bbfa-ac95b980edc7/artifacts/container-stderr/container-stderr.bin",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/local-runner/4b9de43b-722e-40c7-bbfa-ac95b980edc7/artifacts/container-stdout/container-stdout.bin",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/local-runner/4b9de43b-722e-40c7-bbfa-ac95b980edc7/artifacts/junit/junit.xml",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/local-runner/4b9de43b-722e-40c7-bbfa-ac95b980edc7/environment.json",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/local-runner/4b9de43b-722e-40c7-bbfa-ac95b980edc7/phases.json",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/local-runner/4b9de43b-722e-40c7-bbfa-ac95b980edc7/result.json",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/local-runner/4b9de43b-722e-40c7-bbfa-ac95b980edc7/source.json",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/local-runner/4b9de43b-722e-40c7-bbfa-ac95b980edc7/summary.md",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/local-runner/4b9de43b-722e-40c7-bbfa-ac95b980edc7/tests.json",
+      "status": "A"
+    }
+  ],
+  "result_tree_file_count": 36,
+  "runner_id": "local-runner",
+  "scope": "Actual installed Linux preview service0.3.0.dev1; no ChatGPT connector or Drive execution claim",
+  "source_before_and_at_test_file_count": 25,
+  "source_preserved": true,
+  "status": "INSTALLED_GITHUB_ROOTLESS_PASS_VERIFIED",
+  "terminal_at": "2026-10-15T13:01:08.009849+00:00",
+  "worker_start_to_terminal_seconds": 24.024281,
+  "worker_started_at": "2026-10-15T13:00:43.985568+00:00"
+}
