@@ -1,0 +1,28 @@
+{
+  "blob": "bebbb08c5dab707be31e54a7c61f2aff64b564dd",
+  "branch_concurrency": "Snapshot confirmed before root is allowed to start installed-service baseline; future baseline may intentionally advance slot/ref.",
+  "exact_draft_file": "confirmed-draft.json",
+  "exact_intent_bodies_match_reviewed_plan": true,
+  "installed_service_started_by_this_action": false,
+  "new_commit": "d8af2e6da805ccde8791235a4283b0642e7da0b2",
+  "other_paths_preserved": 24,
+  "other_refs_preserved": true,
+  "previous_preflight": {
+    "failure": "wrong _File accessor before mutation; corrected root_tree to tree",
+    "file": "../execution/summary.json",
+    "provider_mutations": 0
+  },
+  "proposal_sha256": "d81401ad98b530bf74e20303766d42ae0bfdf67e200b5700143e83c70565d53d",
+  "ready_published": false,
+  "remote_mutations": 4,
+  "responses": [
+    201,
+    201,
+    201,
+    200
+  ],
+  "slot_sha256": "21cde561eae846f11cd795d06dd3ab3e6bb91188c5fd95d121fe80e3e1fd6634",
+  "status": "REVIEWED_ACTUAL_RETARGET_EVIDENCE",
+  "tree": "b7743f5eb00b523aacce3d4523121b87e717d817",
+  "unknown_responses": 0
+}

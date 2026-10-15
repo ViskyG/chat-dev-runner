@@ -1,0 +1,16 @@
+{
+  "branch": "acceptance/gp03-v2-pass-20261015-a1",
+  "duration_seconds": 6.375867112998094,
+  "failure_code": "AttributeError",
+  "finished_at": "2026-10-15T12:46:34.597288+00:00",
+  "force": false,
+  "intended_commit": "d8af2e6da805ccde8791235a4283b0642e7da0b2",
+  "new_ref_created": false,
+  "old_commit": "4e0b3ebabccc64bed0f591d014a632521462a3d3",
+  "plan_sha256": "d81401ad98b530bf74e20303766d42ae0bfdf67e200b5700143e83c70565d53d",
+  "ready_published": false,
+  "remote_mutations_attempted": 0,
+  "scope": "Retarget only terminal foreground acceptance slot to inert installed local-runner DRAFT; no execution or baseline performed by this proposal",
+  "started_at": "2026-10-15T12:46:28.221430+00:00",
+  "status": "FAILED_OR_UNKNOWN_STOP"
+}
