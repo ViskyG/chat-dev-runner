@@ -1,0 +1,21 @@
+{
+  "files": [
+    {
+      "path": "probe.py",
+      "sha256": "c477af51a320aa8d3ff7496faa74d8ba05bb12f8561d55025cee36abb4731c60",
+      "size_bytes": 20084
+    },
+    {
+      "path": "result.json",
+      "sha256": "560b55ab88c87e050b0e3708619b6869bf82959cfe759846d4d5b48d3e415aae",
+      "size_bytes": 56494
+    },
+    {
+      "path": "commands.json",
+      "sha256": "cf8209ebf93b0c238ffe9daa4c932e96ca010ea5f6f941503596eb239c8bf123",
+      "size_bytes": 6948
+    }
+  ],
+  "schema": "cdr-evidence-index/1",
+  "scope": "Scripts and metadata only; database files remain outside repository in private /tmp directory"
+}

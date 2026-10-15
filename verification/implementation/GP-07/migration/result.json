@@ -1,0 +1,932 @@
+{
+  "added_migration": {
+    "name": "live-session-intake-and-single-lane",
+    "version": 10
+  },
+  "after": {
+    "foreign_key_violations": 0,
+    "integrity_check": "ok",
+    "schema": 10,
+    "schema_objects": {
+      "index:journal_by_request": "820284a637516f0cebf20c571281d92b9f81a16b06d16fb11eee0283d72605a8",
+      "index:locks_by_request": "13e95a981a153a89222da973520973a2a18e53f5a22a3d69dc921e6141a8299e",
+      "index:output_files_by_run": "c9e123fdd65bfe28a27729cf9e3ae15c93425c8ce00c73a4189cb92debe5fb91",
+      "index:preparation_retention_pins_by_run": "7f2c363864deea7f138173f862a3b18a5eed41628136f1eea705d1654065ea38",
+      "index:run_delivery_claims_by_run": "1d74b5b5d68f9f601311a23e0a824e7f07bc7f8fca75f1715561271a61263ada",
+      "index:run_retention_pin_events_by_run": "61082808bf21afcba8b34ec608a66ead50ac0e0676c76646be4f3ffd45b0e017",
+      "index:source_snapshots_by_workspace": "fc0bd3ebfb82eb62b16d9754f49e0de0dd9317887fad85966c5f5396d66297aa",
+      "index:sqlite_autoindex_effect_adoptions_1": "af44aab81f0b08196ec54fd54905eb6a76778d6a9fe5a10d633a2092b8c3b50a",
+      "index:sqlite_autoindex_effect_adoptions_2": "af44aab81f0b08196ec54fd54905eb6a76778d6a9fe5a10d633a2092b8c3b50a",
+      "index:sqlite_autoindex_effects_1": "c445c5fc105fa9f620ef5d48602b96d10c8bb8e91296eba6b8efbec1aa9d2b37",
+      "index:sqlite_autoindex_effects_2": "c445c5fc105fa9f620ef5d48602b96d10c8bb8e91296eba6b8efbec1aa9d2b37",
+      "index:sqlite_autoindex_execution_lane_1": "4241980173533ef959b2c3103f1762ced5516352ace0f83c2ad240e9baf1f7d4",
+      "index:sqlite_autoindex_faults_1": "21011685f1b65ba8a934a56a768778f94f1e59ee919bce0773443d2491539aca",
+      "index:sqlite_autoindex_locks_1": "57707f1c5e23c83d183d7f1ea7d49227884d8a7abc2d79ccbfd513eb0a0790d7",
+      "index:sqlite_autoindex_operations_1": "880259aa3c0a4ea804d74924839653413ca39ff3d5bcca5f5db663676acc157e",
+      "index:sqlite_autoindex_output_files_1": "b448dc278271463a300c44c5fbad7b726931e4336c2828a60fc08cf5b96a4c43",
+      "index:sqlite_autoindex_output_files_2": "b448dc278271463a300c44c5fbad7b726931e4336c2828a60fc08cf5b96a4c43",
+      "index:sqlite_autoindex_output_tombstones_1": "0b7f85f1be0031f0c3a6dac32362c41e1911dd7c2a9fbc106e1f3bace5b1f012",
+      "index:sqlite_autoindex_outputs_1": "f1802508f43120dd661cf8ded384cd20290eb9236b6c033a040a74483a31e675",
+      "index:sqlite_autoindex_preparation_handoffs_1": "6dd2df996b5845ed146ae99b58763831501d4478b5545fd2441ca4e60772f4cf",
+      "index:sqlite_autoindex_preparation_handoffs_2": "6dd2df996b5845ed146ae99b58763831501d4478b5545fd2441ca4e60772f4cf",
+      "index:sqlite_autoindex_preparation_handoffs_3": "6dd2df996b5845ed146ae99b58763831501d4478b5545fd2441ca4e60772f4cf",
+      "index:sqlite_autoindex_preparation_output_tombstones_1": "a6213744c3f9021e1205957db5250954a600800a9a7bc307a3791898ab258c5c",
+      "index:sqlite_autoindex_preparation_results_1": "28a2c2a8c67257dffb92fcc0a16aa1fcbb4f58c337291d9642930a2c61fd3d55",
+      "index:sqlite_autoindex_preparation_results_2": "28a2c2a8c67257dffb92fcc0a16aa1fcbb4f58c337291d9642930a2c61fd3d55",
+      "index:sqlite_autoindex_projects_1": "30944cb50dd330c2d519a6c58c3507612368ced113ec030a3aff186ba51c6428",
+      "index:sqlite_autoindex_provision_resume_claims_1": "b1595fc130b8eca0af39421959fdfbb7cca64d782fbd3b7d531d4cc80708b21c",
+      "index:sqlite_autoindex_provision_resume_claims_2": "b1595fc130b8eca0af39421959fdfbb7cca64d782fbd3b7d531d4cc80708b21c",
+      "index:sqlite_autoindex_remote_resources_1": "6f7b03337c25e437cd7d9d15b932bec0d26bfee660393cbd0d2e5afc60d78446",
+      "index:sqlite_autoindex_remote_resources_2": "6f7b03337c25e437cd7d9d15b932bec0d26bfee660393cbd0d2e5afc60d78446",
+      "index:sqlite_autoindex_run_attempts_1": "d26d0574682a9ae98a2541a8213b974dc7b81b41350fb3dd70aa5f42ddab32c3",
+      "index:sqlite_autoindex_run_attempts_2": "d26d0574682a9ae98a2541a8213b974dc7b81b41350fb3dd70aa5f42ddab32c3",
+      "index:sqlite_autoindex_run_delivery_claim_releases_1": "40584d1cacbccef5ee85f01d3598fdae7cc12c37a3b8c9c7eb3b6121c1810830",
+      "index:sqlite_autoindex_run_delivery_claims_1": "f21934c460ac6b6d63956e49daf4ab64a940672bdc5b6dbbd31ba9917619cd95",
+      "index:sqlite_autoindex_run_executions_1": "fca9dba57451d7b463743e6b0a1f242f00c5850680be9f5525e044627d688b76",
+      "index:sqlite_autoindex_runs_1": "637a84aa35f80f3df60bbdc04fec28f4b4bb5e25a37fc05635ac33a9627b2982",
+      "index:sqlite_autoindex_source_projects_1": "53d41a801dda1311e0163b5105d5436307b0fc6aafe8b135990b161ea940a364",
+      "index:sqlite_autoindex_source_projects_2": "53d41a801dda1311e0163b5105d5436307b0fc6aafe8b135990b161ea940a364",
+      "index:sqlite_autoindex_source_run_snapshots_1": "b308966a4a420595368840d6320d6e4c698e028102c3d267fe12fd4f76fd4c20",
+      "index:sqlite_autoindex_source_snapshots_1": "2c5ada75fc9c6b010c8c10355695b522b2d155bead53ee2223f7d00fa429ffe8",
+      "index:sqlite_autoindex_source_workspaces_1": "c9d44d78f40e2aa50d0d33c11adca46324ba5d35187a1d85f191fc39adbf5848",
+      "index:sqlite_autoindex_source_workspaces_2": "c9d44d78f40e2aa50d0d33c11adca46324ba5d35187a1d85f191fc39adbf5848",
+      "index:sqlite_autoindex_steps_1": "542728869a1fa2c3b251e1480670a331a6c3b9bb790feaf4517cbb70ac00720e",
+      "index:sqlite_autoindex_v2_candidates_1": "27240c2e62df15dde3a5c46818e7648b432a8cf875afce563e4a13eb5e1d65e9",
+      "index:sqlite_autoindex_v2_candidates_2": "27240c2e62df15dde3a5c46818e7648b432a8cf875afce563e4a13eb5e1d65e9",
+      "index:sqlite_autoindex_v2_installation_1": "458c83397a63f1068ddfcf8d7a674e8fe3edc416b49326033ecdf5878b34a001",
+      "index:sqlite_autoindex_v2_mailboxes_1": "42f6cd229c5d34e923d4e561c48bcf624a9858ab389a4c9b0f0a644278d797d1",
+      "index:sqlite_autoindex_v2_queue_1": "dfa4bcd573cad93677105fa3d7586b00418f1789434a8a50e2a632d98743a316",
+      "index:sqlite_autoindex_v2_requests_1": "17254123fd10c6189ea21449044810acc01eede0032b2f9ffeea69593614755f",
+      "index:sqlite_autoindex_v2_sessions_1": "afaccda71eaa3e24c9949b002e84f50b8021b164750587a93b15347cd383caf0",
+      "index:sqlite_autoindex_workspaces_1": "3ff292150b67462546aadb1da710a7c93cc4173bdec8c167e3e39e947e2011b0",
+      "index:v2_candidates_by_request": "4942e058201c5c95becdea8ac7c05de4a12cf2e419283e16fa968f559c7a202e",
+      "index:v2_one_live_session": "9a6feb6063cb1ee01f9f25bc6ed5f3ab728d219c576dd9c8e69b0900a10bb9a6",
+      "index:v2_requests_by_state": "3e1659532461d39880a1da58175628c0e0cd84c487d9d987b13167859286b916",
+      "table:effect_adoptions": "271ef834f5d7bac06aff2b1f2e543b6cdbc2e8dfd5a38f18a6fe2fd1fffbf0e8",
+      "table:effects": "eeea41a9af16bdf49f722fee8c9748fc67c33796fd8f7a672d38bc5b962d6777",
+      "table:execution_lane": "6ef128ec5ab724cd1681a7e1a58a96a24ad48a655206bebe76485e6fb4d00e8e",
+      "table:faults": "b9b2ade8feaff4ff30d09568eb05a7a93510f58442535557e6bc353370680775",
+      "table:journal": "02e789d64941971b3676d251d13276bc210710b6b4679318f05f3fb12fe9b524",
+      "table:locks": "39c32d60b14cd424f717ab5e2e497e296086e5720f129619af0a43c5be2435dd",
+      "table:operations": "6bfd3384023dc3008ca86b23ffda4ff8bae26564edecbef6ff40a108a81e2224",
+      "table:output_files": "d42a8fa5e0e7ef3f53d87eb30591cdb6f7cf0e4de8fd99387d19519c646c1a8a",
+      "table:output_tombstones": "a310dc615d389bcff3c6c989755ab7e994efde8d6c4f65a61a215b68a5b63e22",
+      "table:outputs": "1cbec435f134b5857b8641c4321818936db3b6bd33c02db9056f8d8739c8c437",
+      "table:preparation_handoffs": "142913fdb049810245e9bee2444ce7405206038bae58e65c1a5ea4c53da79017",
+      "table:preparation_output_tombstones": "439476422b732f24e86dbd5729f23b52cf631541603b714f89eaf405086dc0ce",
+      "table:preparation_results": "d70f4c7cc4e87e7d181b2f26cb9e999b307a52a2bbfa4ac1a74260978d76773d",
+      "table:preparation_retention_pin_events": "1d053b49643691b4c725a34b8e6fa0efc69f9b65775731d083af7cc2099b5b96",
+      "table:projects": "ba0621ea19c22d52415aa1fb22888bb3a50b4e4494177a3df42bb5cb9a40c994",
+      "table:provision_resume_claims": "449a25d32d12a269dc18eeb6d13f546605829d4f4d67126dc14bdeb03935ff88",
+      "table:remote_resources": "c8f91becd6d0a539c580acd7dd82ae53f4e1e52fbc78dd7cce17c355e0854108",
+      "table:run_attempts": "7739c8dde36e13a5d5008df8bbd2a1a922d622be3beffba67e2a6b6dda6a4725",
+      "table:run_delivery_claim_releases": "4d6344f967b4be0bdb6bd448c8fd63c2b3ba344d1f8d69a886140095c7692be9",
+      "table:run_delivery_claims": "8134967e72e9514325d22e88948415efaf837f35fc41ea6d867ca4ea55feaa0f",
+      "table:run_executions": "6fd3c6ced7853045fdb365f88d5ee3ee049937bf2f43ad8a4be31e30d6210784",
+      "table:run_retention_pin_events": "bc642c9672443b7c594f417f1250609abd24f0b1e7873090a00f7b153f7c75fa",
+      "table:runner_state": "bb10d79154589ffae1a22061b5482e88b8c355bc9750530b056983df892df434",
+      "table:runs": "023e8d6350616a1d7c72d444385dbaa58c1bc8b7d945d0e15cedc16b545ad840",
+      "table:schema_migrations": "f4387ca5c30fd4e27f6e46ef52dda85ae574797d2420d01dcb84ffe67dcb063d",
+      "table:source_projects": "a9ac41dba8ad55ccee53c5de7c38b74e9443607f03ab49dc403105d9b101ab62",
+      "table:source_run_snapshots": "ede133584ccd80c4da034de9ad141dc96c43c33791b6ce6503b5d84c8b47c61d",
+      "table:source_snapshots": "467da4dd6391fc44851ce5ba36eee68b1082ee6a0185898ff3a82006dd84991b",
+      "table:source_workspaces": "f04860bab01ef00ffc6cead866cf0700756ed8ddf26f76666de04d47003a2541",
+      "table:sqlite_sequence": "e23cc15057507bf3be5dd850d5031a7ac3b0a5c96f98bb42f25ea401aeccc86f",
+      "table:steps": "67ddb582c90d78304a3749d7a98984b7ee256b1d93eda6aa6a35de9451cfa337",
+      "table:v2_candidates": "4844cd4bcdc5bfecd84a492bb50d03e8f5777ddb011d5a56e68429b11b95ca28",
+      "table:v2_installation": "e38a70a71794b7a00edebe642a4f12ad82f13546dbb979e28c9f0d5c30927cf6",
+      "table:v2_journal": "d4e714cb859f457c135c81b9c2e1610c0b6566d851ffa544a0abc60c71953adf",
+      "table:v2_mailboxes": "b5dc3f5b4285282a9e211aa7ca44fc3a14f1551c679927d3d3c5382235c6f487",
+      "table:v2_queue": "f1b240ff02144300a1c4f0f91b03a8380cbc93ac80c247b8322dbe4c0beb47e3",
+      "table:v2_requests": "a1a1bf06713fae163fd2ed2773f6297e75b6ff19450a27d88ed5de2356fd2dfd",
+      "table:v2_sessions": "07a7dc689fd7cd7f8f0f2771cbf59ac04af5b9c8111fa1d708f8370c21e8f610",
+      "table:workspaces": "2dab81010958a6ec3e6e128fd019de7325c7bb3954f1878253afcb391fec3625",
+      "trigger:effect_adoptions_no_delete": "1b463d53114bb07d08319a24b9d8a392b6e8e097a66b0ee34db5894cf5cbf5a7",
+      "trigger:effect_adoptions_no_update": "ee098bf88b5b85316ea8882883398733171999e5138c4bff820a6a2d86a5193a",
+      "trigger:effects_frozen": "9bb8e322a98fd3d68fc8db7a57e6ac40077a0acf130b7a986917d80d76ffcaa7",
+      "trigger:effects_no_delete": "dfe62c920bb7a0601274a139c7902f1bf5e82312e354625239f5bb55ba6bf20f",
+      "trigger:journal_no_delete": "f2c50d6c5957998369ffc0903630051a1e1c52022e9417c64a95bcddbd612659",
+      "trigger:journal_no_update": "23d38b7978b54b47119f1fe1b237de781cf26e2d143b97e4ed5bd8a07b31c2df",
+      "trigger:operations_frozen": "4d2ae07c6133fe16f9791c8a9af3fb31e147e7b639609156007d45db5f65ad1d",
+      "trigger:operations_no_delete": "79bb9ea3ddfc7bfc73c4b9bb0062952fb2426489885aa5fa9e6fc37f745a8fd9",
+      "trigger:output_files_no_delete": "9747ef218cd75645f578a8b65122572ebecd2d2f2102de2e6d56faba463c8a22",
+      "trigger:output_files_no_update": "40eb9ecbfa472b9c6884cd5c7fa4ceff814e31456c05e702c6d33634fed2ac7f",
+      "trigger:output_tombstones_no_delete": "0660ed0bbc2ef546b88a5e48b63e87cc172cbe3ab6a672ab212eb75a36448f91",
+      "trigger:output_tombstones_no_update": "961e27a6464ef33b6774ec2b0150e3675099a0adbdbad6a7bae3e4f269f13ab7",
+      "trigger:outputs_no_delete": "718f9d99d1bd87c6535d9457427790c82cedf5e8b32f35cfe156812709ddb644",
+      "trigger:outputs_no_update": "837165163939cfb6ef056736e510c144873ba115e5389dc06d79a69c2f9b7612",
+      "trigger:preparation_handoffs_no_delete": "fa2d6ee8f41dbf7a304d7a837895c978c924cc45772536cc1217c6681d2c4916",
+      "trigger:preparation_handoffs_no_update": "be82c3d3ce9beb068bb6e214e850fee4ce29fada93d41f60101a7a76b74b4c5e",
+      "trigger:preparation_output_tombstones_no_delete": "025e0a9e67758fa8fa777f2986b5b42194f9274448f933e2660a56c6f534126f",
+      "trigger:preparation_output_tombstones_no_update": "462e55825f067c38cb77298e9416a486299c93b7a214a8ec5ce74753e9ade78b",
+      "trigger:preparation_results_no_delete": "4a55706e0cb7a7dfb90d95c0d07863c8afde0fb9e2905ddc7240ad64e5d5d7f1",
+      "trigger:preparation_results_no_update": "e395c2bb8a9caeb3b4d15eee72167eec98df68af4a1422ac9c6b68ed49abd328",
+      "trigger:preparation_retention_pin_events_no_delete": "fbea1ff8c930ad4f815d7a9599d3cddc7b35dab0b0e6949d3f9f1fe066fb8619",
+      "trigger:preparation_retention_pin_events_no_update": "0e11d2da8b14b58685e71a3f0ef9e00d0f7abc3c8e1f89f92f79d8876e039215",
+      "trigger:provision_resume_claims_no_delete": "0bdea956ee1d3494fc9e47822288de0d2696c11ada867457612bd25de1b59bba",
+      "trigger:provision_resume_claims_no_update": "21cc469b31aa105e94a1378ce1e98aad7d4deb40d2e5b5ffcfd9ca982baed8d3",
+      "trigger:run_attempts_no_delete": "d088705b33f66e8b839c50f65c1c3b10586f2a2a4dccd471058998c0f4adee23",
+      "trigger:run_attempts_no_update": "2c2ecf3bee906496d6537fd70d92adb1f000898b3aa8404db11213c8f133d7c4",
+      "trigger:run_delivery_claim_releases_no_delete": "5908971defa106ab23cdcec8c4d8d5bf2161ca13b8480b2e9b19741c419d6f86",
+      "trigger:run_delivery_claim_releases_no_update": "8ce3a413d14b73ecfa20b107cdeddefe7d14ba2419189bd94af6df66accf1ffb",
+      "trigger:run_delivery_claims_no_delete": "9143d1269d282a6b5c7bc7e143ec3287f44b5cdc7655b29da3dcbdb9ecadf5c3",
+      "trigger:run_delivery_claims_no_update": "80a14cf6799417d1d34ad17bb9ec7591961d55d3a85545ada1eec99522c2b6fc",
+      "trigger:run_executions_no_delete": "dac621e7c8b96365d088f8f6163bb1b4b6c777d72fad6c802d50a815484e867b",
+      "trigger:run_executions_no_update": "9a1e44ebc41d267e08271d88ab3277a177b91c21a574ff8f4dc43645e3436ce5",
+      "trigger:run_retention_pin_events_no_delete": "e1a6f07eb99ecdce34f37fefb3204445058e20244c3e643d0f0e8cd699e0a150",
+      "trigger:run_retention_pin_events_no_update": "b53b0fdead975be09e687a4ab85aeab9e328eb3c7eef8a03ac85de6c2693fcd6",
+      "trigger:runs_no_delete": "b9c01fb05e6bce5a3caca0092a3f820541eb67a140d524409c6364d4c8bf621d",
+      "trigger:runs_no_update": "e614d7482703fe212fe85e5f6015afb97355660d789ddc6a89b5dad9411b7cf5",
+      "trigger:source_run_snapshots_no_delete": "3a438d6ce690b9b7c7c49b211a87ed99a2e5fe9e739a2cefced6c70e7b427352",
+      "trigger:source_run_snapshots_no_update": "9501af38d54ce6a634fe74f18d448ad87ea9f27d852449c6fb6b2dcfb5c69d27",
+      "trigger:source_snapshots_no_delete": "cb28b22efd9a60411ebefe8d9d8b311e0eb2473b047e36386c725eb775c59698",
+      "trigger:source_snapshots_no_update": "2ef89f6b5d2e9992acbb776e5edd5fba1823c17120bf1ac1e68905f1dd44d9a7",
+      "trigger:v2_candidate_intent_frozen": "8b1d99bbc62320b15bf78aaff6dc5f11381b9e560cbb06f9f3f36ef8244ced94",
+      "trigger:v2_candidate_no_delete": "a3e924dd3f316c436bb163ad1193724f0e7c3c2df3a972fe43573e97a099d28a",
+      "trigger:v2_journal_no_delete": "db9393f599ab1a2cb3965534c56b7ce029432ec4cb7afb016fe0f923e261b8d5",
+      "trigger:v2_journal_no_update": "d6c9b81f380ccd60ca173df935b9246891646994b1997348c17c4f6d6e204cfb",
+      "trigger:v2_queue_no_delete": "34ce7b5b9b65dfe9dd7cfa4eeb11d451482fad0409628469316bec6b63553e22",
+      "trigger:v2_queue_no_update": "a705c3eda5096fd2cdd0ea38db32ed319cb67fd02e75209796867934da5105f6",
+      "trigger:v2_request_intent_frozen": "ea738318014224170d0caccd530c8fd7ceab6cfc5f59b8004bba81fb9181a34e",
+      "trigger:v2_request_no_delete": "8a9a414a9c2d1acad7869d2a9a0c54cd6686b11223cec9ef4e316f3d60240996"
+    },
+    "tables": {
+      "effect_adoptions": {
+        "all_rows_sha256": "61db27015a40fde3338fba6d3824b5c85d59f32f60ac9ad8734720a0b8163229",
+        "columns_sha256": "d037328e6db972ce2f2b25d270f5b053d1ebb11939ac56299ba74a39f490e0aa",
+        "rows": 9
+      },
+      "effects": {
+        "all_rows_sha256": "ef0c383a6be8d0d8aed219c50aabab6ca0593085b687eb7ebf1c78d2ed0fe231",
+        "columns_sha256": "a049b640ee149d8739620684e817dae18af6d0b7a619d32838af124433017818",
+        "rows": 239
+      },
+      "execution_lane": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "28ae73c3aab858a93f4d25e8ef8d7088e9b351a73f01faa388fc6fc185072a58",
+        "rows": 0
+      },
+      "faults": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "9e3ef264b2218f62c1676bf712fe3f1ad262216c0afaae5ad40c636e2af0ceb0",
+        "rows": 0
+      },
+      "journal": {
+        "all_rows_sha256": "bc25b8085ceb2fe30d5c2c8d3ce9f8949f8ae8bde0612f807c35dc43fb5ded62",
+        "columns_sha256": "2c748c751734a088462aa903fe00cd9393679bddef43f76568f3608dccdef42a",
+        "rows": 638
+      },
+      "locks": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "ef30803b0969725c0671fa53b8bf97b508fb3e857c6ff570422fe5d27c4d60f1",
+        "rows": 0
+      },
+      "operations": {
+        "all_rows_sha256": "68c4a52c88121f0d2ffcefeb321e1b27bde0cf6f6f20064294e2b00779b712df",
+        "columns_sha256": "595a58ec22d10fef7630ff8a33ff43d09e3d582385ea988a8ce74b43ff0cb087",
+        "rows": 26
+      },
+      "output_files": {
+        "all_rows_sha256": "4375f94d3556dad018e6fa35af73c4a108256db39f0eca4b738b383c76577d26",
+        "columns_sha256": "7f70777825d58cd06976b766aa71996f5d0ff1208bab3ef841c04b2b0826221b",
+        "rows": 48
+      },
+      "output_tombstones": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "3680aae97d1a1d80e37447a0b2bc315292332fcd7add47e95aee656441378de9",
+        "rows": 0
+      },
+      "outputs": {
+        "all_rows_sha256": "6f656b14850ff99f1d6a2d1c65039a2f3b146e5e1a8abe0005bb91472f8f25d1",
+        "columns_sha256": "6c92d799fd1835824e736898deaf6768887a09d020120c03eabf5b557a40d019",
+        "rows": 48
+      },
+      "preparation_handoffs": {
+        "all_rows_sha256": "f9e784f846d0991d48b83ac84c0b49067b990ab976dfeaf38419156896fa5421",
+        "columns_sha256": "0cb3b4de8254c45e24cc1c0bdd4264464fceba4aa208462b5923a65dbca8073e",
+        "rows": 6
+      },
+      "preparation_output_tombstones": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "ecc81b3a76ec143ebc150bafa8f364c1f4d847ecfce3ef6ee02ea22d33ce7975",
+        "rows": 0
+      },
+      "preparation_results": {
+        "all_rows_sha256": "1d2dbecb1be6a93b74be097105f0a787cf316d59b8898a1c9094431860ef3b82",
+        "columns_sha256": "f412c1fbdc07d36256a473f043ab8041b9dda216723878c77b4d1e446b75e3ab",
+        "rows": 7
+      },
+      "preparation_retention_pin_events": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "a90fc99df5ac116787490b231d03ba5d5f5a24b51a96c5fea3f0fabbab993e2e",
+        "rows": 0
+      },
+      "projects": {
+        "all_rows_sha256": "6b2077b10f562ba5ebf9879bac6d13b6f7e0efc8b52ce16f21d0330810cc18c1",
+        "columns_sha256": "f3754691c27c39a916fa7627070eac3f313349ceb40b8868f665992e2d4e453a",
+        "rows": 6
+      },
+      "provision_resume_claims": {
+        "all_rows_sha256": "f18df0f92f7aeed52b8f581b0f180c6a3724ff4d20e3e988b28d5c37dfd79818",
+        "columns_sha256": "98660ae5c2d24c99ec3acd9c3fe7b4ebb53ac7d51ea6346d86a2fe6310832132",
+        "rows": 1
+      },
+      "remote_resources": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "d01d3600cf720688ea3c7fa39c6c0dbc171676b9d81f279afb780b4203cddab7",
+        "rows": 0
+      },
+      "run_attempts": {
+        "all_rows_sha256": "356ee3a87943620489acda8d5359571aa45b3cd23dbd0541d1850367a6d9b58d",
+        "columns_sha256": "0635c90a4f34cec7061cd883d5f70699ab1ccd2e41afd427b41c9f5c3ee36fd8",
+        "rows": 16
+      },
+      "run_delivery_claim_releases": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "c37e7100e8d1c4178d25a0bab3c9bfff15a3433fd97e281b4555194f439c5c0e",
+        "rows": 0
+      },
+      "run_delivery_claims": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "82ee5d0b7e3617e32f506e8eb0b7de5efdce462a6086f0559c7ef654d2c70be5",
+        "rows": 0
+      },
+      "run_executions": {
+        "all_rows_sha256": "d9bdf43c9c28e14189ec183c8860d2e90ecbffc00fde268be20d9fc3b9f36ce4",
+        "columns_sha256": "0c8c5b1d563b16a6cd9fbc168d2989fefa4dc45ee2342435aa0aa99228880cf8",
+        "rows": 6
+      },
+      "run_retention_pin_events": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "a90fc99df5ac116787490b231d03ba5d5f5a24b51a96c5fea3f0fabbab993e2e",
+        "rows": 0
+      },
+      "runner_state": {
+        "all_rows_sha256": "d0ba39a379af3ff719114d8ac2a6608a1beed17d22633e5d51e2ac09d2d57555",
+        "columns_sha256": "9cc19855c7fa68345e865bf83c16afc3554307e2fd99db560fe8ed2225f1e36c",
+        "rows": 1
+      },
+      "runs": {
+        "all_rows_sha256": "ae491bbf4bf48d07162a500da39f07117969f372ba39527aa2fe3f88048f19a5",
+        "columns_sha256": "9b6f08b1dd49a5a4c91f9fb896fd029b40188ffc91b38d03aea53daf0a599e88",
+        "rows": 6
+      },
+      "schema_migrations": {
+        "all_rows_sha256": "91f56e70349c545eaf76fba0ce3b41b4901531eb5a714d450c77f10d63af2536",
+        "columns_sha256": "dd82a90c0b94b4d83526a17311b011c572baaa519fd15f885ca5df08af5c5598",
+        "rows": 9
+      },
+      "source_projects": {
+        "all_rows_sha256": "9b027e73e83a8ce54f601d4908b8d98453329e5307e40c965204034ac0f27b0d",
+        "columns_sha256": "32cfecea19f0d190a2855831e147cedd2c11843cb543aec1d6ec7b3ecee5e7e1",
+        "rows": 6
+      },
+      "source_run_snapshots": {
+        "all_rows_sha256": "b59729d2b90fc0e77d9eb32dfce9854ca8db4582211f6d6adb6f6afe2334a71a",
+        "columns_sha256": "f1b0558dbf0154c1bcb04e71ef174ecbb870586b66b7de398505dcde5b4880b2",
+        "rows": 6
+      },
+      "source_snapshots": {
+        "all_rows_sha256": "fe398b5553cc548f4b75c722ada3499f9f937d1a307bd89dfcba3c1c6bcdd07e",
+        "columns_sha256": "d9271581d41ce35f7f43fc3ee890929f51bbe669b0d02be5104a6ab50c59f071",
+        "rows": 8
+      },
+      "source_workspaces": {
+        "all_rows_sha256": "8e4e3231cab6ea3d558b942cf68a288db40d92206ad957e439f1854ddc062361",
+        "columns_sha256": "daa933bf78c28c65bed2dc7aef6c6f74542dd7fae1fe9ace4b95aca764ada90c",
+        "rows": 9
+      },
+      "sqlite_sequence": {
+        "all_rows_sha256": "85019cb0c18b87676dcfcf344be1f97ee06b03cfc195d85a913397e9745888f4",
+        "columns_sha256": "4345c05c4e9cf65e7db183add09e9e4c5806c2da99ddb0156ebceff2184e27bf",
+        "rows": 2
+      },
+      "steps": {
+        "all_rows_sha256": "ee20fd9cbb77221e415550e83c2933a58f6bd01d73077ef4f68c486575abe5b6",
+        "columns_sha256": "574136b1725286f65aba744c63c84177bcea21dceeb8418f1f61d0c86fcb592e",
+        "rows": 331
+      },
+      "v2_candidates": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "0329c84b417d5980025b03603d44220f452d9014d5b2bece8c40c3e996ace615",
+        "rows": 0
+      },
+      "v2_installation": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "79fdfccbec315d2eac4cebb11db2f0655bfc6671daf4816a0e495ababf897d5f",
+        "rows": 0
+      },
+      "v2_journal": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "199304a7735b2eb4238ced2fb4a48dd5b776bc5962148d2c7f4f58e0bcf8d16f",
+        "rows": 0
+      },
+      "v2_mailboxes": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "f65d047c19b381fb44b16e127b68e2acd6c0424cea1bb64003e9c28d7d1685c5",
+        "rows": 0
+      },
+      "v2_queue": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "307b09c4cd7506a0790d8592ef4acffa1939a6fb467b7224b3b55721faad524b",
+        "rows": 0
+      },
+      "v2_requests": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "20f2f375b7d5458b3554c4862fed9307d495e20226962042f562e6393512b611",
+        "rows": 0
+      },
+      "v2_sessions": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "096f603980f7ee9f3d2b1813bb0a85c12467a7b37cfef91f604f73d8e51e2524",
+        "rows": 0
+      },
+      "workspaces": {
+        "all_rows_sha256": "a57274226a3274056556ec987a1e9b70fb7720f015039b84c09549fbf034e9d6",
+        "columns_sha256": "5ad9360d976c9200ff1b926478a590825883784a3a8e8cfe98e084cd48e80b0f",
+        "rows": 9
+      }
+    }
+  },
+  "backup_comparison": {
+    "added_schema_objects": [],
+    "added_tables": [],
+    "all_preexisting_schema_objects_identical": true,
+    "all_preexisting_tables_and_rows_identical": true,
+    "changed_preexisting_schema_objects": [],
+    "changed_preexisting_tables": []
+  },
+  "before": {
+    "foreign_key_violations": 0,
+    "integrity_check": "ok",
+    "schema": 9,
+    "schema_objects": {
+      "index:journal_by_request": "820284a637516f0cebf20c571281d92b9f81a16b06d16fb11eee0283d72605a8",
+      "index:locks_by_request": "13e95a981a153a89222da973520973a2a18e53f5a22a3d69dc921e6141a8299e",
+      "index:output_files_by_run": "c9e123fdd65bfe28a27729cf9e3ae15c93425c8ce00c73a4189cb92debe5fb91",
+      "index:preparation_retention_pins_by_run": "7f2c363864deea7f138173f862a3b18a5eed41628136f1eea705d1654065ea38",
+      "index:run_delivery_claims_by_run": "1d74b5b5d68f9f601311a23e0a824e7f07bc7f8fca75f1715561271a61263ada",
+      "index:run_retention_pin_events_by_run": "61082808bf21afcba8b34ec608a66ead50ac0e0676c76646be4f3ffd45b0e017",
+      "index:source_snapshots_by_workspace": "fc0bd3ebfb82eb62b16d9754f49e0de0dd9317887fad85966c5f5396d66297aa",
+      "index:sqlite_autoindex_effect_adoptions_1": "af44aab81f0b08196ec54fd54905eb6a76778d6a9fe5a10d633a2092b8c3b50a",
+      "index:sqlite_autoindex_effect_adoptions_2": "af44aab81f0b08196ec54fd54905eb6a76778d6a9fe5a10d633a2092b8c3b50a",
+      "index:sqlite_autoindex_effects_1": "c445c5fc105fa9f620ef5d48602b96d10c8bb8e91296eba6b8efbec1aa9d2b37",
+      "index:sqlite_autoindex_effects_2": "c445c5fc105fa9f620ef5d48602b96d10c8bb8e91296eba6b8efbec1aa9d2b37",
+      "index:sqlite_autoindex_faults_1": "21011685f1b65ba8a934a56a768778f94f1e59ee919bce0773443d2491539aca",
+      "index:sqlite_autoindex_locks_1": "57707f1c5e23c83d183d7f1ea7d49227884d8a7abc2d79ccbfd513eb0a0790d7",
+      "index:sqlite_autoindex_operations_1": "880259aa3c0a4ea804d74924839653413ca39ff3d5bcca5f5db663676acc157e",
+      "index:sqlite_autoindex_output_files_1": "b448dc278271463a300c44c5fbad7b726931e4336c2828a60fc08cf5b96a4c43",
+      "index:sqlite_autoindex_output_files_2": "b448dc278271463a300c44c5fbad7b726931e4336c2828a60fc08cf5b96a4c43",
+      "index:sqlite_autoindex_output_tombstones_1": "0b7f85f1be0031f0c3a6dac32362c41e1911dd7c2a9fbc106e1f3bace5b1f012",
+      "index:sqlite_autoindex_outputs_1": "f1802508f43120dd661cf8ded384cd20290eb9236b6c033a040a74483a31e675",
+      "index:sqlite_autoindex_preparation_handoffs_1": "6dd2df996b5845ed146ae99b58763831501d4478b5545fd2441ca4e60772f4cf",
+      "index:sqlite_autoindex_preparation_handoffs_2": "6dd2df996b5845ed146ae99b58763831501d4478b5545fd2441ca4e60772f4cf",
+      "index:sqlite_autoindex_preparation_handoffs_3": "6dd2df996b5845ed146ae99b58763831501d4478b5545fd2441ca4e60772f4cf",
+      "index:sqlite_autoindex_preparation_output_tombstones_1": "a6213744c3f9021e1205957db5250954a600800a9a7bc307a3791898ab258c5c",
+      "index:sqlite_autoindex_preparation_results_1": "28a2c2a8c67257dffb92fcc0a16aa1fcbb4f58c337291d9642930a2c61fd3d55",
+      "index:sqlite_autoindex_preparation_results_2": "28a2c2a8c67257dffb92fcc0a16aa1fcbb4f58c337291d9642930a2c61fd3d55",
+      "index:sqlite_autoindex_projects_1": "30944cb50dd330c2d519a6c58c3507612368ced113ec030a3aff186ba51c6428",
+      "index:sqlite_autoindex_provision_resume_claims_1": "b1595fc130b8eca0af39421959fdfbb7cca64d782fbd3b7d531d4cc80708b21c",
+      "index:sqlite_autoindex_provision_resume_claims_2": "b1595fc130b8eca0af39421959fdfbb7cca64d782fbd3b7d531d4cc80708b21c",
+      "index:sqlite_autoindex_remote_resources_1": "6f7b03337c25e437cd7d9d15b932bec0d26bfee660393cbd0d2e5afc60d78446",
+      "index:sqlite_autoindex_remote_resources_2": "6f7b03337c25e437cd7d9d15b932bec0d26bfee660393cbd0d2e5afc60d78446",
+      "index:sqlite_autoindex_run_attempts_1": "d26d0574682a9ae98a2541a8213b974dc7b81b41350fb3dd70aa5f42ddab32c3",
+      "index:sqlite_autoindex_run_attempts_2": "d26d0574682a9ae98a2541a8213b974dc7b81b41350fb3dd70aa5f42ddab32c3",
+      "index:sqlite_autoindex_run_delivery_claim_releases_1": "40584d1cacbccef5ee85f01d3598fdae7cc12c37a3b8c9c7eb3b6121c1810830",
+      "index:sqlite_autoindex_run_delivery_claims_1": "f21934c460ac6b6d63956e49daf4ab64a940672bdc5b6dbbd31ba9917619cd95",
+      "index:sqlite_autoindex_run_executions_1": "fca9dba57451d7b463743e6b0a1f242f00c5850680be9f5525e044627d688b76",
+      "index:sqlite_autoindex_runs_1": "637a84aa35f80f3df60bbdc04fec28f4b4bb5e25a37fc05635ac33a9627b2982",
+      "index:sqlite_autoindex_source_projects_1": "53d41a801dda1311e0163b5105d5436307b0fc6aafe8b135990b161ea940a364",
+      "index:sqlite_autoindex_source_projects_2": "53d41a801dda1311e0163b5105d5436307b0fc6aafe8b135990b161ea940a364",
+      "index:sqlite_autoindex_source_run_snapshots_1": "b308966a4a420595368840d6320d6e4c698e028102c3d267fe12fd4f76fd4c20",
+      "index:sqlite_autoindex_source_snapshots_1": "2c5ada75fc9c6b010c8c10355695b522b2d155bead53ee2223f7d00fa429ffe8",
+      "index:sqlite_autoindex_source_workspaces_1": "c9d44d78f40e2aa50d0d33c11adca46324ba5d35187a1d85f191fc39adbf5848",
+      "index:sqlite_autoindex_source_workspaces_2": "c9d44d78f40e2aa50d0d33c11adca46324ba5d35187a1d85f191fc39adbf5848",
+      "index:sqlite_autoindex_steps_1": "542728869a1fa2c3b251e1480670a331a6c3b9bb790feaf4517cbb70ac00720e",
+      "index:sqlite_autoindex_workspaces_1": "3ff292150b67462546aadb1da710a7c93cc4173bdec8c167e3e39e947e2011b0",
+      "table:effect_adoptions": "271ef834f5d7bac06aff2b1f2e543b6cdbc2e8dfd5a38f18a6fe2fd1fffbf0e8",
+      "table:effects": "eeea41a9af16bdf49f722fee8c9748fc67c33796fd8f7a672d38bc5b962d6777",
+      "table:faults": "b9b2ade8feaff4ff30d09568eb05a7a93510f58442535557e6bc353370680775",
+      "table:journal": "02e789d64941971b3676d251d13276bc210710b6b4679318f05f3fb12fe9b524",
+      "table:locks": "39c32d60b14cd424f717ab5e2e497e296086e5720f129619af0a43c5be2435dd",
+      "table:operations": "6bfd3384023dc3008ca86b23ffda4ff8bae26564edecbef6ff40a108a81e2224",
+      "table:output_files": "d42a8fa5e0e7ef3f53d87eb30591cdb6f7cf0e4de8fd99387d19519c646c1a8a",
+      "table:output_tombstones": "a310dc615d389bcff3c6c989755ab7e994efde8d6c4f65a61a215b68a5b63e22",
+      "table:outputs": "1cbec435f134b5857b8641c4321818936db3b6bd33c02db9056f8d8739c8c437",
+      "table:preparation_handoffs": "142913fdb049810245e9bee2444ce7405206038bae58e65c1a5ea4c53da79017",
+      "table:preparation_output_tombstones": "439476422b732f24e86dbd5729f23b52cf631541603b714f89eaf405086dc0ce",
+      "table:preparation_results": "d70f4c7cc4e87e7d181b2f26cb9e999b307a52a2bbfa4ac1a74260978d76773d",
+      "table:preparation_retention_pin_events": "1d053b49643691b4c725a34b8e6fa0efc69f9b65775731d083af7cc2099b5b96",
+      "table:projects": "ba0621ea19c22d52415aa1fb22888bb3a50b4e4494177a3df42bb5cb9a40c994",
+      "table:provision_resume_claims": "449a25d32d12a269dc18eeb6d13f546605829d4f4d67126dc14bdeb03935ff88",
+      "table:remote_resources": "c8f91becd6d0a539c580acd7dd82ae53f4e1e52fbc78dd7cce17c355e0854108",
+      "table:run_attempts": "7739c8dde36e13a5d5008df8bbd2a1a922d622be3beffba67e2a6b6dda6a4725",
+      "table:run_delivery_claim_releases": "4d6344f967b4be0bdb6bd448c8fd63c2b3ba344d1f8d69a886140095c7692be9",
+      "table:run_delivery_claims": "8134967e72e9514325d22e88948415efaf837f35fc41ea6d867ca4ea55feaa0f",
+      "table:run_executions": "6fd3c6ced7853045fdb365f88d5ee3ee049937bf2f43ad8a4be31e30d6210784",
+      "table:run_retention_pin_events": "bc642c9672443b7c594f417f1250609abd24f0b1e7873090a00f7b153f7c75fa",
+      "table:runner_state": "bb10d79154589ffae1a22061b5482e88b8c355bc9750530b056983df892df434",
+      "table:runs": "023e8d6350616a1d7c72d444385dbaa58c1bc8b7d945d0e15cedc16b545ad840",
+      "table:schema_migrations": "f4387ca5c30fd4e27f6e46ef52dda85ae574797d2420d01dcb84ffe67dcb063d",
+      "table:source_projects": "a9ac41dba8ad55ccee53c5de7c38b74e9443607f03ab49dc403105d9b101ab62",
+      "table:source_run_snapshots": "ede133584ccd80c4da034de9ad141dc96c43c33791b6ce6503b5d84c8b47c61d",
+      "table:source_snapshots": "467da4dd6391fc44851ce5ba36eee68b1082ee6a0185898ff3a82006dd84991b",
+      "table:source_workspaces": "f04860bab01ef00ffc6cead866cf0700756ed8ddf26f76666de04d47003a2541",
+      "table:sqlite_sequence": "e23cc15057507bf3be5dd850d5031a7ac3b0a5c96f98bb42f25ea401aeccc86f",
+      "table:steps": "67ddb582c90d78304a3749d7a98984b7ee256b1d93eda6aa6a35de9451cfa337",
+      "table:workspaces": "2dab81010958a6ec3e6e128fd019de7325c7bb3954f1878253afcb391fec3625",
+      "trigger:effect_adoptions_no_delete": "1b463d53114bb07d08319a24b9d8a392b6e8e097a66b0ee34db5894cf5cbf5a7",
+      "trigger:effect_adoptions_no_update": "ee098bf88b5b85316ea8882883398733171999e5138c4bff820a6a2d86a5193a",
+      "trigger:effects_frozen": "9bb8e322a98fd3d68fc8db7a57e6ac40077a0acf130b7a986917d80d76ffcaa7",
+      "trigger:effects_no_delete": "dfe62c920bb7a0601274a139c7902f1bf5e82312e354625239f5bb55ba6bf20f",
+      "trigger:journal_no_delete": "f2c50d6c5957998369ffc0903630051a1e1c52022e9417c64a95bcddbd612659",
+      "trigger:journal_no_update": "23d38b7978b54b47119f1fe1b237de781cf26e2d143b97e4ed5bd8a07b31c2df",
+      "trigger:operations_frozen": "4d2ae07c6133fe16f9791c8a9af3fb31e147e7b639609156007d45db5f65ad1d",
+      "trigger:operations_no_delete": "79bb9ea3ddfc7bfc73c4b9bb0062952fb2426489885aa5fa9e6fc37f745a8fd9",
+      "trigger:output_files_no_delete": "9747ef218cd75645f578a8b65122572ebecd2d2f2102de2e6d56faba463c8a22",
+      "trigger:output_files_no_update": "40eb9ecbfa472b9c6884cd5c7fa4ceff814e31456c05e702c6d33634fed2ac7f",
+      "trigger:output_tombstones_no_delete": "0660ed0bbc2ef546b88a5e48b63e87cc172cbe3ab6a672ab212eb75a36448f91",
+      "trigger:output_tombstones_no_update": "961e27a6464ef33b6774ec2b0150e3675099a0adbdbad6a7bae3e4f269f13ab7",
+      "trigger:outputs_no_delete": "718f9d99d1bd87c6535d9457427790c82cedf5e8b32f35cfe156812709ddb644",
+      "trigger:outputs_no_update": "837165163939cfb6ef056736e510c144873ba115e5389dc06d79a69c2f9b7612",
+      "trigger:preparation_handoffs_no_delete": "fa2d6ee8f41dbf7a304d7a837895c978c924cc45772536cc1217c6681d2c4916",
+      "trigger:preparation_handoffs_no_update": "be82c3d3ce9beb068bb6e214e850fee4ce29fada93d41f60101a7a76b74b4c5e",
+      "trigger:preparation_output_tombstones_no_delete": "025e0a9e67758fa8fa777f2986b5b42194f9274448f933e2660a56c6f534126f",
+      "trigger:preparation_output_tombstones_no_update": "462e55825f067c38cb77298e9416a486299c93b7a214a8ec5ce74753e9ade78b",
+      "trigger:preparation_results_no_delete": "4a55706e0cb7a7dfb90d95c0d07863c8afde0fb9e2905ddc7240ad64e5d5d7f1",
+      "trigger:preparation_results_no_update": "e395c2bb8a9caeb3b4d15eee72167eec98df68af4a1422ac9c6b68ed49abd328",
+      "trigger:preparation_retention_pin_events_no_delete": "fbea1ff8c930ad4f815d7a9599d3cddc7b35dab0b0e6949d3f9f1fe066fb8619",
+      "trigger:preparation_retention_pin_events_no_update": "0e11d2da8b14b58685e71a3f0ef9e00d0f7abc3c8e1f89f92f79d8876e039215",
+      "trigger:provision_resume_claims_no_delete": "0bdea956ee1d3494fc9e47822288de0d2696c11ada867457612bd25de1b59bba",
+      "trigger:provision_resume_claims_no_update": "21cc469b31aa105e94a1378ce1e98aad7d4deb40d2e5b5ffcfd9ca982baed8d3",
+      "trigger:run_attempts_no_delete": "d088705b33f66e8b839c50f65c1c3b10586f2a2a4dccd471058998c0f4adee23",
+      "trigger:run_attempts_no_update": "2c2ecf3bee906496d6537fd70d92adb1f000898b3aa8404db11213c8f133d7c4",
+      "trigger:run_delivery_claim_releases_no_delete": "5908971defa106ab23cdcec8c4d8d5bf2161ca13b8480b2e9b19741c419d6f86",
+      "trigger:run_delivery_claim_releases_no_update": "8ce3a413d14b73ecfa20b107cdeddefe7d14ba2419189bd94af6df66accf1ffb",
+      "trigger:run_delivery_claims_no_delete": "9143d1269d282a6b5c7bc7e143ec3287f44b5cdc7655b29da3dcbdb9ecadf5c3",
+      "trigger:run_delivery_claims_no_update": "80a14cf6799417d1d34ad17bb9ec7591961d55d3a85545ada1eec99522c2b6fc",
+      "trigger:run_executions_no_delete": "dac621e7c8b96365d088f8f6163bb1b4b6c777d72fad6c802d50a815484e867b",
+      "trigger:run_executions_no_update": "9a1e44ebc41d267e08271d88ab3277a177b91c21a574ff8f4dc43645e3436ce5",
+      "trigger:run_retention_pin_events_no_delete": "e1a6f07eb99ecdce34f37fefb3204445058e20244c3e643d0f0e8cd699e0a150",
+      "trigger:run_retention_pin_events_no_update": "b53b0fdead975be09e687a4ab85aeab9e328eb3c7eef8a03ac85de6c2693fcd6",
+      "trigger:runs_no_delete": "b9c01fb05e6bce5a3caca0092a3f820541eb67a140d524409c6364d4c8bf621d",
+      "trigger:runs_no_update": "e614d7482703fe212fe85e5f6015afb97355660d789ddc6a89b5dad9411b7cf5",
+      "trigger:source_run_snapshots_no_delete": "3a438d6ce690b9b7c7c49b211a87ed99a2e5fe9e739a2cefced6c70e7b427352",
+      "trigger:source_run_snapshots_no_update": "9501af38d54ce6a634fe74f18d448ad87ea9f27d852449c6fb6b2dcfb5c69d27",
+      "trigger:source_snapshots_no_delete": "cb28b22efd9a60411ebefe8d9d8b311e0eb2473b047e36386c725eb775c59698",
+      "trigger:source_snapshots_no_update": "2ef89f6b5d2e9992acbb776e5edd5fba1823c17120bf1ac1e68905f1dd44d9a7"
+    },
+    "tables": {
+      "effect_adoptions": {
+        "all_rows_sha256": "61db27015a40fde3338fba6d3824b5c85d59f32f60ac9ad8734720a0b8163229",
+        "columns_sha256": "d037328e6db972ce2f2b25d270f5b053d1ebb11939ac56299ba74a39f490e0aa",
+        "rows": 9
+      },
+      "effects": {
+        "all_rows_sha256": "ef0c383a6be8d0d8aed219c50aabab6ca0593085b687eb7ebf1c78d2ed0fe231",
+        "columns_sha256": "a049b640ee149d8739620684e817dae18af6d0b7a619d32838af124433017818",
+        "rows": 239
+      },
+      "faults": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "9e3ef264b2218f62c1676bf712fe3f1ad262216c0afaae5ad40c636e2af0ceb0",
+        "rows": 0
+      },
+      "journal": {
+        "all_rows_sha256": "bc25b8085ceb2fe30d5c2c8d3ce9f8949f8ae8bde0612f807c35dc43fb5ded62",
+        "columns_sha256": "2c748c751734a088462aa903fe00cd9393679bddef43f76568f3608dccdef42a",
+        "rows": 638
+      },
+      "locks": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "ef30803b0969725c0671fa53b8bf97b508fb3e857c6ff570422fe5d27c4d60f1",
+        "rows": 0
+      },
+      "operations": {
+        "all_rows_sha256": "68c4a52c88121f0d2ffcefeb321e1b27bde0cf6f6f20064294e2b00779b712df",
+        "columns_sha256": "595a58ec22d10fef7630ff8a33ff43d09e3d582385ea988a8ce74b43ff0cb087",
+        "rows": 26
+      },
+      "output_files": {
+        "all_rows_sha256": "4375f94d3556dad018e6fa35af73c4a108256db39f0eca4b738b383c76577d26",
+        "columns_sha256": "7f70777825d58cd06976b766aa71996f5d0ff1208bab3ef841c04b2b0826221b",
+        "rows": 48
+      },
+      "output_tombstones": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "3680aae97d1a1d80e37447a0b2bc315292332fcd7add47e95aee656441378de9",
+        "rows": 0
+      },
+      "outputs": {
+        "all_rows_sha256": "6f656b14850ff99f1d6a2d1c65039a2f3b146e5e1a8abe0005bb91472f8f25d1",
+        "columns_sha256": "6c92d799fd1835824e736898deaf6768887a09d020120c03eabf5b557a40d019",
+        "rows": 48
+      },
+      "preparation_handoffs": {
+        "all_rows_sha256": "f9e784f846d0991d48b83ac84c0b49067b990ab976dfeaf38419156896fa5421",
+        "columns_sha256": "0cb3b4de8254c45e24cc1c0bdd4264464fceba4aa208462b5923a65dbca8073e",
+        "rows": 6
+      },
+      "preparation_output_tombstones": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "ecc81b3a76ec143ebc150bafa8f364c1f4d847ecfce3ef6ee02ea22d33ce7975",
+        "rows": 0
+      },
+      "preparation_results": {
+        "all_rows_sha256": "1d2dbecb1be6a93b74be097105f0a787cf316d59b8898a1c9094431860ef3b82",
+        "columns_sha256": "f412c1fbdc07d36256a473f043ab8041b9dda216723878c77b4d1e446b75e3ab",
+        "rows": 7
+      },
+      "preparation_retention_pin_events": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "a90fc99df5ac116787490b231d03ba5d5f5a24b51a96c5fea3f0fabbab993e2e",
+        "rows": 0
+      },
+      "projects": {
+        "all_rows_sha256": "6b2077b10f562ba5ebf9879bac6d13b6f7e0efc8b52ce16f21d0330810cc18c1",
+        "columns_sha256": "f3754691c27c39a916fa7627070eac3f313349ceb40b8868f665992e2d4e453a",
+        "rows": 6
+      },
+      "provision_resume_claims": {
+        "all_rows_sha256": "f18df0f92f7aeed52b8f581b0f180c6a3724ff4d20e3e988b28d5c37dfd79818",
+        "columns_sha256": "98660ae5c2d24c99ec3acd9c3fe7b4ebb53ac7d51ea6346d86a2fe6310832132",
+        "rows": 1
+      },
+      "remote_resources": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "d01d3600cf720688ea3c7fa39c6c0dbc171676b9d81f279afb780b4203cddab7",
+        "rows": 0
+      },
+      "run_attempts": {
+        "all_rows_sha256": "356ee3a87943620489acda8d5359571aa45b3cd23dbd0541d1850367a6d9b58d",
+        "columns_sha256": "0635c90a4f34cec7061cd883d5f70699ab1ccd2e41afd427b41c9f5c3ee36fd8",
+        "rows": 16
+      },
+      "run_delivery_claim_releases": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "c37e7100e8d1c4178d25a0bab3c9bfff15a3433fd97e281b4555194f439c5c0e",
+        "rows": 0
+      },
+      "run_delivery_claims": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "82ee5d0b7e3617e32f506e8eb0b7de5efdce462a6086f0559c7ef654d2c70be5",
+        "rows": 0
+      },
+      "run_executions": {
+        "all_rows_sha256": "d9bdf43c9c28e14189ec183c8860d2e90ecbffc00fde268be20d9fc3b9f36ce4",
+        "columns_sha256": "0c8c5b1d563b16a6cd9fbc168d2989fefa4dc45ee2342435aa0aa99228880cf8",
+        "rows": 6
+      },
+      "run_retention_pin_events": {
+        "all_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "columns_sha256": "a90fc99df5ac116787490b231d03ba5d5f5a24b51a96c5fea3f0fabbab993e2e",
+        "rows": 0
+      },
+      "runner_state": {
+        "all_rows_sha256": "d0ba39a379af3ff719114d8ac2a6608a1beed17d22633e5d51e2ac09d2d57555",
+        "columns_sha256": "9cc19855c7fa68345e865bf83c16afc3554307e2fd99db560fe8ed2225f1e36c",
+        "rows": 1
+      },
+      "runs": {
+        "all_rows_sha256": "ae491bbf4bf48d07162a500da39f07117969f372ba39527aa2fe3f88048f19a5",
+        "columns_sha256": "9b6f08b1dd49a5a4c91f9fb896fd029b40188ffc91b38d03aea53daf0a599e88",
+        "rows": 6
+      },
+      "schema_migrations": {
+        "all_rows_sha256": "91f56e70349c545eaf76fba0ce3b41b4901531eb5a714d450c77f10d63af2536",
+        "columns_sha256": "dd82a90c0b94b4d83526a17311b011c572baaa519fd15f885ca5df08af5c5598",
+        "rows": 9
+      },
+      "source_projects": {
+        "all_rows_sha256": "9b027e73e83a8ce54f601d4908b8d98453329e5307e40c965204034ac0f27b0d",
+        "columns_sha256": "32cfecea19f0d190a2855831e147cedd2c11843cb543aec1d6ec7b3ecee5e7e1",
+        "rows": 6
+      },
+      "source_run_snapshots": {
+        "all_rows_sha256": "b59729d2b90fc0e77d9eb32dfce9854ca8db4582211f6d6adb6f6afe2334a71a",
+        "columns_sha256": "f1b0558dbf0154c1bcb04e71ef174ecbb870586b66b7de398505dcde5b4880b2",
+        "rows": 6
+      },
+      "source_snapshots": {
+        "all_rows_sha256": "fe398b5553cc548f4b75c722ada3499f9f937d1a307bd89dfcba3c1c6bcdd07e",
+        "columns_sha256": "d9271581d41ce35f7f43fc3ee890929f51bbe669b0d02be5104a6ab50c59f071",
+        "rows": 8
+      },
+      "source_workspaces": {
+        "all_rows_sha256": "8e4e3231cab6ea3d558b942cf68a288db40d92206ad957e439f1854ddc062361",
+        "columns_sha256": "daa933bf78c28c65bed2dc7aef6c6f74542dd7fae1fe9ace4b95aca764ada90c",
+        "rows": 9
+      },
+      "sqlite_sequence": {
+        "all_rows_sha256": "85019cb0c18b87676dcfcf344be1f97ee06b03cfc195d85a913397e9745888f4",
+        "columns_sha256": "4345c05c4e9cf65e7db183add09e9e4c5806c2da99ddb0156ebceff2184e27bf",
+        "rows": 2
+      },
+      "steps": {
+        "all_rows_sha256": "ee20fd9cbb77221e415550e83c2933a58f6bd01d73077ef4f68c486575abe5b6",
+        "columns_sha256": "574136b1725286f65aba744c63c84177bcea21dceeb8418f1f61d0c86fcb592e",
+        "rows": 331
+      },
+      "workspaces": {
+        "all_rows_sha256": "a57274226a3274056556ec987a1e9b70fb7720f015039b84c09549fbf034e9d6",
+        "columns_sha256": "5ad9360d976c9200ff1b926478a590825883784a3a8e8cfe98e084cd48e80b0f",
+        "rows": 9
+      }
+    }
+  },
+  "ended_at": "2026-10-15T12:22:21.157502+00:00",
+  "euid": 1000,
+  "guards": {
+    "final_idle": {
+      "armed": false,
+      "capacity_held": 0,
+      "operations_running": 0,
+      "pending_effects": 0,
+      "reconcile_required": 0
+    },
+    "final_service": {
+      "ActiveState": "inactive",
+      "ExecStart_path": "/home/visky/Work/GPTRunner/.runner-install/venv/bin/python",
+      "LoadState": "loaded",
+      "MainPID": "0",
+      "SubState": "dead"
+    },
+    "initial_idle": {
+      "armed": false,
+      "capacity_held": 0,
+      "operations_running": 0,
+      "pending_effects": 0,
+      "reconcile_required": 0
+    },
+    "initial_service": {
+      "ActiveState": "inactive",
+      "ExecStart_path": "/home/visky/Work/GPTRunner/.runner-install/venv/bin/python",
+      "LoadState": "loaded",
+      "MainPID": "0",
+      "SubState": "dead"
+    }
+  },
+  "hash_format": "Typed SQLite values; null, decimal integers, IEEE754 real bytes, UTF8 text, hex blobs. Compact sorted-key JSON rows sorted bytewise, each length-prefixed uint64 big-endian before SHA256. Full ordered column metadata hashed separately.",
+  "installed_binary": {
+    "cli_version": "0.2.7",
+    "environment_fields_consumed": [],
+    "path": "/home/visky/Work/GPTRunner/.runner-install/venv/bin/python",
+    "sha256": "a2f33a6e006989270f4340528eb61f8f97366e00a5d1b602ac8672ea44fc56ae",
+    "unit_fields_consumed": [
+      "LoadState",
+      "ActiveState",
+      "SubState",
+      "MainPID",
+      "ExecStart.path"
+    ]
+  },
+  "installed_ledger": {
+    "after": {
+      "file": {
+        "bytes": 1011712,
+        "ctime_ns": 1792065927842728126,
+        "gid": 1000,
+        "inode": 105154528,
+        "mode": "0600",
+        "mtime_ns": 1792065927842728126,
+        "nlink": 1,
+        "uid": 1000
+      },
+      "sha256": "16da6374d0c59fdd46e0b36001e2755c62a9be617feb477720ca00c4a429e5e0"
+    },
+    "before": {
+      "file": {
+        "bytes": 1011712,
+        "ctime_ns": 1792065927842728126,
+        "gid": 1000,
+        "inode": 105154528,
+        "mode": "0600",
+        "mtime_ns": 1792065927842728126,
+        "nlink": 1,
+        "uid": 1000
+      },
+      "sha256": "16da6374d0c59fdd46e0b36001e2755c62a9be617feb477720ca00c4a429e5e0"
+    },
+    "path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/state.sqlite",
+    "sidecars_after": {
+      "-journal": null,
+      "-shm": {
+        "file": {
+          "bytes": 32768,
+          "ctime_ns": 1792066290026781250,
+          "gid": 1000,
+          "inode": 105157143,
+          "mode": "0600",
+          "mtime_ns": 1792066290026781250,
+          "nlink": 1,
+          "uid": 1000
+        },
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+      },
+      "-wal": {
+        "file": {
+          "bytes": 0,
+          "ctime_ns": 1792066283618674889,
+          "gid": 1000,
+          "inode": 105144144,
+          "mode": "0600",
+          "mtime_ns": 1792066283618674889,
+          "nlink": 1,
+          "uid": 1000
+        },
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "sidecars_before": {
+      "-journal": null,
+      "-shm": {
+        "file": {
+          "bytes": 32768,
+          "ctime_ns": 1792066290026781250,
+          "gid": 1000,
+          "inode": 105157143,
+          "mode": "0600",
+          "mtime_ns": 1792066290026781250,
+          "nlink": 1,
+          "uid": 1000
+        },
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+      },
+      "-wal": {
+        "file": {
+          "bytes": 0,
+          "ctime_ns": 1792066283618674889,
+          "gid": 1000,
+          "inode": 105144144,
+          "mode": "0600",
+          "mtime_ns": 1792066283618674889,
+          "nlink": 1,
+          "uid": 1000
+        },
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "unchanged_bytes_metadata_and_all_rows": true
+  },
+  "live_upgrade_prerequisites": [
+    "Explicit rollout authorization with service stopped and all active/reconcile/pending-effect counts zero.",
+    "Complete stopped-state backup including historical artifacts and managed repositories, with matching installed0.2.7 binary retained and restore location checked.",
+    "Build and inspect a pinned installable v2 wheel; identify it by artifact hash and schema10 because current source still reports package version0.2.7.",
+    "Record approved optional provider/native/rootless configuration and preserve existing credentials/Drive IDs outside repository.",
+    "After approved installation and schema10 migration, perform bounded installed-runtime/readback checks before intake is armed; retain rollback materials."
+  ],
+  "migration_bookkeeping_exception": "Only additive schema_migrations version10 excluded from pre-existing-row comparison; versions1..9, their timestamps and sqlite_sequence rows compared exactly.",
+  "migration_comparison": {
+    "added_schema_objects": [
+      "index:sqlite_autoindex_execution_lane_1",
+      "index:sqlite_autoindex_v2_candidates_1",
+      "index:sqlite_autoindex_v2_candidates_2",
+      "index:sqlite_autoindex_v2_installation_1",
+      "index:sqlite_autoindex_v2_mailboxes_1",
+      "index:sqlite_autoindex_v2_queue_1",
+      "index:sqlite_autoindex_v2_requests_1",
+      "index:sqlite_autoindex_v2_sessions_1",
+      "index:v2_candidates_by_request",
+      "index:v2_one_live_session",
+      "index:v2_requests_by_state",
+      "table:execution_lane",
+      "table:v2_candidates",
+      "table:v2_installation",
+      "table:v2_journal",
+      "table:v2_mailboxes",
+      "table:v2_queue",
+      "table:v2_requests",
+      "table:v2_sessions",
+      "trigger:v2_candidate_intent_frozen",
+      "trigger:v2_candidate_no_delete",
+      "trigger:v2_journal_no_delete",
+      "trigger:v2_journal_no_update",
+      "trigger:v2_queue_no_delete",
+      "trigger:v2_queue_no_update",
+      "trigger:v2_request_intent_frozen",
+      "trigger:v2_request_no_delete"
+    ],
+    "added_tables": [
+      "execution_lane",
+      "v2_candidates",
+      "v2_installation",
+      "v2_journal",
+      "v2_mailboxes",
+      "v2_queue",
+      "v2_requests",
+      "v2_sessions"
+    ],
+    "all_preexisting_schema_objects_identical": true,
+    "all_preexisting_tables_and_rows_identical": true,
+    "changed_preexisting_schema_objects": [],
+    "changed_preexisting_tables": []
+  },
+  "not_performed": [
+    "live database migration",
+    "installed binary replacement",
+    "service start or stop",
+    "provider/network calls",
+    "configuration/credential copy",
+    "raw database/command rows in repository"
+  ],
+  "original_backup_old_binary_open": {
+    "exit_code": 0,
+    "foreign_key_violations": 0,
+    "integrity_ok": true,
+    "migrate_return": 9,
+    "module_path": "/home/visky/Work/GPTRunner/.runner-install/venv/lib/python3.10/site-packages/runner_app/storage/database.py",
+    "module_sha256": "b2019fb5c14bd8f11324eae7fc73d7780ac5c3ccf380cb2fad157b0bb66475a8",
+    "opened": true,
+    "schema": 9,
+    "supported_schema": 9,
+    "version": "0.2.7"
+  },
+  "private_copies": {
+    "migrated_copy": {
+      "bytes": 1097728,
+      "ctime_ns": 1792066941055505083,
+      "gid": 1000,
+      "inode": 42867633,
+      "mode": "0600",
+      "mtime_ns": 1792066941055505083,
+      "nlink": 1,
+      "path": "/tmp/cdr-gp07-migration-adu6enqg/schema10-copy/state.sqlite",
+      "sha256": "18eaa0840311e5857f9720ee6b46d5ee3dfae9102c49fee98bdf6923b11cf83e",
+      "uid": 1000
+    },
+    "original_backup": {
+      "bytes": 1011712,
+      "ctime_ns": 1792066940875501651,
+      "gid": 1000,
+      "inode": 42867631,
+      "mode": "0600",
+      "mtime_ns": 1792066940875501651,
+      "nlink": 1,
+      "path": "/tmp/cdr-gp07-migration-adu6enqg/original-backup/state.sqlite",
+      "sha256": "15130473e779ede41daffaa27f506b4d15459bff42d75dc9890c486789255236",
+      "uid": 1000
+    },
+    "rollback_restored_copy": {
+      "bytes": 1011712,
+      "ctime_ns": 1792066941103505998,
+      "gid": 1000,
+      "inode": 42867635,
+      "mode": "0600",
+      "mtime_ns": 1792066941103505998,
+      "nlink": 1,
+      "path": "/tmp/cdr-gp07-migration-adu6enqg/rollback-restored-copy/state.sqlite",
+      "sha256": "15130473e779ede41daffaa27f506b4d15459bff42d75dc9890c486789255236",
+      "uid": 1000
+    }
+  },
+  "rollback_comparison": {
+    "added_schema_objects": [],
+    "added_tables": [],
+    "all_preexisting_schema_objects_identical": true,
+    "all_preexisting_tables_and_rows_identical": true,
+    "changed_preexisting_schema_objects": [],
+    "changed_preexisting_tables": []
+  },
+  "rollback_plan": [
+    "Keep service stopped and idle; retain matching original installed binary and complete original durable state backup outside repository.",
+    "If rollback is required after an approved live upgrade, stop intake/service, reconcile active effects, and restore the pre-upgrade durable-state backup with its matching schema9 binary.",
+    "Never point the old schema9 binary at the upgraded live schema10 ledger; its copied-schema refusal is proven here.",
+    "This proof restores a copied ledger only; a live rollback must preserve matching managed sources, artifacts and external identities from the complete stopped-state backup."
+  ],
+  "rollback_restored_old_binary_open": {
+    "exit_code": 0,
+    "foreign_key_violations": 0,
+    "integrity_ok": true,
+    "migrate_return": 9,
+    "module_path": "/home/visky/Work/GPTRunner/.runner-install/venv/lib/python3.10/site-packages/runner_app/storage/database.py",
+    "module_sha256": "b2019fb5c14bd8f11324eae7fc73d7780ac5c3ccf380cb2fad157b0bb66475a8",
+    "opened": true,
+    "schema": 9,
+    "supported_schema": 9,
+    "version": "0.2.7"
+  },
+  "schema": "cdr-installed-ledger-migration-proof/1",
+  "schema10_copy_old_binary_refusal": {
+    "database_bytes_unchanged": true,
+    "error": "UnsupportedSchemaVersion",
+    "exit_code": 0,
+    "module_path": "/home/visky/Work/GPTRunner/.runner-install/venv/lib/python3.10/site-packages/runner_app/storage/database.py",
+    "module_sha256": "b2019fb5c14bd8f11324eae7fc73d7780ac5c3ccf380cb2fad157b0bb66475a8",
+    "opened": false,
+    "supported_schema": 9,
+    "version": "0.2.7"
+  },
+  "scope": "Actual installed schema9 ledger copied read-only; migration and rollback only on private copies",
+  "scratch": "/tmp/cdr-gp07-migration-adu6enqg",
+  "scratch_mode": "0700",
+  "source": {
+    "commit": "f416b92db18b873194cc2f49f36e96fe6e929434",
+    "database_module_sha256": "e86fddab091de7299be8c3b604a0a394b13bf975fd47c3f027c0d03527b0af96",
+    "package_version": "0.2.7",
+    "schema_version": 10,
+    "script_sha256": "c477af51a320aa8d3ff7496faa74d8ba05bb12f8561d55025cee36abb4731c60"
+  },
+  "started_at": "2026-10-15T12:22:20.851459+00:00",
+  "status": "PASSED",
+  "uid": 1000
+}

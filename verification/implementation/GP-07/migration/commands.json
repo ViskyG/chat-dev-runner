@@ -1,0 +1,105 @@
+{
+  "backup_call": "sqlite3.Connection.backup from mode=ro&immutable=1 source to private destination",
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONPATH=/home/visky/Work/GPTRunner/chat-dev-runner-gp07-migration",
+        "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+        "verification/implementation/GP-07/migration/probe.py",
+        "--execute",
+        "--out",
+        "verification/implementation/GP-07/migration/result.json"
+      ],
+      "cwd": "/home/visky/Work/GPTRunner/chat-dev-runner-gp07-migration",
+      "execution_context": "HOST ordinary uid1000 via require_escalated; no elevation or global change",
+      "purpose": "Actual copied-ledger qualification"
+    },
+    {
+      "argv": [
+        "/usr/bin/systemctl",
+        "--user",
+        "show",
+        "chat-dev-runner.service",
+        "--no-pager",
+        "--property=LoadState,ActiveState,SubState,MainPID,ExecStart"
+      ],
+      "purpose": "Read only generated service properties and ExecStart.path; raw output filtered internally",
+      "raw_unit_output_persisted": false
+    },
+    {
+      "argv": [
+        "/home/visky/Work/GPTRunner/.runner-install/venv/bin/python",
+        "-I",
+        "-m",
+        "runner_app.cli",
+        "--version"
+      ],
+      "cwd": "/tmp/cdr-gp07-migration-adu6enqg",
+      "environment": {
+        "HOME": "/tmp/cdr-gp07-migration-adu6enqg",
+        "PATH": "/usr/bin:/bin"
+      },
+      "exit_code": 0,
+      "purpose": "Installed CLI version",
+      "stdout": "0.2.7"
+    },
+    {
+      "argv": [
+        "/home/visky/Work/GPTRunner/.runner-install/venv/bin/python",
+        "-I",
+        "-c",
+        "\nimport hashlib,json,sqlite3,sys\nfrom pathlib import Path\nimport runner_app\nimport runner_app.storage.database as database\npath=Path(sys.argv[1])\nroot=Path(sys.argv[2])\nassert path.is_absolute() and path.is_relative_to(root) and not path.is_symlink()\nreport={\"version\":runner_app.__version__,\"supported_schema\":database.SCHEMA_VERSION,\n        \"module_path\":str(Path(database.__file__).resolve()),\n        \"module_sha256\":hashlib.sha256(Path(database.__file__).read_bytes()).hexdigest()}\ntry:\n    with __import__('contextlib').closing(database.Database(path).connect()) as connection:\n        report.update(opened=True,schema=int(connection.execute('PRAGMA user_version').fetchone()[0]),\n                      migrate_return=database.Database(path).migrate(connection),\n                      integrity_ok=connection.execute('PRAGMA integrity_check').fetchone()==('ok',),\n                      foreign_key_violations=len(connection.execute('PRAGMA foreign_key_check').fetchall()))\nexcept database.UnsupportedSchemaVersion:\n    report.update(opened=False,error='UnsupportedSchemaVersion')\nprint(json.dumps(report,sort_keys=True))\n",
+        "/tmp/cdr-gp07-migration-adu6enqg/original-backup/state.sqlite",
+        "/tmp/cdr-gp07-migration-adu6enqg"
+      ],
+      "cwd": "/tmp/cdr-gp07-migration-adu6enqg",
+      "environment": {
+        "HOME": "/tmp/cdr-gp07-migration-adu6enqg",
+        "PATH": "/usr/bin:/bin"
+      },
+      "exit_code": 0,
+      "purpose": "Installed schema9 opens actual original backup",
+      "raw_command_or_database_rows_emitted": false
+    },
+    {
+      "argv": [
+        "/home/visky/Work/GPTRunner/.runner-install/venv/bin/python",
+        "-I",
+        "-c",
+        "\nimport hashlib,json,sqlite3,sys\nfrom pathlib import Path\nimport runner_app\nimport runner_app.storage.database as database\npath=Path(sys.argv[1])\nroot=Path(sys.argv[2])\nassert path.is_absolute() and path.is_relative_to(root) and not path.is_symlink()\nreport={\"version\":runner_app.__version__,\"supported_schema\":database.SCHEMA_VERSION,\n        \"module_path\":str(Path(database.__file__).resolve()),\n        \"module_sha256\":hashlib.sha256(Path(database.__file__).read_bytes()).hexdigest()}\ntry:\n    with __import__('contextlib').closing(database.Database(path).connect()) as connection:\n        report.update(opened=True,schema=int(connection.execute('PRAGMA user_version').fetchone()[0]),\n                      migrate_return=database.Database(path).migrate(connection),\n                      integrity_ok=connection.execute('PRAGMA integrity_check').fetchone()==('ok',),\n                      foreign_key_violations=len(connection.execute('PRAGMA foreign_key_check').fetchall()))\nexcept database.UnsupportedSchemaVersion:\n    report.update(opened=False,error='UnsupportedSchemaVersion')\nprint(json.dumps(report,sort_keys=True))\n",
+        "/tmp/cdr-gp07-migration-adu6enqg/schema10-copy/state.sqlite",
+        "/tmp/cdr-gp07-migration-adu6enqg"
+      ],
+      "cwd": "/tmp/cdr-gp07-migration-adu6enqg",
+      "environment": {
+        "HOME": "/tmp/cdr-gp07-migration-adu6enqg",
+        "PATH": "/usr/bin:/bin"
+      },
+      "exit_code": 0,
+      "purpose": "Installed schema9 refuses new schema10 copy",
+      "raw_command_or_database_rows_emitted": false
+    },
+    {
+      "argv": [
+        "/home/visky/Work/GPTRunner/.runner-install/venv/bin/python",
+        "-I",
+        "-c",
+        "\nimport hashlib,json,sqlite3,sys\nfrom pathlib import Path\nimport runner_app\nimport runner_app.storage.database as database\npath=Path(sys.argv[1])\nroot=Path(sys.argv[2])\nassert path.is_absolute() and path.is_relative_to(root) and not path.is_symlink()\nreport={\"version\":runner_app.__version__,\"supported_schema\":database.SCHEMA_VERSION,\n        \"module_path\":str(Path(database.__file__).resolve()),\n        \"module_sha256\":hashlib.sha256(Path(database.__file__).read_bytes()).hexdigest()}\ntry:\n    with __import__('contextlib').closing(database.Database(path).connect()) as connection:\n        report.update(opened=True,schema=int(connection.execute('PRAGMA user_version').fetchone()[0]),\n                      migrate_return=database.Database(path).migrate(connection),\n                      integrity_ok=connection.execute('PRAGMA integrity_check').fetchone()==('ok',),\n                      foreign_key_violations=len(connection.execute('PRAGMA foreign_key_check').fetchall()))\nexcept database.UnsupportedSchemaVersion:\n    report.update(opened=False,error='UnsupportedSchemaVersion')\nprint(json.dumps(report,sort_keys=True))\n",
+        "/tmp/cdr-gp07-migration-adu6enqg/rollback-restored-copy/state.sqlite",
+        "/tmp/cdr-gp07-migration-adu6enqg"
+      ],
+      "cwd": "/tmp/cdr-gp07-migration-adu6enqg",
+      "environment": {
+        "HOME": "/tmp/cdr-gp07-migration-adu6enqg",
+        "PATH": "/usr/bin:/bin"
+      },
+      "exit_code": 0,
+      "purpose": "Installed schema9 opens restored backup copy",
+      "raw_command_or_database_rows_emitted": false
+    }
+  ],
+  "current_migration_call": "Database(private_schema10_copy_path).migrate()",
+  "old_probe_code_sha256": "ca1dfc57d5c564ad3eb586513700fc16e26b2bc6bac63619205fd20633126ce1",
+  "schema": "cdr-qualification-commands/1"
+}
