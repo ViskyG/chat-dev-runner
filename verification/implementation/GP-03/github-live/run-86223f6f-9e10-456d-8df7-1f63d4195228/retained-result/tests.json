@@ -1,0 +1,19 @@
+{
+  "junit": {
+    "findings": [],
+    "format": "junit-xml",
+    "kind": "test_result",
+    "status": "PARSED",
+    "summary": {
+      "counts_source": "testcase-elements",
+      "duration_seconds": 0.0,
+      "errors": 0,
+      "failed": 0,
+      "failed_ids": [],
+      "passed": 1,
+      "report_sha256": "677a6fe21d17d724b6fb659476d20cb8d681326f0938cc23b167f49c3e1bf96a",
+      "skipped": 0,
+      "tests": 1
+    }
+  }
+}

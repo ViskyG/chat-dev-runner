@@ -1,0 +1,198 @@
+{
+  "backend": {
+    "execution_arch": "amd64",
+    "execution_os": "linux",
+    "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "mode": "container",
+    "rootless": {
+      "argv": [
+        "python",
+        "-c",
+        "import sys;sys.path[:0]=['/build','/src'];import pytest;raise SystemExit(pytest.main(sys.argv[1:]))",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--junitxml=/out/junit.xml"
+      ],
+      "argv_sha256": "becf73adf6c2a43e458cea0db4e2a093394ba130764f2120f2ee035b696b93ae",
+      "backend": "rootless_docker",
+      "capture_complete": true,
+      "collection_complete": true,
+      "container_proofs": {
+        "PREPARATION": {
+          "container_id": "0aa3c3b437bce4b750723238f39808f9d6060e803175dcca08312db6fe85d130",
+          "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+          "run_id": "c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8",
+          "state": "REMOVED"
+        },
+        "TEST": {
+          "container_id": "61832e8a82d2a6acb711a3fa942c6130118a93bc098e7346fd61ed2117575771",
+          "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+          "run_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500",
+          "state": "REMOVED"
+        }
+      },
+      "containment": {
+        "backend": "rootless_docker",
+        "capabilities_dropped": "ALL",
+        "cgroup_driver": "systemd",
+        "cgroup_version": "2",
+        "cleanup_verified": true,
+        "cpu_nano": 1000000000,
+        "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+        "daemon_rootless": true,
+        "delegated_controllers": [
+          "cpu",
+          "memory",
+          "pids"
+        ],
+        "image_id": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+        "image_repo_digest": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+        "memory_bytes": 536870912,
+        "mounts_verified_before_start": true,
+        "network": "none",
+        "no_new_privileges": true,
+        "pids_limit": 128,
+        "preparation_plan_sha256": "31f31d9d552850788f01d3907b63fc3acd2c7c5426cbc54eed9ba875f03b6752",
+        "preparation_run_id": "c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8",
+        "prepared_build_tree_sha256": "2b3f4a22ebd212bc81df585d47fc38fdcef6dca880c55661c36abea17dacf4a3",
+        "read_only_root": true,
+        "read_only_source": true,
+        "run_volume_hard_limit_bytes": 268435456,
+        "server_version": "29.8.1",
+        "socket_path": "/run/user/1000/docker.sock",
+        "verified": true
+      },
+      "duration_seconds": 0.735866,
+      "execution_platform": "linux/amd64",
+      "exit_code": 0,
+      "findings": [
+        "app-log:OPTIONAL_OUTPUT_MISSING"
+      ],
+      "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+      "outcome": "PASSED",
+      "outputs": [
+        {
+          "complete": true,
+          "format": "raw-bytes-v1",
+          "kind": "console",
+          "media_type": "application/octet-stream",
+          "output_id": "stdout-raw",
+          "publication": "local_only",
+          "relative_path": "capture/stdout.bin",
+          "sha256": "4bcefcc9f6c645923b9993ccf73ad92e6b400ca25458ea14e095857fc2131342",
+          "size_bytes": 98,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "utf8-safe-view-v1",
+          "kind": "console",
+          "media_type": "text/plain; charset=utf-8",
+          "output_id": "stdout-view",
+          "publication": "local_only",
+          "relative_path": "capture/stdout.txt",
+          "sha256": "4bcefcc9f6c645923b9993ccf73ad92e6b400ca25458ea14e095857fc2131342",
+          "size_bytes": 98,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "raw-bytes-v1",
+          "kind": "console",
+          "media_type": "application/octet-stream",
+          "output_id": "stderr-raw",
+          "publication": "local_only",
+          "relative_path": "capture/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "utf8-safe-view-v1",
+          "kind": "console",
+          "media_type": "text/plain; charset=utf-8",
+          "output_id": "stderr-view",
+          "publication": "local_only",
+          "relative_path": "capture/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "stream-observation/v1",
+          "kind": "runner_log",
+          "media_type": "application/x-ndjson",
+          "output_id": "capture-events",
+          "publication": "local_only",
+          "relative_path": "capture/events.jsonl",
+          "sha256": "81ad08afe77006d44334a7aa74bf642b560ff037f90d9ee0d5fcc24178dd2dcc",
+          "size_bytes": 312,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "capture-metadata/v1",
+          "kind": "runner_log",
+          "media_type": "application/json",
+          "output_id": "capture-metadata",
+          "publication": "local_only",
+          "relative_path": "capture/capture.json",
+          "sha256": "46e9fd287bf50f13df7f553a4fc2f50187bb737bc53c6915f2bca5b89a9789d4",
+          "size_bytes": 677,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "junit-xml",
+          "kind": "test_result",
+          "media_type": "application/xml",
+          "output_id": "junit",
+          "publication": "local_only",
+          "relative_path": "outputs/junit.xml",
+          "sha256": "677a6fe21d17d724b6fb659476d20cb8d681326f0938cc23b167f49c3e1bf96a",
+          "size_bytes": 318,
+          "truncated_reason": null
+        }
+      ],
+      "preparation_evidence_sha256": "801349adf83850839402ba91ced50fd3cb0504ecd3c9e78c6b30db3f37793000",
+      "preparation_outcome": "PASSED",
+      "preparation_plan_sha256": "31f31d9d552850788f01d3907b63fc3acd2c7c5426cbc54eed9ba875f03b6752",
+      "prepared_build_tree_sha256": "2b3f4a22ebd212bc81df585d47fc38fdcef6dca880c55661c36abea17dacf4a3",
+      "profile_id": "python-quick",
+      "profile_revision_sha256": "b47160af8e5abd5ea7cc4b9624ee1a929216a5705c394fd4e287468590efd182",
+      "project_id": "gp03-github-pass",
+      "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500",
+      "schema_version": "cdr-rootless-backend/2",
+      "snapshot_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500",
+      "source_commit": "bbb03303f5e8a86cb7526ad22da50242820f6947",
+      "source_tree": "0f0cdb45054c37a83dbf6f982bdb6fb2b4bb911d",
+      "test_started": true,
+      "workload_sha256": "a31126df303d979648c6743abd11ccad5e95c860ac47fdacb7a134f3ecfbe146",
+      "workload_tree": "4f7c2fcaa0a909280714c014bfad4ebf8583bdd9"
+    }
+  },
+  "budgets": {
+    "disk_enforced": null,
+    "memory_enforced": null,
+    "saved_log_bytes_per_phase": null,
+    "timeout_seconds": 900
+  },
+  "execution_arch": "amd64",
+  "execution_os": "linux",
+  "finished_at": "2026-10-15T12:37:29.952668+00:00",
+  "host_arch": "x86_64",
+  "host_os": "linux",
+  "host_release": "6.8.0-138-generic",
+  "locks": {},
+  "mode": "container",
+  "profile_id": "python-quick",
+  "reproducibility": "unknown",
+  "runner_version": "0.3.0.dev1",
+  "started_at": "2026-10-15T12:37:27.065653+00:00",
+  "task_digest": "65fd9ba24fbc62e9f10001d08f2ebb25ebd6aca12eb37312a5419b47b48bbe0a",
+  "tool_observations": [],
+  "tools": []
+}

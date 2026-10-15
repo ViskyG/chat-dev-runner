@@ -1,0 +1,50 @@
+[
+  {
+    "availability": "LOCAL_ONLY",
+    "bytes": 318,
+    "complete": true,
+    "format": "junit-xml",
+    "id": "junit",
+    "kind": "test_result",
+    "local_path": "/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/temporary-runtime/state/projects-v2/gp03-github-pass/runner-results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/originals/junit/junit.xml",
+    "reason": "PUBLICATION_PENDING",
+    "remote_path": "artifacts/junit/junit.xml",
+    "sha256": "677a6fe21d17d724b6fb659476d20cb8d681326f0938cc23b167f49c3e1bf96a"
+  },
+  {
+    "availability": "MISSING",
+    "bytes": 0,
+    "complete": false,
+    "format": "application-log/v1",
+    "id": "app-log",
+    "kind": "application_log",
+    "local_path": null,
+    "reason": "OUTPUT_MISSING_OR_UNSAFE",
+    "remote_path": null,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "availability": "LOCAL_ONLY",
+    "bytes": 98,
+    "complete": true,
+    "format": "raw-bytes",
+    "id": "container-stdout",
+    "kind": "console",
+    "local_path": "/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/temporary-runtime/state/projects-v2/gp03-github-pass/runner-results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/originals/container-stdout/container-stdout.bin",
+    "reason": "PUBLICATION_PENDING",
+    "remote_path": "artifacts/container-stdout/container-stdout.bin",
+    "sha256": "4bcefcc9f6c645923b9993ccf73ad92e6b400ca25458ea14e095857fc2131342"
+  },
+  {
+    "availability": "LOCAL_ONLY",
+    "bytes": 0,
+    "complete": true,
+    "format": "raw-bytes",
+    "id": "container-stderr",
+    "kind": "console",
+    "local_path": "/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/temporary-runtime/state/projects-v2/gp03-github-pass/runner-results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/originals/container-stderr/container-stderr.bin",
+    "reason": "PUBLICATION_PENDING",
+    "remote_path": "artifacts/container-stderr/container-stderr.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

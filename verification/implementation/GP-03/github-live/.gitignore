@@ -1,0 +1,5 @@
+__pycache__/
+run-*/temporary-runtime/
+run-*/independent-git/
+run-*/inventory/
+run-*/operation.json

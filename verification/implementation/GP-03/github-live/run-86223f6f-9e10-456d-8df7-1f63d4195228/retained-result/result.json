@@ -1,0 +1,95 @@
+{
+  "artifacts": [
+    {
+      "availability": "LOCAL_ONLY",
+      "bytes": 318,
+      "complete": true,
+      "format": "junit-xml",
+      "id": "junit",
+      "kind": "test_result",
+      "local_path": "/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/temporary-runtime/state/projects-v2/gp03-github-pass/runner-results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/originals/junit/junit.xml",
+      "reason": "PUBLICATION_PENDING",
+      "remote_path": "artifacts/junit/junit.xml",
+      "sha256": "677a6fe21d17d724b6fb659476d20cb8d681326f0938cc23b167f49c3e1bf96a"
+    },
+    {
+      "availability": "MISSING",
+      "bytes": 0,
+      "complete": false,
+      "format": "application-log/v1",
+      "id": "app-log",
+      "kind": "application_log",
+      "local_path": null,
+      "reason": "OUTPUT_MISSING_OR_UNSAFE",
+      "remote_path": null,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "LOCAL_ONLY",
+      "bytes": 98,
+      "complete": true,
+      "format": "raw-bytes",
+      "id": "container-stdout",
+      "kind": "console",
+      "local_path": "/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/temporary-runtime/state/projects-v2/gp03-github-pass/runner-results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/originals/container-stdout/container-stdout.bin",
+      "reason": "PUBLICATION_PENDING",
+      "remote_path": "artifacts/container-stdout/container-stdout.bin",
+      "sha256": "4bcefcc9f6c645923b9993ccf73ad92e6b400ca25458ea14e095857fc2131342"
+    },
+    {
+      "availability": "LOCAL_ONLY",
+      "bytes": 0,
+      "complete": true,
+      "format": "raw-bytes",
+      "id": "container-stderr",
+      "kind": "console",
+      "local_path": "/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/temporary-runtime/state/projects-v2/gp03-github-pass/runner-results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/originals/container-stderr/container-stderr.bin",
+      "reason": "PUBLICATION_PENDING",
+      "remote_path": "artifacts/container-stderr/container-stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "delivery": {
+    "branch": "acceptance/gp03-v2-pass-20261015-a1",
+    "local_bundle_path": "/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/temporary-runtime/state/projects-v2/gp03-github-pass/runner-results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/bundle",
+    "reason": "PUBLICATION_PENDING",
+    "status": "LOCAL_ONLY"
+  },
+  "environment": {
+    "details_path": "environment.json",
+    "execution_arch": "amd64",
+    "execution_os": "linux",
+    "host_arch": "x86_64",
+    "host_os": "linux",
+    "mode": "container",
+    "profile_id": "python-quick",
+    "reproducibility": "unknown",
+    "runner_version": "0.3.0.dev1",
+    "tool_versions": {}
+  },
+  "evidence_level": "OBSERVED_RUN",
+  "execution": {
+    "cleanup": "CONFIRMED",
+    "exit_code": 0,
+    "outcome": "PASSED",
+    "quality_gate": "PASSED"
+  },
+  "operation_status": "COMPLETED",
+  "project_id": "gp03-github-pass",
+  "protocol": "cdr-result/2",
+  "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500",
+  "runner_id": "gp03-linux-github",
+  "source": {
+    "branch": "acceptance/gp03-v2-pass-20261015-a1",
+    "commit": "bbb03303f5e8a86cb7526ad22da50242820f6947",
+    "dirty": false,
+    "kind": "github_branch",
+    "overlay_sha256": null,
+    "workload_sha256": "a31126df303d979648c6743abd11ccad5e95c860ac47fdacb7a134f3ecfbe146"
+  },
+  "warnings": [
+    "app-log:OPTIONAL_OUTPUT_MISSING",
+    "container-stdout:FORMAT_NOT_REGISTERED",
+    "container-stderr:FORMAT_NOT_REGISTERED"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "branch": "acceptance/gp03-v2-pass-20261015-a1",
+  "bundle_sha256": "1768b90a73ced3a1a44db4ce40eef0d17e17cac8ec0c8e6cbec3c85dee842156",
+  "cleanup": {
+    "lane_count": 0,
+    "manifest": "CONFIRMED",
+    "released": [
+      {
+        "phase": "PREPARATION",
+        "run_id": "c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8"
+      },
+      {
+        "phase": "TEST",
+        "run_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+      }
+    ]
+  },
+  "delivery": "DELIVERED",
+  "drive_calls": 0,
+  "duration_seconds": 107.7966840980007,
+  "execution": "PASSED",
+  "finished_at": "2026-10-15T12:38:03.968536+00:00",
+  "implementation_revision": "50960b19fb72477ccf271910420c6219f3e2af69",
+  "installed_service_modified": false,
+  "operator_ready_commit": "5c68523378dc4d692cfbaa8f62b0a3c108b83286",
+  "owner_id": 12452296,
+  "preexisting_branches_preserved": true,
+  "production_base": "9005b6255888e0a9ae579d6b42b1bf8eecce4bde",
+  "quality_gate": "PASSED",
+  "raw_report": "/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/raw-junit.xml",
+  "repository_id": 1392469828,
+  "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500",
+  "result_commit": "4e0b3ebabccc64bed0f591d014a632521462a3d3",
+  "runtime_close": "CONFIRMED",
+  "scope": "foreground temporary V2Assembly; not installed service or ChatGPT connector acceptance",
+  "setup_source_commit": "1bce389885fb4ec007496afba76ca0a95ccfcf1f",
+  "source_preserved": true,
+  "started_at": "2026-10-15T12:36:16.171861+00:00",
+  "status": "VERIFIED_ON_TARGET",
+  "tested_source_commit": "bbb03303f5e8a86cb7526ad22da50242820f6947",
+  "verified_bundle_files": 10,
+  "worker_duration_seconds": 23.810103987998446
+}

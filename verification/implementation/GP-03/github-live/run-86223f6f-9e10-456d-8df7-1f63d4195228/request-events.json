@@ -1,0 +1,177 @@
+[
+  {
+    "created_at": "2026-10-15T12:37:09.355971+00:00",
+    "detail_json": "{}",
+    "event": "RESERVED",
+    "event_id": 2,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:20.678814+00:00",
+    "detail_json": "{}",
+    "event": "QUEUED",
+    "event_id": 3,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:24.493968+00:00",
+    "detail_json": "{}",
+    "event": "STARTING",
+    "event_id": 4,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:27.053963+00:00",
+    "detail_json": "{\"mode\":\"container\",\"profile_revision\":\"b47160af8e5abd5ea7cc4b9624ee1a929216a5705c394fd4e287468590efd182\",\"source_commit\":\"bbb03303f5e8a86cb7526ad22da50242820f6947\",\"task_digest\":\"65fd9ba24fbc62e9f10001d08f2ebb25ebd6aca12eb37312a5419b47b48bbe0a\",\"workload_sha256\":\"a31126df303d979648c6743abd11ccad5e95c860ac47fdacb7a134f3ecfbe146\"}",
+    "event": "RUNNING",
+    "event_id": 5,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:27.146150+00:00",
+    "detail_json": "{\"phase\":\"TEST\",\"run_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\",\"snapshot_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\"}",
+    "event": "ROOTLESS_PHASE_RESERVED",
+    "event_id": 6,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:27.159151+00:00",
+    "detail_json": "{\"budget_bytes\":268435456,\"profile_id\":\"python-quick\",\"run_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\"}",
+    "event": "ROOTLESS_VOLUME_INTENDED",
+    "event_id": 7,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:27.196974+00:00",
+    "detail_json": "{\"path\":\"/var/lib/chat-dev-runner/volumes/e6b47bdf-75eb-4de0-becf-f00d2ab16500\",\"run_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\"}",
+    "event": "ROOTLESS_VOLUME_ALLOCATED",
+    "event_id": 8,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:27.211267+00:00",
+    "detail_json": "{\"budget_bytes\":67108864,\"profile_id\":\"python-prepare\",\"run_id\":\"c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8\"}",
+    "event": "ROOTLESS_VOLUME_INTENDED",
+    "event_id": 9,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:27.254081+00:00",
+    "detail_json": "{\"path\":\"/var/lib/chat-dev-runner/volumes/c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8\",\"run_id\":\"c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8\"}",
+    "event": "ROOTLESS_VOLUME_ALLOCATED",
+    "event_id": 10,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:27.269018+00:00",
+    "detail_json": "{\"phase\":\"PREPARATION\",\"run_id\":\"c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8\",\"snapshot_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\"}",
+    "event": "ROOTLESS_PHASE_RESERVED",
+    "event_id": 11,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:27.326521+00:00",
+    "detail_json": "{\"argv_sha256\":\"ea619c4db186aa4a95e506b1282f8d5afc0ddd8b2710bdb977f2a67e8d754e5d\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"image\":\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"image_id\":\"sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"nonce\":\"e876310f70ed4bbf85eafe5746451c12\",\"phase\":\"PREPARATION\",\"profile_id\":\"python-prepare\",\"profile_revision_sha256\":\"602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9\",\"run_id\":\"c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8\",\"source_path\":\"/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/temporary-runtime/state/projects-v2/gp03-github-pass/runs/e6b47bdf-75eb-4de0-becf-f00d2ab16500/source\"}",
+    "event": "ROOTLESS_CONTAINER_INTENDED",
+    "event_id": 12,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:28.644835+00:00",
+    "detail_json": "{\"container_id\":\"0aa3c3b437bce4b750723238f39808f9d6060e803175dcca08312db6fe85d130\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"phase\":\"PREPARATION\",\"run_id\":\"c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8\",\"state\":\"REMOVED\"}",
+    "event": "ROOTLESS_CONTAINER_CLEANUP",
+    "event_id": 13,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:28.703838+00:00",
+    "detail_json": "{\"capture_complete\":true,\"cleanup_verified\":true,\"evidence_sha256\":\"801349adf83850839402ba91ced50fd3cb0504ecd3c9e78c6b30db3f37793000\",\"exit_code\":0,\"image\":\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"outcome\":\"PASSED\",\"plan_identity_sha256\":\"31f31d9d552850788f01d3907b63fc3acd2c7c5426cbc54eed9ba875f03b6752\",\"preparation_profile_revision_sha256\":\"602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9\",\"run_id\":\"c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8\",\"snapshot_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\"}",
+    "event": "ROOTLESS_PREPARATION_RESULT",
+    "event_id": 14,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:28.757021+00:00",
+    "detail_json": "{\"build_tree_sha256\":\"2b3f4a22ebd212bc81df585d47fc38fdcef6dca880c55661c36abea17dacf4a3\",\"evidence_sha256\":\"801349adf83850839402ba91ced50fd3cb0504ecd3c9e78c6b30db3f37793000\",\"image\":\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"plan_identity_sha256\":\"31f31d9d552850788f01d3907b63fc3acd2c7c5426cbc54eed9ba875f03b6752\",\"preparation_profile_revision_sha256\":\"602b7cc29ee2a9364710cf04ade2d50ff81f619ac998e671de7f44e5c7632dc9\",\"run_id\":\"c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8\",\"snapshot_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\",\"test_run_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\",\"test_volume_path\":\"/var/lib/chat-dev-runner/volumes/e6b47bdf-75eb-4de0-becf-f00d2ab16500\"}",
+    "event": "ROOTLESS_PREPARATION_HANDOFF",
+    "event_id": 15,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:28.820929+00:00",
+    "detail_json": "{\"argv_sha256\":\"becf73adf6c2a43e458cea0db4e2a093394ba130764f2120f2ee035b696b93ae\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"image\":\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"image_id\":\"sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\",\"nonce\":\"f941733af014494ea7490bb6c3b6042a\",\"phase\":\"TEST\",\"profile_id\":\"python-quick\",\"profile_revision_sha256\":\"b47160af8e5abd5ea7cc4b9624ee1a929216a5705c394fd4e287468590efd182\",\"run_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\",\"source_path\":\"/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/temporary-runtime/state/projects-v2/gp03-github-pass/runs/e6b47bdf-75eb-4de0-becf-f00d2ab16500/source\"}",
+    "event": "ROOTLESS_CONTAINER_INTENDED",
+    "event_id": 16,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:29.748450+00:00",
+    "detail_json": "{\"container_id\":\"61832e8a82d2a6acb711a3fa942c6130118a93bc098e7346fd61ed2117575771\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"phase\":\"TEST\",\"run_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\",\"state\":\"REMOVED\"}",
+    "event": "ROOTLESS_CONTAINER_CLEANUP",
+    "event_id": 17,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:29.800734+00:00",
+    "detail_json": "{\"sha256\":\"e41b3475476d11e05f4607d8126a8fc0c96d8004d92074da2643476d0524f60b\"}",
+    "event": "ROOTLESS_EVIDENCE_SEALED",
+    "event_id": 18,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:29.812703+00:00",
+    "detail_json": "{\"phase\":\"PREPARATION\",\"run_id\":\"c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8\"}",
+    "event": "ROOTLESS_VOLUME_RETIRE_INTENDED",
+    "event_id": 19,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:29.851512+00:00",
+    "detail_json": "{\"phase\":\"PREPARATION\",\"run_id\":\"c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8\"}",
+    "event": "ROOTLESS_VOLUME_RELEASED",
+    "event_id": 20,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:29.867806+00:00",
+    "detail_json": "{\"phase\":\"TEST\",\"run_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\"}",
+    "event": "ROOTLESS_VOLUME_RETIRE_INTENDED",
+    "event_id": 21,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:29.913077+00:00",
+    "detail_json": "{\"phase\":\"TEST\",\"run_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\"}",
+    "event": "ROOTLESS_VOLUME_RELEASED",
+    "event_id": 22,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:29.968711+00:00",
+    "detail_json": "{\"bundle_path\":\"/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/temporary-runtime/state/projects-v2/gp03-github-pass/runner-results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/bundle\",\"bundle_sha256\":\"1768b90a73ced3a1a44db4ce40eef0d17e17cac8ec0c8e6cbec3c85dee842156\"}",
+    "event": "RESULT_SEALED",
+    "event_id": 23,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:31.025736+00:00",
+    "detail_json": "{\"base_commit\":\"bbb03303f5e8a86cb7526ad22da50242820f6947\",\"bundle_sha256\":\"1768b90a73ced3a1a44db4ce40eef0d17e17cac8ec0c8e6cbec3c85dee842156\",\"commit\":\"4e0b3ebabccc64bed0f591d014a632521462a3d3\",\"commit_message\":\"Publish runner results: gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500\\n\\nBundle-SHA256: 1768b90a73ced3a1a44db4ce40eef0d17e17cac8ec0c8e6cbec3c85dee842156\\nPublication-Marker: b7cfb0600cf74c7f96dac7f65902fe5b\\n\",\"commit_timestamp\":1792067849,\"marker\":\"b7cfb0600cf74c7f96dac7f65902fe5b\",\"request_id\":\"e6b47bdf-75eb-4de0-becf-f00d2ab16500\",\"result_path\":\".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500\",\"runner_id\":\"gp03-linux-github\",\"tested_branch\":\"acceptance/gp03-v2-pass-20261015-a1\",\"tree\":\"d28f4125fc6510200ba744594b4c035860defb87\"}",
+    "event": "RESULT_PUBLISH_INTENT",
+    "event_id": 24,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:48.259536+00:00",
+    "detail_json": "{\"bundle_sha256\":\"1768b90a73ced3a1a44db4ce40eef0d17e17cac8ec0c8e6cbec3c85dee842156\",\"code\":\"DELIVERED\",\"commit\":\"4e0b3ebabccc64bed0f591d014a632521462a3d3\",\"local_available\":true,\"local_locator\":\"/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/temporary-runtime/state/projects-v2/gp03-github-pass/runner-results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/bundle\",\"marker\":\"b7cfb0600cf74c7f96dac7f65902fe5b\",\"remote_head\":\"4e0b3ebabccc64bed0f591d014a632521462a3d3\",\"status\":\"DELIVERED\"}",
+    "event": "RESULT_DELIVERY",
+    "event_id": 25,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  },
+  {
+    "created_at": "2026-10-15T12:37:48.277769+00:00",
+    "detail_json": "{\"code\":null}",
+    "event": "COMPLETED",
+    "event_id": 26,
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+  }
+]

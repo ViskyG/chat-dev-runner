@@ -1,0 +1,19 @@
+[
+  {
+    "argv": [
+      "python",
+      "-c",
+      "import sys;sys.path[:0]=['/build','/src'];import pytest;raise SystemExit(pytest.main(sys.argv[1:]))",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--junitxml=/out/junit.xml"
+    ],
+    "cleanup_verified": true,
+    "duration_seconds": 0.735866,
+    "exit_code": 0,
+    "outcome": "PASSED",
+    "phase": "test",
+    "step": "pytest"
+  }
+]

@@ -1,0 +1,370 @@
+{
+  "cleanup": {
+    "lane_count": 0,
+    "manifest": "CONFIRMED",
+    "released": [
+      {
+        "phase": "PREPARATION",
+        "run_id": "c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8"
+      },
+      {
+        "phase": "TEST",
+        "run_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500"
+      }
+    ]
+  },
+  "configuration": {
+    "container_profiles": [
+      "python-quick"
+    ],
+    "credential_provider": "OwnerTokenFile; no credential copied",
+    "enable_v1": false,
+    "github_owner_id": 12452296,
+    "github_repository_id": 1392469828,
+    "google_configured": false,
+    "mailbox_branch": "acceptance/gp03-v2-pass-20261015-a1",
+    "mailbox_path": ".runner/commands/gp03-linux-github.json",
+    "max_parallel": 1,
+    "native_profiles": [],
+    "queue_limit": 1,
+    "rootless_profile_dir": "/home/visky/Work/GPTRunner/owner-profiles",
+    "runner_id": "gp03-linux-github",
+    "single_execution_lane": true,
+    "source_of_config": "exact reviewed script; in-memory private temporary configuration"
+  },
+  "delivery": {
+    "bundle_sha256": "1768b90a73ced3a1a44db4ce40eef0d17e17cac8ec0c8e6cbec3c85dee842156",
+    "code": "DELIVERED",
+    "commit": "4e0b3ebabccc64bed0f591d014a632521462a3d3",
+    "local_available": true,
+    "local_locator": "/home/visky/Work/GPTRunner/chat-dev-runner-gp03-live/verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/temporary-runtime/state/projects-v2/gp03-github-pass/runner-results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/bundle",
+    "marker": "b7cfb0600cf74c7f96dac7f65902fe5b",
+    "remote_head": "4e0b3ebabccc64bed0f591d014a632521462a3d3",
+    "status": "DELIVERED"
+  },
+  "excluded_from_commit": [
+    "temporary runtime database/config/execution trees",
+    "source and inventory Git object stores",
+    "source wheel duplicates",
+    "raw operation/session state"
+  ],
+  "executed_implementation": "50960b19fb72477ccf271910420c6219f3e2af69",
+  "executed_script_sha256": "aa9857cee7449b151deee26fcb96e7eb58070853871cc31d18f948501649675f",
+  "immutable_bundle": {
+    "files": [
+      {
+        "bytes": 2337,
+        "path": "artifacts.json",
+        "sha256": "bf1bfa7f168b0aa4775a66ab7fe1df997fd7d60d24fd5165fd2c5ab81d45d312"
+      },
+      {
+        "bytes": 0,
+        "path": "artifacts/container-stderr/container-stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 98,
+        "path": "artifacts/container-stdout/container-stdout.bin",
+        "sha256": "4bcefcc9f6c645923b9993ccf73ad92e6b400ca25458ea14e095857fc2131342"
+      },
+      {
+        "bytes": 318,
+        "path": "artifacts/junit/junit.xml",
+        "sha256": "677a6fe21d17d724b6fb659476d20cb8d681326f0938cc23b167f49c3e1bf96a"
+      },
+      {
+        "bytes": 7757,
+        "path": "environment.json",
+        "sha256": "99bf7ee9a70534fc0b163c7c3a88ad247219f5d36a576932d17ac38b68c053bb"
+      },
+      {
+        "bytes": 405,
+        "path": "phases.json",
+        "sha256": "502976e7d2def56b5bf5dbb6ca3b389c612657b919fed936ed5adfb323d04e70"
+      },
+      {
+        "bytes": 4019,
+        "path": "result.json",
+        "sha256": "568b851d02fd6399133b6c1681afb2db8bf8a058273fd397f0e038c56f8122f2"
+      },
+      {
+        "bytes": 2550,
+        "path": "source.json",
+        "sha256": "8cb41049a2cba05a19cb65d064e25b9fbaaf9cdb3c541749d5b7893a1ee93469"
+      },
+      {
+        "bytes": 324,
+        "path": "summary.md",
+        "sha256": "cccb86ed96df1a974b6255d85755ac821eb52c51a8d0e276b804081512f78114"
+      },
+      {
+        "bytes": 426,
+        "path": "tests.json",
+        "sha256": "9c818eab68f0c784d84c7d32dc96a3ccae0c10fff4da2fb1ee7350bc9ef59ad9"
+      }
+    ],
+    "manifest_sha256": "1768b90a73ced3a1a44db4ce40eef0d17e17cac8ec0c8e6cbec3c85dee842156"
+  },
+  "no_additional_remote_writes": true,
+  "postflight": "postflight.json",
+  "production_base": "9005b6255888e0a9ae579d6b42b1bf8eecce4bde",
+  "provider_mutations": {
+    "all_expected_http_statuses": true,
+    "by_phase": {
+      "ACTUAL_ROOTLESS_EXECUTION_AND_RESULT": 22,
+      "BASELINE_ACK": 4,
+      "INTAKE_ACK": 4,
+      "OPERATOR_READY": 4,
+      "SOURCE_SETUP": 17
+    },
+    "count": 51,
+    "ref_operations": [
+      {
+        "commit": "1bce389885fb4ec007496afba76ca0a95ccfcf1f",
+        "force": null,
+        "method": "POST",
+        "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/refs",
+        "phase": "SOURCE_SETUP",
+        "ref": "refs/heads/acceptance/gp03-v2-pass-20261015-a1"
+      },
+      {
+        "commit": "349688e486d53394a141508275a5db73654c99f1",
+        "force": false,
+        "method": "PATCH",
+        "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/refs/heads/acceptance/gp03-v2-pass-20261015-a1",
+        "phase": "BASELINE_ACK",
+        "ref": null
+      },
+      {
+        "commit": "5c68523378dc4d692cfbaa8f62b0a3c108b83286",
+        "force": false,
+        "method": "PATCH",
+        "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/refs/heads/acceptance/gp03-v2-pass-20261015-a1",
+        "phase": "OPERATOR_READY",
+        "ref": null
+      },
+      {
+        "commit": "bbb03303f5e8a86cb7526ad22da50242820f6947",
+        "force": false,
+        "method": "PATCH",
+        "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/refs/heads/acceptance/gp03-v2-pass-20261015-a1",
+        "phase": "INTAKE_ACK",
+        "ref": null
+      },
+      {
+        "commit": "4e0b3ebabccc64bed0f591d014a632521462a3d3",
+        "force": false,
+        "method": "PATCH",
+        "path": "/repos/ViskyG/cdr-ep07-ui-20260928/git/refs/heads/acceptance/gp03-v2-pass-20261015-a1",
+        "phase": "ACTUAL_ROOTLESS_EXECUTION_AND_RESULT",
+        "ref": null
+      }
+    ],
+    "unknown_responses": 0
+  },
+  "remote_commit_chain": [
+    {
+      "headers": [
+        "tree 866005ab46bc2ef471fe3f1013e82fdb83071c48",
+        "parent 1eac4fb222d5ace7af33e086e0e19cde65c13bb1",
+        "author Runner Results <runner-results@localhost> 1792067443 +0000",
+        "committer Runner Results <runner-results@localhost> 1792067443 +0000"
+      ],
+      "message": "GP-03 disposable v2 source acceptance\n\nAcceptance-Id: 86223f6f-9e10-456d-8df7-1f63d4195228\n",
+      "object_sha_verified": true,
+      "sha": "1bce389885fb4ec007496afba76ca0a95ccfcf1f"
+    },
+    {
+      "headers": [
+        "tree 350875f8e8b4361df56d2acee6531d7f79b5a9c8",
+        "parent 1bce389885fb4ec007496afba76ca0a95ccfcf1f",
+        "author Runner Results <runner-results@localhost> 1792067797 +0000",
+        "committer Runner Results <runner-results@localhost> 1792067797 +0000"
+      ],
+      "message": "Acknowledge runner mailbox: .runner/commands/gp03-linux-github.json\n\nAck-SHA256: 1928293a5a1d75460898ef83d86fc198c3e12902a9d2208d8725cde1e5570eb9\n",
+      "object_sha_verified": true,
+      "sha": "349688e486d53394a141508275a5db73654c99f1"
+    },
+    {
+      "headers": [
+        "tree 63af9c86df873b5a5f97feb9a6e7076eb0077622",
+        "parent 349688e486d53394a141508275a5db73654c99f1",
+        "author Runner Results <runner-results@localhost> 1792067816 +0000",
+        "committer Runner Results <runner-results@localhost> 1792067816 +0000"
+      ],
+      "message": "GP-03 operator READY submission\n\nRequest-Id: e6b47bdf-75eb-4de0-becf-f00d2ab16500\n",
+      "object_sha_verified": true,
+      "sha": "5c68523378dc4d692cfbaa8f62b0a3c108b83286"
+    },
+    {
+      "headers": [
+        "tree 0f0cdb45054c37a83dbf6f982bdb6fb2b4bb911d",
+        "parent 5c68523378dc4d692cfbaa8f62b0a3c108b83286",
+        "author Runner Results <runner-results@localhost> 1792067829 +0000",
+        "committer Runner Results <runner-results@localhost> 1792067829 +0000"
+      ],
+      "message": "Acknowledge runner mailbox: .runner/commands/gp03-linux-github.json\n\nAck-SHA256: 25368c3a9df0f77966ede65b39039b66c8c880c1b35d5026822eee8a97f9aa8d\n",
+      "object_sha_verified": true,
+      "sha": "bbb03303f5e8a86cb7526ad22da50242820f6947"
+    },
+    {
+      "headers": [
+        "tree d28f4125fc6510200ba744594b4c035860defb87",
+        "parent bbb03303f5e8a86cb7526ad22da50242820f6947",
+        "author Runner Results <runner-results@localhost> 1792067849 +0000",
+        "committer Runner Results <runner-results@localhost> 1792067849 +0000"
+      ],
+      "message": "Publish runner results: gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500\n\nBundle-SHA256: 1768b90a73ced3a1a44db4ce40eef0d17e17cac8ec0c8e6cbec3c85dee842156\nPublication-Marker: b7cfb0600cf74c7f96dac7f65902fe5b\n",
+      "object_sha_verified": true,
+      "sha": "4e0b3ebabccc64bed0f591d014a632521462a3d3"
+    }
+  ],
+  "request": {
+    "action": "RUN_TASK",
+    "digest": "caa3f37d683a7569410015d20a3b85c06c987218e660a0053c25f1832a10231a",
+    "project_id": "gp03-github-pass",
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500",
+    "runner_id": "gp03-linux-github",
+    "sequence": 1,
+    "status": "COMPLETED"
+  },
+  "result_changes": [
+    {
+      "path": ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/.runner-bundle.json",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/artifacts.json",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/artifacts/container-stderr/container-stderr.bin",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/artifacts/container-stdout/container-stdout.bin",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/artifacts/junit/junit.xml",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/environment.json",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/phases.json",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/result.json",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/source.json",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/summary.md",
+      "status": "A"
+    },
+    {
+      "path": ".runner/results/gp03-linux-github/e6b47bdf-75eb-4de0-becf-f00d2ab16500/tests.json",
+      "status": "A"
+    }
+  ],
+  "result_parent": "bbb03303f5e8a86cb7526ad22da50242820f6947",
+  "result_tree": "d28f4125fc6510200ba744594b4c035860defb87",
+  "reviewed_plan_sha256": "708588a1e1cc30bdd2a88a27fce84b9c4f4c720872638bdf4aa51ad6b9d5aa47",
+  "scope": "foreground temporary V2Assembly; not installed service or ChatGPT connector acceptance",
+  "source_preservation": "result commit only adds the 11 exact subtree files; reviewed source plus ACK blob unchanged",
+  "status": "LOCAL_REVIEW_OF_LIVE_PROOF_PASSED",
+  "tested_source_files": [
+    {
+      "bytes": 41,
+      "git_blob": "f1b38364a4294ac62e69caabc165eb56106147aa",
+      "path": ".gitignore",
+      "sha256": "a2c5d1b1e8fc2d00576f130634feec851372f52aa103d99d891f4533e011a3ff"
+    },
+    {
+      "bytes": 744,
+      "git_blob": "07903c6d4293ef6d9add50eff9ec7148e83342a9",
+      "path": ".runner/commands/gp03-linux-github.json",
+      "sha256": "25368c3a9df0f77966ede65b39039b66c8c880c1b35d5026822eee8a97f9aa8d"
+    },
+    {
+      "bytes": 1293,
+      "git_blob": "1809902230768dfcfa29cac586f9f08c90e71411",
+      "path": ".runner/project.json",
+      "sha256": "1d7e9ae1390de7537865bccba0e358b05babfb525d8781aaf1ba38bdad6a05cc"
+    },
+    {
+      "bytes": 211,
+      "git_blob": "fa99ea3d87d4af1050fe556ba432cf4297513929",
+      "path": "README.md",
+      "sha256": "50429725eceb2a44751002f3d06bc7de6cc5050e09570523920db83104fcc6a3"
+    },
+    {
+      "bytes": 130,
+      "git_blob": "97168014f241f8887535a8d588c608544ae9fd19",
+      "path": "pyproject.toml",
+      "sha256": "c3e32c4602889719b2cce3b8ad96d45e94da2d33dbc485ebf0266d45de8fd797"
+    },
+    {
+      "bytes": 538,
+      "git_blob": "ff38f5c9c807918096e53f0f05f6827a9dc84ea8",
+      "path": "requirements.lock",
+      "sha256": "80552f69df4490903989b9a0d00f58de587ea28da165b3fc4b8a006ca54ec0c7"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "src/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 58,
+      "git_blob": "1e21eeb789ae554c1f971216adae3517169720ff",
+      "path": "src/app.py",
+      "sha256": "7d180e1afb7777ad22495996b5c0d3fa3cf8df9e420f400e2dc7782dcfaec91b"
+    },
+    {
+      "bytes": 99,
+      "git_blob": "d361fbb5321e22725aacb2bd2746a50d445a2067",
+      "path": "tests/test_app.py",
+      "sha256": "eebdad2bcadf61f048280b18af07034c01fd20b50899607074423f1313e7d3ff"
+    },
+    {
+      "bytes": 7484,
+      "git_blob": "f8cd4b9e75a54be90664cab36e085a486b17b95b",
+      "path": "vendor/wheels/iniconfig-2.3.0-py3-none-any.whl",
+      "sha256": "f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12"
+    },
+    {
+      "bytes": 129956,
+      "git_blob": "d54f57121300d9a854404b6fe8bdcd651429f53d",
+      "path": "vendor/wheels/packaging-26.3-py3-none-any.whl",
+      "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+    },
+    {
+      "bytes": 20538,
+      "git_blob": "1f7e6268d5c9008599fc3d18053973c86c94b06b",
+      "path": "vendor/wheels/pluggy-1.6.0-py3-none-any.whl",
+      "sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"
+    },
+    {
+      "bytes": 1250147,
+      "git_blob": "82c0df884665c4bf8491e9a3932e252f94961bba",
+      "path": "vendor/wheels/pygments-2.21.0-py3-none-any.whl",
+      "sha256": "2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9"
+    },
+    {
+      "bytes": 386536,
+      "git_blob": "8da88c1751e63abc1215683d74cbe60a69983105",
+      "path": "vendor/wheels/pytest-9.1.1-py3-none-any.whl",
+      "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c"
+    }
+  ],
+  "tested_source_tree": "0f0cdb45054c37a83dbf6f982bdb6fb2b4bb911d"
+}

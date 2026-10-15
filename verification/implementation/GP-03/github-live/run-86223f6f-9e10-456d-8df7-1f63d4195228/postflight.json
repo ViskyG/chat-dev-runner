@@ -1,0 +1,29 @@
+{
+  "execution_lane_count": 0,
+  "nonterminal_requests": 0,
+  "observed_at": "2026-10-15T12:40:36.737437+00:00",
+  "open_temporary_runtime_sessions": 0,
+  "released_paths_absent": {
+    "/var/lib/chat-dev-runner/volumes/c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8": true,
+    "/var/lib/chat-dev-runner/volumes/e6b47bdf-75eb-4de0-becf-f00d2ab16500": true
+  },
+  "remaining_exact_run_containers": {
+    "c0587b3c-96b9-5b65-b9f5-7d70f35c0ea8": [],
+    "e6b47bdf-75eb-4de0-becf-f00d2ab16500": []
+  },
+  "remaining_exact_run_mounts": [],
+  "remote_head": "4e0b3ebabccc64bed0f591d014a632521462a3d3",
+  "remote_writes": 0,
+  "request_status": "COMPLETED",
+  "slot": {
+    "blob": "07903c6d4293ef6d9add50eff9ec7148e83342a9",
+    "dispatch": "ACCEPTED",
+    "project_id": "gp03-github-pass",
+    "request_id": "e6b47bdf-75eb-4de0-becf-f00d2ab16500",
+    "revision": "github-v2:eyJibG9iIjoiMDc5MDNjNmQ0MjkzZWY2ZDlhZGQ1MGVmZjllYzcxNDhlODMzNDJhOSIsImJyYW5jaCI6ImFjY2VwdGFuY2UvZ3AwMy12Mi1wYXNzLTIwMjYxMDE1LWExIiwiaGVhZCI6IjRlMGIzZWJhYmNjYzY0YmVkMGY1OTFkMDE0YTYzMjUyMTQ2MmEzZDMiLCJtb2RlIjoiMTAwNjQ0Iiwib3duZXIiOjEyNDUyMjk2LCJwYXRoIjoiLnJ1bm5lci9jb21tYW5kcy9ncDAzLWxpbnV4LWdpdGh1Yi5qc29uIiwicmVwbyI6MTM5MjQ2OTgyOCwidHJlZSI6ImQyOGY0MTI1ZmM2NTEwMjAwYmE3NDQ1OTRiNGMwMzU4NjBkZWZiODcifQ==",
+    "runner_id": "gp03-linux-github",
+    "sha256": "25368c3a9df0f77966ede65b39039b66c8c880c1b35d5026822eee8a97f9aa8d"
+  },
+  "status": "READ_ONLY_POSTFLIGHT_CONFIRMED",
+  "uid": 1000
+}
