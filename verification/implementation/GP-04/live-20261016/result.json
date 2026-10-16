@@ -1,0 +1,40 @@
+{
+  "status": "LIVE_DOCS_V2_CANARY_VERIFIED",
+  "checked_at": "2026-10-16T07:20:28.775595+00:00",
+  "request_id": "9b775c3f-35ab-5833-ada9-ba2d46c386a7",
+  "actual_program_runs": 1,
+  "baseline": "BASELINED",
+  "admission": "ACCEPTED",
+  "post_ack_poll": "IDLE",
+  "operation_status": "COMPLETED",
+  "execution": {
+    "cleanup": "CONFIRMED",
+    "exit_code": 0,
+    "outcome": "PASSED",
+    "quality_gate": "NOT_APPLICABLE"
+  },
+  "delivery": "LOCAL_ONLY",
+  "calculation": {
+    "inputs": [
+      19,
+      23
+    ],
+    "operation": "sum",
+    "value": 42
+  },
+  "original_text_restored": true,
+  "original_and_restored_sha256": "bf69fe46050822608c542fcdd1e3f6a1e99e00a95d512e24c3ae4d8f3498be52",
+  "guarded_document_writes": 5,
+  "durable_write_intent_events": 5,
+  "bundle_sha256": "24b73d41ce5bc1b82db5bfac341ae570245dd1b2caa92a5f8188e2f99ab9be29",
+  "bundle_verified": true,
+  "scratch_cleanup": {
+    "requests": 1,
+    "nonterminal": 0,
+    "execution_lane": 0,
+    "open_sessions": 0
+  },
+  "installed_service_active": true,
+  "live_production_docs_binding_changed": false,
+  "scope": "Production adapter/factory/coordinator/worker with installed wheel and scratch ledger; current production v1 Docs and v2 GitHub bindings preserved."
+}

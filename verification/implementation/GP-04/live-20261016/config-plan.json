@@ -1,0 +1,26 @@
+{
+  "status": "PREPARED",
+  "before_sha256": "29d9c7d75c81304f5882f9a97d90ae97fcf877eb1a26071ca20c01433ab11202",
+  "candidate_sha256": "48f5a5d4f03f2a70b6a1ec81bcd45888222deaf9967512b0b4b83a38b3b973c7",
+  "added_binding": {
+    "id": "gp04-docs-preview",
+    "provider": "drive",
+    "project_id": "gp03-github-pass",
+    "document_id": "1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU",
+    "tab_id": "t.0"
+  },
+  "old_bindings_preserved": [
+    {
+      "id": "gp07-github-preview",
+      "provider": "github",
+      "project_id": "gp03-github-pass",
+      "branch": "acceptance/gp03-v2-pass-20261015-a1",
+      "path": ".runner/commands/gp03-linux-github.json"
+    }
+  ],
+  "v1_enabled": true,
+  "profiles_and_project_grants_unchanged": true,
+  "provider_file_mode": "0600",
+  "credential_files_copied": false,
+  "runtime_config_applied": false
+}

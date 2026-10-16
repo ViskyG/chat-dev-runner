@@ -1,0 +1,46 @@
+[
+  {
+    "event": "RESERVED",
+    "created_at": "2026-10-16T07:17:58.792806+00:00"
+  },
+  {
+    "event": "QUEUED",
+    "created_at": "2026-10-16T07:18:01.096115+00:00"
+  },
+  {
+    "event": "STARTING",
+    "created_at": "2026-10-16T07:18:02.034734+00:00"
+  },
+  {
+    "event": "RUNNING",
+    "created_at": "2026-10-16T07:18:02.094407+00:00"
+  },
+  {
+    "event": "TOOL_PROBE_INTENT",
+    "created_at": "2026-10-16T07:18:02.115151+00:00"
+  },
+  {
+    "event": "TOOL_OBSERVED",
+    "created_at": "2026-10-16T07:18:02.165274+00:00"
+  },
+  {
+    "event": "SPAWN_INTENT",
+    "created_at": "2026-10-16T07:18:02.178327+00:00"
+  },
+  {
+    "event": "PHASE_FINISHED",
+    "created_at": "2026-10-16T07:18:02.220255+00:00"
+  },
+  {
+    "event": "RESULT_SEALED",
+    "created_at": "2026-10-16T07:18:02.274959+00:00"
+  },
+  {
+    "event": "RESULT_DELIVERY",
+    "created_at": "2026-10-16T07:18:02.301213+00:00"
+  },
+  {
+    "event": "COMPLETED",
+    "created_at": "2026-10-16T07:18:02.318711+00:00"
+  }
+]

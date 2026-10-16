@@ -1,0 +1,38 @@
+[
+  {
+    "availability": "LOCAL_ONLY",
+    "bytes": 54,
+    "complete": true,
+    "format": "json",
+    "id": "calculation",
+    "kind": "artifact",
+    "local_path": "/tmp/cdr-gp04-docs-hwtu4wqd/results/gp04-docs-canary-runner/9b775c3f-35ab-5833-ada9-ba2d46c386a7/originals/calculation/calculation.json",
+    "reason": "LOCAL_ONLY_POLICY",
+    "remote_path": null,
+    "sha256": "44bf05381d1d57133b337c67acbdf42b484d3ced4f96f598a1e11b01a2acbdc4"
+  },
+  {
+    "availability": "LOCAL_ONLY",
+    "bytes": 13,
+    "complete": true,
+    "format": "raw-bytes",
+    "id": "phase-0-stdout",
+    "kind": "console",
+    "local_path": "/tmp/cdr-gp04-docs-hwtu4wqd/results/gp04-docs-canary-runner/9b775c3f-35ab-5833-ada9-ba2d46c386a7/originals/phase-0-stdout/phase-0-stdout.bin",
+    "reason": "PUBLICATION_PENDING",
+    "remote_path": "artifacts/phase-0-stdout/phase-0-stdout.bin",
+    "sha256": "02ef625a2db1d61935056873f0235b021d07ef6e4a550127d1c8166316be9b51"
+  },
+  {
+    "availability": "LOCAL_ONLY",
+    "bytes": 0,
+    "complete": true,
+    "format": "raw-bytes",
+    "id": "phase-0-stderr",
+    "kind": "console",
+    "local_path": "/tmp/cdr-gp04-docs-hwtu4wqd/results/gp04-docs-canary-runner/9b775c3f-35ab-5833-ada9-ba2d46c386a7/originals/phase-0-stderr/phase-0-stderr.bin",
+    "reason": "PUBLICATION_PENDING",
+    "remote_path": "artifacts/phase-0-stderr/phase-0-stderr.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

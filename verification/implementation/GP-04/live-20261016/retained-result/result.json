@@ -1,0 +1,84 @@
+{
+  "artifacts": [
+    {
+      "availability": "LOCAL_ONLY",
+      "bytes": 54,
+      "complete": true,
+      "format": "json",
+      "id": "calculation",
+      "kind": "artifact",
+      "local_path": "/tmp/cdr-gp04-docs-hwtu4wqd/results/gp04-docs-canary-runner/9b775c3f-35ab-5833-ada9-ba2d46c386a7/originals/calculation/calculation.json",
+      "reason": "LOCAL_ONLY_POLICY",
+      "remote_path": null,
+      "sha256": "44bf05381d1d57133b337c67acbdf42b484d3ced4f96f598a1e11b01a2acbdc4"
+    },
+    {
+      "availability": "LOCAL_ONLY",
+      "bytes": 13,
+      "complete": true,
+      "format": "raw-bytes",
+      "id": "phase-0-stdout",
+      "kind": "console",
+      "local_path": "/tmp/cdr-gp04-docs-hwtu4wqd/results/gp04-docs-canary-runner/9b775c3f-35ab-5833-ada9-ba2d46c386a7/originals/phase-0-stdout/phase-0-stdout.bin",
+      "reason": "PUBLICATION_PENDING",
+      "remote_path": "artifacts/phase-0-stdout/phase-0-stdout.bin",
+      "sha256": "02ef625a2db1d61935056873f0235b021d07ef6e4a550127d1c8166316be9b51"
+    },
+    {
+      "availability": "LOCAL_ONLY",
+      "bytes": 0,
+      "complete": true,
+      "format": "raw-bytes",
+      "id": "phase-0-stderr",
+      "kind": "console",
+      "local_path": "/tmp/cdr-gp04-docs-hwtu4wqd/results/gp04-docs-canary-runner/9b775c3f-35ab-5833-ada9-ba2d46c386a7/originals/phase-0-stderr/phase-0-stderr.bin",
+      "reason": "PUBLICATION_PENDING",
+      "remote_path": "artifacts/phase-0-stderr/phase-0-stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "delivery": {
+    "branch": "gp04-canary",
+    "local_bundle_path": "/tmp/cdr-gp04-docs-hwtu4wqd/results/gp04-docs-canary-runner/9b775c3f-35ab-5833-ada9-ba2d46c386a7/bundle",
+    "reason": "PUBLICATION_PENDING",
+    "status": "LOCAL_ONLY"
+  },
+  "environment": {
+    "details_path": "environment.json",
+    "execution_arch": "x86_64",
+    "execution_os": "linux",
+    "host_arch": "x86_64",
+    "host_os": "linux",
+    "mode": "native",
+    "profile_id": "native-python",
+    "reproducibility": "unknown",
+    "runner_version": "0.3.0.dev1",
+    "tool_versions": {
+      "python": "Python 3.10.12"
+    }
+  },
+  "evidence_level": "OBSERVED_RUN",
+  "execution": {
+    "cleanup": "CONFIRMED",
+    "exit_code": 0,
+    "outcome": "PASSED",
+    "quality_gate": "NOT_APPLICABLE"
+  },
+  "operation_status": "COMPLETED",
+  "project_id": "gp04-docs-canary-project",
+  "protocol": "cdr-result/2",
+  "request_id": "9b775c3f-35ab-5833-ada9-ba2d46c386a7",
+  "runner_id": "gp04-docs-canary-runner",
+  "source": {
+    "branch": "gp04-canary",
+    "commit": "50ec9360630c8e81857c86c02e6ffbb7fcabcc30",
+    "dirty": false,
+    "kind": "local_workspace",
+    "overlay_sha256": null,
+    "workload_sha256": "187496d7542124c8387bd6bc4da6abc257cae22eb94a5b7832b438ee986c1ff7"
+  },
+  "warnings": [
+    "phase-0-stdout:FORMAT_NOT_REGISTERED",
+    "phase-0-stderr:FORMAT_NOT_REGISTERED"
+  ]
+}

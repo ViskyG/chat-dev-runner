@@ -1,0 +1,61 @@
+[
+  {
+    "outcome": "PASSED",
+    "phase": "probe",
+    "step": "version-python",
+    "tool_observation": {
+      "execution": {
+        "cleanup_verified": true,
+        "duration_seconds": 0.03715483599989966,
+        "error_code": null,
+        "exit_code": 0,
+        "host_arch": "x86_64",
+        "host_os": "linux",
+        "logs_persisted": true,
+        "outcome": "PASSED",
+        "pid": 575581,
+        "process_start_identity": "1010867",
+        "signal": null,
+        "stderr_bytes": 0,
+        "stderr_path": "/tmp/cdr-gp04-docs-hwtu4wqd/runs/9b775c3f-35ab-5833-ada9-ba2d46c386a7/version-python/stderr.bin",
+        "stderr_saved_bytes": 0,
+        "stderr_truncated": false,
+        "stdout_bytes": 15,
+        "stdout_path": "/tmp/cdr-gp04-docs-hwtu4wqd/runs/9b775c3f-35ab-5833-ada9-ba2d46c386a7/version-python/stdout.bin",
+        "stdout_saved_bytes": 15,
+        "stdout_truncated": false
+      },
+      "id": "python",
+      "state": "OBSERVED",
+      "version": "Python 3.10.12"
+    }
+  },
+  {
+    "argv": [
+      "/home/visky/Work/GPTRunner/.runner-install/venv-0.3.0.dev1/bin/python",
+      "calculator.py"
+    ],
+    "cleanup_verified": true,
+    "cwd_relative": ".",
+    "duration_seconds": 0.029944146001071204,
+    "error_code": null,
+    "exit_code": 0,
+    "host_arch": "x86_64",
+    "host_os": "linux",
+    "logs_persisted": true,
+    "outcome": "PASSED",
+    "phase": "run",
+    "pid": 575582,
+    "process_start_identity": "1010873",
+    "signal": null,
+    "stderr_bytes": 0,
+    "stderr_path": "/tmp/cdr-gp04-docs-hwtu4wqd/runs/9b775c3f-35ab-5833-ada9-ba2d46c386a7/capture-0/stderr.bin",
+    "stderr_saved_bytes": 0,
+    "stderr_truncated": false,
+    "stdout_bytes": 13,
+    "stdout_path": "/tmp/cdr-gp04-docs-hwtu4wqd/runs/9b775c3f-35ab-5833-ada9-ba2d46c386a7/capture-0/stdout.bin",
+    "stdout_saved_bytes": 13,
+    "stdout_truncated": false,
+    "step": "calculate"
+  }
+]

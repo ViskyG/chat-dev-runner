@@ -1,0 +1,17 @@
+{
+  "v2_requests": 2,
+  "execution_lane": 0,
+  "channels": [
+    [
+      "gp04-docs-preview",
+      "drive",
+      1
+    ],
+    [
+      "gp07-github-preview",
+      "github",
+      1
+    ]
+  ],
+  "armed": true
+}

@@ -1,0 +1,65 @@
+{
+  "backend": {},
+  "budgets": {
+    "disk_enforced": false,
+    "memory_enforced": false,
+    "saved_log_bytes_per_phase": 16384,
+    "timeout_seconds": 10
+  },
+  "execution_arch": "x86_64",
+  "execution_os": "linux",
+  "finished_at": "2026-10-16T07:18:02.258680+00:00",
+  "host_arch": "x86_64",
+  "host_os": "linux",
+  "host_release": "6.8.0-138-generic",
+  "locks": {},
+  "mode": "native",
+  "profile_id": "native-python",
+  "reproducibility": "unknown",
+  "runner_version": "0.3.0.dev1",
+  "started_at": "2026-10-16T07:18:02.114650+00:00",
+  "task_digest": "50841fb24df6481f78b959e9266416ed3b31243fbda19dfc43c2e4e3ad570d5c",
+  "tool_observations": [
+    {
+      "execution": {
+        "cleanup_verified": true,
+        "duration_seconds": 0.03715483599989966,
+        "error_code": null,
+        "exit_code": 0,
+        "host_arch": "x86_64",
+        "host_os": "linux",
+        "logs_persisted": true,
+        "outcome": "PASSED",
+        "pid": 575581,
+        "process_start_identity": "1010867",
+        "signal": null,
+        "stderr_bytes": 0,
+        "stderr_path": "/tmp/cdr-gp04-docs-hwtu4wqd/runs/9b775c3f-35ab-5833-ada9-ba2d46c386a7/version-python/stderr.bin",
+        "stderr_saved_bytes": 0,
+        "stderr_truncated": false,
+        "stdout_bytes": 15,
+        "stdout_path": "/tmp/cdr-gp04-docs-hwtu4wqd/runs/9b775c3f-35ab-5833-ada9-ba2d46c386a7/version-python/stdout.bin",
+        "stdout_saved_bytes": 15,
+        "stdout_truncated": false
+      },
+      "id": "python",
+      "state": "OBSERVED",
+      "version": "Python 3.10.12"
+    }
+  ],
+  "tools": [
+    {
+      "argv_prefix": [
+        "/home/visky/Work/GPTRunner/.runner-install/venv-0.3.0.dev1/bin/python"
+      ],
+      "availability": "PRESENT",
+      "id": "python",
+      "version": null,
+      "version_probe_argv": [
+        "/home/visky/Work/GPTRunner/.runner-install/venv-0.3.0.dev1/bin/python",
+        "--version"
+      ],
+      "version_status": "NOT_PROBED"
+    }
+  ]
+}

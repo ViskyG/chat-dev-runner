@@ -1,0 +1,55 @@
+{
+  "admission": {
+    "code": null,
+    "kind": "ACCEPTED",
+    "request_id": "9b775c3f-35ab-5833-ada9-ba2d46c386a7",
+    "sequence": 1
+  },
+  "baseline": {
+    "code": null,
+    "kind": "BASELINED",
+    "request_id": null,
+    "sequence": null
+  },
+  "bundle_sha256": "24b73d41ce5bc1b82db5bfac341ae570245dd1b2caa92a5f8188e2f99ab9be29",
+  "calculation": {
+    "inputs": [
+      19,
+      23
+    ],
+    "operation": "sum",
+    "value": 42
+  },
+  "delivery": "LOCAL_ONLY",
+  "document_id": "1DvKJqROGSKWIh8fginrb9vKu6o14z7KAXmFyyEfm_s8",
+  "environment": {
+    "details_path": "environment.json",
+    "execution_arch": "x86_64",
+    "execution_os": "linux",
+    "host_arch": "x86_64",
+    "host_os": "linux",
+    "mode": "native",
+    "profile_id": "native-python",
+    "reproducibility": "unknown",
+    "runner_version": "0.3.0.dev1",
+    "tool_versions": {
+      "python": "Python 3.10.12"
+    }
+  },
+  "execution": {
+    "cleanup": "CONFIRMED",
+    "exit_code": 0,
+    "outcome": "PASSED",
+    "quality_gate": "NOT_APPLICABLE"
+  },
+  "gate": "GP-04",
+  "mode": "LIVE_CANARY",
+  "operation_code": null,
+  "operation_status": "COMPLETED",
+  "original_text_sha256": "bf69fe46050822608c542fcdd1e3f6a1e99e00a95d512e24c3ae4d8f3498be52",
+  "restore_verified": true,
+  "restored_text_sha256": "bf69fe46050822608c542fcdd1e3f6a1e99e00a95d512e24c3ae4d8f3498be52",
+  "reviewed_script_sha256": "844b669295577b701485fe1f7d669cb3df08d42195bf63602f18d8cb6704c6d2",
+  "status": "OK",
+  "tab_id": "t.0"
+}

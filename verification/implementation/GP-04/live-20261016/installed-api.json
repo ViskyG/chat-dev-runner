@@ -1,0 +1,30 @@
+{
+  "status": "LIVE_API_CONFIRMED",
+  "v2": {
+    "protocol": "cdr-runtime/2",
+    "runner_id": "local-runner",
+    "session_id": "89310b0c-d13c-4a13-8faa-3df4d8b8dafb",
+    "armed": true,
+    "configured": true,
+    "channels": {
+      "gp07-github-preview": "IDLE",
+      "gp04-docs-preview": "IDLE"
+    },
+    "projects": [
+      "gp03-github-pass"
+    ],
+    "queue_limit": 100,
+    "native_profiles": [
+      "native-python"
+    ],
+    "container_backends": {
+      "rootless-docker": "CONFIGURED_NOT_PROBED"
+    },
+    "capability_status": "IMPLEMENTED_NOT_QUALIFIED"
+  },
+  "docs_status_request": "COMPLETED",
+  "unit_active": true,
+  "unit_enabled": true,
+  "config_backup": "/home/visky/Work/GPTRunner/.runner-backups/docs-v2-enrollment-20261016/runtime-v2-before.json",
+  "config_rollback": "Stop existing idle service; restore retained runtime-v2-before.json owner0600, then restart same unit. Keep new Doc as DRAFT/ACK, never replay READY."
+}

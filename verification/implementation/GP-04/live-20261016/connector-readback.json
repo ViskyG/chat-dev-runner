@@ -1,0 +1,14 @@
+{
+  "status": "CONNECTED_CHAT_READ_VERIFIED",
+  "connector": "Google Drive get_document + get_file_metadata",
+  "url": "https://docs.google.com/document/d/1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU/edit?usp=drivesdk",
+  "document_id": "1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU",
+  "tab_id": "t.0",
+  "protocol": "cdr-mailbox/2",
+  "runner_id": "local-runner",
+  "project_id": "gp03-github-pass",
+  "dispatch": "ACCEPTED",
+  "request_id": "b4ff935c-7479-4405-b174-978ce99315bf",
+  "payload_sha256": "e3db46f5f16885763a1c0fd8e88c96c6e35e6753dd98633a7656b19206af04ec",
+  "connector_writes_performed": 0
+}

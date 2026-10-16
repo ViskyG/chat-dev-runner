@@ -1,0 +1,11 @@
+{
+  "status": "PREPARED",
+  "document_id": "1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU",
+  "tab_id": "t.0",
+  "required_revision_used": true,
+  "action": "Prepare next DRAFT only via connected chat, request_id null",
+  "preserved_slot_token": true,
+  "preserved_receipt": true,
+  "ready_submitted": false,
+  "project_execution_requested": false
+}

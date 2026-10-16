@@ -1,0 +1,34 @@
+{
+  "protocol": "cdr-docs-enrollment/1",
+  "operation_id": "08ffdc3d-0f89-42e4-bb3e-92bd2d311ce4",
+  "folder_id": "1NIiRdK6VMRyY0Q2o5PIJ4ix6UoawW_oh",
+  "name": "DOCS V2 COMMAND — gp03-github-pass",
+  "binding_id": "gp04-docs-preview",
+  "root_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+  "index_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+  "owner_scope": "Finish requested Docs v2 channel using one separate command Doc in existing test folder; preserve old documents, current v1 and GitHub bindings.",
+  "initial_draft": {
+    "protocol": "cdr-mailbox/2",
+    "runner_id": "local-runner",
+    "project_id": "gp03-github-pass",
+    "slot_token": "23850acb-d5b2-45e2-b7a7-5b5c292ceed9",
+    "dispatch": "DRAFT",
+    "receipt": null,
+    "request": {
+      "request_id": "b4ff935c-7479-4405-b174-978ce99315bf",
+      "action": "STATUS",
+      "target_request_id": "4b9de43b-722e-40c7-bbfa-ac95b980edc7"
+    }
+  },
+  "cloud_actions": [
+    "Create one native command Doc with unique appProperties marker in exact existing folder, no retries",
+    "Insert inert DRAFT into its fresh blank exact tab using requiredRevisionId",
+    "Normal installed service baseline and one operator READY STATUS; no project execution"
+  ],
+  "local_actions": [
+    "Backup owner runtime-v2 config0600 outside repo",
+    "Add optional Google credential-reference config0600 and one exact document/tab binding",
+    "Restart existing idle owner service and verify baseline+STATUS result"
+  ],
+  "no_new_workspace_or_permission_change": true
+}

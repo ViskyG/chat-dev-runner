@@ -1,0 +1,21 @@
+{
+  "backup_directory": "/tmp/cdr-gp04-docs-hwtu4wqd",
+  "backup_directory_mode": "0700",
+  "backup_mode": "0600",
+  "can_edit": true,
+  "cloud_writes": 0,
+  "credential_refresh": false,
+  "document_id": "1DvKJqROGSKWIh8fginrb9vKu6o14z7KAXmFyyEfm_s8",
+  "folder_id": "1NIiRdK6VMRyY0Q2o5PIJ4ix6UoawW_oh",
+  "gate": "GP-04",
+  "historical_text_sha256_matches": true,
+  "is_app_authorized": true,
+  "mode": "READ_ONLY_PREFLIGHT",
+  "payload_sha256": "fd6dc60eeeb6566b4f0873eecaf05f46e3aa51790e136bace5717b9caed8cd15",
+  "pending_ready_intent": false,
+  "status": "OK",
+  "tab_id": "t.0",
+  "text_bytes": 68,
+  "text_sha256": "bf69fe46050822608c542fcdd1e3f6a1e99e00a95d512e24c3ae4d8f3498be52",
+  "title": "EP-04 CANARY local-chat fd641028b29f"
+}

@@ -1,0 +1,13 @@
+{
+  "status": "CONNECTED_CHAT_WRITE_VERIFIED",
+  "document_id": "1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU",
+  "tab_id": "t.0",
+  "dispatch": "DRAFT",
+  "request_id": null,
+  "preserved_completed_receipt": "b4ff935c-7479-4405-b174-978ce99315bf",
+  "required_revision_used": true,
+  "exact_text_readback": true,
+  "ready_submitted": false,
+  "project_executions_added": 0,
+  "initial_posted_status_request": "b4ff935c-7479-4405-b174-978ce99315bf"
+}

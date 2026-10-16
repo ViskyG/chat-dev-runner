@@ -1,0 +1,13 @@
+{
+  "document_id": "1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU",
+  "tab_id": "t.0",
+  "folder_id": "1NIiRdK6VMRyY0Q2o5PIJ4ix6UoawW_oh",
+  "name": "DOCS V2 COMMAND — gp03-github-pass",
+  "binding_id": "gp04-docs-preview",
+  "project_id": "gp03-github-pass",
+  "runner_id": "local-runner",
+  "operation_id": "08ffdc3d-0f89-42e4-bb3e-92bd2d311ce4",
+  "url": "https://docs.google.com/document/d/1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU/edit",
+  "initial_draft_sha256": "8a21df7cae491163dd5250baab6cd2cba128e28fb2e939486a9eb99a8d5b4f7a",
+  "initial_status_request_id": "b4ff935c-7479-4405-b174-978ce99315bf"
+}

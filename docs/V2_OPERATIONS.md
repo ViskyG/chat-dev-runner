@@ -2,8 +2,14 @@
 
 **Linux preview, package 0.3.0.dev1.** Installed-wheel upgrade/rollback and the
 existing v1 readback are recorded under `verification/implementation/GP-07/release`.
-Provider and target qualification remains specific to its evidence; Docs v2 and
-other native OS targets are not qualified. The bilingual entrypoints are in
+Provider and target qualification remains specific to its evidence. On 2026-10-16,
+Docs v2 passed its live canary and installed STATUS route; connected-chat read
+and guarded DRAFT write also passed. Other native OS targets are not qualified.
+The current dedicated slot for test project `gp03-github-pass`, runner
+`local-runner`, tab `t.0`, is
+[DOCS V2 COMMAND](https://docs.google.com/document/d/1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU/edit).
+It is left as DRAFT; read its live token/receipt before preparing another intent.
+Other project mailboxes retain their existing registrations. The bilingual entrypoints are in
 [skills/v2](../skills/v2/README.md). Their verbatim design sources remain unchanged
 under [design/github-native-v2/skills](../design/github-native-v2/skills/README.md).
 Source-stage approval does not itself authorize live deployment, global skill

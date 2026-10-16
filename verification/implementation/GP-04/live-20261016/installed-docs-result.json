@@ -1,0 +1,37 @@
+{
+  "status": "INSTALLED_DOCS_V2_VERIFIED",
+  "document_id": "1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU",
+  "tab_id": "t.0",
+  "url": "https://docs.google.com/document/d/1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU/edit",
+  "request_id": "b4ff935c-7479-4405-b174-978ce99315bf",
+  "operation_status": "COMPLETED",
+  "action": "STATUS",
+  "target_result": {
+    "sequence": 1,
+    "status": "COMPLETED",
+    "target_request_id": "4b9de43b-722e-40c7-bbfa-ac95b980edc7"
+  },
+  "ready_proof": "Exact READY bytes or matching consumer ACK",
+  "ack_proof": true,
+  "write_response_uncertain": false,
+  "counts": {
+    "v1_operations": 26,
+    "v2_requests": 2,
+    "execution_lane": 0
+  },
+  "channels": [
+    [
+      "gp04-docs-preview",
+      "drive",
+      1
+    ],
+    [
+      "gp07-github-preview",
+      "github",
+      1
+    ]
+  ],
+  "project_executions_added": 0,
+  "runtime_version": "0.3.0.dev1",
+  "root_or_index_modified": false
+}

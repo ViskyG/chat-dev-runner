@@ -1,0 +1,4 @@
+{"body_sha256": "2cb6d401cb2ba22c3a6f08f6f85e1aea05ffa7fc371192af76a515f3e4bfc90c", "event": "CREATE_DOC_INTENT", "folder_id": "1NIiRdK6VMRyY0Q2o5PIJ4ix6UoawW_oh"}
+{"document_id": "1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU", "event": "CREATE_DOC_CONFIRMED"}
+{"document_id": "1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU", "event": "INITIAL_DRAFT_INTENT", "sha256": "8a21df7cae491163dd5250baab6cd2cba128e28fb2e939486a9eb99a8d5b4f7a", "tab_id": "t.0"}
+{"document_id": "1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU", "event": "INITIAL_DRAFT_CONFIRMED", "sha256": "8a21df7cae491163dd5250baab6cd2cba128e28fb2e939486a9eb99a8d5b4f7a"}

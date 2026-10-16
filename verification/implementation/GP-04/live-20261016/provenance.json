@@ -1,0 +1,16 @@
+{
+  "source_commit": "c72b359cfa9212b8c6a581ba90de079d8bc4c0cb",
+  "runner_version": "0.3.0.dev1",
+  "python": "3.10.12",
+  "interpreter": "/home/visky/Work/GPTRunner/.runner-install/venv-0.3.0.dev1/bin/python",
+  "reviewed_gate_sha256": "844b669295577b701485fe1f7d669cb3df08d42195bf63602f18d8cb6704c6d2",
+  "production_modules_match_source": {
+    "runner_app.adapters.drive_mailbox_v2": "c05c93acf8856728f32a8ae99f09118b9166f89d710850503fb90cd6c9877ba5",
+    "runner_app.engine.docs_v2": "64f905eec66b54e5827eab8f251cb2e4db5cfdd1e5a138780d5670497bf4ce45"
+  },
+  "hud_job": "1f8b21b607334f33b5b88de46b90a42a",
+  "owner_instruction": "Давай починим Google Doc",
+  "authorization_context": "Reply after exact canary five guarded writes, one finite local calculator and original-text restoration were explained and requested; 2026-10-16.",
+  "scope": "Existing exact EP-04 canary/t.0; scratch ledger/worker; no production binding or state changes; no bootstrap, credential copies or scope change.",
+  "reused_evidence": "Prior v2 contract/intake/Docs component tests and immutable installed-wheel source audit; no broad regression repeated."
+}
