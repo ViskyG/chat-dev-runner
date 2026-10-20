@@ -1,0 +1,387 @@
+{
+  "date": "2026-10-20",
+  "repository": "ViskyG/chat-dev-runner",
+  "source_base_commit": "8f7e62177f9a3dfc0dd0b75bbb417e5e2a71d326",
+  "status": "PREPARED_AWAITING_OWNER_README_REVIEW",
+  "visibility": "PRIVATE_UNCHANGED",
+  "owner_license_choice": "NO_OPEN_SOURCE_LICENSE",
+  "candidate_files": {
+    "README.md": "86b578e4fe81329e35da7816921cb127643652def6806204c28c87cbdf0d68aa",
+    "THIRD_PARTY_NOTICES.md": "d899796875a722034750df06952c01c4596179541e1967e87b8e27d69553debd"
+  },
+  "history_scan": {
+    "scanner": "gitleaks detect --redact --log-opts=\"--remotes=origin --full-history\"",
+    "scanner_binary_sha256": "89f247ce81bd4b5fb3e5236e1ee50221eefa251d936248ebf6d3c10e4df8c20b",
+    "remote_commits": 107,
+    "remote_refs": [
+      "refs/remotes/origin/ep07/ci-test-extra 90ac54a872dafc95f880d53ac45f5914d93aa742",
+      "refs/remotes/origin/feature/github-native-v2-20261015 8f7e62177f9a3dfc0dd0b75bbb417e5e2a71d326",
+      "refs/remotes/origin/main ac7d55ddce58bcb422bae821b2550483592f7975"
+    ],
+    "raw_findings": 43,
+    "triaged_categories": {
+      "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL": 26,
+      "OFFLINE_WHEEL_FIXTURE_NONCE": 1,
+      "DESIGN_MAILBOX_NONCE_EXAMPLE": 8,
+      "FILE_SHA256_NOT_CREDENTIAL": 8
+    },
+    "unresolved_findings": 0,
+    "triage": [
+      {
+        "file": "verification/implementation/GP-04/live-20261016/connector-next-draft.json",
+        "line": 1,
+        "commit": "afbc4d50cca0bbd85f13a99d23e41de460fff6c9",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-04/live-20261016/connector-next-draft.json",
+        "line": 1,
+        "commit": "afbc4d50cca0bbd85f13a99d23e41de460fff6c9",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-04/live-20261016/installed-acknowledged.json",
+        "line": 1,
+        "commit": "afbc4d50cca0bbd85f13a99d23e41de460fff6c9",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-04/live-20261016/installed-acknowledged.json",
+        "line": 1,
+        "commit": "afbc4d50cca0bbd85f13a99d23e41de460fff6c9",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-04/live-20261016/enrollment-plan.json",
+        "line": 14,
+        "commit": "afbc4d50cca0bbd85f13a99d23e41de460fff6c9",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-04/live-20261016/installed-before-draft.json",
+        "line": 1,
+        "commit": "afbc4d50cca0bbd85f13a99d23e41de460fff6c9",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-04/live-20261016/installed-operator-ready.json",
+        "line": 1,
+        "commit": "afbc4d50cca0bbd85f13a99d23e41de460fff6c9",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/installed-ready-proposal/execution/acknowledged.json",
+        "line": 1,
+        "commit": "5ec58b3c5caa165a4931f5b3a4d6326f706c09fd",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/installed-ready-proposal/execution/acknowledged.json",
+        "line": 1,
+        "commit": "5ec58b3c5caa165a4931f5b3a4d6326f706c09fd",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/installed-ready-proposal/execution/observed-after-publication.json",
+        "line": 1,
+        "commit": "5ec58b3c5caa165a4931f5b3a4d6326f706c09fd",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/installed-ready-proposal/after-ready.json",
+        "line": 1,
+        "commit": "fe63af63e9e01c32500c83be336932671f658c98",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/installed-ready-proposal/before-draft.json",
+        "line": 1,
+        "commit": "fe63af63e9e01c32500c83be336932671f658c98",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/installed-slot-proposal/execution-corrected-preflight/confirmed-draft.json",
+        "line": 23,
+        "commit": "7fa592b49d51ee27ba20abb0fddd6269f65b9eae",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/installed-slot-proposal/slot-before.json",
+        "line": 1,
+        "commit": "7f3b5555b4f6ce53889ea5834c293376e5fade7c",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/installed-slot-proposal/slot-before.json",
+        "line": 1,
+        "commit": "7f3b5555b4f6ce53889ea5834c293376e5fade7c",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/installed-slot-proposal/slot-after-draft.json",
+        "line": 23,
+        "commit": "7f3b5555b4f6ce53889ea5834c293376e5fade7c",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/baseline.json",
+        "line": 1,
+        "commit": "b3ec8f0baedabdaf4fcd6d13649260c0c97cd79d",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/acknowledged.json",
+        "line": 1,
+        "commit": "b3ec8f0baedabdaf4fcd6d13649260c0c97cd79d",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/acknowledged.json",
+        "line": 1,
+        "commit": "b3ec8f0baedabdaf4fcd6d13649260c0c97cd79d",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/run-86223f6f-9e10-456d-8df7-1f63d4195228/operator-ready.json",
+        "line": 23,
+        "commit": "b3ec8f0baedabdaf4fcd6d13649260c0c97cd79d",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/planned-draft.json",
+        "line": 23,
+        "commit": "5b19420f255e654782ee0d5a28853537cdf95157",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/github-live/review-plan.json",
+        "line": 7,
+        "commit": "5b19420f255e654782ee0d5a28853537cdf95157",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-07/wheel/audit.py",
+        "line": 49,
+        "commit": "a9e183746a5f1ba9fb36f5234f181a038a0a91c1",
+        "rule": "generic-api-key",
+        "classification": "OFFLINE_WHEEL_FIXTURE_NONCE"
+      },
+      {
+        "file": "verification/implementation/GP-03/rootless-live/canary/fail/ack.json",
+        "line": 6,
+        "commit": "56da1d7c1d19d7f8171450dd21d53ac9b43bdadb",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/rootless-live/canary/fail/ack.json",
+        "line": 31,
+        "commit": "56da1d7c1d19d7f8171450dd21d53ac9b43bdadb",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/rootless-live/canary/pass/ack.json",
+        "line": 6,
+        "commit": "56da1d7c1d19d7f8171450dd21d53ac9b43bdadb",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/GP-03/rootless-live/canary/pass/ack.json",
+        "line": 31,
+        "commit": "56da1d7c1d19d7f8171450dd21d53ac9b43bdadb",
+        "rule": "generic-api-key",
+        "classification": "HISTORICAL_MAILBOX_CAS_NONCE_NOT_PROVIDER_CREDENTIAL"
+      },
+      {
+        "file": "design/github-native-v2/contracts/examples/command-cancel.json",
+        "line": 5,
+        "commit": "931861ce23fc735658073c62ae75d98884926945",
+        "rule": "generic-api-key",
+        "classification": "DESIGN_MAILBOX_NONCE_EXAMPLE"
+      },
+      {
+        "file": "design/github-native-v2/contracts/examples/command-container-linux.json",
+        "line": 5,
+        "commit": "931861ce23fc735658073c62ae75d98884926945",
+        "rule": "generic-api-key",
+        "classification": "DESIGN_MAILBOX_NONCE_EXAMPLE"
+      },
+      {
+        "file": "design/github-native-v2/contracts/examples/command-native-linux.json",
+        "line": 5,
+        "commit": "931861ce23fc735658073c62ae75d98884926945",
+        "rule": "generic-api-key",
+        "classification": "DESIGN_MAILBOX_NONCE_EXAMPLE"
+      },
+      {
+        "file": "design/github-native-v2/contracts/examples/command-native-macos.json",
+        "line": 5,
+        "commit": "931861ce23fc735658073c62ae75d98884926945",
+        "rule": "generic-api-key",
+        "classification": "DESIGN_MAILBOX_NONCE_EXAMPLE"
+      },
+      {
+        "file": "design/github-native-v2/contracts/examples/command-redeliver.json",
+        "line": 5,
+        "commit": "931861ce23fc735658073c62ae75d98884926945",
+        "rule": "generic-api-key",
+        "classification": "DESIGN_MAILBOX_NONCE_EXAMPLE"
+      },
+      {
+        "file": "design/github-native-v2/contracts/examples/command-native-windows.json",
+        "line": 5,
+        "commit": "931861ce23fc735658073c62ae75d98884926945",
+        "rule": "generic-api-key",
+        "classification": "DESIGN_MAILBOX_NONCE_EXAMPLE"
+      },
+      {
+        "file": "design/github-native-v2/contracts/examples/command-shell.json",
+        "line": 5,
+        "commit": "931861ce23fc735658073c62ae75d98884926945",
+        "rule": "generic-api-key",
+        "classification": "DESIGN_MAILBOX_NONCE_EXAMPLE"
+      },
+      {
+        "file": "design/github-native-v2/contracts/examples/command-status.json",
+        "line": 5,
+        "commit": "931861ce23fc735658073c62ae75d98884926945",
+        "rule": "generic-api-key",
+        "classification": "DESIGN_MAILBOX_NONCE_EXAMPLE"
+      },
+      {
+        "file": "verification/implementation/EP-06/backend-shell-summary.json",
+        "line": 29,
+        "commit": "3815d1d398c16ab9fffa6baf1ae1dee4d6c67f03",
+        "rule": "generic-api-key",
+        "classification": "FILE_SHA256_NOT_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/EP-01/final-summary.json",
+        "line": 45,
+        "commit": "5fd97078e9eef03460619daaa07b21c651315fb0",
+        "rule": "generic-api-key",
+        "classification": "FILE_SHA256_NOT_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/EP-01/final-summary.json",
+        "line": 46,
+        "commit": "5fd97078e9eef03460619daaa07b21c651315fb0",
+        "rule": "generic-api-key",
+        "classification": "FILE_SHA256_NOT_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/EP-01/final-summary.json",
+        "line": 52,
+        "commit": "5fd97078e9eef03460619daaa07b21c651315fb0",
+        "rule": "generic-api-key",
+        "classification": "FILE_SHA256_NOT_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/EP-01/final-summary.json",
+        "line": 71,
+        "commit": "5fd97078e9eef03460619daaa07b21c651315fb0",
+        "rule": "generic-api-key",
+        "classification": "FILE_SHA256_NOT_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/EP-01/final-summary.json",
+        "line": 75,
+        "commit": "5fd97078e9eef03460619daaa07b21c651315fb0",
+        "rule": "generic-api-key",
+        "classification": "FILE_SHA256_NOT_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/EP-01/pause-file-hashes.json",
+        "line": 8,
+        "commit": "5fd97078e9eef03460619daaa07b21c651315fb0",
+        "rule": "generic-api-key",
+        "classification": "FILE_SHA256_NOT_CREDENTIAL"
+      },
+      {
+        "file": "verification/implementation/EP-01/pause-file-hashes.json",
+        "line": 27,
+        "commit": "5fd97078e9eef03460619daaa07b21c651315fb0",
+        "rule": "generic-api-key",
+        "classification": "FILE_SHA256_NOT_CREDENTIAL"
+      }
+    ]
+  },
+  "additional_credential_shape_scan": {
+    "unique_blobs": 1979,
+    "bytes": 44083703,
+    "credential_shape_findings": [],
+    "credential_filename_findings": []
+  },
+  "github_actions": {
+    "workflow_runs": 30,
+    "artifacts": 26,
+    "archives_requested": 56,
+    "archives_read": 56,
+    "unavailable": [],
+    "raw_findings": 0,
+    "scanner_exit": 0
+  },
+  "other_remote_surfaces": {
+    "tags": 0,
+    "releases": 0,
+    "pull_requests": 0,
+    "issues": 0
+  },
+  "opaque_evidence": {
+    "bundled_wheels": 5,
+    "bundled_license_notices": "PRESENT_INSIDE_ALL_FIVE_UNMODIFIED_WHEELS",
+    "tracked_screenshots": 43,
+    "visual_review": [
+      "verification/implementation/GP-07/release/installed-v2.png",
+      "verification/implementation/EP-07/installed-ui-026-20260928T1755Z/primary-dark-1280x800.png"
+    ],
+    "visual_scope": "Two actual installed UI captures reviewed; no claim of exhaustive image OCR",
+    "retained_sqlite": "Rootless canary admission fixture; no provider credential files are tracked"
+  },
+  "readme_checks": {
+    "languages_in_requested_order": true,
+    "local_links_exist": true,
+    "english_russian_commands_identical": true,
+    "shell_syntax": "PASSED",
+    "install_instructions": "Matched existing wheel installer and unchanged lock files; no SDK/system-service installation was performed"
+  },
+  "preserved_account_references": "Historical Drive IDs, owner-local paths, test repository names and Git author metadata remain as provenance; they are not provider credentials.",
+  "reused_runtime_evidence": "GP-07 source freeze a26fe8ca; installed provider acceptance and OAuth restoration remain applicable; no production code/dependency/schema changes.",
+  "broad_tests": "NOT_RUN: publication documents only",
+  "publication_gate": {
+    "requires": "Owner reads/approves the prepared README before visibility change",
+    "current_default_branch": "main (0.2.7)",
+    "candidate_branch": "feature/github-native-v2-20261015 (0.3.0.dev1)",
+    "proposed_default_branch": "feature/github-native-v2-20261015",
+    "proposed_action": "After owner review, make the v2 preview branch the GitHub default and change visibility to public, then verify read-only access without authentication. No main merge, history rewrite or infrastructure recreation is needed."
+  },
+  "publication_diff_scan": {
+    "scanner_exit": 0,
+    "findings": 0,
+    "scope": "Staged publication documentation diff; source/history findings already separately triaged"
+  }
+}

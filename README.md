@@ -1,111 +1,137 @@
-# Chat-Dev Runner · мастерская разработки
+# Chat-Dev Runner
 
-**Версия 0.1 — интерактивный прототип + исполняемое reference-ядро + комплект реализации.**
-Не готовый облачный runner. Сначала открой интерфейс, затем передай пакет Codex.
-Карта файлов: `FILE_INDEX.md`. Фактические проверки: `verification/REPORT.md`.
+[English](#english) · [Русский](#русский)
 
-`KIT_MANIFEST.json` и `SHA256SUMS` сохранены как свидетельство состава исходного архива;
-текущее состояние реализации и проверки фиксируются в `STATUS.json` и `codex/checkpoints/`.
+## English
 
-## Открыть прототип
+Chat-Dev Runner connects a chat assistant to development projects on your computer
+through **Google Docs and GitHub**. Work on a project from chat, run it locally,
+and return its output, logs and test reports to the conversation. Projects remain
+ordinary local Git repositories that you can open in VS Code and edit yourself.
 
-Из распакованного каталога:
+### What it does
 
-```bash
-./start-prototype.sh
-# затем открыть http://127.0.0.1:8765
-```
+- Creates projects and manages repositories, branches and multiple workspaces.
+- Transfers code changes, prepares configured environments, and runs programs and tests.
+- Captures source snapshots, logs, test reports and other declared output files.
+- Publishes results to Drive or GitHub; v2 can add results to the tested branch.
+- Provides a local web interface, persistent history, backup and restore.
 
-Нужен только Python 3.10+. Сервис отдаёт статические файлы; не выполняет операции над компьютером.
-`prototype/index.html` можно открыть непосредственно в обычном браузере. Отдельный
-`runner-prototype.html` — тот же интерфейс в одном файле без внешних ресурсов.
-Сетевых вызовов к Drive/GitHub/OpenAI нет. Надпись «ДЕМО» остаётся видимой.
+### How it works
 
-**Попробуй:** выбрать RC dashboard → открыть тесты и логи → «Новая операция» →
-конечный маршрут проверки и публикации → создать второй worktree → открыть список VS Code →
-создать новый демонстрационный проект. В «Системе» есть светлая тема, отключение движения,
-демонстрация сбоя соединения и сброс сохранённого состояния. Ctrl+K открывает переходы.
+The chat prepares code and an explicit command in a registered Google Doc or
+GitHub command file. The local Runner receives the command, selects the project
+and execution profile, freezes the source, runs the requested operation, and
+returns a receipt and results. You review the output in chat and decide the next
+step. Runner itself does not call a language model or generate follow-up tasks.
 
-## Что лежит в архиве
+Execution uses either an approved native profile or the configured rootless
+Docker profile. Native programs run with your ordinary user permissions;
+containers provide the separate execution boundary. Credentials stay outside
+repositories, and the web interface listens only on `127.0.0.1:8765`.
 
-| Путь | Назначение |
-|---|---|
-| `prototype/` | HTML/CSS/JS интерфейс: формы, состояния, конечные сценарии, экспорт примеров |
-| `bridge_reference/` | Настоящие проверки протокола, SQLite admission, изменения файлов, сбор вывода |
-| `tests/` | Автоматические проверки reference-ядра, контрактов и шаблонов Drive |
-| `docs/OWNER_GUIDE_RU.md` | Замысел, основные сценарии, принятые решения и границы |
-| `docs/` | Архитектура, Git/Drive, безопасность, UI, результаты, сценарии отказов |
-| `codex/START_HERE.md` | Входная точка для реализации: что читать и в каком порядке |
-| `codex/packets/` | Самодостаточные execution packets с критериями приёмки и evidence |
-| `schemas/`, `examples/` | Версионированные JSON Schema и валидные примеры DRAFT |
-| `drive-seed/` | Рабочие инструкции, шаблоны и манифест создания пространства Drive |
-| `scripts/bootstrap_drive.py` | Установщик файлов Drive: по умолчанию только план, без сети |
-| `scripts/test_ui.py` | Проверки интерфейса в настоящем Chromium и снимки экранов |
-| `config/` | Примеры локальных политик и профиля тестирования |
-| `deploy/` | Рабочий unit для прототипа и шаблон будущего production-unit |
-| `verification/` | Результаты фактически выполненных проверок и ограничения проверки |
-| `STATUS.json` | Машиночитаемая граница между сделанным и спроектированным |
+### Install
 
-## Проверить исполняемую часть
+**Linux preview · 0.3.0.dev1.** Requires Python 3.10+, Git, and the tools needed by
+your projects. Python, JavaScript, TypeScript and C# recipes have been exercised
+on Linux. Windows/macOS, Java, Compose and Unity are not qualified for this release.
+
+The v2 preview currently lives on `feature/github-native-v2-20261015`:
 
 ```bash
+git clone --branch feature/github-native-v2-20261015 https://github.com/ViskyG/chat-dev-runner.git
+cd chat-dev-runner
 python3 -m venv .venv
-. .venv/bin/activate
-python -m pip install -e '.[test]'
-python -m pytest -q
-python -m bridge_reference.demo
+.venv/bin/python -m pip install --require-hashes -r requirements.production.lock
+.venv/bin/python -m pip install --no-deps .
+.venv/bin/runner doctor --offline
 ```
 
-Последняя команда создаёт **новый временный игрушечный репозиторий**, два настоящих
-worktree, фиксирует снимки, выполняет настоящие unittest: один вариант проходит,
-другой намеренно падает. Сохраняются stdout/stderr, JSON-манифесты и SQLite-записи.
-Повтор одного ID не исполняется. Твои рабочие проекты и облачные системы не затрагиваются.
-Это проверка механики, а не безопасная песочница для произвольного кода.
+Next, enroll your projects, tool profiles and chosen Google/GitHub channels using
+[V2 operations](docs/V2_OPERATIONS.md). Provider setup is currently manual;
+examples and historical installation IDs are not ready-to-use account settings.
+Keep OAuth credentials and tokens outside the repository with `0600` permissions.
+Reuse an existing Drive installation rather than bootstrapping a duplicate.
 
-## Файлы для Google Drive
+Once configuration is ready, preview and install the Linux user service:
 
 ```bash
-python scripts/bootstrap_drive.py --plan
+.venv/bin/runner install --dry-run
+.venv/bin/runner install --user
+.venv/bin/runner status
 ```
 
-Команда показывает, что будет создано, не импортирует Google SDK и не читает токены.
-Дальнейшая установка описана в `drive-seed/README.md`.
-Нужны собственный Google OAuth Desktop Client и локальное подтверждение доступа.
-Bootstrap создаёт только свои документы, не включает runner и не публикует READY-команды.
-Облачная установка в этой поставке **не выполнялась**.
+The configured service starts with command intake enabled. See
+[V2 operations](docs/V2_OPERATIONS.md) for commands and recovery, and
+[STATUS.json](STATUS.json) for implemented capabilities and remaining work.
 
-Существующая установка Drive уже создана владельцем. Runner привязывается к её точным
-ID и проверяет root и INSTALLATION INDEX перед любой записью; повторный bootstrap запрещён.
-Для выделенного аккаунта владелец разрешил только полный OAuth scope Drive. Само наличие
-токена не подтверждает доступность конкретного документа. Подробнее: `docs/DRIVE_PROTOCOL.md`.
+**License:** no open-source license is currently provided for this project.
+Bundled dependencies retain their [third-party licenses](THIRD_PARTY_NOTICES.md).
 
-## Передать Codex
+## Русский
 
-Открой этот каталог в VS Code/Codex и используй `codex/LAUNCH_PROMPT_EN.md`.
-Сначала EP-00: обследование окружения и план проверок разрешений. Реальные проверки доступа — на отдельно согласованном этапе. Затем пакет за пакетом.
-Не проси «сделать всё из картинки»: контракты и сценарии здесь точнее картинки.
-Не создавать репозиторий, не менять системные службы и не загружать файлы до соответствующего
-явного разрешения на выбранном этапе установки.
+Chat-Dev Runner связывает чат-ассистента с проектами на вашем компьютере через
+**Google Docs и GitHub**. Можно работать над проектом из чата, запускать его
+локально и возвращать в разговор вывод программы, логи и результаты тестов.
+Проекты остаются обычными локальными Git-репозиториями: их можно открыть в
+VS Code и редактировать самостоятельно.
 
-## Честная граница поставки
+### Возможности
 
-Интерфейс пока **не подключён** к Python-ядру. GitHub/Drive внутри интерфейса — симуляция.
-Production-адаптеры, контейнерная изоляция, локальный API и фоновый watcher заданы в пакетах
-Codex, но не реализованы в этом прототипе. Автоматические commit, push, создание/обновление
-PR входят в **обязательный целевой v1**, а не исключены из проекта.
+- Создание проектов, управление репозиториями, ветками и несколькими рабочими папками.
+- Перенос изменений кода, подготовка настроенного окружения, запуск программ и тестов.
+- Сохранение снимков исходников, логов, отчётов тестов и заданных выходных файлов.
+- Публикация результатов в Drive или GitHub; v2 умеет добавлять их в проверенную ветку.
+- Локальный веб-интерфейс, история операций, резервное копирование и восстановление.
 
-Согласованные принципы: локальный интерфейс; несколько проектов и worktree; отсутствие
-очереди и автоматической следующей итерации; автоматический конечный маршрут; типизированные
-результаты; отдельные статусы runner, операции, проекта и доставки. Эстетика не добавляет
-информационного шума и не маскирует состояние системы.
+### Принцип работы
 
-## Повторить браузерную проверку
+Чат готовит код и явную команду в зарегистрированном Google Doc или командном
+файле GitHub. Локальный Runner принимает команду, выбирает проект и профиль
+исполнения, фиксирует исходники, выполняет операцию и возвращает подтверждение
+и результаты. Вы рассматриваете вывод в чате и решаете, что делать дальше.
+Сам Runner не обращается к языковой модели и не создаёт следующие задания.
+
+Выполнение идёт через разрешённый нативный профиль или настроенный профиль
+rootless Docker. Нативные программы работают с правами вашего обычного
+пользователя; контейнеры обеспечивают отдельную границу исполнения. Учётные
+данные хранятся вне репозиториев, веб-интерфейс доступен на `127.0.0.1:8765`.
+
+### Установка
+
+**Предварительная Linux-версия · 0.3.0.dev1.** Нужны Python 3.10+, Git и инструменты
+ваших проектов. На Linux проверены сценарии Python, JavaScript, TypeScript и C#.
+Windows/macOS, Java, Compose и Unity пока не прошли приёмку для этой версии.
+
+Текущая v2 находится в ветке `feature/github-native-v2-20261015`:
 
 ```bash
-python -m pip install -e '.[ui-test]'
-# Укажи путь к установленному Chromium/Chrome, если он отличается:
-CHROMIUM_PATH=/usr/bin/chromium python scripts/test_ui.py
+git clone --branch feature/github-native-v2-20261015 https://github.com/ViskyG/chat-dev-runner.git
+cd chat-dev-runner
+python3 -m venv .venv
+.venv/bin/python -m pip install --require-hashes -r requirements.production.lock
+.venv/bin/python -m pip install --no-deps .
+.venv/bin/runner doctor --offline
 ```
 
-Проверка использует встроенный в один HTML интерфейс и не обращается к облачным аккаунтам.
-Она не заменяет будущие сквозные тесты локального API, OAuth и GitHub.
+Затем настройте проекты, профили инструментов и выбранные каналы Google/GitHub по
+[инструкции v2](docs/V2_OPERATIONS.md). Настройка провайдеров пока выполняется
+вручную; примеры и исторические ID установки нельзя использовать как готовые
+настройки своего аккаунта. Храните OAuth credentials и токены вне репозитория с
+правами `0600`. Если установка Drive уже существует, подключайте её без создания
+второй.
+
+После настройки просмотрите план и установите пользовательский Linux-сервис:
+
+```bash
+.venv/bin/runner install --dry-run
+.venv/bin/runner install --user
+.venv/bin/runner status
+```
+
+Настроенный сервис запускается с включённым приёмом команд. Команды и
+восстановление описаны в [инструкции v2](docs/V2_OPERATIONS.md), текущее состояние
+разработки — в [STATUS.json](STATUS.json).
+
+**Лицензия:** открытая лицензия для проекта пока не предоставляется.
+Включённые зависимости сохраняют свои [сторонние лицензии](THIRD_PARTY_NOTICES.md).
