@@ -20,15 +20,27 @@ Usually you have to copy code out of the conversation, run it in a terminal, cop
 
 The goal is straightforward: **write in chat → run on your computer → inspect the result in chat → improve the code.** No guessing whether generated code passed a test.
 
+### Before you run anything, prepare the project
+
+**Runner cannot automatically run any GitHub repository just because ChatGPT can see it.** A project must follow Runner's task contract and be explicitly registered with the local service:
+
+- **Project manifest:** the repository contains `.runner/project.json` (protocol `cdr-project/2`) defining its project ID, allowed tasks such as `test`, execution steps, expected outputs and a meaningful pass/fail gate.
+- **Local enrollment:** the owner configures the project, its GitHub source or approved local workspace, and execution profiles that select installed tools and permissions on the Linux machine.
+- **Command channel:** the chat and Runner must use a registered GitHub command file or dedicated Google Docs tab with the required access.
+
+**You do not have to rewrite your application.** Prepare an existing project using the [project-preparation skill](skills/v2/prepare-runner-project-v2/SKILL.md), [example task manifests](examples/v2/README.md) and [setup instructions](docs/V2_OPERATIONS.md). A manifest alone does not give a chat permission to run code.
+
+
 ### A real example
 
 Imagine you're working on a Python project.
 
 1. ChatGPT prepares a code change and a test in a GitHub branch.
 2. You ask: *“Run this branch's tests with Chat-Dev Runner and tell me what failed.”*
-3. Runner, already running on your Linux computer, receives the request and runs the **registered task** using your approved Python environment.
-4. Logs and test reports are published back to GitHub.
-5. ChatGPT reads the **actual error**, explains it, and can prepare a fix. You can then request another run.
+3. ChatGPT writes an explicit command to the project's **registered GitHub command file** or **dedicated command document in Google Docs**.
+4. Runner on the Linux computer where you installed and configured it **monitors that command channel**, accepts and records the request, obtains the selected project's source (from GitHub or an enrolled local workspace), freezes a snapshot and executes the **registered task** in your approved Python environment.
+5. The terminal status, logs and test reports are returned through the configured channel (GitHub in this example).
+6. ChatGPT reads the **actual error**, explains it, and can prepare a fix. You can then request another run.
 
 We verified this round trip on a real local machine: **7 passing tests → 1 deliberately failing test → 8 passing tests after a fix**. Those results came from execution, not a simulated answer.
 
@@ -60,6 +72,8 @@ Same conversation: diagnose, decide, improve
 
 An acknowledgement means *“Runner accepted this request”*, **not** *“the tests passed.”* The chat must read the matching execution and test results. The command-file branch may differ from the branch being tested.
 
+On Runner `0.3.0.dev2`, a separate terminal-state receipt is published to `.runner/state/<runner>/<request>.json` on the **command-file branch**. It can report an early error even if the tests never start. Detailed reports remain on the **tested source branch**.
+
 GitHub-only v2 needs no Google Drive installation. Registered local workspaces and the existing Google Docs workflows are also supported in their respective configurations.
 
 ### What can it do?
@@ -71,6 +85,12 @@ GitHub-only v2 needs no Google Drive installation. Registered local workspaces a
 - Display request history and evidence in a local web interface.
 
 Runner is **not an unrestricted remote terminal**. You enroll projects, choose allowed execution profiles and define tasks and outputs in `.runner/project.json`. Shell actions are a separately enrolled capability.
+
+### Skills for ChatGPT and other agents
+
+The repository also includes [agent usage skills](skills/usage/README.md). They explain how to **prepare a compatible project, submit a guarded command from ordinary ChatGPT, read the real results**, or coordinate multiple implementation waves through Udot. The direct-ChatGPT skill has a [Russian translation](skills/usage/chatgpt/operate-runner-from-chat/SKILL.ru.md).
+
+These files are public distribution copies from the owner's canonical skill library. **They are not automatically installed** and cannot enroll projects or grant execution permissions. The installed Runner's current protocol remains authoritative.
 
 ### Getting started: Linux preview
 
@@ -129,6 +149,17 @@ ChatGPT умеет писать код, предлагать исправлен�
 
 Главная идея: **написать код в чате → запустить на своём компьютере → увидеть настоящий результат в чате → исправить и проверить снова.**
 
+### Сначала проект нужно подготовить для Runner
+
+**Runner не запускает любой репозиторий просто потому, что ChatGPT получил к нему доступ.** Проект должен соответствовать контракту Runner, а владелец — зарегистрировать его в локальном сервисе:
+
+- **Описание проекта:** в репозитории нужен `.runner/project.json` (протокол `cdr-project/2`) с идентификатором проекта, разрешёнными задачами, например `test`, шагами их выполнения, ожидаемыми результатами и условиями успешной проверки.
+- **Локальная регистрация:** владелец настраивает проект, его исходники в GitHub или разрешённую локальную папку, а также профили запуска с установленными инструментами и правами на Linux-машине.
+- **Командный канал:** чат и Runner должны работать с зарегистрированным командным файлом GitHub или отдельной вкладкой Google Docs и иметь необходимые разрешения.
+
+**Переписывать само приложение не нужно.** Существующий проект можно подготовить с помощью [скилла подготовки](skills/v2/prepare-runner-project-v2/SKILL.md), [примеров задач](examples/v2/README.md) и [инструкции настройки](docs/V2_OPERATIONS.md). Один только манифест не даёт чату права запускать код.
+
+
 Не «ИИ уверен, что всё должно работать», а реальный запуск.
 
 ### Как это выглядит на практике
@@ -137,9 +168,10 @@ ChatGPT умеет писать код, предлагать исправлен�
 
 1. ChatGPT готовит изменение кода и тест в ветке GitHub.
 2. Вы пишете: *«Запусти тесты этой ветки через Chat-Dev Runner и объясни, что сломалось».*
-3. Runner, уже работающий на вашем Linux-компьютере, получает запрос и запускает **зарегистрированную задачу** в разрешённом Python-окружении.
-4. Логи и отчёты тестов публикуются обратно в GitHub.
-5. ChatGPT читает **реальную ошибку**, разбирает её и может подготовить исправление. Затем вы просите повторить запуск.
+3. ChatGPT записывает команду запуска в **специальный командный файл репозитория GitHub** или **зарегистрированный командный документ Google Docs**.
+4. Runner на Linux-компьютере, где он установлен и настроен, **отслеживает этот канал**, принимает и фиксирует запрос, получает исходники выбранного проекта (из GitHub или зарегистрированной локальной папки), сохраняет их снимок и выполняет **зарегистрированную задачу** в разрешённом Python-окружении.
+5. Итоговый статус, логи и отчёты тестов возвращаются через настроенный канал (в этом примере — GitHub).
+6. ChatGPT читает **реальную ошибку**, разбирает её и может подготовить исправление. Затем вы просите повторить запуск.
 
 Мы проверили такой цикл на работающей локальной машине: **7 успешно пройденных тестов → 1 намеренно проваленный → 8 успешных после исправления**. Это были настоящие запуски с отчётами, а не имитация ответа.
 
@@ -171,6 +203,8 @@ GitHub (или настроенный канал результатов)
 
 Подтверждение означает *«Runner принял задание»*, а **не** *«тесты прошли»*. Чат должен отдельно прочитать результат выполнения и проверки. Ветка командного файла может отличаться от ветки исходников.
 
+В Runner `0.3.0.dev2` отдельная квитанция с итоговым статусом появляется по пути `.runner/state/<runner>/<request>.json` **в ветке командного файла**. Она позволяет увидеть и раннюю ошибку, когда тесты вообще не запустились. Подробные отчёты остаются **в проверенной ветке исходников**.
+
 Для GitHub-only v2 **Google Drive не нужен**. Также существуют сценарии с зарегистрированными локальными рабочими папками и прежними каналами через Google Docs.
 
 ### Что умеет Runner
@@ -182,6 +216,12 @@ GitHub (или настроенный канал результатов)
 - Показывать историю запросов и результаты через локальный веб-интерфейс.
 
 Runner — **не бесконтрольный удалённый терминал**. Владелец заранее регистрирует проекты, разрешённые профили исполнения и задачи с выходными файлами в `.runner/project.json`. Команды оболочки доступны только при отдельном разрешении.
+
+### Скиллы для ChatGPT и других агентов
+
+В репозитории доступны [скиллы использования Runner](skills/usage/README.md). В них описано, как **подготовить совместимый проект, безопасно отправлять команды из обычного ChatGPT и читать реальные результаты**, а также координировать несколько этапов разработки через Udot. Для прямого запуска из чата есть [русский перевод](skills/usage/chatgpt/operate-runner-from-chat/SKILL.ru.md).
+
+Это публичные копии инструкций из канонической библиотеки владельца. **Сами по себе они не устанавливаются**, не регистрируют проект и не выдают разрешения. Приоритет имеет актуальный протокол установленного Runner.
 
 ### Как начать: предварительная версия для Linux
 
