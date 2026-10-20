@@ -11,7 +11,8 @@ ordinary local Git repositories that you can open in VS Code and edit yourself.
 
 ### What it does
 
-- Creates projects and manages repositories, branches and multiple workspaces.
+- Creates projects through Google Docs or the local UI, and works with existing repositories.
+- Targets a chosen branch and local workspace for each operation.
 - Transfers code changes, prepares configured environments, and runs programs and tests.
 - Captures source snapshots, logs, test reports and other declared output files.
 - Publishes results to Drive or GitHub; v2 can add results to the tested branch.
@@ -24,6 +25,7 @@ GitHub command file. The local Runner receives the command, selects the project
 and execution profile, freezes the source, runs the requested operation, and
 returns a receipt and results. You review the output in chat and decide the next
 step. Runner itself does not call a language model or generate follow-up tasks.
+The GitHub v2 channel runs tasks for projects that have already been enrolled.
 
 Execution uses either an approved native profile or the configured rootless
 Docker profile. Native programs run with your ordinary user permissions;
@@ -36,10 +38,10 @@ repositories, and the web interface listens only on `127.0.0.1:8765`.
 your projects. Python, JavaScript, TypeScript and C# recipes have been exercised
 on Linux. Windows/macOS, Java, Compose and Unity are not qualified for this release.
 
-The v2 preview currently lives on `feature/github-native-v2-20261015`:
+The v2 Linux preview is available in `main`:
 
 ```bash
-git clone --branch feature/github-native-v2-20261015 https://github.com/ViskyG/chat-dev-runner.git
+git clone https://github.com/ViskyG/chat-dev-runner.git
 cd chat-dev-runner
 python3 -m venv .venv
 .venv/bin/python -m pip install --require-hashes -r requirements.production.lock
@@ -78,7 +80,8 @@ VS Code и редактировать самостоятельно.
 
 ### Возможности
 
-- Создание проектов, управление репозиториями, ветками и несколькими рабочими папками.
+- Создание проектов через Google Docs или локальный интерфейс, работа с существующими репозиториями.
+- Выбор ветки и локальной рабочей папки для каждой операции.
 - Перенос изменений кода, подготовка настроенного окружения, запуск программ и тестов.
 - Сохранение снимков исходников, логов, отчётов тестов и заданных выходных файлов.
 - Публикация результатов в Drive или GitHub; v2 умеет добавлять их в проверенную ветку.
@@ -91,6 +94,7 @@ VS Code и редактировать самостоятельно.
 исполнения, фиксирует исходники, выполняет операцию и возвращает подтверждение
 и результаты. Вы рассматриваете вывод в чате и решаете, что делать дальше.
 Сам Runner не обращается к языковой модели и не создаёт следующие задания.
+GitHub-канал v2 выполняет задания для уже подключённых проектов.
 
 Выполнение идёт через разрешённый нативный профиль или настроенный профиль
 rootless Docker. Нативные программы работают с правами вашего обычного
@@ -103,10 +107,10 @@ rootless Docker. Нативные программы работают с пра�
 ваших проектов. На Linux проверены сценарии Python, JavaScript, TypeScript и C#.
 Windows/macOS, Java, Compose и Unity пока не прошли приёмку для этой версии.
 
-Текущая v2 находится в ветке `feature/github-native-v2-20261015`:
+Предварительная Linux-версия v2 находится в ветке `main`:
 
 ```bash
-git clone --branch feature/github-native-v2-20261015 https://github.com/ViskyG/chat-dev-runner.git
+git clone https://github.com/ViskyG/chat-dev-runner.git
 cd chat-dev-runner
 python3 -m venv .venv
 .venv/bin/python -m pip install --require-hashes -r requirements.production.lock
