@@ -1,6 +1,6 @@
 {
   "version": "0.3.0.dev1-GP07-in-progress",
-  "date": "2026-10-16",
+  "date": "2026-10-20",
   "ui": "EP-06 VERIFIED packaged same-origin control centre. Installed 0.2.6 browser/API acceptance matched the prior passing/failing runs, JUnit, 18 dark/light/reduced-motion screenshots, keyboard/viewport behavior and exact-workspace VS Code open request. Focused installed 0.2.7 Chromium readback passed keyboard Console/Tests tab selection and registered JUnit inspection GETs for both runs; the disabled GitHub import option exposed its exact visible/accessibility reason, and the enabled local-context dialog explained local-only scope and unavailable diff. The browser-only context form was not submitted during that UI probe; a separate installed owner-local API EXPORT_CONTEXT operation later completed. These runs contain no structured application-log output, so installed Console inspection GET for that format is not claimed. A focused installed browser GET-failure probe showed truthful partial/global offline status, disabled command reasons, accessible retry and online recovery while retaining the same historical run; old run badges stay visible beneath the global offline strip. See verification/implementation/EP-07/installed-ui-0.2.7.json, installed-ui-0.2.7-offline.json and ui-evidence-installed-20260928.md.",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
@@ -154,6 +154,14 @@
       "implemented": "v2 contracts + durable session FIFO + one v1/v2 lane; exact GitHub/Docs ports; current-source snapshots; native and fixed rootless handlers; same-branch publisher, delivery-only reuse; optional Runtime/API/UI; four native tool/report families qualified cold and warm",
       "next": "Remaining GP07 target/tool gates: Java SDK/Maven system installation approval pending; Windows Job Object execution/service unimplemented, macOS unqualified. GP08/09 dependency gates remain open. Docs v2 is installed for the existing disposable gp03-github-pass project; other project bindings are not migrated.",
       "live_service_active": true,
+      "oauth_recovery": {
+        "date": "2026-10-20",
+        "status": "AUTHORIZED_AND_SERVICE_RESTORED",
+        "provider_code": "invalid_grant",
+        "reason": "TOKEN_EXPIRED_OR_REVOKED",
+        "service": "ACTIVE_ENABLED_ARMED_BOTH_CHANNELS_IDLE",
+        "evidence": "verification/implementation/GP-07/release/oauth-recovery-20261020.json"
+      },
       "live_database_schema": 10,
       "source_freeze": "a26fe8ca64d25442ce80f2f80f1f0c6bb5302974",
       "candidate_version": "0.3.0.dev1",

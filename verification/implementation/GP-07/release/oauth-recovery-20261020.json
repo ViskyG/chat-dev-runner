@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-20",
+  "source_commit": "afbc4d50cca0bbd85f13a99d23e41de460fff6c9",
+  "installed_version": "0.3.0.dev1",
+  "initial_service_state": "activating/auto-restart",
+  "initial_error": "OAUTH_REFRESH_FAILED",
+  "explicit_refresh_attempts": 1,
+  "provider_error": "invalid_grant",
+  "reason_category": "TOKEN_EXPIRED_OR_REVOKED",
+  "service_state_after_diagnosis": "STOPPED",
+  "unit_enabled": true,
+  "recovery_status": "AUTHORIZED_AND_SERVICE_RESTORED",
+  "requested_scopes": [
+    "https://www.googleapis.com/auth/drive"
+  ],
+  "credential_and_token_permissions_checked": "0600",
+  "token_persistence": "EXISTING_INSTALLED_ATOMIC_OWNER_ONLY_WRITER_OUTSIDE_REPOSITORY",
+  "operator_drive_writes": 0,
+  "routine_daemon_state_sync": "RESUMED_WITH_EXISTING_SERVICE",
+  "project_executions": 0,
+  "source_or_wheel_changed": false,
+  "next": "Existing service restored. Choose a concrete project change for a useful next chat-driven execution; preserve existing configured bindings and pending intent.",
+  "service_state_after_recovery": "ACTIVE_RUNNING",
+  "oauth_authorization_succeeded": true,
+  "read_only_attachment": {
+    "status": "ATTACHED",
+    "indexed_roles": 13,
+    "root_folder_id": "177IEHeBVezHIlbIijZsIvRDSbTJ42kxe",
+    "installation_index_id": "1x2KIBZCZfHs2w-s_Ah3yMW80elgG4KseTe7OZq7L_hA",
+    "installation_index_text_sha256": "e9f3ebc4f7a81d6ce6822eac269ac6a4104ad9b209729a18343d87424aa00075"
+  },
+  "live_api": {
+    "status": "LIVE_API_CONFIRMED",
+    "v2": {
+      "protocol": "cdr-runtime/2",
+      "runner_id": "local-runner",
+      "session_id": "dead8f81-7551-4781-bf73-d8666ff2d5d0",
+      "armed": true,
+      "configured": true,
+      "channels": {
+        "gp07-github-preview": "IDLE",
+        "gp04-docs-preview": "IDLE"
+      },
+      "projects": [
+        "gp03-github-pass"
+      ],
+      "queue_limit": 100,
+      "native_profiles": [
+        "native-python"
+      ],
+      "container_backends": {
+        "rootless-docker": "CONFIGURED_NOT_PROBED"
+      },
+      "capability_status": "IMPLEMENTED_NOT_QUALIFIED"
+    },
+    "system": {
+      "runner_id": "local-runner",
+      "armed": true,
+      "epoch": "dbe822dc-0564-4826-bb65-244aad0eda83"
+    },
+    "v2_request_counts": {
+      "COMPLETED": 2
+    },
+    "execution_lane_count": 0
+  }
+}
