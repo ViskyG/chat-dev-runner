@@ -2,13 +2,14 @@
   "version": "0.3.0.dev1-GP07-in-progress",
   "date": "2026-10-20",
   "source_publication": {
-    "status": "PREPARED_AWAITING_OWNER_README_REVIEW",
-    "visibility": "PRIVATE_UNCHANGED",
+    "status": "PUBLISHED",
+    "visibility": "public",
     "license_choice": "NO_OPEN_SOURCE_LICENSE",
     "readme_languages": ["en", "ru"],
-    "candidate_branch": "feature/github-native-v2-20261015",
-    "proposed_default_branch": "feature/github-native-v2-20261015",
-    "evidence": "verification/publication/preflight-20261020.json"
+    "published_branch": "main",
+    "default_branch": "main",
+    "published_source_commit": "0a69f12a30606efe8d6fb68ccc7fe7c22637dab4",
+    "evidence": "verification/publication/published-20261020.json"
   },
   "ui": "EP-06 VERIFIED packaged same-origin control centre. Installed 0.2.6 browser/API acceptance matched the prior passing/failing runs, JUnit, 18 dark/light/reduced-motion screenshots, keyboard/viewport behavior and exact-workspace VS Code open request. Focused installed 0.2.7 Chromium readback passed keyboard Console/Tests tab selection and registered JUnit inspection GETs for both runs; the disabled GitHub import option exposed its exact visible/accessibility reason, and the enabled local-context dialog explained local-only scope and unavailable diff. The browser-only context form was not submitted during that UI probe; a separate installed owner-local API EXPORT_CONTEXT operation later completed. These runs contain no structured application-log output, so installed Console inspection GET for that format is not claimed. A focused installed browser GET-failure probe showed truthful partial/global offline status, disabled command reasons, accessible retry and online recovery while retaining the same historical run; old run badges stay visible beneath the global offline strip. See verification/implementation/EP-07/installed-ui-0.2.7.json, installed-ui-0.2.7-offline.json and ui-evidence-installed-20260928.md.",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
@@ -218,12 +219,12 @@
   },
   "implementation_source_repository": {
     "local_git": "GP_V2_PREVIEW_WORKTREE",
-    "branch": "feature/github-native-v2-20261015",
+    "branch": "main",
     "github_remote": "ViskyG/chat-dev-runner",
-    "private_repository_requested": true,
+    "initial_visibility": "private",
     "note": "Source repository for this runner implementation; separate from EP-05 project provisioning.",
-    "visibility": "private",
-    "remote_privacy_verified": true
+    "visibility": "public",
+    "remote_visibility_verified": true
   },
   "root_command_latest_attempt": "At 17:59 +04, a later valid READY CREATE_PROJECT request 7b1e0f6d-6e98-4f0a-bf71-7df7c3a1cf4d was admitted by the armed 0.2.4 runner. Empty project Docs at 18:02 +04 were transient; PROJECT STATE content was confirmed at 18:08 and a matching COMPLETED root RECEIPT at 18:11. No retry or recovery was needed. The private GitHub repository exists, but this chat GitHub connector returned 404 for it. The previous malformed 17:25 request was rejected and retired after expiry without admission. Evidence: verification/implementation/EP-07/chat-origin-calculator-create-20260928.json and root-command-invalid-json-20260928.json."
 }

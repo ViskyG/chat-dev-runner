@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-20",
+  "repository": "ViskyG/chat-dev-runner",
+  "repository_id": 1390358064,
+  "url": "https://github.com/ViskyG/chat-dev-runner",
+  "visibility": "public",
+  "default_branch": "main",
+  "published_source_commit": "0a69f12a30606efe8d6fb68ccc7fe7c22637dab4",
+  "main_before": "ac7d55ddce58bcb422bae821b2550483592f7975",
+  "promotion": "NON_FORCE_FAST_FORWARD",
+  "owner_authorization": "2026-10-20 owner \u0414\u0430\u0432\u0430\u0439 after README review and explicit discussion of moving v2 to main and public publication",
+  "readme_languages": [
+    "en",
+    "ru"
+  ],
+  "readme_sha256": "4cdb510a78a2a09026bb3caf0a79a91a8ea12a55d905fdc365bfa66614544c4c",
+  "license": null,
+  "license_choice": "NO_OPEN_SOURCE_LICENSE",
+  "anonymous_access": {
+    "repository_metadata_http": 200,
+    "readme_on_main_http": 200,
+    "readme_matches_local": true,
+    "credentials_used": false
+  },
+  "security_preflight": "verification/publication/preflight-20261020.json",
+  "new_readme_secret_scan": {
+    "exit_code": 0,
+    "findings": 0
+  },
+  "runtime_source_freeze": "a26fe8ca64d25442ce80f2f80f1f0c6bb5302974",
+  "runtime_source_schema_dependencies_changed_since_freeze": false,
+  "runtime_redeployed": false,
+  "broad_tests": "NOT_RUN: unchanged runtime and dependencies; reused existing Linux installed/provider and source-freeze evidence",
+  "hosted_ci": "Existing latest workflow at 8f7e621 is FAILED, retained as historical evidence; this publication does not claim successful hosted CI or complete GP-07 acceptance. Publication-only commits use skip ci.",
+  "qualification": "Linux 0.3.0.dev1 preview; remaining platform/tool/Compose/Unity gates are unchanged",
+  "preserved": "Existing feature/CI branches, owner unrelated worktree, Drive installation, credentials, service configuration and private test project"
+}
