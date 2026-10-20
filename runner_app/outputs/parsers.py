@@ -236,6 +236,9 @@ def parse_application_log(raw: bytes) -> ParseResult:
 def parse_output(kind: str, format_name: str, source: Path,
                  *, max_bytes: int = MAX_PARSE_BYTES) -> ParseResult:
     """Parse a private frozen file; unknown formats remain opaque evidence."""
+    if (kind, format_name) == ("console", "raw-bytes"):
+        # Intentionally opaque log bytes need no structured decoder.
+        return ParseResult(kind, format_name, "UNPARSED", {}, ())
     parsers = {
         ("test_result", "junit-xml"): parse_junit,
         ("application_log", "application-log/v1"): parse_application_log,

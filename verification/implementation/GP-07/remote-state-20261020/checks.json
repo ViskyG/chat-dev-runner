@@ -1,0 +1,23 @@
+{
+  "source_sha256": {
+    "runner_app/git/state_v2.py": "21f0054971490f535a8ee9daa961d378f2cb3c0a85af73fe1995445d079ac9ab",
+    "runner_app/adapters/github_mailbox_v2.py": "3b147c91f2bfb3766675ef2414489a130e3df9c9b9becfd1272541bcb50e1a87",
+    "runner_app/engine/intake_v2.py": "7f57be0805e503c2990e7d093854f38a7044cd0f56d10f8ec09f51724070899f",
+    "runner_app/engine/queue_v2.py": "586e6cf5725efb3986d52a20100abee09280aeffb132c138c7e0ab9af165dac9",
+    "runner_app/engine/runtime_v2.py": "15087d08a31210dc8412c6a1f8e1accf9bf84a50112080a0dfc55021648b99c7",
+    "runner_app/engine/task_v2.py": "939acb691f31897744b9a249ef0b4614be11c130cc40c43e5ee7c6b7e30e8666",
+    "runner_app/outputs/parsers.py": "da78289d8c2e8092584b96c26fe7eb61f5bf393eafa77074bac74cb8432df0ff",
+    "runner_app/storage/intake_v2.py": "bb0064a14762921f873a1de25862454f4fe2b6f0ba85c179a1d795d642020286"
+  },
+  "ruff": "PASSED; changed source and tests",
+  "mypy": "PASSED; eight changed source modules",
+  "baseline": {
+    "tests": 76,
+    "failures": 0
+  },
+  "focused": {
+    "tests": 88,
+    "failures": 0
+  },
+  "broad_regression": "Prior GP07 source-freeze evidence reused; this bounded change adds receipt export and an opaque log format, without modifying execution profiles or schema."
+}

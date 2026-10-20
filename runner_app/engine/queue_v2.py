@@ -8,7 +8,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from runner_app.engine.intake_v2 import IntakeCoordinator, MailboxPort
+from runner_app.engine.intake_v2 import IntakeCoordinator, MailboxPort, notify_terminal
 from runner_app.storage.intake_v2 import IntakeError, IntakeStore
 
 _LOG = logging.getLogger(__name__)
@@ -27,8 +27,10 @@ class TaskHandler(Protocol):
 
 
 class QueueWorker:
-    def __init__(self, store: IntakeStore, session_id: str, handler: TaskHandler) -> None:
+    def __init__(self, store: IntakeStore, session_id: str, handler: TaskHandler, *,
+                 terminal_observer: Callable[[str], None] | None = None) -> None:
         self.store, self.session_id, self.handler = store, session_id, handler
+        self.terminal_observer = terminal_observer
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self._active_cancel: threading.Event | None = None
@@ -72,6 +74,7 @@ class QueueWorker:
                                           cleanup_verified=bool(current and current["status"] == "STARTING"))
             self.store.finish(request_id, status=outcome.status, code=outcome.code,
                               result=outcome.result, cleanup_verified=outcome.cleanup_verified)
+            notify_terminal(self.store, self.terminal_observer, request_id)
         finally:
             finished.set()
             watcher.join(timeout=1)
@@ -107,13 +110,14 @@ class QueueWorker:
 class V2Service:
     def __init__(self, store: IntakeStore, session_id: str,
                  bindings: Sequence[tuple[str, MailboxPort]], handler: TaskHandler,
-                 *, intake_enabled: Callable[[], bool], poll_seconds: float = 2.0) -> None:
+                 *, intake_enabled: Callable[[], bool], poll_seconds: float = 2.0,
+                 terminal_observer: Callable[[str], None] | None = None) -> None:
         if not 0.1 <= poll_seconds <= 60:
             raise ValueError("Invalid polling interval")
         self.store, self.session_id = store, session_id
         self.bindings = tuple(bindings)
-        self.coordinator = IntakeCoordinator(store, session_id)
-        self.worker = QueueWorker(store, session_id, handler)
+        self.coordinator = IntakeCoordinator(store, session_id, terminal_observer=terminal_observer)
+        self.worker = QueueWorker(store, session_id, handler, terminal_observer=terminal_observer)
         self.intake_enabled, self.poll_seconds = intake_enabled, poll_seconds
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None

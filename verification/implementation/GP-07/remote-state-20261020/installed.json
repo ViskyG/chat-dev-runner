@@ -1,0 +1,37 @@
+{
+  "version": "0.3.0.dev2",
+  "status": "INSTALLED_ARMED",
+  "requests_preserved": {
+    "v2_requests": 5,
+    "v1_operations": 26
+  },
+  "mailbox_preflight": [
+    {
+      "binding": "gp07-github-preview",
+      "dispatch": "ACCEPTED",
+      "sha256": "397e357ebdf7bda5dd192fb8f67299145abb882b19bf51c55d051434380d5f1d"
+    },
+    {
+      "binding": "gp04-docs-preview",
+      "dispatch": "DRAFT",
+      "sha256": "fa93fbd301748067ff9b629d491c2ecfa945a32be9c414ba62414166e93d7cab"
+    },
+    {
+      "binding": "cdr-runner-test-github",
+      "dispatch": "DRAFT",
+      "sha256": "d274a47ab8dfc64f509b581b99a840e3643c57bd587674406c8476beeda64368"
+    }
+  ],
+  "backup": {
+    "archive": "/home/visky/Work/GPTRunner/.runner-backups/remote-state-20261020/state-before",
+    "manifest_sha256": "5a5e320ced29be08c963a65de0aded3f9a0a1d90cd0444fc11a0ad80c6f9a745",
+    "files": 8374,
+    "symlinks": 3,
+    "database_schema_version": 10
+  },
+  "wheel_sha256": "04b948ac76561a4c6c03d03fef9c2edd7835376bd5ad5dd8db38516fb1dc359f",
+  "old_binary_retained": true,
+  "database_migration": false,
+  "credential_contents_printed": false,
+  "commands_submitted": 0
+}

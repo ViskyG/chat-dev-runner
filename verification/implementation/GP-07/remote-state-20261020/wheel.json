@@ -1,0 +1,15 @@
+{
+  "version": "0.3.0.dev2",
+  "installed_outside_source": "/home/visky/Work/GPTRunner/.runner-install/venv-0.3.0.dev2/lib/python3.10/site-packages/runner_app",
+  "package_version": "0.3.0.dev2",
+  "changed_modules_match_source": [
+    "git/state_v2.py",
+    "adapters/github_mailbox_v2.py",
+    "engine/intake_v2.py",
+    "engine/queue_v2.py",
+    "engine/runtime_v2.py",
+    "engine/task_v2.py",
+    "outputs/parsers.py",
+    "storage/intake_v2.py"
+  ]
+}

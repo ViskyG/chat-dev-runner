@@ -74,7 +74,7 @@ Runner is **not an unrestricted remote terminal**. You enroll projects, choose a
 
 ### Getting started: Linux preview
 
-**Current release scope:** Linux preview `0.3.0.dev1`, with manual setup rather than one-click onboarding. You need Linux, Python 3.10+, Git, the tools for your project, and a GitHub repository. For ChatGPT to submit requests through GitHub, its connected GitHub app must have suitable access to the selected repository.
+**Current release scope:** Linux preview `0.3.0.dev2`, with manual setup rather than one-click onboarding. You need Linux, Python 3.10+, Git, the tools for your project, and a GitHub repository. For ChatGPT to submit requests through GitHub, its connected GitHub app must have suitable access to the selected repository.
 
 **1 — Install the code:**
 
@@ -111,7 +111,7 @@ Results appear on the tested branch. Look for `summary.md`, `tests.json`, `resul
 
 **Native execution is not a sandbox.** Code and repository scripts run with your ordinary operating-system user's permissions. Only enroll projects, contributors, tasks, and profiles you trust. A separately configured rootless Docker backend supports a constrained Python test profile, not arbitrary container execution.
 
-Python, JavaScript, TypeScript, and C# project recipes have been exercised on Linux. **Windows/macOS, Java, Docker Compose, and Unity are not qualified** for this preview. Some early errors or failed deliveries may require checking Runner's local status. Read [current implementation status](STATUS.json) for exact scope, not a promise of universal compatibility.
+Python, JavaScript, TypeScript, and C# project recipes have been exercised on Linux. **Windows/macOS, Java, Docker Compose, and Unity are not qualified** for this preview. Early failures and STATUS replies are published in `.runner/state/<runner>/<request>.json` on the mailbox branch; this receipt also carries the current bundle delivery. Provider outages may still require checking Runner's local status. Read [current implementation status](STATUS.json) for exact scope, not a promise of universal compatibility.
 
 **License:** the project's own code currently has **no open-source license**. Dependencies keep their [third-party licenses](THIRD_PARTY_NOTICES.md).
 
@@ -185,7 +185,7 @@ Runner — **не бесконтрольный удалённый термина
 
 ### Как начать: предварительная версия для Linux
 
-**Текущее состояние:** Linux preview `0.3.0.dev1`; первоначальная настройка пока **ручная**, а не одним нажатием. Понадобятся Linux с Python 3.10+ и Git, инструменты вашего проекта и репозиторий GitHub. Для отправки команд через GitHub у подключённого к ChatGPT приложения должен быть необходимый доступ к выбранному репозиторию.
+**Текущее состояние:** Linux preview `0.3.0.dev2`; первоначальная настройка пока **ручная**, а не одним нажатием. Понадобятся Linux с Python 3.10+ и Git, инструменты вашего проекта и репозиторий GitHub. Для отправки команд через GitHub у подключённого к ChatGPT приложения должен быть необходимый доступ к выбранному репозиторию.
 
 **1 — Установите код:**
 
@@ -222,6 +222,6 @@ python3 -m venv .venv
 
 **Нативный запуск — не песочница (sandbox).** Код и скрипты репозитория выполняются с правами вашего обычного пользователя ОС. Подключайте только доверенные проекты и предоставляйте доступ лишь нужным участникам, задачам и профилям. Отдельно настраиваемый rootless Docker поддерживает ограниченный профиль Python-тестов, а не произвольный запуск любых контейнеров.
 
-На Linux проверены сценарии Python, JavaScript, TypeScript и C#. **Windows/macOS, Java, Docker Compose и Unity пока не прошли приёмку** для этой версии. Некоторые ранние ошибки и сбои доставки могут потребовать проверки локального статуса Runner. Точные подтверждённые возможности и ограничения указаны в [STATUS.json](STATUS.json).
+На Linux проверены сценарии Python, JavaScript, TypeScript и C#. **Windows/macOS, Java, Docker Compose и Unity пока не прошли приёмку** для этой версии. Ранние ошибки и ответы STATUS публикуются в `.runner/state/<runner>/<request>.json` на ветке командного файла; там же виден актуальный итог доставки отчёта. При недоступности внешнего сервиса может потребоваться проверка локального статуса Runner. Точные подтверждённые возможности и ограничения указаны в [STATUS.json](STATUS.json).
 
 **Лицензия:** у самого проекта пока **нет открытой лицензии**. Сторонние компоненты сохраняют условия [своих лицензий](THIRD_PARTY_NOTICES.md).

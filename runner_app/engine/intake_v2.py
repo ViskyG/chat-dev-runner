@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Protocol
 from uuid import uuid4
@@ -43,9 +44,20 @@ class IntakeResult:
     code: str | None = None
 
 
+def notify_terminal(store: IntakeStore, observer: Callable[[str], None] | None,
+                    request_id: str) -> None:
+    if observer is not None:
+        try:
+            observer(request_id)
+        except Exception:  # noqa: BLE001 -- delivery never replaces the execution outcome
+            store.record_event(request_id, "REMOTE_STATE_FAILED", {"code": "STATE_PUBLICATION_FAILED"})
+
+
 class IntakeCoordinator:
-    def __init__(self, store: IntakeStore, session_id: str) -> None:
+    def __init__(self, store: IntakeStore, session_id: str, *,
+                 terminal_observer: Callable[[str], None] | None = None) -> None:
         self.store, self.session_id = store, session_id
+        self.terminal_observer = terminal_observer
         self._locks: dict[str, threading.RLock] = {}
         self._registry_lock = threading.Lock()
 
@@ -105,6 +117,7 @@ class IntakeCoordinator:
         if (target is None or target["runner_id"] != actor["runner_id"]
                 or target["project_id"] != actor["project_id"]):
             self.store.finish(request_id, status="FAILED", code="TARGET_SCOPE_MISMATCH")
+            notify_terminal(self.store, self.terminal_observer, request_id)
             return
         status = (self.store.cancel(target["request_id"]) if request["action"] == "CANCEL"
                   else target["status"])
@@ -112,6 +125,7 @@ class IntakeCoordinator:
             "target_request_id": target["request_id"], "status": status,
             "sequence": target["sequence"],
         })
+        notify_terminal(self.store, self.terminal_observer, request_id)
 
     def _finish_ack(self, binding_id: str, candidate: dict[str, Any], proof: AckProof) -> IntakeResult:
         sequence = self.store.finalize_ack(candidate["candidate_id"], proof)

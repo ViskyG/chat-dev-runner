@@ -375,6 +375,17 @@ class IntakeStore:
                             "USING(request_id) WHERE r.request_id=?", (request_id,)).fetchone()
             return self._view(row) if row else None
 
+    def request_origins(self, request_id: str) -> list[dict[str, Any]]:
+        with self._connection() as c:
+            return [dict(row) for row in c.execute(
+                "SELECT DISTINCT m.* FROM v2_mailboxes m JOIN v2_candidates c "
+                "USING(binding_id) WHERE c.request_id=? AND c.state='ACKED'", (request_id,))]
+
+    def execution_started(self, request_id: str) -> bool:
+        with self._connection() as c:
+            return c.execute("SELECT 1 FROM v2_journal WHERE request_id=? AND event='RUNNING' "
+                             "LIMIT 1", (request_id,)).fetchone() is not None
+
     def record_redelivery(self, request_id: str, *, actor_id: str,
                           delivery: Mapping[str, Any]) -> None:
         """Update only the current delivery view; frozen result evidence stays exact."""

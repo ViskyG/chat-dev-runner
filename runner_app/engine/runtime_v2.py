@@ -145,7 +145,8 @@ class V2Assembly:
                                             container_backends=backends)
             self.service = V2Service(self.store, self.session_id, bindings, self.handler,
                                      intake_enabled=lambda: bool(ledger.state()["armed"]),
-                                     poll_seconds=config.poll_seconds)
+                                     poll_seconds=config.poll_seconds,
+                                     terminal_observer=self.handler.publish_state)
         except BaseException:
             self.store.end_session(self.session_id)
             raise

@@ -1,6 +1,6 @@
 # Runner v2 operations — Linux preview / предварительные инструкции
 
-**Linux preview, package 0.3.0.dev1.** Installed-wheel upgrade/rollback and the
+**Linux preview, package 0.3.0.dev2.** Installed-wheel upgrade/rollback and the
 existing v1 readback are recorded under `verification/implementation/GP-07/release`.
 Provider and target qualification remains specific to its evidence. On 2026-10-16,
 Docs v2 passed its live canary and installed STATUS route; connected-chat read
@@ -183,6 +183,23 @@ work suspended on restart is not automatically replayed. `ACK_UNKNOWN` and
 uncertain cleanup require exact reconciliation, not a duplicate run.
 
 ## Results, availability and redelivery
+
+For GitHub-origin commands, read `.runner/state/<runner_id>/<request_id>.json`
+on the **mailbox branch** for terminal `status`, sanitized failure `code`,
+execution and current bundle delivery. This receipt also covers errors before
+execution and the outcome of `STATUS`/`CANCEL`; controls include a scoped
+`target` view. It is separate from the runner-managed mailbox acknowledgement.
+Docs-origin tasks use their selected source branch when a GitHub delivery
+transport exists. A receipt is schema version 1 and can be updated; result
+bundles stay immutable. Its `delivery` describes the bundle, not publication of
+the receipt itself. `null` means no bundle delivery was attempted.
+
+`result.json` records delivery at sealing time, so its historical
+`LOCAL_ONLY / PUBLICATION_PENDING` does not describe subsequent publication.
+Use the state receipt for the current delivery outcome and commit. An explicit
+`STATUS` or `REDELIVER` also refreshes the target receipt without rerunning its
+task. If GitHub is unavailable, receipt delivery is journaled locally and a
+later explicit control can retry it; no automatic execution replay is added.
 
 Read the terminal request by its receipt ID. Keep separate: queue/admission,
 `operation_status`, `execution.outcome`, `execution.quality_gate`,

@@ -63,6 +63,10 @@ _RESULT_PATH = re.compile(
 )
 _AUTHOR_NAME = "Runner Results"
 _AUTHOR_EMAIL = "runner-results@localhost"
+_STATE_PATH = re.compile(
+    rb"\.runner/state/[A-Za-z0-9][A-Za-z0-9_-]{0,127}/"
+    rb"[A-Za-z0-9][A-Za-z0-9_-]{0,127}\.json\Z", re.ASCII,
+)
 
 
 class GitHubV2Error(OSError):
@@ -552,7 +556,9 @@ class GitHubResultTransport:
         if match is None or lines[3] != lines[2].replace("author ", "committer ", 1):
             raise GitHubV2Error("RESULT_COMMIT_INVALID")
         timestamp, message = int(match[1]), message_bytes.decode("utf-8")
-        if _git_hash("commit", raw) != commit or not message.startswith("Publish runner results: "):
+        state_commit = message.startswith("Publish runner state: ")
+        if (_git_hash("commit", raw) != commit
+                or not (state_commit or message.startswith("Publish runner results: "))):
             raise GitHubV2Error("RESULT_COMMIT_INVALID")
         changes = run_git_bytes(repo, ["diff-tree", "--no-commit-id", "--name-status", "-r", "-z",
                                        "--no-renames", parent, commit]).split(b"\0")
@@ -561,10 +567,13 @@ class GitHubResultTransport:
             raise GitHubV2Error("RESULT_SOURCE_CHANGE_REFUSED")
         prefixes: set[bytes] = set()
         for status, path in zip(changes[::2], changes[1::2], strict=True):
-            if status != b"A" or _RESULT_PATH.fullmatch(path) is None:
+            allowed = (status in {b"A", b"M"} and _STATE_PATH.fullmatch(path) is not None
+                       if state_commit else status == b"A" and _RESULT_PATH.fullmatch(path) is not None)
+            if not allowed:
                 raise GitHubV2Error("RESULT_SOURCE_CHANGE_REFUSED")
             prefixes.add(b"/".join(path.split(b"/")[:4]))
-        if len(prefixes) != 1 or len(changes) // 2 > self.client.limits.objects:
+        if (len(prefixes) != 1 or len(changes) // 2 > self.client.limits.objects
+                or state_commit and len(changes) != 2):
             raise GitHubV2Error("RESULT_SOURCE_CHANGE_REFUSED")
         total, count = len(raw), 1
         uploaded: set[str] = set()

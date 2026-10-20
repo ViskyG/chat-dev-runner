@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="19" time="2.970" timestamp="2026-10-20T16:59:40.935047+04:00" hostname="k8s-master"><testcase classname="tests.test_remote_state_v2" name="test_state_updates_preserve_source_and_sealed_result_bytes" time="0.217" /><testcase classname="tests.test_remote_state_v2" name="test_state_rebuilds_after_definite_source_race" time="0.104" /><testcase classname="tests.test_remote_state_v2" name="test_lost_state_response_is_reconciled_without_repeated_push[False]" time="0.064" /><testcase classname="tests.test_remote_state_v2" name="test_lost_state_response_is_reconciled_without_repeated_push[True]" time="0.053" /><testcase classname="tests.test_remote_state_v2" name="test_state_prefix_does_not_authorize_source_changes" time="0.032"><failure message="runner_app.git.results_v2.ResultPushRejected: RESULT_OBJECT_UPLOAD_FAILED">tmp_path = PosixPath('/tmp/pytest-of-visky/pytest-26/test_state_prefix_does_not_aut0')
+
+    def test_state_prefix_does_not_authorize_source_changes(tmp_path):
+        fixture = GitFixture(tmp_path)
+        tree = fixture.api.tree([
+            {"path": "app.txt", "mode": "100644", "type": "blob",
+             "sha": _write_object(fixture.remote, "blob", b"unauthorized source")},
+        ], base=run_git(fixture.repo, ["rev-parse", "tested^{tree}"]).strip())
+        # Install the tree object locally, as a trusted publisher normally would.
+        fixture.fetch(fixture.repo, "tested", fixture.initial)
+        run_git(fixture.repo, ["fetch", str(fixture.remote), tree])
+        identity = f"{COMMIT_AUTHOR} 1700000000 +0000"
+        candidate = _write_object(fixture.repo, "commit", (
+            f"tree {tree}\nparent {fixture.initial}\nauthor {identity}\ncommitter {identity}\n\n"
+            "Publish runner state: node/request\n").encode())
+        with pytest.raises(GitHubV2Error, match="RESULT_SOURCE_CHANGE_REFUSED"):
+&gt;           GitHubResultTransport(fixture.client, fetch_objects=fixture.fetch).push_commit(
+                fixture.repo, candidate, "tested")
+
+tests/test_remote_state_v2.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;runner_app.adapters.github_mailbox_v2.GitHubResultTransport object at 0x700200b6c490&gt;
+repo = PosixPath('/tmp/pytest-of-visky/pytest-26/test_state_prefix_does_not_aut0/repo.git')
+commit = '5c076e6bba077f04447da49c6af7556a316f46e6', branch = 'tested'
+
+    def push_commit(self, repo: Path, commit: str, branch: str) -&gt; None:
+        branch = validate_branch(branch)
+        repo = _managed_repo(repo)
+        try:
+            self.client.ensure_identity()
+            head = self.client.head(branch)
+            if head is None:
+                raise ResultPushRejected("TARGET_BRANCH_MISSING")
+            parent = run_git(repo, ["rev-parse", "--verify", f"{_sha(commit)}^"] ).strip()
+            if head != parent:
+                raise ResultPushRejected("REMOTE_CHANGED", retryable=True)
+            self._upload(repo, commit)
+        except ResultPushRejected:
+            raise
+        except Exception:  # noqa: BLE001 - no ref write attempted; sanitize object/token failures
+&gt;           raise ResultPushRejected("RESULT_OBJECT_UPLOAD_FAILED") from None
+E           runner_app.git.results_v2.ResultPushRejected: RESULT_OBJECT_UPLOAD_FAILED
+
+runner_app/adapters/github_mailbox_v2.py:640: ResultPushRejected</failure></testcase><testcase classname="tests.test_remote_state_v2" name="test_pre_execution_errors_are_returned_on_command_branch[source]" time="0.249" /><testcase classname="tests.test_remote_state_v2" name="test_pre_execution_errors_are_returned_on_command_branch[task]" time="0.295" /><testcase classname="tests.test_remote_state_v2" name="test_pre_execution_errors_are_returned_on_command_branch[manifest]" time="0.304" /><testcase classname="tests.test_remote_state_v2" name="test_completed_state_has_final_delivery_and_status_returns_it" time="0.831" /><testcase classname="tests.test_remote_state_v2" name="test_status_during_run_does_not_occupy_sealed_result_directory" time="0.360" /><testcase classname="tests.test_remote_state_v2" name="test_cancelled_queued_request_is_visible_without_worker_execution" time="0.358" /><testcase classname="tests.test_outputs_parsers" name="test_raw_console_bytes_are_supported_opaque_logs" time="0.000" /><testcase classname="tests.test_outputs_parsers" name="test_junit_uses_cases_not_untrusted_suite_totals" time="0.000" /><testcase classname="tests.test_outputs_parsers" name="test_xml_entities_depth_and_malformed_data_are_unparsed" time="0.000" /><testcase classname="tests.test_outputs_parsers" name="test_utf16_xml_doctype_and_entities_are_rejected_before_expansion" time="0.000" /><testcase classname="tests.test_outputs_parsers" name="test_cobertura_only_uses_valid_root_totals" time="0.000" /><testcase classname="tests.test_outputs_parsers" name="test_jsonl_preserves_invalid_lines_as_findings_without_fabricated_events" time="0.001" /><testcase classname="tests.test_outputs_parsers" name="test_unknown_format_is_opaque_and_raw_is_untouched" time="0.000" /><testcase classname="tests.test_outputs_parsers" name="test_image_headers_bound_dimensions_without_decoding" time="0.000" /></testsuite></testsuites>

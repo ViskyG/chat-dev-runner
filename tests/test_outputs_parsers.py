@@ -12,6 +12,14 @@ from runner_app.outputs.parsers import (
 )
 
 
+def test_raw_console_bytes_are_supported_opaque_logs(tmp_path: Path) -> None:
+    path = tmp_path / "stdout.bin"
+    path.write_bytes(b"\x00\xffnot utf8\n")
+    parsed = parse_output("console", "raw-bytes", path)
+    assert parsed.status == "UNPARSED" and parsed.findings == () and parsed.summary == {}
+    assert parse_output("test_result", "raw-bytes", path).findings == ("FORMAT_NOT_REGISTERED",)
+
+
 def test_junit_uses_cases_not_untrusted_suite_totals() -> None:
     raw = (b'<testsuite tests="999" failures="0"><testcase classname="a" name="ok" time=".2"/>'
            b'<testcase classname="a" name="bad"><failure>oops</failure></testcase>'

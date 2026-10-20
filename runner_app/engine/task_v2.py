@@ -17,6 +17,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 from runner_app import __version__
 from runner_app.config_v2 import NativeProfile
@@ -37,6 +38,7 @@ from runner_app.git.results_v2 import (
     publish_results,
 )
 from runner_app.git.source_v2 import SourceError, SourceResolver, SourceSnapshot
+from runner_app.git.state_v2 import publish_state
 from runner_app.outputs.bundle_v2 import FrozenOutputs, collect_bundle_outputs
 from runner_app.outputs.parsers import MAX_PARSE_BYTES, ParseResult
 from runner_app.outputs.quality_v2 import (
@@ -45,6 +47,7 @@ from runner_app.outputs.quality_v2 import (
     parse_test_report,
 )
 from runner_app.storage.intake_v2 import IntakeStore
+from runner_app.storage.paths import ensure_private_directory
 
 
 @dataclass(frozen=True)
@@ -73,7 +76,7 @@ def _write_json(path: Path, value: Any, *, replace: bool = False) -> None:
 
     raw = (json.dumps(value, ensure_ascii=True, sort_keys=True, indent=2,
                       default=path_value) + "\n").encode()
-    target = path.with_name(f".{path.name}.tmp") if replace else path
+    target = path.with_name(f".{path.name}.{uuid4().hex}.tmp") if replace else path
     descriptor = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
     with os.fdopen(descriptor, "wb") as stream:
         stream.write(raw)
@@ -133,6 +136,73 @@ class NativeTaskRunner:
         self.store, self.resolver = store, resolver
         self.projects, self.profiles = dict(projects), dict(profiles)
         self.container_backends = dict(container_backends or {})
+
+    def _state_view(self, operation: dict[str, Any]) -> dict[str, Any]:
+        result = operation["result"] or {}
+        started = self.store.execution_started(operation["request_id"])
+        uncertain = operation["status"] in {"STARTING", "RUNNING", "NEEDS_RECONCILIATION", "INTERRUPTED"}
+        execution = result.get("manifest", {}).get("execution") or {
+            "outcome": "UNKNOWN" if started or uncertain else "NOT_RUN",
+            "quality_gate": "INSUFFICIENT" if started else "NOT_APPLICABLE",
+            "cleanup": "UNCERTAIN" if uncertain else "CONFIRMED",
+        }
+        return {"schema_version": 1, "runner_id": operation["runner_id"],
+                "project_id": operation["project_id"], "request_id": operation["request_id"],
+                "request_digest": operation["digest"], "action": operation["action"],
+                "status": operation["status"], "code": operation["code"],
+                "updated_at": operation["updated_at"], "execution": execution,
+                "source": result.get("manifest", {}).get("source")
+                or operation["payload"]["request"].get("source"),
+                "delivery": result.get("delivery"),
+                "result": {key: result[key] for key in (
+                    "bundle_path", "bundle_sha256", "branch", "phase_evidence_path",
+                    "target_request_id", "status", "sequence") if key in result}}
+
+    def publish_state(self, request_id: str) -> None:
+        """Export terminal/control state outside immutable bundles and mailbox intent."""
+        actor = self.store.get(request_id)
+        if actor is None:
+            return
+        operations = [actor]
+        target_id = actor["payload"]["request"].get("target_request_id")
+        target = self.store.get(target_id) if target_id else None
+        if (target is not None and target["runner_id"] == actor["runner_id"]
+                and target["project_id"] == actor["project_id"]):
+            if target["request_id"] != request_id:
+                operations.append(target)
+        else:
+            target = None
+        for operation in operations:
+            project = self.projects[operation["project_id"]]
+            state = self._state_view(operation)
+            if operation is actor and target is not None:
+                state["target"] = self._state_view(target)
+                state["updated_at"] = max(state["updated_at"], target["updated_at"])
+            # STATUS during a run must not pre-create its future sealed result directory.
+            state_dir = project.results_root / "state" / operation["runner_id"]
+            ensure_private_directory(state_dir)
+            _write_json(state_dir / f"{operation['request_id']}.json", state, replace=True)
+            branches = {json.loads(origin["coordinates_json"])["branch"]
+                        for origin in self.store.request_origins(operation["request_id"])
+                        if origin["provider"] == "github"}
+            if not branches:
+                branch = operation["payload"]["request"].get("source", {}).get("branch")
+                if branch:
+                    branches.add(branch)
+            if project.transport is None:
+                self.store.record_event(operation["request_id"], "REMOTE_STATE_LOCAL_ONLY",
+                                        {"code": "GITHUB_DELIVERY_NOT_CONFIGURED"})
+                continue
+            for branch in sorted(branches):
+                def record_intent(detail: Mapping[str, Any],
+                                  request_id: str = operation["request_id"]) -> None:
+                    self.store.record_event(request_id, "STATE_PUBLISH_INTENT", detail)
+
+                receipt = publish_state(
+                    project.repository, project.transport, branch=branch, state=state,
+                    record_intent=record_intent,
+                )
+                self.store.record_event(operation["request_id"], "STATE_DELIVERY", asdict(receipt))
 
     def __call__(self, request: dict[str, Any], cancel: threading.Event) -> TaskOutcome:
         operation = request
@@ -454,7 +524,9 @@ class NativeTaskRunner:
                    f"Execution: **{outcome}**; quality: **{quality.quality_gate}**; "
                    f"cleanup: **{'CONFIRMED' if cleanup else 'UNCERTAIN'}**.\n\n"
                    "Original reports and raw logs are indexed in artifacts.json. "
-                   "The controller's local delivery.json records final publication proof.\n")
+                   "result.json and artifacts.json describe sealing-time availability. "
+                   f"Read `.runner/state/{runner_id}/{request_id}.json` on the command branch "
+                   "for terminal status, errors and final delivery proof.\n")
         (bundle / "summary.md").write_text(summary, encoding="utf-8")
         os.chmod(bundle / "summary.md", 0o600)
         digest = bundle_digest(bundle, runner_id=runner_id, request_id=request_id)

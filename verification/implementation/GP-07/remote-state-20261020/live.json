@@ -1,0 +1,116 @@
+{
+  "status": "LIVE_INSTALLED_VERIFIED",
+  "version": "0.3.0.dev2",
+  "repository": "ViskyG/cdr-runner-test",
+  "branch": "main",
+  "commands_submitted": 4,
+  "healthy": {
+    "request_id": "ed6487df-3622-4cae-ad32-cc19ae389624",
+    "status": "COMPLETED",
+    "code": null,
+    "receipt_path": ".runner/state/local-runner/ed6487df-3622-4cae-ad32-cc19ae389624.json",
+    "receipt_commit": "fc7ca5749c6a59b3946f545b85865ce4e1d05db2",
+    "receipt_sha256": "51411b1a0fd80986b34e502ea630a28b09acb028b4d48dc19936a5bd9ce58b15",
+    "execution": {
+      "cleanup": "CONFIRMED",
+      "exit_code": 0,
+      "outcome": "PASSED",
+      "quality_gate": "PASSED"
+    },
+    "delivery": {
+      "bundle_sha256": "94418963b766b05211f72f65ab9a8f03e01c13ffd79e14e84f46d98af80f2676",
+      "code": "DELIVERED",
+      "commit": "4b4f445c7384a03fe25f8cda190befeb437b23dd",
+      "local_available": true,
+      "local_locator": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/ed6487df-3622-4cae-ad32-cc19ae389624/bundle",
+      "marker": "dbd37acf2c134ec69b5b44e36e00346e",
+      "remote_head": "4b4f445c7384a03fe25f8cda190befeb437b23dd",
+      "status": "DELIVERED"
+    },
+    "sealed_result_unchanged": true,
+    "warnings": []
+  },
+  "early_failure": {
+    "request_id": "b30d7b13-af11-4b38-9bc3-d3d85471a7e1",
+    "status": "FAILED",
+    "code": "TASK_BUDGET_EXCEEDED",
+    "receipt_path": ".runner/state/local-runner/b30d7b13-af11-4b38-9bc3-d3d85471a7e1.json",
+    "receipt_commit": "315024efd63c6216059e67790ba3a1692ebf76f9",
+    "receipt_sha256": "71283530a18d88bf9567526d866f3c522ed775b08aaac574d0dc563cd1c9b18d",
+    "execution": {
+      "cleanup": "CONFIRMED",
+      "outcome": "NOT_RUN",
+      "quality_gate": "NOT_APPLICABLE"
+    },
+    "delivery": null
+  },
+  "status_reply": {
+    "request_id": "05c522c0-4352-498d-9d95-f91c12e7886d",
+    "status": "COMPLETED",
+    "code": null,
+    "receipt_path": ".runner/state/local-runner/05c522c0-4352-498d-9d95-f91c12e7886d.json",
+    "receipt_commit": "0c43c836bb8cb1acfa90b46bdcbeff9ec88a04cb",
+    "receipt_sha256": "e8283db77fc00fcc529657392acd86215eb29b4231ee9e47e4c1420abe5bfbc0",
+    "execution": {
+      "cleanup": "CONFIRMED",
+      "outcome": "NOT_RUN",
+      "quality_gate": "NOT_APPLICABLE"
+    },
+    "delivery": null,
+    "target": {
+      "request_id": "b30d7b13-af11-4b38-9bc3-d3d85471a7e1",
+      "status": "FAILED",
+      "code": "TASK_BUDGET_EXCEEDED",
+      "execution": {
+        "cleanup": "CONFIRMED",
+        "outcome": "NOT_RUN",
+        "quality_gate": "NOT_APPLICABLE"
+      },
+      "delivery": null
+    }
+  },
+  "historical_delivery_reply": {
+    "request_id": "aa428880-bc05-443a-a933-06f582e3ef4b",
+    "status": "COMPLETED",
+    "code": null,
+    "receipt_path": ".runner/state/local-runner/aa428880-bc05-443a-a933-06f582e3ef4b.json",
+    "receipt_commit": "70f59571280c29bde9d876e5e985bb8d3df99e2f",
+    "receipt_sha256": "dd909dff177bf03d4ef20c0da0ad77861eca47d82b642e8a740a4c77ae0bb118",
+    "execution": {
+      "cleanup": "CONFIRMED",
+      "outcome": "NOT_RUN",
+      "quality_gate": "NOT_APPLICABLE"
+    },
+    "delivery": null,
+    "target": {
+      "request_id": "ca4da9ee-411f-4c98-887b-c690db6b87b8",
+      "status": "COMPLETED",
+      "code": null,
+      "execution": {
+        "cleanup": "CONFIRMED",
+        "exit_code": 0,
+        "outcome": "PASSED",
+        "quality_gate": "PASSED"
+      },
+      "delivery": {
+        "bundle_sha256": "5cd2b194494f1047f9aa8b3a71c16907859f9a7a29086940eeacbabb7bfde312",
+        "code": "DELIVERED",
+        "commit": "c6d2adca321a284c24153e037ce0b6e5ca71ab9b",
+        "local_available": true,
+        "local_locator": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/ca4da9ee-411f-4c98-887b-c690db6b87b8/bundle",
+        "marker": "435718dab44d438f8ae1bf8bd26d2458",
+        "remote_head": "c6d2adca321a284c24153e037ce0b6e5ca71ab9b",
+        "status": "DELIVERED"
+      }
+    }
+  },
+  "project_source_unchanged": true,
+  "drive_commands_submitted": 0,
+  "mailbox_final_dispatch": "DRAFT",
+  "final_state": {
+    "v2_requests": 9,
+    "v1_operations": 26,
+    "lane_rows": 0,
+    "armed": true
+  }
+}
