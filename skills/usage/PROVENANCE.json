@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "published_date": "2026-10-20",
+  "owner_canonical_repository": "ViskyG/agent-skills",
+  "owner_canonical_commit": "85c2f495cfc8402391bcca2b6765ca789b6d92b7",
+  "note": "Public distribution copies adapted for relative paths, public evidence and installation boundaries. This is not a separate canonical definition or automatic installation.",
+  "skills": [
+    {
+      "identity": "operate-runner-from-chat",
+      "language": "en",
+      "source_path": "skills/chatgpt/operate-runner-from-chat/SKILL.md",
+      "source_blob_sha": "8d5f2c74ec79240095a9b4d79a428b5db2969f09",
+      "published_path": "skills/usage/chatgpt/operate-runner-from-chat/SKILL.md"
+    },
+    {
+      "identity": "operate-runner-from-chat",
+      "language": "ru",
+      "source_path": "skills/chatgpt/operate-runner-from-chat/SKILL.ru.md",
+      "source_blob_sha": "321bef77886488c7bbf050d54ebee2a1977f5cd8",
+      "published_path": "skills/usage/chatgpt/operate-runner-from-chat/SKILL.ru.md"
+    },
+    {
+      "identity": "execute-roadmap-via-chat-runner",
+      "language": "en",
+      "source_path": "skills/udot/execute-roadmap-via-chat-runner/SKILL.md",
+      "source_blob_sha": "31efa787b9cf7ac5aafece305dad627ecedf7828",
+      "published_path": "skills/usage/udot/execute-roadmap-via-chat-runner/SKILL.md"
+    }
+  ]
+}

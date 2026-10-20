@@ -1,5 +1,11 @@
 # Repo-local Runner v2 instructions / локальные инструкции
 
+## ChatGPT and Udot usage / работа из ChatGPT и Udot
+
+The [public usage skills](../usage/README.md) show how an ordinary ChatGPT chat submits and checks a finite command, or how an existing Udot workflow coordinates larger waves. These are **distribution copies** of the owner’s canonical skills, not newly installed agents. The v2 operational protocol below remains authoritative.
+
+[Публичные скиллы](../usage/README.md) описывают прямой запуск из обычного ChatGPT и координацию этапов через Udot. Это копии исходных инструкций, **не автоматическая установка**. Действующий протокол команд и результатов определяет Runner v2.
+
 **SOURCE_PREVIEW — not installed or globally registered / не установлены и не
 зарегистрированы глобально.** Read one matching English entrypoint or its full
 Russian companion; loading all three is unnecessary.
