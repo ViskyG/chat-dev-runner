@@ -1,0 +1,33 @@
+{
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "historical_status": "NEEDS_RECONCILIATION",
+  "immutable_result_unchanged": true,
+  "lane_count": 0,
+  "quota_mount_absent": true,
+  "request_id": "556bfc63-9746-4f93-becd-07d0831f31c0",
+  "resources": [
+    {
+      "id": "284a911c0d5c8d1c4a792440062e5e29b36d377cb139635cd9945219260aca67",
+      "kind": "container",
+      "removed": true
+    },
+    {
+      "id": "34811337d8f795a4ad55a0f1f3342e735c4e2d3a6b7404929734c81e3057e2a0",
+      "kind": "container",
+      "removed": true
+    },
+    {
+      "id": "ef8da6fe9f67acc46c6b55f562fc930aef571a451b337de372171efd27928605",
+      "kind": "container",
+      "removed": true
+    },
+    {
+      "id": "0358000e9403a07b59d7c8fe18a6df0079310bb643cbbbb2f2113499817af9ec",
+      "kind": "network",
+      "removed": true
+    }
+  ],
+  "schema_version": "cdr-compose-manual-reconciliation/1",
+  "scope": "exact stopped resources plus quota for prior timeout; no task replay",
+  "timestamp": "2026-10-22T19:40:10.263219+00:00"
+}

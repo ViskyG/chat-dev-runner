@@ -1,0 +1,13 @@
+{
+  "backend_sha256": "1e08e4e9e50d10e8f1619b25c6c83e12803f0c71b028e1129809b3169340a49e",
+  "code": null,
+  "finished": "2026-10-22T19:37:00.970578+00:00",
+  "lane_count": 0,
+  "mode": "fail",
+  "quota_mount_absent": true,
+  "request_id": "34aede98-40f7-48e6-9151-526db2db08c6",
+  "scope": "actual rootless Compose, helper, SourceResolver, NativeTaskRunner, QueueWorker; local-file fixture admission, no cloud provider",
+  "scratch": "/tmp/cdr-compose-qualification-pn10y6of",
+  "source_clean": true,
+  "status": "COMPLETED"
+}

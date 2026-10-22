@@ -1,0 +1,15 @@
+[
+  {
+    "argv": [
+      "python",
+      "/src/client.py",
+      "cancel"
+    ],
+    "cleanup_verified": true,
+    "duration_seconds": 6.01106678799988,
+    "exit_code": null,
+    "outcome": "CANCELLED",
+    "phase": "test",
+    "step": "compose-test"
+  }
+]

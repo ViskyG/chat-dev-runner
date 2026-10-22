@@ -1,0 +1,15 @@
+[
+  {
+    "argv": [
+      "python",
+      "/src/client.py",
+      "unhealthy"
+    ],
+    "cleanup_verified": true,
+    "duration_seconds": 5.449361811999552,
+    "exit_code": null,
+    "outcome": "NOT_RUN",
+    "phase": "test",
+    "step": "compose-test"
+  }
+]

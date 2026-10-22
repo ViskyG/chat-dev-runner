@@ -1,6 +1,7 @@
 # Runner v2 operations — Linux preview / предварительные инструкции
 
-**Linux preview, installed package 0.3.0.dev3.** Handoff delivery passed one real
+**Linux preview, installed package 0.3.0.dev4.** The [runtime audit](AUDIT_2026-10-22.md)
+adds independent mailbox polling and the finite Compose backend. Handoff delivery passed one real
 ZIP+text transfer with a matching connected-chat terminal Docs receipt. Upload
 and guarded Docs authoring are verified; file version metadata was SDK-assisted
 because the connected metadata action omits it. Full automatic metadata

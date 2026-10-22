@@ -1,0 +1,21 @@
+{
+  "junit": {
+    "findings": [],
+    "format": "junit-xml",
+    "kind": "test_result",
+    "status": "PARSED",
+    "summary": {
+      "counts_source": "testcase-elements",
+      "duration_seconds": 0.0,
+      "errors": 0,
+      "failed": 1,
+      "failed_ids": [
+        "compose.Integration::test_database_migration"
+      ],
+      "passed": 1,
+      "report_sha256": "ff7e9835ffd1f2692b073208533613110a27ca79801c18beb5b9df102e2fe988",
+      "skipped": 0,
+      "tests": 2
+    }
+  }
+}

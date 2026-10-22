@@ -72,7 +72,7 @@ Same conversation: diagnose, decide, improve
 
 An acknowledgement means *“Runner accepted this request”*, **not** *“the tests passed.”* The chat must read the matching execution and test results. The command-file branch may differ from the branch being tested.
 
-On Runner `0.3.0.dev3`, a separate terminal-state receipt is published to `.runner/state/<runner>/<request>.json` on the **command-file branch**. It can report an early error even if the tests never start. Detailed reports remain on the **tested source branch**.
+On Runner `0.3.0.dev4`, a separate terminal-state receipt is published to `.runner/state/<runner>/<request>.json` on the **command-file branch**. It can report an early error even if the tests never start. Detailed reports remain on the **tested source branch**.
 
 GitHub-only v2 needs no Google Drive installation. Registered local workspaces and the existing Google Docs workflows are also supported in their respective configurations.
 
@@ -98,7 +98,7 @@ These files are public distribution copies from the owner's canonical skill libr
 
 ### Getting started: Linux preview
 
-**Current release scope:** Linux preview `0.3.0.dev3`, with manual setup rather than one-click onboarding. You need Linux, Python 3.10+, Git, the tools for your project, and a GitHub repository. For ChatGPT to submit requests through GitHub, its connected GitHub app must have suitable access to the selected repository.
+**Current release scope:** Linux preview `0.3.0.dev4`, with manual setup rather than one-click onboarding. You need Linux, Python 3.10+, Git, the tools for your project, and a GitHub repository. For ChatGPT to submit requests through GitHub, its connected GitHub app must have suitable access to the selected repository.
 
 **1 — Install the code:**
 
@@ -133,7 +133,7 @@ Results appear on the tested branch. Look for `summary.md`, `tests.json`, `resul
 
 **No exposed desktop or public inbound port is required.** Runner's local web interface listens on `127.0.0.1:8765`; it communicates through configured providers such as GitHub. It does not require an OpenAI API key or its own language-model service.
 
-**Native execution is not a sandbox.** Code and repository scripts run with your ordinary operating-system user's permissions. Only enroll projects, contributors, tasks, and profiles you trust. A separately configured rootless Docker backend supports a constrained Python test profile, not arbitrary container execution.
+**Native execution is not a sandbox.** Code and repository scripts run with your ordinary operating-system user's permissions. Only enroll projects, contributors, tasks, and profiles you trust. Separately configured rootless backends support a fixed Python test profile and [finite Compose stacks](docs/COMPOSE_TASKS.md) with approved profiles, healthchecks, migrations, test reports and per-run cleanup. Compose currently accepts a restricted JSON configuration.
 
 Python, JavaScript, TypeScript, and C# project recipes have been exercised on Linux. **Windows/macOS, Java, Docker Compose, and Unity are not qualified** for this preview. Early failures and STATUS replies are published in `.runner/state/<runner>/<request>.json` on the mailbox branch; this receipt also carries the current bundle delivery. Provider outages may still require checking Runner's local status. Read [current implementation status](STATUS.json) for exact scope, not a promise of universal compatibility.
 
@@ -207,7 +207,7 @@ GitHub (или настроенный канал результатов)
 
 Подтверждение означает *«Runner принял задание»*, а **не** *«тесты прошли»*. Чат должен отдельно прочитать результат выполнения и проверки. Ветка командного файла может отличаться от ветки исходников.
 
-В Runner `0.3.0.dev3` отдельная квитанция с итоговым статусом появляется по пути `.runner/state/<runner>/<request>.json` **в ветке командного файла**. Она позволяет увидеть и раннюю ошибку, когда тесты вообще не запустились. Подробные отчёты остаются **в проверенной ветке исходников**.
+В Runner `0.3.0.dev4` отдельная квитанция с итоговым статусом появляется по пути `.runner/state/<runner>/<request>.json` **в ветке командного файла**. Она позволяет увидеть и раннюю ошибку, когда тесты вообще не запустились. Подробные отчёты остаются **в проверенной ветке исходников**.
 
 Для GitHub-only v2 **Google Drive не нужен**. Также существуют сценарии с зарегистрированными локальными рабочими папками и прежними каналами через Google Docs.
 
@@ -233,7 +233,7 @@ Runner — **не бесконтрольный удалённый термина
 
 ### Как начать: предварительная версия для Linux
 
-**Текущее состояние:** Linux preview `0.3.0.dev3`; первоначальная настройка пока **ручная**, а не одним нажатием. Понадобятся Linux с Python 3.10+ и Git, инструменты вашего проекта и репозиторий GitHub. Для отправки команд через GitHub у подключённого к ChatGPT приложения должен быть необходимый доступ к выбранному репозиторию.
+**Текущее состояние:** Linux preview `0.3.0.dev4`; первоначальная настройка пока **ручная**, а не одним нажатием. Понадобятся Linux с Python 3.10+ и Git, инструменты вашего проекта и репозиторий GitHub. Для отправки команд через GitHub у подключённого к ChatGPT приложения должен быть необходимый доступ к выбранному репозиторию.
 
 **1 — Установите код:**
 
@@ -268,7 +268,7 @@ python3 -m venv .venv
 
 **Ваш компьютер не нужно открывать для входящих соединений из интернета.** Локальный веб-интерфейс Runner работает на `127.0.0.1:8765`, а обмен идёт через настроенные каналы, например GitHub. Runner не требует OpenAI API-ключа или собственного сервиса языковой модели.
 
-**Нативный запуск — не песочница (sandbox).** Код и скрипты репозитория выполняются с правами вашего обычного пользователя ОС. Подключайте только доверенные проекты и предоставляйте доступ лишь нужным участникам, задачам и профилям. Отдельно настраиваемый rootless Docker поддерживает ограниченный профиль Python-тестов, а не произвольный запуск любых контейнеров.
+**Нативный запуск — не песочница (sandbox).** Код и скрипты репозитория выполняются с правами вашего обычного пользователя ОС. Подключайте только доверенные проекты и предоставляйте доступ лишь нужным участникам, задачам и профилям. Отдельно настраиваемые rootless-бэкенды поддерживают фиксированный профиль Python-тестов и [конечные Compose-стеки](docs/COMPOSE_TASKS.md): готовность сервисов, миграции, тест, отчёты и удаление ресурсов запуска. Пока поддерживается ограниченный JSON-формат Compose.
 
 На Linux проверены сценарии Python, JavaScript, TypeScript и C#. **Windows/macOS, Java, Docker Compose и Unity пока не прошли приёмку** для этой версии. Ранние ошибки и ответы STATUS публикуются в `.runner/state/<runner>/<request>.json` на ветке командного файла; там же виден актуальный итог доставки отчёта. При недоступности внешнего сервиса может потребоваться проверка локального статуса Runner. Точные подтверждённые возможности и ограничения указаны в [STATUS.json](STATUS.json).
 

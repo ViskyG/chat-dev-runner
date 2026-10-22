@@ -1,0 +1,5 @@
+{
+  "scanned_files": 225,
+  "secret_pattern_findings": 0,
+  "scope": "new audit/Compose evidence only; no credentials read; heuristic pattern scan is not a general secrecy proof"
+}

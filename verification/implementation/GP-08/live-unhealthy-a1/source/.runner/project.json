@@ -1,0 +1,59 @@
+{
+  "project_id": "compose-canary",
+  "protocol": "cdr-project/2",
+  "tasks": {
+    "test": {
+      "language": "python",
+      "outputs": [
+        {
+          "format": "junit-xml",
+          "id": "junit",
+          "kind": "test_result",
+          "path": "junit.xml",
+          "publish": "local_only",
+          "required": true,
+          "source_root": "out"
+        },
+        {
+          "format": "json",
+          "id": "partial",
+          "kind": "report",
+          "path": "partial.json",
+          "publish": "local_only",
+          "required": false,
+          "source_root": "out"
+        },
+        {
+          "format": "json",
+          "id": "answer",
+          "kind": "report",
+          "path": "result.json",
+          "publish": "local_only",
+          "required": false,
+          "source_root": "out"
+        }
+      ],
+      "profile_id": "compose-python",
+      "quality_gate": {
+        "minimum_executed": 2,
+        "required_outputs": [
+          "junit"
+        ],
+        "test_required": true
+      },
+      "steps": [
+        {
+          "argv": [
+            "python",
+            "/src/client.py",
+            "unhealthy"
+          ],
+          "cwd": ".",
+          "id": "compose-test",
+          "phase": "test",
+          "timeout_seconds": 15
+        }
+      ]
+    }
+  }
+}

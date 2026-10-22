@@ -1,0 +1,13 @@
+{
+  "changes": {
+    "runner_app/engine/runtime_v2.py": {
+      "before": "62f371c56534db681e27c40e86527303407f4e141f9d400e3ca839426d88003d",
+      "after": "467c1a163ec702d931c24ec4d1db6b7c96b53ecce8ea3484a663107afd3e66b7"
+    },
+    "tests/test_intake_v2.py": {
+      "before": "1f85b6077bcfc0a1f6b9cd8639b18afe08bc4c91f909232df4e61083b548a18c",
+      "after": "534cb99aa4e0e893868853e89b93f55be7a586628cdb50db19a14dbb4e08b98e"
+    }
+  },
+  "reason": "Local aliases preserve already-checked non-optional Docs factory/path types; test import order only. No behavior or test assertions changed during regression."
+}

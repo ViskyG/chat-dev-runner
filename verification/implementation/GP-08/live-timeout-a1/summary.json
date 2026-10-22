@@ -1,0 +1,13 @@
+{
+  "backend_sha256": "1e08e4e9e50d10e8f1619b25c6c83e12803f0c71b028e1129809b3169340a49e",
+  "code": "CLEANUP_UNCERTAIN",
+  "finished": "2026-10-22T19:37:15.711071+00:00",
+  "lane_count": 1,
+  "mode": "timeout",
+  "quota_mount_absent": false,
+  "request_id": "556bfc63-9746-4f93-becd-07d0831f31c0",
+  "scope": "actual rootless Compose, helper, SourceResolver, NativeTaskRunner, QueueWorker; local-file fixture admission, no cloud provider",
+  "scratch": "/tmp/cdr-compose-qualification-_vnwh50_",
+  "source_clean": true,
+  "status": "NEEDS_RECONCILIATION"
+}

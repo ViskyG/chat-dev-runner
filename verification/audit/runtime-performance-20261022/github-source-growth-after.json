@@ -1,0 +1,13 @@
+{
+  "actual": "PASS",
+  "controller_exclusion_roots": [
+    ".runner/commands",
+    ".runner/results"
+  ],
+  "credential_reads": 0,
+  "max_files": 3,
+  "scope": "same local scratch model as github-source-growth.json",
+  "workload_files": [
+    "app.txt"
+  ]
+}

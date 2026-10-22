@@ -1,5 +1,13 @@
 # Agent entry contract
 
+## Current audit / Compose checkpoint
+The owner's 2026-10-22 request authorized practical reliability/performance fixes
+and continuation of the container/Compose roadmap. Read `codex/checkpoints/GP-08.md`
+and `docs/AUDIT_2026-10-22.md`. The Linux finite Compose preview has actual host
+evidence; GP07's other-platform/toolchain gates remain open independently.
+Preserve the existing ten configured v2 channels and handoff registrations.
+Reuse the completed audit regression and live cases; do not replay sample tasks.
+
 ## Owner-approved handoff stage
 The owner requested implementation of `runner-project-handoff-kit.zip` and
 `runner-handoff-integration-roadmap.md` on 2026-10-22, including repository-local

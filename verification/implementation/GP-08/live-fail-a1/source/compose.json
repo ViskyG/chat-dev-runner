@@ -1,0 +1,37 @@
+{
+  "services": {
+    "api": {
+      "command": [
+        "python",
+        "/src/api.py"
+      ],
+      "healthcheck": {
+        "interval": "1s",
+        "retries": 2,
+        "test": [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/', timeout=1).read()"
+        ],
+        "timeout": "1s"
+      },
+      "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111"
+    },
+    "migrate": {
+      "command": [
+        "python",
+        "/src/migrate.py"
+      ],
+      "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111"
+    },
+    "test": {
+      "command": [
+        "python",
+        "/src/client.py",
+        "fail"
+      ],
+      "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111"
+    }
+  }
+}

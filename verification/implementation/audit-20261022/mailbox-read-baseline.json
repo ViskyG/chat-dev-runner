@@ -1,0 +1,136 @@
+{
+  "schema": "runner-read-latency/1",
+  "stage": "installed-baseline",
+  "package_version": "0.3.0.dev3",
+  "started_at": "2026-10-22T19:22:54.655631+00:00",
+  "mode": "sequential-read-current-only",
+  "passes": 1,
+  "cloud_writes": 0,
+  "service_state_writes": 0,
+  "acks": 0,
+  "configured_ports": 10,
+  "ports": [
+    {
+      "binding_id": "gp07-github-preview",
+      "provider": "github",
+      "status": "OK",
+      "payload_bytes": 739,
+      "revision_present": true,
+      "elapsed_seconds": 3.1417,
+      "api_requests": {
+        "github_api_requests": 7
+      }
+    },
+    {
+      "binding_id": "gp04-docs-preview",
+      "provider": "drive",
+      "status": "OK",
+      "payload_bytes": 528,
+      "revision_present": true,
+      "elapsed_seconds": 1.0562,
+      "api_requests": {
+        "google_api_requests": 2
+      }
+    },
+    {
+      "binding_id": "cdr-runner-test-github",
+      "provider": "github",
+      "status": "OK",
+      "payload_bytes": 561,
+      "revision_present": true,
+      "elapsed_seconds": 3.0827,
+      "api_requests": {
+        "github_api_requests": 7
+      }
+    },
+    {
+      "binding_id": "cdr-runner-test-docs-handoff",
+      "provider": "drive",
+      "status": "OK",
+      "payload_bytes": 1382,
+      "revision_present": true,
+      "elapsed_seconds": 0.7921,
+      "api_requests": {
+        "google_api_requests": 2
+      }
+    },
+    {
+      "binding_id": "handoff-a42da246c6f3aabba0541987",
+      "provider": "drive",
+      "status": "OK",
+      "payload_bytes": 300,
+      "revision_present": true,
+      "elapsed_seconds": 0.8283,
+      "api_requests": {
+        "google_api_requests": 2
+      }
+    },
+    {
+      "binding_id": "handoff-e741c49629df7e4aac60d041",
+      "provider": "drive",
+      "status": "OK",
+      "payload_bytes": 298,
+      "revision_present": true,
+      "elapsed_seconds": 0.8172,
+      "api_requests": {
+        "google_api_requests": 2
+      }
+    },
+    {
+      "binding_id": "handoff-61b492cbe0b95e13512b5706",
+      "provider": "drive",
+      "status": "OK",
+      "payload_bytes": 287,
+      "revision_present": true,
+      "elapsed_seconds": 0.5452,
+      "api_requests": {
+        "google_api_requests": 2
+      }
+    },
+    {
+      "binding_id": "handoff-d006eddc870a5227307d3e65",
+      "provider": "drive",
+      "status": "OK",
+      "payload_bytes": 287,
+      "revision_present": true,
+      "elapsed_seconds": 0.8191,
+      "api_requests": {
+        "google_api_requests": 2
+      }
+    },
+    {
+      "binding_id": "handoff-0354c1c4006d35be7200a9c4",
+      "provider": "drive",
+      "status": "OK",
+      "payload_bytes": 284,
+      "revision_present": true,
+      "elapsed_seconds": 0.7595,
+      "api_requests": {
+        "google_api_requests": 2
+      }
+    },
+    {
+      "binding_id": "handoff-e774f582105ab259b7ebbdf2",
+      "provider": "drive",
+      "status": "OK",
+      "payload_bytes": 296,
+      "revision_present": true,
+      "elapsed_seconds": 0.6095,
+      "api_requests": {
+        "google_api_requests": 2
+      }
+    }
+  ],
+  "provider_counts": {
+    "github": 2,
+    "drive": 8
+  },
+  "setup_seconds": 0.3042,
+  "cycle_seconds": 12.4531,
+  "status": "OK",
+  "total_seconds": 12.7573,
+  "api_requests": {
+    "github_api_requests": 14,
+    "google_api_requests": 16
+  }
+}

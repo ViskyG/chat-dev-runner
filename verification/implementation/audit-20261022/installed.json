@@ -1,0 +1,75 @@
+{
+  "status": "INSTALLED_ARMED_TEN_BASELINED_CHANNELS",
+  "version": "0.3.0.dev4",
+  "schema": 11,
+  "preserved_history": {
+    "v1_operations": 26,
+    "v2_requests": 10
+  },
+  "lane_rows": 0,
+  "commands_submitted": 0,
+  "mailbox_preflight": [
+    {
+      "binding_id": "gp07-github-preview",
+      "dispatch": "ACCEPTED",
+      "sha256": "0636ed1e6ac7c9ab263ba634dccba2745f31b7e790518dbe6e1447378ef68b04"
+    },
+    {
+      "binding_id": "gp04-docs-preview",
+      "dispatch": "DRAFT",
+      "sha256": "80ef818802caaab36233aa387a4affb358e4aecd06f39089af77a98d49ab8567"
+    },
+    {
+      "binding_id": "cdr-runner-test-github",
+      "dispatch": "DRAFT",
+      "sha256": "d3a19ba7e19a2964d935385f6b5610a2fca086d7a4613655c70d367b0a5aa37b"
+    },
+    {
+      "binding_id": "cdr-runner-test-docs-handoff",
+      "dispatch": "ACCEPTED",
+      "sha256": "0358486ec85c96ad48be2ac9db4a0ca7f8cd051c9c7c609f3d50bae3380bf986"
+    },
+    {
+      "binding_id": "handoff-a42da246c6f3aabba0541987",
+      "dispatch": "DRAFT",
+      "sha256": "17e21e3147b16479f90390197577e916bb71452ab444629ee4ebfebf7fa8e4ff"
+    },
+    {
+      "binding_id": "handoff-e741c49629df7e4aac60d041",
+      "dispatch": "DRAFT",
+      "sha256": "f12c8f7872c2087ca5cc300ac9f8a21868a4d67e4ddf9a91c68890a340544c14"
+    },
+    {
+      "binding_id": "handoff-61b492cbe0b95e13512b5706",
+      "dispatch": "DRAFT",
+      "sha256": "365d6ed7dc77cdf6756985329a48c564c5805b6335379580960cecff6d01c2e9"
+    },
+    {
+      "binding_id": "handoff-d006eddc870a5227307d3e65",
+      "dispatch": "DRAFT",
+      "sha256": "957e1e6de57ac54456dd510ff6fe352133d18e6a3d8a1671121f225522f29d5d"
+    },
+    {
+      "binding_id": "handoff-0354c1c4006d35be7200a9c4",
+      "dispatch": "DRAFT",
+      "sha256": "1575620d858ab5f33fc9a0c1199abffa80c2ffbd856c7b4ea082d39534e2c46e"
+    },
+    {
+      "binding_id": "handoff-e774f582105ab259b7ebbdf2",
+      "dispatch": "DRAFT",
+      "sha256": "dc7b63f18ecc33aaa8490a99eb00ce7f68d52ad6a3860823453b6725f6353d8e"
+    }
+  ],
+  "backup": {
+    "archive": "/home/visky/Work/GPTRunner/.runner-backups/audit-20261022/state-before",
+    "manifest_sha256": "2a74926d6228700e911c2ed84d2d2f29a05b8e7629b129d8c240a5bbc10207f7",
+    "files": 10980,
+    "symlinks": 4,
+    "database_schema_version": 11
+  },
+  "runtime_sha256": "bc7d6824108671d6a65c2d23113de1749b8851e7d6b775519081cd0546dad94b",
+  "old_binary_retained": true,
+  "credential_contents_printed": false,
+  "drive_root_reused": true,
+  "index_modified": false
+}

@@ -1,0 +1,10 @@
+{
+  "bundle_sha256": "d0f390f620e82eda68e810565f591437f223994e54cb98333d6aacc3de1659fa",
+  "code": "GITHUB_DELIVERY_NOT_CONFIGURED",
+  "commit": null,
+  "local_available": true,
+  "local_locator": "/tmp/cdr-compose-qualification-a4mpc9g5/results/compose-canary/d1433e9b-4175-45ae-9de1-1d6a43349bb9/bundle",
+  "marker": null,
+  "remote_head": null,
+  "status": "LOCAL_ONLY"
+}

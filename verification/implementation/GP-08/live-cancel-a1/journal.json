@@ -1,0 +1,156 @@
+[
+  {
+    "created_at": "2026-10-22T19:40:46.398336+00:00",
+    "detail_json": "{\"session_id\":\"d42b5e66-60a9-42ca-8c1f-9bfbfed1d781\"}",
+    "event": "SESSION_STARTED",
+    "event_id": 1,
+    "request_id": null
+  },
+  {
+    "created_at": "2026-10-22T19:40:46.468038+00:00",
+    "detail_json": "{}",
+    "event": "RESERVED",
+    "event_id": 2,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:46.485706+00:00",
+    "detail_json": "{}",
+    "event": "QUEUED",
+    "event_id": 3,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:46.507692+00:00",
+    "detail_json": "{}",
+    "event": "STARTING",
+    "event_id": 4,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:46.590650+00:00",
+    "detail_json": "{\"mode\":\"container\",\"profile_revision\":\"33e0342cb8110b09ecd0e3173a52c5eed3325f152c8508ca76aacaa3b7619228\",\"source_commit\":\"1338d887f77380d056caa8e770fca726d5ab9f3f\",\"task_digest\":\"06e005729133b36f575e975130b264cc227614c3b52f89086c686355c97c7125\",\"workload_sha256\":\"82793b6e39fc5afe0733d8e2b240c1992c58a64831fbf39759f01e0109654aa1\"}",
+    "event": "RUNNING",
+    "event_id": 5,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:46.686868+00:00",
+    "detail_json": "{\"run_id\":\"ae4af427-8d56-4b01-ae0e-956cd4f3c3a2\",\"volume_mb\":64}",
+    "event": "COMPOSE_VOLUME_INTENDED",
+    "event_id": 6,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:46.770177+00:00",
+    "detail_json": "{\"config_sha256\":\"99a4a9f6678b0de6f59657e65498a1b2190bac3191c6509cad1478b9e14360f5\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"image_ids\":{\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\":\"sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\"},\"nonce\":\"c971164606064a81adf158bd7f416ba4\",\"profile_revision_sha256\":\"33e0342cb8110b09ecd0e3173a52c5eed3325f152c8508ca76aacaa3b7619228\",\"project\":\"cdr-compose-ae4af427-8d56-4b01-ae0e-956cd4f3c3a2\",\"source_sha256\":\"82793b6e39fc5afe0733d8e2b240c1992c58a64831fbf39759f01e0109654aa1\",\"volume\":\"/var/lib/chat-dev-runner/volumes/ae4af427-8d56-4b01-ae0e-956cd4f3c3a2\"}",
+    "event": "COMPOSE_CREATE_INTENDED",
+    "event_id": 7,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:47.041094+00:00",
+    "detail_json": "{\"containers\":{\"api\":\"52389f7580609091a6f006186d7dcb473b8626c7b6668eac3092199ade4fa21a\",\"migrate\":\"0b0a711c53735faf36c140dad24d227936257760623a661a8cb60245865e5a8f\",\"test\":\"b8bf288b62564d1621b7f83b82e8120534bf0e5d65e8f0620a340401691ae247\"},\"network\":\"6d4d359af3763c6e05d8183dcd1c4481430d121be2c765b6c75889db1a52f4d1\"}",
+    "event": "COMPOSE_RESOURCES_CREATED",
+    "event_id": 8,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:47.072024+00:00",
+    "detail_json": "{\"phase\":\"readiness\",\"services\":[\"api\"]}",
+    "event": "COMPOSE_PHASE_START_INTENDED",
+    "event_id": 9,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:48.545744+00:00",
+    "detail_json": "{\"exit_code\":0,\"outcome\":\"PASSED\",\"phase\":\"readiness\",\"services\":[\"api\"]}",
+    "event": "COMPOSE_PHASE_FINISHED",
+    "event_id": 10,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:48.576528+00:00",
+    "detail_json": "{\"phase\":\"migration\",\"services\":[\"migrate\"]}",
+    "event": "COMPOSE_PHASE_START_INTENDED",
+    "event_id": 11,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:48.873612+00:00",
+    "detail_json": "{\"exit_code\":0,\"outcome\":\"PASSED\",\"phase\":\"migration\",\"services\":[\"migrate\"]}",
+    "event": "COMPOSE_PHASE_FINISHED",
+    "event_id": 12,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:48.903409+00:00",
+    "detail_json": "{\"phase\":\"test\",\"services\":[\"test\"]}",
+    "event": "COMPOSE_PHASE_START_INTENDED",
+    "event_id": 13,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:49.929001+00:00",
+    "detail_json": "{}",
+    "event": "CANCEL_REQUESTED",
+    "event_id": 14,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:49.964483+00:00",
+    "detail_json": "{\"exit_code\":null,\"outcome\":\"CANCELLED\",\"phase\":\"test\",\"services\":[\"test\"]}",
+    "event": "COMPOSE_PHASE_FINISHED",
+    "event_id": 15,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:52.325840+00:00",
+    "detail_json": "{\"sha256\":\"58e6ce21e68a715b7b2e6b387dcf4abf74a13eea91e2d3d4ada3575291d87be4\"}",
+    "event": "COMPOSE_EVIDENCE_SEALED",
+    "event_id": 16,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:52.407899+00:00",
+    "detail_json": "{\"containers\":{\"api\":\"52389f7580609091a6f006186d7dcb473b8626c7b6668eac3092199ade4fa21a\",\"migrate\":\"0b0a711c53735faf36c140dad24d227936257760623a661a8cb60245865e5a8f\",\"test\":\"b8bf288b62564d1621b7f83b82e8120534bf0e5d65e8f0620a340401691ae247\"},\"network\":\"6d4d359af3763c6e05d8183dcd1c4481430d121be2c765b6c75889db1a52f4d1\",\"project\":\"cdr-compose-ae4af427-8d56-4b01-ae0e-956cd4f3c3a2\"}",
+    "event": "COMPOSE_TEARDOWN_INTENDED",
+    "event_id": 17,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:52.684760+00:00",
+    "detail_json": "{\"containers\":{\"api\":\"52389f7580609091a6f006186d7dcb473b8626c7b6668eac3092199ade4fa21a\",\"migrate\":\"0b0a711c53735faf36c140dad24d227936257760623a661a8cb60245865e5a8f\",\"test\":\"b8bf288b62564d1621b7f83b82e8120534bf0e5d65e8f0620a340401691ae247\"},\"network\":\"6d4d359af3763c6e05d8183dcd1c4481430d121be2c765b6c75889db1a52f4d1\"}",
+    "event": "COMPOSE_RESOURCES_REMOVED",
+    "event_id": 18,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:52.723658+00:00",
+    "detail_json": "{\"run_id\":\"ae4af427-8d56-4b01-ae0e-956cd4f3c3a2\"}",
+    "event": "COMPOSE_VOLUME_RELEASED",
+    "event_id": 19,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:52.787210+00:00",
+    "detail_json": "{\"bundle_path\":\"/tmp/cdr-compose-qualification-4h42sc9n/results/compose-canary/ae4af427-8d56-4b01-ae0e-956cd4f3c3a2/bundle\",\"bundle_sha256\":\"065231f5c8fafd359707544810877d2a182f4ef89ab295f2fc085b11575769f9\"}",
+    "event": "RESULT_SEALED",
+    "event_id": 20,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:52.810582+00:00",
+    "detail_json": "{\"bundle_sha256\":\"065231f5c8fafd359707544810877d2a182f4ef89ab295f2fc085b11575769f9\",\"code\":\"GITHUB_DELIVERY_NOT_CONFIGURED\",\"commit\":null,\"local_available\":true,\"local_locator\":\"/tmp/cdr-compose-qualification-4h42sc9n/results/compose-canary/ae4af427-8d56-4b01-ae0e-956cd4f3c3a2/bundle\",\"marker\":null,\"remote_head\":null,\"status\":\"LOCAL_ONLY\"}",
+    "event": "RESULT_DELIVERY",
+    "event_id": 21,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  },
+  {
+    "created_at": "2026-10-22T19:40:52.823468+00:00",
+    "detail_json": "{\"code\":null}",
+    "event": "CANCELLED",
+    "event_id": 22,
+    "request_id": "ae4af427-8d56-4b01-ae0e-956cd4f3c3a2"
+  }
+]

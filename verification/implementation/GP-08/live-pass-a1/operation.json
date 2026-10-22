@@ -1,0 +1,156 @@
+{
+  "action": "RUN_TASK",
+  "cancel_requested": 0,
+  "code": null,
+  "created_at": "2026-10-22T19:34:04.178344+00:00",
+  "digest": "16699b4fa9ef885b4a65865048efece50a66dc4f6a2fedd2ec24676b374d7c39",
+  "payload": {
+    "project_id": "compose-canary",
+    "request": {
+      "action": "RUN_TASK",
+      "execution": {
+        "backend_id": "rootless-compose",
+        "expected_os": "linux",
+        "mode": "container",
+        "profile_id": "compose-python",
+        "timeout_seconds": 164
+      },
+      "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9",
+      "source": {
+        "branch": "compose-qualification",
+        "kind": "local_workspace",
+        "workspace_id": "fixture"
+      },
+      "task": "test"
+    },
+    "runner_id": "compose-canary"
+  },
+  "project_id": "compose-canary",
+  "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9",
+  "result": {
+    "branch": "compose-qualification",
+    "bundle_path": "/tmp/cdr-compose-qualification-a4mpc9g5/results/compose-canary/d1433e9b-4175-45ae-9de1-1d6a43349bb9/bundle",
+    "bundle_sha256": "d0f390f620e82eda68e810565f591437f223994e54cb98333d6aacc3de1659fa",
+    "delivery": {
+      "bundle_sha256": "d0f390f620e82eda68e810565f591437f223994e54cb98333d6aacc3de1659fa",
+      "code": "GITHUB_DELIVERY_NOT_CONFIGURED",
+      "commit": null,
+      "local_available": true,
+      "local_locator": "/tmp/cdr-compose-qualification-a4mpc9g5/results/compose-canary/d1433e9b-4175-45ae-9de1-1d6a43349bb9/bundle",
+      "marker": null,
+      "remote_head": null,
+      "status": "LOCAL_ONLY"
+    },
+    "manifest": {
+      "artifacts": [
+        {
+          "availability": "LOCAL_ONLY",
+          "bytes": 265,
+          "complete": true,
+          "format": "junit-xml",
+          "id": "junit",
+          "kind": "test_result",
+          "local_path": "/tmp/cdr-compose-qualification-a4mpc9g5/results/compose-canary/d1433e9b-4175-45ae-9de1-1d6a43349bb9/originals/junit/junit.xml",
+          "reason": "LOCAL_ONLY_POLICY",
+          "remote_path": null,
+          "sha256": "35a67b26c63822c6f14a19f7809591a39e2889e87e86f17ba565b52be2a61b99"
+        },
+        {
+          "availability": "LOCAL_ONLY",
+          "bytes": 33,
+          "complete": true,
+          "format": "json",
+          "id": "partial",
+          "kind": "report",
+          "local_path": "/tmp/cdr-compose-qualification-a4mpc9g5/results/compose-canary/d1433e9b-4175-45ae-9de1-1d6a43349bb9/originals/partial/partial.json",
+          "reason": "LOCAL_ONLY_POLICY",
+          "remote_path": null,
+          "sha256": "03d83f1c2d93ca5afc94a5139debe716f1567b1b9515bb991f87e25629f8b7c7"
+        },
+        {
+          "availability": "LOCAL_ONLY",
+          "bytes": 34,
+          "complete": true,
+          "format": "json",
+          "id": "answer",
+          "kind": "report",
+          "local_path": "/tmp/cdr-compose-qualification-a4mpc9g5/results/compose-canary/d1433e9b-4175-45ae-9de1-1d6a43349bb9/originals/answer/answer.json",
+          "reason": "LOCAL_ONLY_POLICY",
+          "remote_path": null,
+          "sha256": "a38a80a06d19c42a43dc8b875103fabedf4d0ff9ec7ac0f1e6efce7130aac295"
+        },
+        {
+          "availability": "LOCAL_ONLY",
+          "bytes": 42,
+          "complete": true,
+          "format": "raw-bytes",
+          "id": "container-stdout",
+          "kind": "console",
+          "local_path": "/tmp/cdr-compose-qualification-a4mpc9g5/results/compose-canary/d1433e9b-4175-45ae-9de1-1d6a43349bb9/originals/container-stdout/container-stdout.bin",
+          "reason": "PUBLICATION_PENDING",
+          "remote_path": "artifacts/container-stdout/container-stdout.bin",
+          "sha256": "2cf08f06c427031d870100c8e1e58902b38559382a443ee7dbfe325863edd908"
+        },
+        {
+          "availability": "LOCAL_ONLY",
+          "bytes": 532,
+          "complete": true,
+          "format": "raw-bytes",
+          "id": "container-stderr",
+          "kind": "console",
+          "local_path": "/tmp/cdr-compose-qualification-a4mpc9g5/results/compose-canary/d1433e9b-4175-45ae-9de1-1d6a43349bb9/originals/container-stderr/container-stderr.bin",
+          "reason": "PUBLICATION_PENDING",
+          "remote_path": "artifacts/container-stderr/container-stderr.bin",
+          "sha256": "5f658da7c8770657ea3bce3aadbc27f2b27607648e3870ea29808d64deef1225"
+        }
+      ],
+      "delivery": {
+        "branch": "compose-qualification",
+        "local_bundle_path": "/tmp/cdr-compose-qualification-a4mpc9g5/results/compose-canary/d1433e9b-4175-45ae-9de1-1d6a43349bb9/bundle",
+        "reason": "PUBLICATION_PENDING",
+        "status": "LOCAL_ONLY"
+      },
+      "environment": {
+        "details_path": "environment.json",
+        "execution_arch": "amd64",
+        "execution_os": "linux",
+        "host_arch": "x86_64",
+        "host_os": "linux",
+        "mode": "container",
+        "profile_id": "compose-python",
+        "reproducibility": "unknown",
+        "runner_version": "0.3.0.dev4",
+        "tool_versions": {}
+      },
+      "evidence_level": "OBSERVED_RUN",
+      "execution": {
+        "cleanup": "CONFIRMED",
+        "exit_code": 0,
+        "outcome": "PASSED",
+        "quality_gate": "PASSED"
+      },
+      "operation_status": "COMPLETED",
+      "project_id": "compose-canary",
+      "protocol": "cdr-result/2",
+      "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9",
+      "runner_id": "compose-canary",
+      "source": {
+        "branch": "compose-qualification",
+        "commit": "b477f01e660f717e3ea8b6ce4250766e63f6a9f1",
+        "dirty": false,
+        "kind": "local_workspace",
+        "overlay_sha256": null,
+        "workload_sha256": "395452068cff71f666dcd259a5e6546de9808d1994efc5e2854ab3a5550294ac"
+      },
+      "warnings": [
+        "partial:FORMAT_NOT_REGISTERED",
+        "answer:FORMAT_NOT_REGISTERED"
+      ]
+    }
+  },
+  "runner_id": "compose-canary",
+  "sequence": 1,
+  "session_id": "716bec30-af1f-4caf-ab64-e87a338b3c82",
+  "status": "COMPLETED",
+  "updated_at": "2026-10-22T19:34:10.310368+00:00"
+}
