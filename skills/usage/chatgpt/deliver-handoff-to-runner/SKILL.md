@@ -2,8 +2,8 @@
 name: deliver-handoff-to-runner
 description: "Deliver an owner-authorized design, roadmap, implementation or asset package from ordinary ChatGPT to an enrolled local project through Drive and a registered Runner Docs command; do not execute or apply it."
 metadata:
-  version: "0.2.0-source-adaptation"
-  status: "source-only-live-capability-check-required"
+  version: "0.2.0-Linux-preview"
+  status: "installed-Linux-tested-with-SDK-assisted-metadata"
   reviewed_runner_commit: "d1e930a5ebdf87f5ab64fb70914420b6d18db03b"
 ---
 
@@ -17,7 +17,11 @@ the owner separately instructs Codex to work on them.
 This repository-local skill adapts the supplied reference kit; it does not
 install or qualify a live feature. Source changes, examples and connected-app
 names are not evidence that the selected installation can accept the action.
-See [provenance](../../PROVENANCE.json); [Russian](SKILL.ru.md).
+The owner’s Linux0.3.0.dev3 installation passed one real transfer with SDK-assisted
+version metadata; connected upload, guarded Docs authoring and terminal readback
+passed. This does not qualify another installation or a missing metadata tool.
+See [H2](../../../../codex/checkpoints/handoff/H2.md),
+[provenance](../../PROVENANCE.json) and [Russian](SKILL.ru.md).
 
 ## Resolve the installed contract and recipient
 

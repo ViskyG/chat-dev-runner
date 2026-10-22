@@ -4,7 +4,9 @@
 The owner requested implementation of `runner-project-handoff-kit.zip` and
 `runner-handoff-integration-roadmap.md` on 2026-10-22, including repository-local
 chat usage skills. Current additive frontier is H2 in
-`codex/checkpoints/handoff/H2.md`; H0/H1 are offline verified. Follow
+`codex/checkpoints/handoff/H2.md`; H0/H1 and installed Linux delivery are verified.
+H2 used SDK-assisted version metadata; do not repeat the live transfer or claim
+the connected metadata tool exposes Drive version. Follow
 `design/handoff-v1/INTEGRATION_ROADMAP_RU.md`. Keep delivery separate from execution,
 reuse v2 intake/lane and existing Drive installation. Unrelated GP07 OS/toolchain
 gates do not block this bounded feature. No global skill registration is implied.

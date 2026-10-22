@@ -94,7 +94,7 @@ These files are public distribution copies from the owner's canonical skill libr
 
 ### Send a design or roadmap package
 
-`DELIVER_HANDOFF` transfers ordinary Drive files into an enrolled project’s `.runner/handoffs/<handoff_id>/`, with optional bounded ZIP extraction and a copyable Codex instruction. It does not execute or apply the package. Use the [handoff skill](skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.md) and [enrollment instructions](docs/V2_OPERATIONS.md#handoff-delivery). Source and offline integration are verified; installed/cloud qualification is recorded separately in the [handoff checkpoint](codex/checkpoints/handoff/H2.md).
+`DELIVER_HANDOFF` transfers ordinary Drive files into an enrolled project’s `.runner/handoffs/<handoff_id>/`, with optional bounded ZIP extraction and a copyable Codex instruction. It does not execute or apply the package. Use the [handoff skill](skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.md) and [enrollment instructions](docs/V2_OPERATIONS.md#handoff-delivery). Installed Linux delivery passed a live ZIP+text transfer with matching Docs receipt. Upload and guarded Docs work through the connected chat tools; Drive version metadata required SDK assistance, so the fully automatic metadata leg remains a connector limitation. See the [handoff checkpoint](codex/checkpoints/handoff/H2.md).
 
 ### Getting started: Linux preview
 
@@ -229,7 +229,7 @@ Runner — **не бесконтрольный удалённый термина
 
 ### Передача проектирования и дорожных карт
 
-`DELIVER_HANDOFF` доставляет обычные файлы Drive в `.runner/handoffs/<handoff_id>/` зарегистрированного проекта, при необходимости распаковывает ZIP и возвращает инструкцию для Codex. Команда не запускает и не применяет пакет. Используйте [скилл передачи](skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.ru.md) и [инструкцию настройки](docs/V2_OPERATIONS.md#handoff-delivery). Исходники и локальная интеграция проверены; установка и облачная проверка отмечаются отдельно в [чекпоинте](codex/checkpoints/handoff/H2.md).
+`DELIVER_HANDOFF` доставляет обычные файлы Drive в `.runner/handoffs/<handoff_id>/` зарегистрированного проекта, при необходимости распаковывает ZIP и возвращает инструкцию для Codex. Команда не запускает и не применяет пакет. Используйте [скилл передачи](skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.ru.md) и [инструкцию настройки](docs/V2_OPERATIONS.md#handoff-delivery). Установленная Linux-версия прошла живую передачу ZIP и текста с подтверждением в Docs. Загрузка и условная запись Docs проверены через подключённый чат; для Drive version понадобился SDK, поэтому автоматическое получение метаданных остаётся ограничением коннектора. Подробности — в [чекпоинте](codex/checkpoints/handoff/H2.md).
 
 ### Как начать: предварительная версия для Linux
 

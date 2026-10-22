@@ -1,7 +1,10 @@
 # Runner v2 operations — Linux preview / предварительные инструкции
 
-**Linux preview, candidate package 0.3.0.dev3.** The additive handoff route below
-is a source candidate; this document does not establish its live qualification.
+**Linux preview, installed package 0.3.0.dev3.** Handoff delivery passed one real
+ZIP+text transfer with a matching connected-chat terminal Docs receipt. Upload
+and guarded Docs authoring are verified; file version metadata was SDK-assisted
+because the connected metadata action omits it. Full automatic metadata
+authoring remains unqualified; see [H2](../codex/checkpoints/handoff/H2.md).
 Earlier installed-wheel upgrade/rollback and existing v1 readback are recorded
 under `verification/implementation/GP-07/release`.
 Provider and target qualification remains specific to its evidence. On 2026-10-16,
