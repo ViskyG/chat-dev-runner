@@ -110,8 +110,10 @@ Runner schema/profile compatibility, immutable enrollment, refusal behavior,
 reporting of pass/failure/missing executable, bounded logs and interruption.
 They do not execute the application or prove live Docker qualification. The first
 installed request stopped at the old helper's quota policy before creating any
-container. Exact resource absence was confirmed and the lane released; successful
-application qualification is still pending the helper upgrade and a fresh request.
+container. After owner installation of the reviewed helper, a fresh request
+passed the actual released 0.8.1 contract, published hash-verified reports to
+GitHub and removed its exact containers/network/quota. Temporary application
+screenshots are not declared outputs; the original log, JSON and JUnit are retained.
 See [the current checkpoint](../../../codex/checkpoints/GP-08.md) and
 `verification/implementation/GP-08/analytics-20261023/` for evidence. No deployment
 to a real Analytics environment or ongoing reliability claim follows from this adapter.

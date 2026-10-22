@@ -1,0 +1,21 @@
+{
+  "request_id": "d62882a6-ebe1-48e3-af09-b4d10c631f88",
+  "delivery_commit": "1b4396078906115c6715eb1f152ebef728e09d87",
+  "remote_head": "1b4396078906115c6715eb1f152ebef728e09d87",
+  "bundle_sha256": "9739479815fd2241ef206923ee68ac0ebfa88addcbff1c31c70cf646c6e934b2",
+  "exact_source_verified": true,
+  "files": {
+    "artifacts.json": "39794f3f39f07f3e42ce80398eb3530b84b0b574e96332557851b8ef824dc18d",
+    "artifacts/container-stderr/container-stderr.bin": "85b7fd3c43ab183f5a46484b4f039c8cfa1a5724809819a4afa3c55736dd14d5",
+    "artifacts/container-stdout/container-stdout.bin": "5e401c34f113e21bfb267b1316ae10b5a8ac1e46ec71f55519eb1e46b3532b83",
+    "artifacts/junit/junit.xml": "8a338e3070b467a1c4cb0e9835a4a6359ccc0a03824f02532916c6bf5d66da5d",
+    "artifacts/ui-log/ui-log.log": "3c3964de37924ff08321a4ff4f46712c34af60ab04ad758643b15c9fa253beb4",
+    "artifacts/ui-result/ui-result.json": "bfe39d234376aeb6f622414769c7c77591765d8f480284625b342d22ff6fa679",
+    "environment.json": "c822a42ca5e8b03de3fb34be1f46ebc0d14fc8e8c96f6fa721fe878e99dd57d0",
+    "phases.json": "e163aae73dc74cf62dcf71848af67fcc102091ebe34e5a93142edbf55fb7842a",
+    "result.json": "3b488553026f9622fdf118f40eece00e10227f7520af2b516ad7ba65cc2f76b9",
+    "source.json": "649ac0e4eb302eebb38fcc6db72c6622de71eae55b5e2851d18f4adcf9fd7562",
+    "summary.md": "93de860b7562c556d001bfb7da770a29d4e819810e91c7de776962f5e67ce1bb",
+    "tests.json": "36c51c65959648439d15e61ee756533517cc647b8f5e910624913c8b26b646f7"
+  }
+}
