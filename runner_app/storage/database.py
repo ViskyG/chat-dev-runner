@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import quote
 
-from .migrations_v2 import V2_MIGRATION
+from .migrations_v2 import V2_HANDOFF_MIGRATION, V2_MIGRATION
 from .paths import UnsafePathError, _absolute, _check_private, _open_directory
 
 # SQLite's POSIX byte-range locks belong to the process, not to one descriptor.
@@ -24,7 +24,7 @@ from .paths import UnsafePathError, _absolute, _check_private, _open_directory
 # https://www.sqlite.org/howtocorrupt.html#posix_advisory_locks_canceled_by_a_separate_thread_doing_close
 _CREATE_LOCK = threading.Lock()
 
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 11
 _MIGRATIONS: dict[int, tuple[str, ...]] = {
     1: (
         (
@@ -396,6 +396,7 @@ _MIGRATIONS: dict[int, tuple[str, ...]] = {
         "INSERT INTO schema_migrations(version, name) VALUES (9, 'provision-effect-adoption')",
     ),
     10: V2_MIGRATION,
+    11: V2_HANDOFF_MIGRATION,
 }
 
 
@@ -572,6 +573,13 @@ class Database:
                     for statement in _MIGRATIONS[next_version]:
                         current.execute(statement)
                     current.execute(f"PRAGMA user_version = {next_version}")
+                if current.execute("PRAGMA foreign_key_check").fetchone() is not None:
+                    raise MigrationError("Migration left an invalid foreign key reference")
+                # The action-CHECK parent-table swap repairs every reference,
+                # but SQLite retains DROP's deferred violation counter. Clear
+                # it only after explicitly validating the complete final graph.
+                if version < 11 <= SCHEMA_VERSION:
+                    current.execute("PRAGMA defer_foreign_keys = OFF")
                 current.execute("COMMIT")
             except BaseException:
                 current.execute("ROLLBACK")

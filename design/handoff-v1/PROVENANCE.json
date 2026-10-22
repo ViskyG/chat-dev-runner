@@ -1,0 +1,13 @@
+{
+  "archive": "runner-project-handoff-kit.zip",
+  "archive_sha256": "519acf4588e09ddfb8e905f45843710c7ff5a6df4b9611484fd53b0ca2f017b3",
+  "baseline": "d1e930a5ebdf87f5ab64fb70914420b6d18db03b",
+  "current_head_matches_baseline": true,
+  "source": "owner-supplied additive handoff kit and integration roadmap; reference core is not an installed adapter",
+  "scope": "H0-H2 only; existing GP07 unfinished target gates are separate",
+  "reference_sha256": {
+    "handoff_reference/contracts.py": "31c7ec0f37e0dbf2cc5d4829e26f335d4f341eb7e6d901cafae50bf3cad08f2e",
+    "handoff_reference/delivery.py": "35dadc64a2d5baee9960aaad6aad85997925926b7241aec1723ba10551ba1d39",
+    "schemas/handoff-manifest.schema.json": "dad19bbf603d269f1e31c5a8783bbc716306870e2c7245a8110321563bca9fae"
+  }
+}

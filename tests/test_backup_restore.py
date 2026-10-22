@@ -330,7 +330,7 @@ def test_schema10_v2_backup_roundtrip_retains_sealed_source_large_artifact_and_n
     database_before = _database_hashes(paths.database_path)
     result = create_backup(paths, archive)
     manifest = json.loads((archive / "manifest.json").read_bytes())
-    assert manifest["version"] == 2 and manifest["database_schema_version"] == 10
+    assert manifest["version"] == 2 and manifest["database_schema_version"] == SCHEMA_VERSION
     assert all(stat.S_IMODE(path.stat().st_mode) == 0o600 for path in (archive / "state").rglob("*") if path.is_file())
     moved = paths.state_dir.with_name("saved-before-restore")
     paths.state_dir.rename(moved)

@@ -72,7 +72,7 @@ Same conversation: diagnose, decide, improve
 
 An acknowledgement means *“Runner accepted this request”*, **not** *“the tests passed.”* The chat must read the matching execution and test results. The command-file branch may differ from the branch being tested.
 
-On Runner `0.3.0.dev2`, a separate terminal-state receipt is published to `.runner/state/<runner>/<request>.json` on the **command-file branch**. It can report an early error even if the tests never start. Detailed reports remain on the **tested source branch**.
+On Runner `0.3.0.dev3`, a separate terminal-state receipt is published to `.runner/state/<runner>/<request>.json` on the **command-file branch**. It can report an early error even if the tests never start. Detailed reports remain on the **tested source branch**.
 
 GitHub-only v2 needs no Google Drive installation. Registered local workspaces and the existing Google Docs workflows are also supported in their respective configurations.
 
@@ -92,9 +92,13 @@ The repository also includes [agent usage skills](skills/usage/README.md). They 
 
 These files are public distribution copies from the owner's canonical skill library. **They are not automatically installed** and cannot enroll projects or grant execution permissions. The installed Runner's current protocol remains authoritative.
 
+### Send a design or roadmap package
+
+`DELIVER_HANDOFF` transfers ordinary Drive files into an enrolled project’s `.runner/handoffs/<handoff_id>/`, with optional bounded ZIP extraction and a copyable Codex instruction. It does not execute or apply the package. Use the [handoff skill](skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.md) and [enrollment instructions](docs/V2_OPERATIONS.md#handoff-delivery). Source and offline integration are verified; installed/cloud qualification is recorded separately in the [handoff checkpoint](codex/checkpoints/handoff/H2.md).
+
 ### Getting started: Linux preview
 
-**Current release scope:** Linux preview `0.3.0.dev2`, with manual setup rather than one-click onboarding. You need Linux, Python 3.10+, Git, the tools for your project, and a GitHub repository. For ChatGPT to submit requests through GitHub, its connected GitHub app must have suitable access to the selected repository.
+**Current release scope:** Linux preview `0.3.0.dev3`, with manual setup rather than one-click onboarding. You need Linux, Python 3.10+, Git, the tools for your project, and a GitHub repository. For ChatGPT to submit requests through GitHub, its connected GitHub app must have suitable access to the selected repository.
 
 **1 — Install the code:**
 
@@ -203,7 +207,7 @@ GitHub (или настроенный канал результатов)
 
 Подтверждение означает *«Runner принял задание»*, а **не** *«тесты прошли»*. Чат должен отдельно прочитать результат выполнения и проверки. Ветка командного файла может отличаться от ветки исходников.
 
-В Runner `0.3.0.dev2` отдельная квитанция с итоговым статусом появляется по пути `.runner/state/<runner>/<request>.json` **в ветке командного файла**. Она позволяет увидеть и раннюю ошибку, когда тесты вообще не запустились. Подробные отчёты остаются **в проверенной ветке исходников**.
+В Runner `0.3.0.dev3` отдельная квитанция с итоговым статусом появляется по пути `.runner/state/<runner>/<request>.json` **в ветке командного файла**. Она позволяет увидеть и раннюю ошибку, когда тесты вообще не запустились. Подробные отчёты остаются **в проверенной ветке исходников**.
 
 Для GitHub-only v2 **Google Drive не нужен**. Также существуют сценарии с зарегистрированными локальными рабочими папками и прежними каналами через Google Docs.
 
@@ -223,9 +227,13 @@ Runner — **не бесконтрольный удалённый термина
 
 Это публичные копии инструкций из канонической библиотеки владельца. **Сами по себе они не устанавливаются**, не регистрируют проект и не выдают разрешения. Приоритет имеет актуальный протокол установленного Runner.
 
+### Передача проектирования и дорожных карт
+
+`DELIVER_HANDOFF` доставляет обычные файлы Drive в `.runner/handoffs/<handoff_id>/` зарегистрированного проекта, при необходимости распаковывает ZIP и возвращает инструкцию для Codex. Команда не запускает и не применяет пакет. Используйте [скилл передачи](skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.ru.md) и [инструкцию настройки](docs/V2_OPERATIONS.md#handoff-delivery). Исходники и локальная интеграция проверены; установка и облачная проверка отмечаются отдельно в [чекпоинте](codex/checkpoints/handoff/H2.md).
+
 ### Как начать: предварительная версия для Linux
 
-**Текущее состояние:** Linux preview `0.3.0.dev2`; первоначальная настройка пока **ручная**, а не одним нажатием. Понадобятся Linux с Python 3.10+ и Git, инструменты вашего проекта и репозиторий GitHub. Для отправки команд через GitHub у подключённого к ChatGPT приложения должен быть необходимый доступ к выбранному репозиторию.
+**Текущее состояние:** Linux preview `0.3.0.dev3`; первоначальная настройка пока **ручная**, а не одним нажатием. Понадобятся Linux с Python 3.10+ и Git, инструменты вашего проекта и репозиторий GitHub. Для отправки команд через GitHub у подключённого к ChatGPT приложения должен быть необходимый доступ к выбранному репозиторию.
 
 **1 — Установите код:**
 

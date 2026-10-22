@@ -1,0 +1,52 @@
+{
+  "repository": "ViskyG/chat-dev-runner",
+  "reviewed_commit": "d1e930a5ebdf87f5ab64fb70914420b6d18db03b",
+  "reviewed_at": "2026-10-21",
+  "scope": "Targeted read, not a full source audit or proof of installed-host state",
+  "package_state": "ADDITIVE_PROPOSAL_WITH_OFFLINE_REFERENCE_CORE",
+  "older_kits_are_not_runtime_authority": true,
+  "files_read": [
+    {
+      "path": "README.md",
+      "reason": "latest product purpose; Linux preview and project enrollment",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/d1e930a5ebdf87f5ab64fb70914420b6d18db03b/README.md"
+    },
+    {
+      "path": "docs/V2_OPERATIONS.md",
+      "reason": "v2 slot-token, registered Docs tab, ownership, receipts, sources",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/d1e930a5ebdf87f5ab64fb70914420b6d18db03b/docs/V2_OPERATIONS.md"
+    },
+    {
+      "path": "schemas/v2-mailbox.schema.json",
+      "reason": "current actions exclude DELIVER_HANDOFF",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/d1e930a5ebdf87f5ab64fb70914420b6d18db03b/schemas/v2-mailbox.schema.json"
+    },
+    {
+      "path": "runner_app/config_v2.py",
+      "reason": "ProjectConfig/WorkspaceConfig and owner-only configuration",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/d1e930a5ebdf87f5ab64fb70914420b6d18db03b/runner_app/config_v2.py"
+    },
+    {
+      "path": "runner_app/engine/runtime_v2.py",
+      "reason": "single-service v2 assembly and handler/terminal observer",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/d1e930a5ebdf87f5ab64fb70914420b6d18db03b/runner_app/engine/runtime_v2.py"
+    },
+    {
+      "path": "runner_app/engine/queue_v2.py",
+      "reason": "existing durable lane, cancellation and TaskOutcome",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/d1e930a5ebdf87f5ab64fb70914420b6d18db03b/runner_app/engine/queue_v2.py"
+    },
+    {
+      "path": "skills/usage/chatgpt/operate-runner-from-chat/SKILL.md",
+      "reason": "current chat operator skill; no invented submission capability",
+      "url": "https://github.com/ViskyG/chat-dev-runner/blob/d1e930a5ebdf87f5ab64fb70914420b6d18db03b/skills/usage/chatgpt/operate-runner-from-chat/SKILL.md"
+    }
+  ],
+  "tool_capability_observation": {
+    "drive_read_tools": true,
+    "drive_upload_tool_exposed": false,
+    "docs_conditional_write_tool_exposed": false,
+    "note": "Current session discovery only. Installed Google Drive plugin does not prove upload/edit actions are enabled. Do not claim file submission."
+  },
+  "live_changes_performed": false
+}

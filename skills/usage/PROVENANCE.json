@@ -3,21 +3,41 @@
   "published_date": "2026-10-20",
   "owner_canonical_repository": "ViskyG/agent-skills",
   "owner_canonical_commit": "85c2f495cfc8402391bcca2b6765ca789b6d92b7",
-  "note": "Public distribution copies adapted for relative paths, public evidence and installation boundaries. This is not a separate canonical definition or automatic installation.",
+  "note": "Public distribution copies adapted for relative paths, public evidence and installation boundaries. Original canonical source identities remain unchanged. Repository-local DELIVER_HANDOFF adaptations and reference-kit sources are recorded separately below; no canonical-library mutation, installation, registration or live qualification is implied.",
   "skills": [
     {
       "identity": "operate-runner-from-chat",
       "language": "en",
       "source_path": "skills/chatgpt/operate-runner-from-chat/SKILL.md",
       "source_blob_sha": "8d5f2c74ec79240095a9b4d79a428b5db2969f09",
-      "published_path": "skills/usage/chatgpt/operate-runner-from-chat/SKILL.md"
+      "published_path": "skills/usage/chatgpt/operate-runner-from-chat/SKILL.md",
+      "repository_adaptation": {
+        "date": "2026-10-22",
+        "basis_repository": "ViskyG/chat-dev-runner",
+        "basis_commit": "d1e930a5ebdf87f5ab64fb70914420b6d18db03b",
+        "changes": [
+          "Generalize shared finite slot instructions to exact GitHub or Docs bindings and revision guards.",
+          "Route package upload and dedicated terminal handoff receipt semantics to deliver-handoff-to-runner."
+        ],
+        "qualification": "Source instructions only; selected installed capabilities and permissions must be checked live."
+      }
     },
     {
       "identity": "operate-runner-from-chat",
       "language": "ru",
       "source_path": "skills/chatgpt/operate-runner-from-chat/SKILL.ru.md",
       "source_blob_sha": "321bef77886488c7bbf050d54ebee2a1977f5cd8",
-      "published_path": "skills/usage/chatgpt/operate-runner-from-chat/SKILL.ru.md"
+      "published_path": "skills/usage/chatgpt/operate-runner-from-chat/SKILL.ru.md",
+      "repository_adaptation": {
+        "date": "2026-10-22",
+        "basis_repository": "ViskyG/chat-dev-runner",
+        "basis_commit": "d1e930a5ebdf87f5ab64fb70914420b6d18db03b",
+        "changes": [
+          "Generalize shared finite slot instructions to exact GitHub or Docs bindings and revision guards.",
+          "Route package upload and dedicated terminal handoff receipt semantics to deliver-handoff-to-runner."
+        ],
+        "qualification": "Source instructions only; selected installed capabilities and permissions must be checked live."
+      }
     },
     {
       "identity": "execute-roadmap-via-chat-runner",
@@ -25,6 +45,63 @@
       "source_path": "skills/udot/execute-roadmap-via-chat-runner/SKILL.md",
       "source_blob_sha": "31efa787b9cf7ac5aafece305dad627ecedf7828",
       "published_path": "skills/usage/udot/execute-roadmap-via-chat-runner/SKILL.md"
+    },
+    {
+      "identity": "deliver-handoff-to-runner",
+      "language": "en",
+      "source_kind": "owner-supplied-reference-kit",
+      "source_bundle": "runner-project-handoff-kit.zip",
+      "source_root": "runner-handoff-extension",
+      "source_path": "skills/deliver-handoff-to-runner/SKILL.md",
+      "source_sha256": "c31a53040b96148e347635467096ac08fda6f2919fffc6378d2f3000e507b38a",
+      "reviewed_runner_commit": "d1e930a5ebdf87f5ab64fb70914420b6d18db03b",
+      "published_path": "skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.md",
+      "repository_adaptation": {
+        "date": "2026-10-22",
+        "version": "0.2.0-source-adaptation",
+        "changes": [
+          "Use the existing v2 operator slot flow and installed mailbox/handoff schemas.",
+          "Require exact enrolled target/Drive/command/result bindings, real upload and independent metadata readback.",
+          "Separate ACK, local delivery and dedicated terminal receipt, preserve stable identity and read before any retry.",
+          "Expose manual-upload and transport-blocked fallbacks and return a Codex prompt without execution."
+        ],
+        "qualification": "Source instructions only; selected installed capabilities and permissions must be checked live."
+      }
+    },
+    {
+      "identity": "deliver-handoff-to-runner",
+      "language": "ru",
+      "source_kind": "owner-supplied-reference-kit",
+      "source_bundle": "runner-project-handoff-kit.zip",
+      "source_root": "runner-handoff-extension",
+      "source_path": "skills/deliver-handoff-to-runner/SKILL.ru.md",
+      "source_sha256": "9652a98cae8616c8e9938b9ab41ccedfa4b7b9b6c38e98b5dcf7e3471ca70dc6",
+      "reviewed_runner_commit": "d1e930a5ebdf87f5ab64fb70914420b6d18db03b",
+      "published_path": "skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.ru.md",
+      "repository_adaptation": {
+        "date": "2026-10-22",
+        "version": "0.2.0-source-adaptation",
+        "changes": [
+          "Use the existing v2 operator slot flow and installed mailbox/handoff schemas.",
+          "Require exact enrolled target/Drive/command/result bindings, real upload and independent metadata readback.",
+          "Separate ACK, local delivery and dedicated terminal receipt, preserve stable identity and read before any retry.",
+          "Expose manual-upload and transport-blocked fallbacks and return a Codex prompt without execution."
+        ],
+        "qualification": "Source instructions only; selected installed capabilities and permissions must be checked live."
+      }
+    }
+  ],
+  "adapted_date": "2026-10-22",
+  "handoff_reference_contracts_reviewed": [
+    {
+      "source_root": "runner-handoff-extension",
+      "source_path": "schemas/handoff-manifest.schema.json",
+      "source_sha256": "dad19bbf603d269f1e31c5a8783bbc716306870e2c7245a8110321563bca9fae"
+    },
+    {
+      "source_root": "runner-handoff-extension",
+      "source_path": "examples/manifest.example.json",
+      "source_sha256": "68fdb1d912e1de32b4d03280efe26ccde5785596b5adbbf65f9967d1d4420914"
     }
   ]
 }

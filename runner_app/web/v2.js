@@ -22,7 +22,7 @@ const STATES = {
   PUBLISHED: ['Опубликовано', 'ok'],
 };
 const ACTIONS = {RUN_TASK: 'Запуск задачи', SHELL: 'Явный shell', CANCEL: 'Отмена',
-  STATUS: 'Запрос состояния', REDELIVER: 'Повторная доставка'};
+  STATUS: 'Запрос состояния', REDELIVER: 'Повторная доставка', DELIVER_HANDOFF: 'Передача пакета'};
 const badge = value => {
   const [caption, tone] = STATES[value] || [value || 'Нет данных', ''];
   return `<span class="badge ${esc(tone)}" title="${esc(value || '')}">${esc(caption)}</span>`;
@@ -59,6 +59,15 @@ function artifacts(manifest) {
 
 function requestDetail(request, detailError) {
   if (!request) return `<section class="card" data-testid="v2-request-detail"><h2>Результат запроса</h2>${note('Выберите запрос, чтобы увидеть его подтверждённые факты и пути к файлам.')}</section>`;
+  if (request.action === 'DELIVER_HANDOFF') {
+    const handoff = request.result?.handoff;
+    const receipt = request.result?.receipt_publication;
+    return `<section class="card" data-testid="v2-request-detail"><div class="eyebrow">${esc(request.project_id)} · Передача пакета</div><h2 class="mono">${esc(request.request_id)}</h2>
+      ${detailError ? note(detailError) : ''}${row('Операция', request.status)}${row('Файлы на компьютере', handoff?.local_delivery_status)}${row('Ответ в Google Docs', receipt?.status)}${request.code ? row('Причина', request.code) : ''}
+      ${handoff ? `${locator('Пакет', handoff.handoff_id)}${locator('Входящие проекта', handoff.safe_relative_handoff_path)}${row('Передано файлов', handoff.files_count)}${locator('SHA-256 манифеста', handoff.manifest_sha256)}${locator('Открыть в Codex', handoff.codex_entrypoint)}${handoff.inbox_visible_in_git ? note('Папка входящих видна в Git как новые файлы. Правила игнорирования не изменялись.') : ''}` : ''}
+      ${request.result?.codex_prompt ? `<label>Инструкция для Codex<textarea readonly rows="6" aria-label="Инструкция для Codex">${esc(request.result.codex_prompt)}</textarea></label>` : ''}
+      ${note('Передача сохраняет файлы отдельно от исходников. Исполнение, тестирование и применение пакета не запускались.')}</section>`;
+  }
   const manifest = resultOf(request);
   const delivery = request.result?.delivery;
   const execution = manifest?.execution;

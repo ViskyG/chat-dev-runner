@@ -9,7 +9,7 @@ from uuid import uuid4
 import pytest
 
 from runner_app.engine.intake_v2 import AckResult, IntakeCoordinator, Observation
-from runner_app.storage.database import _MIGRATIONS, Database
+from runner_app.storage.database import SCHEMA_VERSION, _MIGRATIONS, Database
 from runner_app.storage.intake_v2 import IntakeStore
 
 
@@ -85,7 +85,7 @@ def test_schema_9_history_survives_additive_migration(tmp_path):
     c.close()
     store = IntakeStore(Database(path))
     with store._connection() as c:
-        assert c.execute("PRAGMA user_version").fetchone()[0] == 10
+        assert c.execute("PRAGMA user_version").fetchone()[0] == SCHEMA_VERSION
         assert tuple(c.execute("SELECT * FROM projects").fetchone()) == (
             "old", "Old project", "READY", "{}", "before", "before")
         assert c.execute("PRAGMA integrity_check").fetchone()[0] == "ok"

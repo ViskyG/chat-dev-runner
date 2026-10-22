@@ -17,6 +17,7 @@ from runner_app.adapters.github_mailbox_v2 import (
     GitHubV2Client,
 )
 from runner_app.config_v2 import MailboxConfig, V2RuntimeConfig
+from runner_app.engine.handoff_v2 import HandoffRunner, V2TaskDispatcher
 from runner_app.engine.intake_v2 import MailboxPort
 from runner_app.engine.queue_v2 import V2Service
 from runner_app.engine.task_v2 import NativeTaskRunner, TaskProject
@@ -143,10 +144,25 @@ class V2Assembly:
                     self.backend_codes["rootless-docker"] = getattr(error, "code", "ROOTLESS_UNAVAILABLE")
             self.handler = NativeTaskRunner(self.store, self.resolver, projects, config.native_profiles,
                                             container_backends=backends)
-            self.service = V2Service(self.store, self.session_id, bindings, self.handler,
+            from runner_app.adapters.handoff_drive import HandoffDriveFactory
+            from runner_app.config import DRIVE_INDEX_ID
+
+            protected_ids = {DRIVE_INDEX_ID} | {
+                box.coordinates["document_id"] for box in config.mailboxes if box.provider == "drive"}
+            handoff_factory: Any = HandoffDriveFactory(paths)
+            try:
+                protected_ids.update(_legacy_document_ids(paths))
+            except (OSError, ValueError, TypeError):
+                handoff_factory = None
+            protected = frozenset(protected_ids)
+            self.handoff = HandoffRunner(self.store, config, paths,
+                                         provider_factory=handoff_factory,
+                                         protected_document_ids=protected, native=self.handler)
+            self.dispatcher = V2TaskDispatcher(self.handler, self.handoff)
+            self.service = V2Service(self.store, self.session_id, bindings, self.dispatcher,
                                      intake_enabled=lambda: bool(ledger.state()["armed"]),
                                      poll_seconds=config.poll_seconds,
-                                     terminal_observer=self.handler.publish_state)
+                                     terminal_observer=self.dispatcher.publish_state)
         except BaseException:
             self.store.end_session(self.session_id)
             raise
@@ -163,6 +179,15 @@ class V2Assembly:
                 "projects": list(self.config.projects), "queue_limit": self.config.queue_limit,
                 "native_profiles": list(self.config.native_profiles),
                 "container_backends": dict(self.backend_codes),
+                "handoff_targets": {project.project_id: {
+                    key: {"workspace_id": target.workspace_id,
+                          "allowed_drive_parents": sorted(target.allowed_drive_parents),
+                          "result_document_id": target.result_document_id,
+                          "result_tab_id": target.result_tab_id,
+                          "relative_inbox": ".runner/handoffs"}
+                    for key, target in project.handoff_targets.items()}
+                    for project in self.config.projects.values() if project.handoff_targets},
+                "handoff_protocol": "cdr-handoff/1",
                 "capability_status": "IMPLEMENTED_NOT_QUALIFIED"}
 
     def start(self) -> None:

@@ -1,5 +1,14 @@
 # Agent entry contract
 
+## Owner-approved handoff stage
+The owner requested implementation of `runner-project-handoff-kit.zip` and
+`runner-handoff-integration-roadmap.md` on 2026-10-22, including repository-local
+chat usage skills. Current additive frontier is H2 in
+`codex/checkpoints/handoff/H2.md`; H0/H1 are offline verified. Follow
+`design/handoff-v1/INTEGRATION_ROADMAP_RU.md`. Keep delivery separate from execution,
+reuse v2 intake/lane and existing Drive installation. Unrelated GP07 OS/toolchain
+gates do not block this bounded feature. No global skill registration is implied.
+
 ## Approved v2 frontier
 The owner approved implementation of the 2026-10-15 GP-00–GP-09 stage with
 “Давай, можно использовать субагентов” after its complete implementation plan.

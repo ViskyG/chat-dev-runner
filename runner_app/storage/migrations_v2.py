@@ -22,3 +22,17 @@ V2_MIGRATION = (
     "CREATE TRIGGER v2_journal_no_delete BEFORE DELETE ON v2_journal BEGIN SELECT RAISE(ABORT,'v2 journal is append-only'); END",
     "INSERT INTO schema_migrations(version,name) VALUES(10,'live-session-intake-and-single-lane')",
 )
+
+# Rebuild only the parent table to extend its action CHECK. Deferring foreign
+# keys keeps existing candidate/queue/journal references valid through the swap.
+V2_HANDOFF_MIGRATION = (
+    "PRAGMA defer_foreign_keys = ON",
+    V2_MIGRATION[4].replace("CREATE TABLE v2_requests ", "CREATE TABLE v2_requests_handoff ")
+        .replace("'REDELIVER'", "'REDELIVER','DELIVER_HANDOFF'"),
+    "INSERT INTO v2_requests_handoff SELECT * FROM v2_requests",
+    "DROP TABLE v2_requests",
+    "ALTER TABLE v2_requests_handoff RENAME TO v2_requests",
+    *(statement for statement in V2_MIGRATION if statement.startswith((
+        "CREATE INDEX v2_requests_by_state", "CREATE TRIGGER v2_request_"))),
+    "INSERT INTO schema_migrations(version,name) VALUES(11,'project-handoff-delivery')",
+)

@@ -225,6 +225,22 @@
         "broad_regression": "Reused prior GP07 freeze; this bounded fix changes neither schema nor execution profiles.",
         "live_acceptance": "Existing installed0.3.0.dev2: normal task PASSED with zero warnings and exact immutable bytes; early preparation failure and STATUS returned through GitHub; historical delivery receipt refreshed. Four finite commands, one project execution, source unchanged, mailbox DRAFT. v1operations26/v2requests9/lane0, armed."
       }
+    },
+    "handoff_stage": {
+      "design": "design/handoff-v1",
+      "baseline_commit": "d1e930a5ebdf87f5ab64fb70914420b6d18db03b",
+      "owner_authorization": "2026-10-22: implement supplied runner-project-handoff-kit and integration roadmap; add repository-local chat usage skills",
+      "packets": {
+        "H0": "OFFLINE_VERIFIED",
+        "H1": "OFFLINE_ASSEMBLED_VERIFIED",
+        "H2": "RELEASE_AND_LIVE_PENDING"
+      },
+      "candidate_version": "0.3.0.dev3",
+      "candidate_schema": 11,
+      "checkpoint": "codex/checkpoints/handoff/H2.md",
+      "tests": "Frozen569 cases:568 passed; one original byte-exact mailbox-design assertion needed additive compatibility update; all6 schema checks then passed. Full Ruff and strict mypy128 source files passed.",
+      "installed_version": "0.3.0.dev2",
+      "chat_metadata": "Connected get_file_metadata omits version despite explicit fields; full upload/version/readback qualification pending."
     }
   },
   "implementation_source_repository": {

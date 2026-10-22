@@ -73,6 +73,8 @@ def safe_source_path(value: str) -> PurePosixPath:
     parts = value.split("/")
     if any(part in {"", ".", ".."} for part in parts):
         raise ChangeError("UNSAFE_PATH", "Source path is not canonical")
+    if value.casefold() == ".runner/handoffs" or value.casefold().startswith(".runner/handoffs/"):
+        raise ChangeError("PROTECTED_PATH", "Received handoffs are separate from project source")
     for part in parts:
         lower = part.casefold()
         if (lower in _PROTECTED_COMPONENTS or lower in _SECRET_NAMES

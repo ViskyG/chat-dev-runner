@@ -1,0 +1,12 @@
+{
+  "name": "runner-handoff-extension",
+  "version": "0.1.0",
+  "scope": "ADDITIVE_V2_HANDOFF_DESIGN_AND_REFERENCE_CORE",
+  "baseline_commit": "d1e930a5ebdf87f5ab64fb70914420b6d18db03b",
+  "action_proposed": "DELIVER_HANDOFF",
+  "runtime_registered": false,
+  "cloud_qualified": false,
+  "new_skill_installed": false,
+  "offline_tests_passed": 63,
+  "next_step": "integration/ROADMAP.md H0"
+}

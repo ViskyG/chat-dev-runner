@@ -1,0 +1,394 @@
+* Getting build dependencies for wheel...
+running egg_info
+writing chat_dev_runner.egg-info/PKG-INFO
+writing dependency_links to chat_dev_runner.egg-info/dependency_links.txt
+writing entry points to chat_dev_runner.egg-info/entry_points.txt
+writing requirements to chat_dev_runner.egg-info/requires.txt
+writing top-level names to chat_dev_runner.egg-info/top_level.txt
+reading manifest file 'chat_dev_runner.egg-info/SOURCES.txt'
+writing manifest file 'chat_dev_runner.egg-info/SOURCES.txt'
+* Building wheel...
+running bdist_wheel
+running build
+running build_py
+copying runner_app/config_v2.py -> build/lib/runner_app
+copying runner_app/resources.py -> build/lib/runner_app
+copying runner_app/__init__.py -> build/lib/runner_app
+copying runner_app/adapters/handoff_docs.py -> build/lib/runner_app/adapters
+copying runner_app/adapters/handoff_drive.py -> build/lib/runner_app/adapters
+copying runner_app/git/source_v2.py -> build/lib/runner_app/git
+copying runner_app/git/changes.py -> build/lib/runner_app/git
+copying runner_app/storage/intake_v2.py -> build/lib/runner_app/storage
+copying runner_app/storage/database.py -> build/lib/runner_app/storage
+copying runner_app/storage/migrations_v2.py -> build/lib/runner_app/storage
+copying runner_app/engine/runtime_v2.py -> build/lib/runner_app/engine
+copying runner_app/engine/handoff_v2.py -> build/lib/runner_app/engine
+copying runner_app/domain/mailbox_v2.py -> build/lib/runner_app/domain
+creating build/lib/runner_app/handoff
+copying runner_app/handoff/contracts.py -> build/lib/runner_app/handoff
+copying runner_app/handoff/delivery.py -> build/lib/runner_app/handoff
+copying runner_app/handoff/__init__.py -> build/lib/runner_app/handoff
+running egg_info
+writing chat_dev_runner.egg-info/PKG-INFO
+writing dependency_links to chat_dev_runner.egg-info/dependency_links.txt
+writing entry points to chat_dev_runner.egg-info/entry_points.txt
+writing requirements to chat_dev_runner.egg-info/requires.txt
+writing top-level names to chat_dev_runner.egg-info/top_level.txt
+reading manifest file 'chat_dev_runner.egg-info/SOURCES.txt'
+writing manifest file 'chat_dev_runner.egg-info/SOURCES.txt'
+copying schemas/handoff-manifest.schema.json -> build/lib/schemas
+copying schemas/v2-mailbox.schema.json -> build/lib/schemas
+copying runner_app/web/v2.js -> build/lib/runner_app/web
+installing to build/bdist.linux-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.linux-x86_64/wheel
+creating build/bdist.linux-x86_64/wheel/bridge_reference
+copying build/lib/bridge_reference/demo.py -> build/bdist.linux-x86_64/wheel/./bridge_reference
+copying build/lib/bridge_reference/ledger.py -> build/bdist.linux-x86_64/wheel/./bridge_reference
+copying build/lib/bridge_reference/execution.py -> build/bdist.linux-x86_64/wheel/./bridge_reference
+copying build/lib/bridge_reference/changes.py -> build/bdist.linux-x86_64/wheel/./bridge_reference
+copying build/lib/bridge_reference/__init__.py -> build/bdist.linux-x86_64/wheel/./bridge_reference
+copying build/lib/bridge_reference/protocol.py -> build/bdist.linux-x86_64/wheel/./bridge_reference
+creating build/bdist.linux-x86_64/wheel/runner_app
+copying build/lib/runner_app/config_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app
+copying build/lib/runner_app/cli.py -> build/bdist.linux-x86_64/wheel/./runner_app
+creating build/bdist.linux-x86_64/wheel/runner_app/adapters
+copying build/lib/runner_app/adapters/drive_index.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_workspace_receipt.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_transport.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_fake.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/handoff_docs.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_mailbox_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_project_receipt.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_writer.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_context.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_google.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_publish.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_root_receipt.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_check.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_registry.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_system_state.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_delivery.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_upload.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/handoff_drive.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_provision.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_poller.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/github.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_auth.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/github_mailbox_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/adapters/drive_docs.py -> build/bdist.linux-x86_64/wheel/./runner_app/adapters
+copying build/lib/runner_app/config.py -> build/bdist.linux-x86_64/wheel/./runner_app
+creating build/bdist.linux-x86_64/wheel/runner_app/git
+copying build/lib/runner_app/git/templates.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/github_import.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/argv.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/service.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/imports.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+creating build/bdist.linux-x86_64/wheel/runner_app/git/python_quick_wheels
+copying build/lib/runner_app/git/python_quick_wheels/iniconfig-2.3.0-py3-none-any.whl -> build/bdist.linux-x86_64/wheel/./runner_app/git/python_quick_wheels
+copying build/lib/runner_app/git/python_quick_wheels/pytest-9.1.1-py3-none-any.whl -> build/bdist.linux-x86_64/wheel/./runner_app/git/python_quick_wheels
+copying build/lib/runner_app/git/python_quick_wheels/pluggy-1.6.0-py3-none-any.whl -> build/bdist.linux-x86_64/wheel/./runner_app/git/python_quick_wheels
+copying build/lib/runner_app/git/python_quick_wheels/pygments-2.21.0-py3-none-any.whl -> build/bdist.linux-x86_64/wheel/./runner_app/git/python_quick_wheels
+copying build/lib/runner_app/git/python_quick_wheels/packaging-26.3-py3-none-any.whl -> build/bdist.linux-x86_64/wheel/./runner_app/git/python_quick_wheels
+copying build/lib/runner_app/git/github_transport.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/registry.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/results_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/publish.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/snapshots.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/worktrees.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/source_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/changes.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/materialize.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+copying build/lib/runner_app/git/state_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/git
+creating build/bdist.linux-x86_64/wheel/runner_app/workflows
+copying build/lib/runner_app/workflows/create_workspace.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/reconcile_local.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/reconcile_github.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/retarget_resume.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/reconcile.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/fetch.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/provision_resume_partial.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/retarget_workspace.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/publish_run.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/provision_resume_complete.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/provision_resume.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/retarget_drive_state.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/reconcile_drive.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/deliver_verify_publish.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/create_project.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+copying build/lib/runner_app/workflows/publish_report.py -> build/bdist.linux-x86_64/wheel/./runner_app/workflows
+creating build/bdist.linux-x86_64/wheel/runner_app/executors
+copying build/lib/runner_app/executors/rootless_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/broker.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/preparation_coordinator.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/profiles.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/verify_handler.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/native_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/run_service.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/tool_versions_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/preparation_plan.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/reconciliation.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/task_plan_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/volume_provider.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/executors/preparation_handoff.py -> build/bdist.linux-x86_64/wheel/./runner_app/executors
+copying build/lib/runner_app/service_install.py -> build/bdist.linux-x86_64/wheel/./runner_app
+copying build/lib/runner_app/production.service.in -> build/bdist.linux-x86_64/wheel/./runner_app
+creating build/bdist.linux-x86_64/wheel/runner_app/outputs
+copying build/lib/runner_app/outputs/bundle_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/outputs
+copying build/lib/runner_app/outputs/capture.py -> build/bdist.linux-x86_64/wheel/./runner_app/outputs
+copying build/lib/runner_app/outputs/collection.py -> build/bdist.linux-x86_64/wheel/./runner_app/outputs
+copying build/lib/runner_app/outputs/parsers.py -> build/bdist.linux-x86_64/wheel/./runner_app/outputs
+copying build/lib/runner_app/outputs/redaction.py -> build/bdist.linux-x86_64/wheel/./runner_app/outputs
+copying build/lib/runner_app/outputs/inspection.py -> build/bdist.linux-x86_64/wheel/./runner_app/outputs
+copying build/lib/runner_app/outputs/quality_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/outputs
+copying build/lib/runner_app/outputs/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/outputs
+creating build/bdist.linux-x86_64/wheel/runner_app/api
+copying build/lib/runner_app/api/source_view.py -> build/bdist.linux-x86_64/wheel/./runner_app/api
+copying build/lib/runner_app/api/runtime.py -> build/bdist.linux-x86_64/wheel/./runner_app/api
+copying build/lib/runner_app/api/auth.py -> build/bdist.linux-x86_64/wheel/./runner_app/api
+copying build/lib/runner_app/api/editor.py -> build/bdist.linux-x86_64/wheel/./runner_app/api
+copying build/lib/runner_app/api/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/api
+copying build/lib/runner_app/api/app.py -> build/bdist.linux-x86_64/wheel/./runner_app/api
+copying build/lib/runner_app/resources.py -> build/bdist.linux-x86_64/wheel/./runner_app
+creating build/bdist.linux-x86_64/wheel/runner_app/storage
+copying build/lib/runner_app/storage/intake_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+copying build/lib/runner_app/storage/backup.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+copying build/lib/runner_app/storage/paths.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+copying build/lib/runner_app/storage/ledger.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+copying build/lib/runner_app/storage/preparation_evidence.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+copying build/lib/runner_app/storage/database.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+copying build/lib/runner_app/storage/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+copying build/lib/runner_app/storage/migrations_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+copying build/lib/runner_app/storage/run_evidence.py -> build/bdist.linux-x86_64/wheel/./runner_app/storage
+creating build/bdist.linux-x86_64/wheel/runner_app/web
+copying build/lib/runner_app/web/model.js -> build/bdist.linux-x86_64/wheel/./runner_app/web
+copying build/lib/runner_app/web/app.js -> build/bdist.linux-x86_64/wheel/./runner_app/web
+copying build/lib/runner_app/web/render.js -> build/bdist.linux-x86_64/wheel/./runner_app/web
+copying build/lib/runner_app/web/v2.js -> build/bdist.linux-x86_64/wheel/./runner_app/web
+copying build/lib/runner_app/web/index.html -> build/bdist.linux-x86_64/wheel/./runner_app/web
+copying build/lib/runner_app/web/styles.css -> build/bdist.linux-x86_64/wheel/./runner_app/web
+copying build/lib/runner_app/web/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/web
+copying build/lib/runner_app/web/api.js -> build/bdist.linux-x86_64/wheel/./runner_app/web
+creating build/bdist.linux-x86_64/wheel/runner_app/engine
+copying build/lib/runner_app/engine/workspace_mailboxes.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/execution_assembly.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/queue_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/service.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/drive_bridge.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/runtime_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/runtime.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/task_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/connection_checks.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/report_route.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/intake_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/docs_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/handoff_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/full_route.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/singleton.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/context_route.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/engine/integrations.py -> build/bdist.linux-x86_64/wheel/./runner_app/engine
+copying build/lib/runner_app/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app
+creating build/bdist.linux-x86_64/wheel/runner_app/domain
+copying build/lib/runner_app/domain/mailbox_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/domain
+copying build/lib/runner_app/domain/contracts_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/domain
+copying build/lib/runner_app/domain/commands.py -> build/bdist.linux-x86_64/wheel/./runner_app/domain
+copying build/lib/runner_app/domain/project_v2.py -> build/bdist.linux-x86_64/wheel/./runner_app/domain
+copying build/lib/runner_app/domain/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/domain
+creating build/bdist.linux-x86_64/wheel/runner_app/handoff
+copying build/lib/runner_app/handoff/contracts.py -> build/bdist.linux-x86_64/wheel/./runner_app/handoff
+copying build/lib/runner_app/handoff/delivery.py -> build/bdist.linux-x86_64/wheel/./runner_app/handoff
+copying build/lib/runner_app/handoff/__init__.py -> build/bdist.linux-x86_64/wheel/./runner_app/handoff
+creating build/bdist.linux-x86_64/wheel/schemas
+copying build/lib/schemas/v2-project.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/handoff-manifest.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/receipt.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/v2-environment.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/application-log.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/v2-mailbox.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/v2-approval.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/command.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/run-manifest.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/v2-result.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/operation-manifest.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/output.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/__init__.py -> build/bdist.linux-x86_64/wheel/./schemas
+copying build/lib/schemas/changeset.schema.json -> build/bdist.linux-x86_64/wheel/./schemas
+running install_egg_info
+Copying chat_dev_runner.egg-info to build/bdist.linux-x86_64/wheel/./chat_dev_runner-0.3.0.dev3-py3.10.egg-info
+running install_scripts
+creating build/bdist.linux-x86_64/wheel/chat_dev_runner-0.3.0.dev3.dist-info/WHEEL
+creating '/home/visky/Work/GPTRunner/.runner-install/wheels/0.3.0.dev3/.tmp-ytfl4f1d/chat_dev_runner-0.3.0.dev3-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'bridge_reference/__init__.py'
+adding 'bridge_reference/changes.py'
+adding 'bridge_reference/demo.py'
+adding 'bridge_reference/execution.py'
+adding 'bridge_reference/ledger.py'
+adding 'bridge_reference/protocol.py'
+adding 'runner_app/__init__.py'
+adding 'runner_app/cli.py'
+adding 'runner_app/config.py'
+adding 'runner_app/config_v2.py'
+adding 'runner_app/production.service.in'
+adding 'runner_app/resources.py'
+adding 'runner_app/service_install.py'
+adding 'runner_app/adapters/__init__.py'
+adding 'runner_app/adapters/drive_auth.py'
+adding 'runner_app/adapters/drive_check.py'
+adding 'runner_app/adapters/drive_context.py'
+adding 'runner_app/adapters/drive_delivery.py'
+adding 'runner_app/adapters/drive_docs.py'
+adding 'runner_app/adapters/drive_fake.py'
+adding 'runner_app/adapters/drive_google.py'
+adding 'runner_app/adapters/drive_index.py'
+adding 'runner_app/adapters/drive_mailbox_v2.py'
+adding 'runner_app/adapters/drive_poller.py'
+adding 'runner_app/adapters/drive_project_receipt.py'
+adding 'runner_app/adapters/drive_provision.py'
+adding 'runner_app/adapters/drive_publish.py'
+adding 'runner_app/adapters/drive_registry.py'
+adding 'runner_app/adapters/drive_root_receipt.py'
+adding 'runner_app/adapters/drive_system_state.py'
+adding 'runner_app/adapters/drive_transport.py'
+adding 'runner_app/adapters/drive_upload.py'
+adding 'runner_app/adapters/drive_workspace_receipt.py'
+adding 'runner_app/adapters/drive_writer.py'
+adding 'runner_app/adapters/github.py'
+adding 'runner_app/adapters/github_mailbox_v2.py'
+adding 'runner_app/adapters/handoff_docs.py'
+adding 'runner_app/adapters/handoff_drive.py'
+adding 'runner_app/api/__init__.py'
+adding 'runner_app/api/app.py'
+adding 'runner_app/api/auth.py'
+adding 'runner_app/api/editor.py'
+adding 'runner_app/api/runtime.py'
+adding 'runner_app/api/source_view.py'
+adding 'runner_app/domain/__init__.py'
+adding 'runner_app/domain/commands.py'
+adding 'runner_app/domain/contracts_v2.py'
+adding 'runner_app/domain/mailbox_v2.py'
+adding 'runner_app/domain/project_v2.py'
+adding 'runner_app/engine/__init__.py'
+adding 'runner_app/engine/connection_checks.py'
+adding 'runner_app/engine/context_route.py'
+adding 'runner_app/engine/docs_v2.py'
+adding 'runner_app/engine/drive_bridge.py'
+adding 'runner_app/engine/execution_assembly.py'
+adding 'runner_app/engine/full_route.py'
+adding 'runner_app/engine/handoff_v2.py'
+adding 'runner_app/engine/intake_v2.py'
+adding 'runner_app/engine/integrations.py'
+adding 'runner_app/engine/queue_v2.py'
+adding 'runner_app/engine/report_route.py'
+adding 'runner_app/engine/runtime.py'
+adding 'runner_app/engine/runtime_v2.py'
+adding 'runner_app/engine/service.py'
+adding 'runner_app/engine/singleton.py'
+adding 'runner_app/engine/task_v2.py'
+adding 'runner_app/engine/workspace_mailboxes.py'
+adding 'runner_app/executors/__init__.py'
+adding 'runner_app/executors/broker.py'
+adding 'runner_app/executors/native_v2.py'
+adding 'runner_app/executors/preparation_coordinator.py'
+adding 'runner_app/executors/preparation_handoff.py'
+adding 'runner_app/executors/preparation_plan.py'
+adding 'runner_app/executors/profiles.py'
+adding 'runner_app/executors/reconciliation.py'
+adding 'runner_app/executors/rootless_v2.py'
+adding 'runner_app/executors/run_service.py'
+adding 'runner_app/executors/task_plan_v2.py'
+adding 'runner_app/executors/tool_versions_v2.py'
+adding 'runner_app/executors/verify_handler.py'
+adding 'runner_app/executors/volume_provider.py'
+adding 'runner_app/git/__init__.py'
+adding 'runner_app/git/argv.py'
+adding 'runner_app/git/changes.py'
+adding 'runner_app/git/github_import.py'
+adding 'runner_app/git/github_transport.py'
+adding 'runner_app/git/imports.py'
+adding 'runner_app/git/materialize.py'
+adding 'runner_app/git/publish.py'
+adding 'runner_app/git/registry.py'
+adding 'runner_app/git/results_v2.py'
+adding 'runner_app/git/service.py'
+adding 'runner_app/git/snapshots.py'
+adding 'runner_app/git/source_v2.py'
+adding 'runner_app/git/state_v2.py'
+adding 'runner_app/git/templates.py'
+adding 'runner_app/git/worktrees.py'
+adding 'runner_app/git/python_quick_wheels/iniconfig-2.3.0-py3-none-any.whl'
+adding 'runner_app/git/python_quick_wheels/packaging-26.3-py3-none-any.whl'
+adding 'runner_app/git/python_quick_wheels/pluggy-1.6.0-py3-none-any.whl'
+adding 'runner_app/git/python_quick_wheels/pygments-2.21.0-py3-none-any.whl'
+adding 'runner_app/git/python_quick_wheels/pytest-9.1.1-py3-none-any.whl'
+adding 'runner_app/handoff/__init__.py'
+adding 'runner_app/handoff/contracts.py'
+adding 'runner_app/handoff/delivery.py'
+adding 'runner_app/outputs/__init__.py'
+adding 'runner_app/outputs/bundle_v2.py'
+adding 'runner_app/outputs/capture.py'
+adding 'runner_app/outputs/collection.py'
+adding 'runner_app/outputs/inspection.py'
+adding 'runner_app/outputs/parsers.py'
+adding 'runner_app/outputs/quality_v2.py'
+adding 'runner_app/outputs/redaction.py'
+adding 'runner_app/storage/__init__.py'
+adding 'runner_app/storage/backup.py'
+adding 'runner_app/storage/database.py'
+adding 'runner_app/storage/intake_v2.py'
+adding 'runner_app/storage/ledger.py'
+adding 'runner_app/storage/migrations_v2.py'
+adding 'runner_app/storage/paths.py'
+adding 'runner_app/storage/preparation_evidence.py'
+adding 'runner_app/storage/run_evidence.py'
+adding 'runner_app/web/__init__.py'
+adding 'runner_app/web/api.js'
+adding 'runner_app/web/app.js'
+adding 'runner_app/web/index.html'
+adding 'runner_app/web/model.js'
+adding 'runner_app/web/render.js'
+adding 'runner_app/web/styles.css'
+adding 'runner_app/web/v2.js'
+adding 'runner_app/workflows/__init__.py'
+adding 'runner_app/workflows/create_project.py'
+adding 'runner_app/workflows/create_workspace.py'
+adding 'runner_app/workflows/deliver_verify_publish.py'
+adding 'runner_app/workflows/fetch.py'
+adding 'runner_app/workflows/provision_resume.py'
+adding 'runner_app/workflows/provision_resume_complete.py'
+adding 'runner_app/workflows/provision_resume_partial.py'
+adding 'runner_app/workflows/publish_report.py'
+adding 'runner_app/workflows/publish_run.py'
+adding 'runner_app/workflows/reconcile.py'
+adding 'runner_app/workflows/reconcile_drive.py'
+adding 'runner_app/workflows/reconcile_github.py'
+adding 'runner_app/workflows/reconcile_local.py'
+adding 'runner_app/workflows/retarget_drive_state.py'
+adding 'runner_app/workflows/retarget_resume.py'
+adding 'runner_app/workflows/retarget_workspace.py'
+adding 'schemas/__init__.py'
+adding 'schemas/application-log.schema.json'
+adding 'schemas/changeset.schema.json'
+adding 'schemas/command.schema.json'
+adding 'schemas/handoff-manifest.schema.json'
+adding 'schemas/operation-manifest.schema.json'
+adding 'schemas/output.schema.json'
+adding 'schemas/receipt.schema.json'
+adding 'schemas/run-manifest.schema.json'
+adding 'schemas/v2-approval.schema.json'
+adding 'schemas/v2-environment.schema.json'
+adding 'schemas/v2-mailbox.schema.json'
+adding 'schemas/v2-project.schema.json'
+adding 'schemas/v2-result.schema.json'
+adding 'chat_dev_runner-0.3.0.dev3.dist-info/METADATA'
+adding 'chat_dev_runner-0.3.0.dev3.dist-info/WHEEL'
+adding 'chat_dev_runner-0.3.0.dev3.dist-info/entry_points.txt'
+adding 'chat_dev_runner-0.3.0.dev3.dist-info/top_level.txt'
+adding 'chat_dev_runner-0.3.0.dev3.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+Successfully built chat_dev_runner-0.3.0.dev3-py3-none-any.whl

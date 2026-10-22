@@ -43,6 +43,15 @@ def validate_mailbox_shape(envelope: dict[str, Any]) -> None:
     validate_schema(envelope, "v2-mailbox")
     require_uuid(envelope["slot_token"])
     request = envelope["request"]
+    if request["action"] == "DELIVER_HANDOFF":
+        from runner_app.handoff.contracts import HandoffError, validate
+
+        try:
+            validate(request["handoff"])
+        except HandoffError as error:
+            raise DomainError(error.code, "Handoff does not match its versioned contract.") from None
+        if request["handoff"]["project_id"] != envelope["project_id"]:
+            raise DomainError("HANDOFF_PROJECT_MISMATCH", "Handoff project must match its mailbox.")
     for value in (request.get("request_id"), request.get("target_request_id")):
         if value is not None:
             require_uuid(value)
