@@ -1,0 +1,133 @@
+{
+  "action": "RUN_TASK",
+  "cancel_requested": 0,
+  "code": "COMPOSE_RECOVERED_AFTER_INTERRUPTION",
+  "created_at": "2026-10-22T21:18:33.111246+00:00",
+  "digest": "63b09849d264d86e6a15c1d3ff31ba00e614ec1029d7d89b79fc41d02a414436",
+  "project_id": "cdr-runner-test",
+  "request_id": "36c39afc-9e33-4556-ab13-6051ec068d43",
+  "result": {
+    "branch": "runner/analytics-cc-20261023",
+    "bundle_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43/bundle",
+    "bundle_sha256": "de0b59a8aa77b7623b2506c8f3c07ab80e07a80bdd7acf3849f91354a61cc07a",
+    "delivery": {
+      "bundle_sha256": "de0b59a8aa77b7623b2506c8f3c07ab80e07a80bdd7acf3849f91354a61cc07a",
+      "code": "DELIVERED",
+      "commit": "2ad9cb32999bc948f3f0b8b0caf0c353f9ee6564",
+      "local_available": true,
+      "local_locator": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43/bundle",
+      "marker": "af0bc92a64d645a4b8e88a498d67dfc4",
+      "remote_head": "2ad9cb32999bc948f3f0b8b0caf0c353f9ee6564",
+      "status": "DELIVERED"
+    },
+    "manifest": {
+      "artifacts": [
+        {
+          "availability": "LOCAL_ONLY",
+          "bytes": 239,
+          "complete": true,
+          "format": "junit-xml",
+          "id": "junit",
+          "kind": "test_result",
+          "local_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43/originals/junit/junit.xml",
+          "reason": "PUBLICATION_PENDING",
+          "remote_path": "artifacts/junit/junit.xml",
+          "sha256": "030b4220e8bb5dc08ced36d74ac515b94f6951f16a6c591a92a7d992b06db3da"
+        },
+        {
+          "availability": "LOCAL_ONLY",
+          "bytes": 2731,
+          "complete": true,
+          "format": "json",
+          "id": "ui-result",
+          "kind": "artifact",
+          "local_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43/originals/ui-result/ui-result.json",
+          "reason": "PUBLICATION_PENDING",
+          "remote_path": "artifacts/ui-result/ui-result.json",
+          "sha256": "edf4a742214ddce7b61e6f65b669b95032b2dcc4a828df891f2d22f87572827c"
+        },
+        {
+          "availability": "LOCAL_ONLY",
+          "bytes": 9263,
+          "complete": true,
+          "format": "text",
+          "id": "ui-log",
+          "kind": "artifact",
+          "local_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43/originals/ui-log/ui-log.log",
+          "reason": "PUBLICATION_PENDING",
+          "remote_path": "artifacts/ui-log/ui-log.log",
+          "sha256": "24ac75f30ac658d82c85178bf0b0e1ccef4c47b6c90057f8e7a5aff9fea2ba97"
+        },
+        {
+          "availability": "LOCAL_ONLY",
+          "bytes": 184231,
+          "complete": true,
+          "format": "raw-bytes",
+          "id": "container-stdout",
+          "kind": "console",
+          "local_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43/originals/container-stdout/container-stdout.bin",
+          "reason": "PUBLICATION_PENDING",
+          "remote_path": "artifacts/container-stdout/container-stdout.bin",
+          "sha256": "7c8cf6440398b721bddb51534ce5f9dce2f3f832a66b8db27eb3df57d125b8ff"
+        },
+        {
+          "availability": "LOCAL_ONLY",
+          "bytes": 31,
+          "complete": true,
+          "format": "raw-bytes",
+          "id": "container-stderr",
+          "kind": "console",
+          "local_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43/originals/container-stderr/container-stderr.bin",
+          "reason": "PUBLICATION_PENDING",
+          "remote_path": "artifacts/container-stderr/container-stderr.bin",
+          "sha256": "85b7fd3c43ab183f5a46484b4f039c8cfa1a5724809819a4afa3c55736dd14d5"
+        }
+      ],
+      "delivery": {
+        "branch": "runner/analytics-cc-20261023",
+        "local_bundle_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43/bundle",
+        "reason": "PUBLICATION_PENDING",
+        "status": "LOCAL_ONLY"
+      },
+      "environment": {
+        "details_path": "environment.json",
+        "execution_arch": "amd64",
+        "execution_os": "linux",
+        "host_arch": "x86_64",
+        "host_os": "linux",
+        "mode": "container",
+        "profile_id": "analytics-cc-ui",
+        "reproducibility": "unknown",
+        "runner_version": "0.3.0.dev5",
+        "tool_versions": {}
+      },
+      "evidence_level": "OBSERVED_RUN",
+      "execution": {
+        "cleanup": "CONFIRMED",
+        "exit_code": null,
+        "outcome": "UNKNOWN",
+        "quality_gate": "INSUFFICIENT"
+      },
+      "operation_status": "INTERRUPTED",
+      "project_id": "cdr-runner-test",
+      "protocol": "cdr-result/2",
+      "request_id": "36c39afc-9e33-4556-ab13-6051ec068d43",
+      "runner_id": "local-runner",
+      "source": {
+        "branch": "runner/analytics-cc-20261023",
+        "commit": "b4d074858716917272195337544ce08b915cea1c",
+        "dirty": false,
+        "kind": "github_branch",
+        "overlay_sha256": null,
+        "workload_sha256": "ae192d104a185cc5056476db30b8888a9c1de3bbe46b2c8ff47d4e4a8a43042a"
+      },
+      "warnings": [
+        "PROCESS_REPORT_INCONSISTENT"
+      ]
+    }
+  },
+  "runner_id": "local-runner",
+  "session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67",
+  "status": "INTERRUPTED",
+  "updated_at": "2026-10-22T21:20:05.105277+00:00"
+}

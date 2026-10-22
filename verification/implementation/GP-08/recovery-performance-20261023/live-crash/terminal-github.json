@@ -1,0 +1,40 @@
+{
+  "action": "RUN_TASK",
+  "code": "COMPOSE_RECOVERED_AFTER_INTERRUPTION",
+  "delivery": {
+    "bundle_sha256": "de0b59a8aa77b7623b2506c8f3c07ab80e07a80bdd7acf3849f91354a61cc07a",
+    "code": "DELIVERED",
+    "commit": "2ad9cb32999bc948f3f0b8b0caf0c353f9ee6564",
+    "local_available": true,
+    "local_locator": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43/bundle",
+    "marker": "af0bc92a64d645a4b8e88a498d67dfc4",
+    "remote_head": "2ad9cb32999bc948f3f0b8b0caf0c353f9ee6564",
+    "status": "DELIVERED"
+  },
+  "execution": {
+    "cleanup": "CONFIRMED",
+    "exit_code": null,
+    "outcome": "UNKNOWN",
+    "quality_gate": "INSUFFICIENT"
+  },
+  "project_id": "cdr-runner-test",
+  "request_digest": "63b09849d264d86e6a15c1d3ff31ba00e614ec1029d7d89b79fc41d02a414436",
+  "request_id": "36c39afc-9e33-4556-ab13-6051ec068d43",
+  "result": {
+    "branch": "runner/analytics-cc-20261023",
+    "bundle_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43/bundle",
+    "bundle_sha256": "de0b59a8aa77b7623b2506c8f3c07ab80e07a80bdd7acf3849f91354a61cc07a"
+  },
+  "runner_id": "local-runner",
+  "schema_version": 1,
+  "source": {
+    "branch": "runner/analytics-cc-20261023",
+    "commit": "b4d074858716917272195337544ce08b915cea1c",
+    "dirty": false,
+    "kind": "github_branch",
+    "overlay_sha256": null,
+    "workload_sha256": "ae192d104a185cc5056476db30b8888a9c1de3bbe46b2c8ff47d4e4a8a43042a"
+  },
+  "status": "INTERRUPTED",
+  "updated_at": "2026-10-22T21:20:05.105277+00:00"
+}

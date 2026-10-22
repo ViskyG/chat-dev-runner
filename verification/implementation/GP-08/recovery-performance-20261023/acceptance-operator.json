@@ -1,0 +1,16 @@
+{
+  "private_operator_sha256": "d875f10afe123d11d55ce6dd59210bec2c3456742f2edfc3e537768c77325ede",
+  "private_operator_path": "/home/visky/Work/GPTRunner/.runner-backups/recovery-performance-20261023/live_acceptance.py",
+  "source_commit": "3ce13bc",
+  "new_requests": 2,
+  "actual_crash_signals": 1,
+  "provider": "existing private ViskyG/cdr-runner-test",
+  "drive_commands_submitted": 0,
+  "service_version": "0.3.0.dev5",
+  "qualification": "Existing installed Linux service, actual GitHub and rootless Docker; no mocks for live acceptance",
+  "observer_corrections": [
+    "remote-only publication manifest",
+    "host systemctl --kill-who option"
+  ],
+  "runtime_changes_after_source_freeze": false
+}

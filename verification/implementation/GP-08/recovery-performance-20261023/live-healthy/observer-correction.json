@@ -1,0 +1,7 @@
+{
+  "initial_observer": "FileNotFoundError looking for local .runner-bundle.json, which is publication-only",
+  "runner_result": "COMPLETED/PASSED/DELIVERED",
+  "correction": "Read remote manifest and verify its SHA256 against durable local bundle digest; then compare all original local and remote files",
+  "request_replayed": false,
+  "source_runtime_changed": false
+}

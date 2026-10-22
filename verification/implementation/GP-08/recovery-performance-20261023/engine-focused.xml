@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="10" time="6.560" timestamp="2026-10-23T00:54:21.297753+04:00" hostname="k8s-master"><testcase classname="tests.test_v2_restart_recovery" name="test_starting_request_is_released_without_fetch_or_container_action" time="0.775" /><testcase classname="tests.test_v2_restart_recovery" name="test_interrupted_execution_keeps_real_reports_without_claiming_pass_or_rerunning" time="1.057" /><testcase classname="tests.test_v2_restart_recovery" name="test_recovery_preserves_partial_unsealed_capture_before_new_bundle" time="0.846"><failure message="AssertionError: assert 'FAILED' == 'INTERRUPTED'&#10;  &#10;  - INTERRUPTED&#10;  + FAILED">tmp_path = PosixPath('/tmp/pytest-of-visky/pytest-82/test_recovery_preserves_partia0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7433eb1e0f40&gt;
+
+    def test_recovery_preserves_partial_unsealed_capture_before_new_bundle(tmp_path, monkeypatch):
+        f = Fixture(tmp_path, monkeypatch)
+        partial = f.project.results_root / "runner-1" / f.compose.request
+        partial.mkdir(parents=True, mode=0o700)
+        (partial / "original-partial.log").write_text("keep exact diagnostics")
+        operation, _ = f.restart()
+&gt;       assert operation["status"] == "INTERRUPTED"
+E       AssertionError: assert 'FAILED' == 'INTERRUPTED'
+E         
+E         - INTERRUPTED
+E         + FAILED
+
+tests/test_v2_restart_recovery.py:116: AssertionError</failure></testcase><testcase classname="tests.test_v2_restart_recovery" name="test_uncertain_identity_retains_lane_and_publishes_reason" time="0.820" /><testcase classname="tests.test_v2_restart_recovery" name="test_finished_bundle_and_lost_local_finish_are_reconciled_without_second_push" time="1.128" /><testcase classname="tests.test_v2_restart_recovery" name="test_prior_unknown_publication_is_readback_only_when_remote_result_is_absent" time="0.084" /><testcase classname="tests.test_v2_bundle_and_container" name="test_large_original_retained_while_link_and_incomplete_required_output_stay_invalid" time="0.014" /><testcase classname="tests.test_v2_bundle_and_container" name="test_directory_outputs_with_same_truncated_collector_name_do_not_overwrite" time="0.030" /><testcase classname="tests.test_v2_bundle_and_container" name="test_fixed_rootless_route_uses_same_v2_source_and_result_contract[False]" time="1.078" /><testcase classname="tests.test_v2_bundle_and_container" name="test_fixed_rootless_route_uses_same_v2_source_and_result_contract[True]" time="0.608" /></testsuite></testsuites>

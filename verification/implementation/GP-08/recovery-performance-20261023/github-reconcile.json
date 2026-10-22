@@ -1,0 +1,22 @@
+{
+  "scope": "Preserve UNKNOWN for every inconclusive reconcile_only return after a prior durable publication intent; normal first publication remains LOCAL_ONLY on pre-write failures.",
+  "source_sha256": {
+    "runner_app/git/results_v2.py": "c3629ac35ef57052ec5d231edb6068ab17da854f6134122814c7ae3f81d60de9",
+    "tests/test_v2_result_reconcile.py": "9f281eb4874220f93da116e280700ead4c2da9cc909b720d635ec44d64b2bbfd"
+  },
+  "red": "New os_error case reproduced LOCAL_ONLY instead of UNKNOWN before the fix (1 failed, 10 deselected in 0.15s).",
+  "green": "11 delta cases passed in 1.01s; Ruff and mypy clean.",
+  "cases": [
+    "Provider OSError, GitError and unexpected error",
+    "Invalid or unfetched HEAD object",
+    "Absent result, absent branch and conflicting remote result",
+    "Changed local bundle identity",
+    "Exact prior bundle proved on an advanced branch without another push",
+    "First-publication read failure still LOCAL_ONLY"
+  ],
+  "effects": "Scratch local Git only. Reconciliation asserts no new publication intent, unchanged refs/files, and fails on any push attempt. No network, credentials, installed state or workloads.",
+  "evidence": [
+    "github-reconcile-before.xml",
+    "github-reconcile-focused.xml"
+  ]
+}

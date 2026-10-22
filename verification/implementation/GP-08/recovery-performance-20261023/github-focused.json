@@ -1,0 +1,53 @@
+{
+  "scope": "GitHub immutable object publication only; no runtime/schema/enrollment changes, credentials, live API calls or workload replay.",
+  "baseline_commit": "df30db3",
+  "strategy": [
+    "Validate complete changed object graph and original byte/object budgets before first object POST.",
+    "Upload unique blobs in groups of at most four; finish the current group and stop before any tree/commit/ref on failure.",
+    "Build exact root tree once from full allowed changed paths plus parent base_tree; retain dependency-order fallback for small custom request budgets.",
+    "Keep exact commit SHA, source constraints, existing-ref force=false update, cooldown and ambiguity/readback handling."
+  ],
+  "source_sha256": {
+    "runner_app/adapters/github_mailbox_v2.py": "31a101e1c30e919b7dfade371dfacdd3a81bd58a64f68bdca7ab1ea78cc1e6ef",
+    "tests/test_github_mailbox_v2.py": "ae4ce31fb88bfbe78d05f95fba4fd756c4b1510953b258250c9feedb79b67cbe"
+  },
+  "checks": [
+    {
+      "command": "python -m pytest -q tests/test_github_mailbox_v2.py tests/test_github_v2_http.py",
+      "stage": "baseline",
+      "result": "44 passed in 1.41s",
+      "evidence": "github-baseline.xml"
+    },
+    {
+      "command": "python -m pytest -q tests/test_github_mailbox_v2.py -k \"late_result or uploaded_once or small_custom_tree or blob_upload_groups or source_or_mode or terminal_state_addition\"",
+      "stage": "new boundaries",
+      "result": "8 passed, 33 deselected in 0.77s",
+      "evidence": "github-boundaries.xml"
+    },
+    {
+      "command": "python -m pytest -q tests/test_github_mailbox_v2.py tests/test_github_v2_http.py",
+      "stage": "focused final",
+      "result": "52 passed in 2.35s",
+      "evidence": "github-focused.xml"
+    },
+    {
+      "command": "ruff check runner_app/adapters/github_mailbox_v2.py tests/test_github_mailbox_v2.py verification/implementation/GP-08/recovery-performance-20261023/measure_github_uploads.py",
+      "result": "passed"
+    },
+    {
+      "command": "mypy runner_app/adapters/github_mailbox_v2.py",
+      "result": "Success: no issues found in 1 source file"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "performance_evidence": "github-upload-comparison.json",
+  "not_run": [
+    "Full suite",
+    "Live provider publication",
+    "Repeated Analytics browser qualification"
+  ],
+  "remaining_limit": "Publications still execute in the existing synchronous lifecycle; GET/fetch/commit/ref/readback phases remain sequential. Mock latency is not a live GitHub guarantee."
+}

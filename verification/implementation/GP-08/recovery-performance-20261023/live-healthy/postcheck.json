@@ -1,0 +1,26 @@
+{
+  "absent_container_ids": {
+    "control-center": "512662ada1b7fe6fbf34ef54691737149e3ea960ecabffb55ef92033fac09fbb",
+    "ui-contract": "b9b94548fe3675ca9fccddc6316477a49ea52a99553547e00bbd20129eb67479"
+  },
+  "absent_network_id": "3b8f337a249a12c801e59ae140deee12bca8a4a2f3ef2e60e0a0de9eb6ae5de5",
+  "armed": true,
+  "continuous_channels": 10,
+  "current_session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67",
+  "history_counts": {
+    "v1_operations": 26,
+    "v2_requests": 13
+  },
+  "lane_rows": 0,
+  "quota_absent": true,
+  "service": {
+    "ActiveState": "active",
+    "ControlGroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/chat-dev-runner.service",
+    "InvocationID": "e6a5acdd66994898b58b50eeef44454c",
+    "KillMode": "control-group",
+    "MainPID": "2466419",
+    "NRestarts": "0",
+    "Restart": "on-failure",
+    "SubState": "running"
+  }
+}

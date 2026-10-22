@@ -1,0 +1,115 @@
+{
+  "before": {
+    "active_requests": [],
+    "armed": true,
+    "channels": [
+      {
+        "binding_id": "cdr-runner-test-docs-handoff",
+        "continuous": 1,
+        "session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67"
+      },
+      {
+        "binding_id": "cdr-runner-test-github",
+        "continuous": 1,
+        "session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67"
+      },
+      {
+        "binding_id": "gp04-docs-preview",
+        "continuous": 1,
+        "session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67"
+      },
+      {
+        "binding_id": "gp07-github-preview",
+        "continuous": 1,
+        "session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67"
+      },
+      {
+        "binding_id": "handoff-0354c1c4006d35be7200a9c4",
+        "continuous": 1,
+        "session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67"
+      },
+      {
+        "binding_id": "handoff-61b492cbe0b95e13512b5706",
+        "continuous": 1,
+        "session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67"
+      },
+      {
+        "binding_id": "handoff-a42da246c6f3aabba0541987",
+        "continuous": 1,
+        "session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67"
+      },
+      {
+        "binding_id": "handoff-d006eddc870a5227307d3e65",
+        "continuous": 1,
+        "session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67"
+      },
+      {
+        "binding_id": "handoff-e741c49629df7e4aac60d041",
+        "continuous": 1,
+        "session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67"
+      },
+      {
+        "binding_id": "handoff-e774f582105ab259b7ebbdf2",
+        "continuous": 1,
+        "session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67"
+      }
+    ],
+    "lane": [],
+    "sessions": [
+      {
+        "runner_id": "local-runner",
+        "session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67"
+      }
+    ],
+    "v1_busy": 0,
+    "v1_operations": 26,
+    "v2_requests": 13
+  },
+  "binding_id": "cdr-runner-test-github",
+  "config_sha256": "2eec1283bd9a0d1ce702e552d58ae96eb784fc0037cf69e9e25714ea14a1f2a4",
+  "daemon": {
+    "id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+    "server_version": "29.8.1"
+  },
+  "digest": "63b09849d264d86e6a15c1d3ff31ba00e614ec1029d7d89b79fc41d02a414436",
+  "installed": {
+    "compose_recovery_module_sha256": "762eaf899abc69466cfc17a3a3685ded7a826ad234e716b887d72c15b6f0560f",
+    "recovery_module_sha256": "b5db0a48ce3107c02b220662f36b55796f3834eeba2aff56280dc3e3fda8efb7",
+    "version": "0.3.0.dev5"
+  },
+  "kind": "crash",
+  "mailbox_branch": "main",
+  "mailbox_path": ".runner/commands/local-runner.json",
+  "observed_mailbox_head": "1cadc6e2184cc28f95ff3ad17cee9d7c2a48dc5f",
+  "observed_source_head": "b4d074858716917272195337544ce08b915cea1c",
+  "original_session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67",
+  "payload_sha256": "a6d95ea2596e47e39481ae07c3208cf569212f84b86a8d99ca58b9be6bcf247b",
+  "profile_revision_sha256": "1c90425ec84e416b265e1b37f8cc2f70e07d1a7f0b08a415778a89a8304d2c85",
+  "project_id": "cdr-runner-test",
+  "request_id": "36c39afc-9e33-4556-ab13-6051ec068d43",
+  "runner_id": "local-runner",
+  "service_authority": {
+    "docker": {
+      "ActiveState": "active",
+      "ControlGroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/docker.service",
+      "InvocationID": "4c28ad779f85471c8b060d9a8d81dbf7",
+      "KillMode": "mixed",
+      "MainPID": "1127",
+      "NRestarts": "0",
+      "Restart": "always",
+      "SubState": "running"
+    },
+    "runner": {
+      "ActiveState": "active",
+      "ControlGroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/chat-dev-runner.service",
+      "InvocationID": "e6a5acdd66994898b58b50eeef44454c",
+      "KillMode": "control-group",
+      "MainPID": "2466419",
+      "NRestarts": "0",
+      "Restart": "on-failure",
+      "SubState": "running"
+    }
+  },
+  "source_branch": "runner/analytics-cc-20261023",
+  "submission_intended_at": 1792703905.199798
+}

@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0.dev4-audit-Compose-Linux-preview",
+  "version": "0.3.0.dev5-Compose-Linux-recovery-preview",
   "date": "2026-10-23",
   "source_publication": {
     "status": "PUBLISHED",
@@ -17,10 +17,10 @@
   "ui": "EP-06 VERIFIED packaged same-origin control centre. Installed 0.2.6 browser/API acceptance matched the prior passing/failing runs, JUnit, 18 dark/light/reduced-motion screenshots, keyboard/viewport behavior and exact-workspace VS Code open request. Focused installed 0.2.7 Chromium readback passed keyboard Console/Tests tab selection and registered JUnit inspection GETs for both runs; the disabled GitHub import option exposed its exact visible/accessibility reason, and the enabled local-context dialog explained local-only scope and unavailable diff. The browser-only context form was not submitted during that UI probe; a separate installed owner-local API EXPORT_CONTEXT operation later completed. These runs contain no structured application-log output, so installed Console inspection GET for that format is not claimed. A focused installed browser GET-failure probe showed truthful partial/global offline status, disabled command reasons, accessible retry and online recovery while retaining the same historical run; old run badges stay visible beneath the global offline strip. See verification/implementation/EP-07/installed-ui-0.2.7.json, installed-ui-0.2.7-offline.json and ui-evidence-installed-20260928.md.",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
-  "live_runner": "LINUX_PREVIEW_ACTIVE: installed user service 0.3.0.dev4 active/enabled/armed on 127.0.0.1:8765, schema 11; 26 v1 operations and 12 v2 requests retained, execution lane empty. All 10 existing v2 channels preserved. Analytics Control Center 0.8.1 actual browser contract PASSED through installed rootless-compose and GitHub after owner-installed 1024 MiB helper upgrade; reports hash-verified and exact resources absent. Profile enrolled only for cdr-runner-test; no production Analytics deployment.",
+  "live_runner": "LINUX_PREVIEW_ACTIVE: installed user service 0.3.0.dev5 active/enabled/armed on 127.0.0.1:8765, schema 11; 26 v1 operations and 14 v2 requests retained, execution lane empty. All 10 existing v2 channels continuous. Comparable actual Analytics browser contract PASSED; GitHub return after sealing improved 30.091 s to 17.178 s. One actual service-cgroup SIGKILL recovered original Compose work as INTERRUPTED/UNKNOWN with cleanup CONFIRMED and delivery DELIVERED; no workload replay. Existing private cdr-runner-test only, no production Analytics deployment.",
   "github_live_adapter": "EP-05 created three disposable private repositories under ViskyG. EP-07 installed 0.2.1 service published passing primary and failing parallel runs to distinct branches of the disposable private UI project, with draft PRs #1 and #2 and Drive report links. The failing draft PR is labelled [FAILED]. Owner-only tokens remain outside the repository. Owner-local GitHub read independently confirmed the calculator repository is private; this chat GitHub connector returned 404 for that new repository.",
   "credentials": "None bundled",
-  "service_installation": "Separate wheel0.3.0.dev4 environment .runner-install/venv-0.3.0.dev4 is active; dev3 and older binaries retained. Matching stopped-state backup .runner-backups/audit-20261022/state-before retained privately.137 payloads match source, existing dependencies retained, no schema change. Same daemon, Drive root, credentials/scopes and owner runtime configuration.",
+  "service_installation": "Separate wheel 0.3.0.dev5 environment .runner-install/venv-0.3.0.dev5 active; dev4 and older binaries retained. Matching stopped-state backup .runner-backups/recovery-performance-20261023/state-before retained privately. 164 payloads match source, dependencies unchanged, schema 11. Existing daemon, Drive root, credentials/scopes and owner configuration preserved.",
   "automatic_chat_access": "CONNECTED_DRIVE_COMMAND_ROUNDTRIPS_VERIFIED_IN_CURRENT_CHAT: connected chat Drive app issued revision-guarded DRAFT/READY CREATE_PROJECT through the existing root COMMAND and read a matching COMPLETED root RECEIPT after deployed service execution. On installed 0.2.2, it issued FETCH through an existing project COMMAND and read a matching COMPLETED project RECEIPT. An owner-reported separate-chat CREATE_PROJECT for cdr-calculator-smoke-20260928-1759 was independently observed as COMPLETED in the installed ledger and connected Drive root RECEIPT; the originating chat session identity is not independently proven. CONNECTED_GITHUB_RUNNER_REPO_READ_VERIFIED: private ViskyG/chat-dev-runner is visible. The current chat GitHub connector returned 404 for the newly created private calculator repository, which owner-local gh independently verified exists. On 2026-09-29, the same connected Drive app submitted an exact existing-project CREATE_WORKSPACE DRAFT/READY command and read its matching COMPLETED project RECEIPT and new SOURCE CONTEXT. Evidence: verification/implementation/EP-07/live-project-create-workspace-20260929.json. On 2026-09-29, the connected GitHub App installation was independently read as selected-repositories and still returned 404 for the owner-local verified private calculator repository; the owner chose manual addition of new cdr-* repositories for now. See verification/implementation/EP-07/chat-github-selection-20260929.json. This manual ChatGPT GitHub App selected-repository choice is separate from the still-unapproved owner-local Runner GitHub source-import grant for ViskyG/cdr-ep07-ui-20260928; no import was performed. See verification/implementation/EP-07/github-import-provider-preflight-20260929.json. Installed 0.2.7 then received a connected-chat workspace RETARGET_WORKSPACE DRAFT/READY request through the exact registered workspace COMMAND; its terminal RECEIPT matched request/digest after an earlier invalid-TTL request had been rejected with its own terminal receipt. See verification/implementation/EP-07/live-workspace-retarget-0.2.7.json. On2026-10-16, connected Google Drive get_document read the new dedicated Docs v2 mailbox and batch_update_document wrote the next DRAFT with requiredRevisionId; exact readback matched and no new command was admitted. An earlier SDK-authored STATUS in this same registered Doc was accepted and completed by the installed service against the prior GitHub-run request. Evidence: verification/implementation/GP-04/live-20261016/.",
   "user_projects": "Three disposable EP-05 projects and three EP-07 projects (cdr-ep07-ui-20260928, cdr-ep07-drive-20260928 and owner-requested cdr-calculator-smoke-20260928-1759) exist under the existing Drive installation and private GitHub owner. All three EP-07 projects are READY. The UI project has primary, parallel and chat-route-20260929 ACTIVE workspaces. Primary PASSED and parallel FAILED their independent deployed publications, each with private draft PR and Drive report. Connected-chat RETARGET_WORKSPACE moved only chat-route-20260929 to feature/ep07-retarget-acceptance-20260929 at the same commit, source generation 1; primary and parallel kept their original clean branches, heads and generations. Chat-route has not run tests or published. The calculator project is a scaffold; application code has not been submitted. No pre-existing user project was imported or modified.",
   "drive_installation": {
@@ -56,7 +56,7 @@
       "GP-05": "LINUX_VERIFIED_WINDOWS_UNIMPLEMENTED_MACOS_UNQUALIFIED",
       "GP-06": "FOUR_LINUX_NATIVE_LANGUAGES_VERIFIED_JAVA_GATE",
       "GP-07": "IN_PROGRESS",
-      "GP-08": "LINUX_FINITE_COMPOSE_VERIFIED_PREVIEW_RECOVERY_REMAINS",
+      "GP-08": "LINUX_FINITE_COMPOSE_AND_RESTART_RECOVERY_VERIFIED_PREVIEW",
       "GP-09": "NOT_STARTED_EDITOR_LICENSE_GATE"
     },
     "armed": true,
@@ -281,11 +281,10 @@
       "compose_live": "actual Linux rootless healthy/migration/test pass, expected fail, unhealthy readiness, timeout and cancel; reports retained and exact resources absent. Initial timeout collection defect fixed; original run manually reconciled without replay.",
       "separation": "Owner requested independent Linux Compose continuation; GP07 other OS/toolchain/general release gates stay open.",
       "remaining": [
-        "automatic Compose restart/cleanup reconciliation",
         "qualify a separately selected actual database/migration stack; released Control Center browser route verified",
-        "serial result upload/terminal publication latency",
         "prior Windows/macOS/Java/Unity gates",
-        "connected Drive file-version metadata gate"
+        "connected Drive file-version metadata gate",
+        "native/rootless-docker interrupted execution recovery remains outside the qualified Compose route"
       ],
       "analytics_contract": {
         "date": "2026-10-23",
@@ -310,7 +309,7 @@
         },
         "broad_regression": "Reuse unchanged audit-20261022 regression; no core package change.",
         "evidence": "verification/implementation/GP-08/analytics-20261023/",
-        "next": "Use ordinary fresh requests for this enrolled released contract. Automatic Compose restart reconciliation and actual database/migration-stack qualification remain separate open work.",
+        "next": "Ordinary fresh requests are ready under the enrolled profile. Compose restart recovery is now qualified in recovery_performance; actual database/migration-stack qualification remains separate.",
         "request_id": "d62882a6-ebe1-48e3-af09-b4d10c631f88",
         "execution": "PASSED",
         "quality_gate": "PASSED",
@@ -323,6 +322,55 @@
         "source_ci": "https://github.com/ViskyG/chat-dev-runner/actions/runs/39849365495",
         "first_container_creation_started": false
       }
+    },
+    "recovery_performance": {
+      "date": "2026-10-23",
+      "status": "INSTALLED_LIVE_VERIFIED",
+      "source_commit": "3ce13bc",
+      "installed_version": "0.3.0.dev5",
+      "schema": 11,
+      "wheel_sha256": "0c179ab7ec95076e378bf8fc732e368a8eb08c94a84823d29e0cdc77095a052a",
+      "evidence": "verification/implementation/GP-08/recovery-performance-20261023/",
+      "tests": {
+        "passed": 2030,
+        "skipped": 1,
+        "errors": 0,
+        "failures": 0,
+        "seconds": 410.613,
+        "ruff": "PASS",
+        "mypy_source_files": 131
+      },
+      "github_latency": {
+        "bundle_seal_to_delivery": {
+          "before": 20.022,
+          "after": 9.768,
+          "reduction_percent": 51.2
+        },
+        "terminal_to_remote_terminal": {
+          "before": 10.053,
+          "after": 7.391,
+          "reduction_percent": 26.5
+        },
+        "submission_to_remote_terminal": {
+          "before": 116.293,
+          "after": 103.964,
+          "reduction_percent": 10.6
+        },
+        "return_after_sealing": {
+          "before": 30.091,
+          "after": 17.178,
+          "reduction_percent": 42.9
+        }
+      },
+      "healthy_request_id": "6b254698-cdfd-4978-895c-0da4a7b39c56",
+      "crash_request_id": "36c39afc-9e33-4556-ab13-6051ec068d43",
+      "crash_to_recovery_seconds": 23.497,
+      "workload_replayed": false,
+      "cleanup": "CONFIRMED",
+      "delivery": "DELIVERED",
+      "continuous_channels": 10,
+      "lane_rows": 0,
+      "scope": "Installed Linux restricted rootless-compose; uncertain ownership/process identity/legacy unsealed evidence retains reconciliation gate. No native/rootless-docker recovery claim."
     }
   },
   "implementation_source_repository": {

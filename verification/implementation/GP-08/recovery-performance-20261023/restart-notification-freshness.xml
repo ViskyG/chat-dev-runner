@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="10" time="5.995" timestamp="2026-10-23T01:02:34.696814+04:00" hostname="k8s-master"><testcase classname="tests.test_intake_v2" name="test_restart_notifications_compare_terminal_and_successful_delivery_event_order" time="0.718" /><testcase classname="tests.test_intake_v2" name="test_restart_notifications_include_completed_crash_before_publication" time="0.682" /><testcase classname="tests.test_intake_v2" name="test_restart_notifications_are_bounded_and_session_scoped" time="0.580" /><testcase classname="tests.test_intake_v2" name="test_restart_notifications_include_existing_terminal_transition_aliases[CANCELLED_BEFORE_START]" time="0.616" /><testcase classname="tests.test_intake_v2" name="test_restart_notifications_include_existing_terminal_transition_aliases[ACK_PROOF_LOST]" time="0.570" /><testcase classname="tests.test_intake_v2" name="test_restart_notifications_include_existing_terminal_transition_aliases[INTAKE_REVOKED]" time="0.576" /><testcase classname="tests.test_intake_v2" name="test_restart_notifications_include_existing_terminal_transition_aliases[ACK_FAILED]" time="0.517" /><testcase classname="tests.test_intake_v2" name="test_restart_notifications_include_existing_terminal_transition_aliases[INPUT_CHANGED]" time="0.541" /><testcase classname="tests.test_intake_v2" name="test_restart_notifications_include_redelivery_after_previous_terminal_publication" time="0.803" /><testcase classname="tests.test_intake_v2" name="test_restart_notifications_include_handoff_recovery_and_respect_confirmed_receipt" time="0.312"><failure message="AssertionError: IntakeResult(kind='REJECTED', request_id=None, sequence=None, code='ENTRYPOINT_NOT_EXTRACTED')&#10;assert 'REJECTED' == 'ACCEPTED'&#10;  &#10;  - ACCEPTED&#10;  + REJECTED">tmp_path = PosixPath('/tmp/pytest-of-visky/pytest-92/test_restart_notifications_inc7')
+
+    def test_restart_notifications_include_handoff_recovery_and_respect_confirmed_receipt(tmp_path):
+        store, old, coordinator, port = setup(tmp_path)
+        port.value["request"] = {"request_id": None, "action": "DELIVER_HANDOFF", "handoff": {
+            "protocol": "cdr-handoff/1", "handoff_id": str(uuid4()), "project_id": "project-1",
+            "target_id": "inbox", "purpose": "roadmap", "title": "Recovery fixture",
+            "base_commit": None, "entrypoint": {"artifact_id": "notes", "path": "notes.txt"},
+            "artifacts": [{"artifact_id": "notes", "drive_file_id": "fixture-file", "drive_version": "1",
+                           "filename": "notes.txt", "size_bytes": 1, "sha256": "a" * 64,
+                           "media_type": "text/plain", "unpack": "none"}],
+        }}
+        coordinator.poll_once("slot", port)
+&gt;       target = accept(coordinator, port)
+
+tests/test_intake_v2.py:393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+coordinator = &lt;runner_app.engine.intake_v2.IntakeCoordinator object at 0x73ab342698a0&gt;
+port = &lt;test_intake_v2.Port object at 0x73ab34269ae0&gt;
+
+    def accept(coordinator, port):
+        port.ready()
+        result = coordinator.poll_once("slot", port)
+&gt;       assert result.kind == "ACCEPTED", result
+E       AssertionError: IntakeResult(kind='REJECTED', request_id=None, sequence=None, code='ENTRYPOINT_NOT_EXTRACTED')
+E       assert 'REJECTED' == 'ACCEPTED'
+E         
+E         - ACCEPTED
+E         + REJECTED
+
+tests/test_intake_v2.py:71: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,30 @@
+{
+  "baseline_request_id": "d62882a6-ebe1-48e3-af09-b4d10c631f88",
+  "candidate_request_id": "6b254698-cdfd-4978-895c-0da4a7b39c56",
+  "same_workload_digest": true,
+  "same_12_bundle_file_paths": true,
+  "actual_GitHub_provider": true,
+  "seconds": {
+    "bundle_seal_to_delivery": {
+      "before": 20.022,
+      "after": 9.768,
+      "reduction_percent": 51.2
+    },
+    "terminal_to_remote_terminal": {
+      "before": 10.053,
+      "after": 7.391,
+      "reduction_percent": 26.5
+    },
+    "submission_to_remote_terminal": {
+      "before": 116.293,
+      "after": 103.964,
+      "reduction_percent": 10.6
+    },
+    "return_after_sealing": {
+      "before": 30.091,
+      "after": 17.178,
+      "reduction_percent": 42.9
+    }
+  },
+  "qualification": "One real comparable run before/after; network timing varies. Includes actual publication, not independent observer hash-readback time. Existing rootless Analytics UI contract used; no workload code change."
+}

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.143" timestamp="2026-10-23T01:01:43.651177+04:00" hostname="k8s-master"><testcase classname="tests.test_v2_result_reconcile" name="test_inconclusive_prior_publication_stays_unknown_without_writes[os_error]" time="0.095"><failure message="AssertionError: assert 'LOCAL_ONLY' == 'UNKNOWN'&#10;  &#10;  - UNKNOWN&#10;  + LOCAL_ONLY">tmp_path = PosixPath('/tmp/pytest-of-visky/pytest-89/test_inconclusive_prior_public0')
+boundary = 'os_error'
+
+    @pytest.mark.parametrize("boundary", [
+        "absent", "missing_branch", "conflicting_result", "os_error", "git_error",
+        "unexpected_error", "invalid_head", "unfetched_head", "changed_local_bundle",
+    ])
+    def test_inconclusive_prior_publication_stays_unknown_without_writes(
+        tmp_path: Path, boundary: str,
+    ) -&gt; None:
+        fixture = Fixture(tmp_path)
+        expected_digest = None
+        if boundary == "missing_branch":
+            git(fixture.receiver, "update-ref", "-d", "refs/heads/tested")
+        elif boundary in {"conflicting_result", "changed_local_bundle"}:
+            prior = fixture.publish()
+            assert prior.status == "DELIVERED"
+            if boundary == "changed_local_bundle":
+                expected_digest = prior.bundle_sha256
+            (fixture.results / "summary.md").write_bytes(b"different retained bytes\n")
+        refs_before = git(fixture.receiver, "for-each-ref", "--format=%(refname) %(objectname)")
+        intents_before = list(fixture.intents)
+        files_before = {path.name: path.read_bytes() for path in fixture.results.iterdir()}
+    
+        class ReadOnly(LocalBareResultTransport):
+            def fetch_head(self, repo: Path, branch: str) -&gt; str | None:
+                if boundary == "os_error":
+                    raise OSError("Provider temporarily unavailable")
+                if boundary == "git_error":
+                    raise GitError("GITHUB_FETCH_FAILED", "Readback unavailable")
+                if boundary == "unexpected_error":
+                    raise RuntimeError("Provider failure")
+                if boundary == "invalid_head":
+                    return "not-a-git-object"
+                if boundary == "unfetched_head":
+                    return "a" * 40
+                return super().fetch_head(repo, branch)
+    
+            def push_commit(self, repo: Path, candidate: str, branch: str) -&gt; None:
+                pytest.fail("Prior publication must never be replayed by reconciliation")
+    
+        result = fixture.publish(ReadOnly(fixture.receiver), reconcile_only=True,
+                                 expected_bundle_sha256=expected_digest)
+&gt;       assert result.status == "UNKNOWN"
+E       AssertionError: assert 'LOCAL_ONLY' == 'UNKNOWN'
+E         
+E         - UNKNOWN
+E         + LOCAL_ONLY
+
+tests/test_v2_result_reconcile.py:53: AssertionError</failure></testcase></testsuite></testsuites>

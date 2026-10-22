@@ -1,0 +1,37 @@
+{
+  "container_ids": {
+    "control-center": "7489bdfba0bccf275e5dc3556ea489d0e357bcb5a1ff18b44c3e9db9038926db",
+    "ui-contract": "104a44e4780c729f0b4799c57b13a1bb8071a5629bfa7f0114cdc3a08e71c11f"
+  },
+  "container_state_running": true,
+  "intended_at": 1792703981.6081674,
+  "kill_whom": "all",
+  "network_id": "2c4aa5a1a36786cc31a79c93c6558651f662d1ce722108427cb9da87e1393767",
+  "request_id": "36c39afc-9e33-4556-ab13-6051ec068d43",
+  "service": "chat-dev-runner.service",
+  "service_authority": {
+    "docker": {
+      "ActiveState": "active",
+      "ControlGroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/docker.service",
+      "InvocationID": "4c28ad779f85471c8b060d9a8d81dbf7",
+      "KillMode": "mixed",
+      "MainPID": "1127",
+      "NRestarts": "0",
+      "Restart": "always",
+      "SubState": "running"
+    },
+    "runner": {
+      "ActiveState": "active",
+      "ControlGroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/chat-dev-runner.service",
+      "InvocationID": "e6a5acdd66994898b58b50eeef44454c",
+      "KillMode": "control-group",
+      "MainPID": "2466419",
+      "NRestarts": "0",
+      "Restart": "on-failure",
+      "SubState": "running"
+    }
+  },
+  "signal": "SIGKILL",
+  "test_container_started_at": "2026-10-22T21:18:44.71761782Z",
+  "test_start_event_id": 216
+}

@@ -1,0 +1,22 @@
+{
+  "bundle_sha256": "de0b59a8aa77b7623b2506c8f3c07ab80e07a80bdd7acf3849f91354a61cc07a",
+  "delivery_commit": "2ad9cb32999bc948f3f0b8b0caf0c353f9ee6564",
+  "file_count": 12,
+  "files": {
+    "artifacts.json": "cde0bf5c319a8e56e879fdb71e0d2713a325e578727f77036b9a1723a30341ec",
+    "artifacts/container-stderr/container-stderr.bin": "85b7fd3c43ab183f5a46484b4f039c8cfa1a5724809819a4afa3c55736dd14d5",
+    "artifacts/container-stdout/container-stdout.bin": "7c8cf6440398b721bddb51534ce5f9dce2f3f832a66b8db27eb3df57d125b8ff",
+    "artifacts/junit/junit.xml": "030b4220e8bb5dc08ced36d74ac515b94f6951f16a6c591a92a7d992b06db3da",
+    "artifacts/ui-log/ui-log.log": "24ac75f30ac658d82c85178bf0b0e1ccef4c47b6c90057f8e7a5aff9fea2ba97",
+    "artifacts/ui-result/ui-result.json": "edf4a742214ddce7b61e6f65b669b95032b2dcc4a828df891f2d22f87572827c",
+    "environment.json": "5ea4dee50d8e0aa2f65b6f0fe34525d9a36bbc9f4c99cd352d111e2ea8514dc7",
+    "phases.json": "445eacd28513c96993bfcb3091d404efc06a12d32176c7562d1c5dc6eb7e7b85",
+    "result.json": "8fc1fa1b3cc272aadda9f0385db34f159ef64c833affa630dff33a3a684dbccc",
+    "source.json": "6740d62112df925697fbbe3c4017d8b730c1adfea01cc2a000ac7f834b125e62",
+    "summary.md": "6d07c04e3b063346adece3057b138bd9c27f45557f0fb6ecc07234eccf91c96b",
+    "tests.json": "10c764bbdbcdac173f6c3a61bf9509a92d93c61a1a39840d926eb545a3ea4180"
+  },
+  "remote_head": "2ad9cb32999bc948f3f0b8b0caf0c353f9ee6564",
+  "request_id": "36c39afc-9e33-4556-ab13-6051ec068d43",
+  "source_commit": "b4d074858716917272195337544ce08b915cea1c"
+}
