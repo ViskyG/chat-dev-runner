@@ -13,7 +13,7 @@ import shutil
 import threading
 import time
 from collections.abc import Mapping
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -25,6 +25,7 @@ from runner_app.domain.commands import DomainError
 from runner_app.domain.contracts_v2 import validate_schema
 from runner_app.domain.project_v2 import parse_project
 from runner_app.engine.queue_v2 import TaskOutcome
+from runner_app.executors.compose_v2 import ComposeTaskBackend
 from runner_app.executors.native_v2 import execute_native, shell_argv
 from runner_app.executors.rootless_v2 import RootlessError, RootlessTaskBackend
 from runner_app.executors.task_plan_v2 import ResolvedStep, TaskPlan, plan_task
@@ -132,7 +133,7 @@ def _reports(outputs: FrozenOutputs, declarations: list[dict[str, Any]]) -> dict
 class NativeTaskRunner:
     def __init__(self, store: IntakeStore, resolver: SourceResolver,
                  projects: Mapping[str, TaskProject], profiles: Mapping[str, NativeProfile], *,
-                 container_backends: Mapping[str, RootlessTaskBackend] | None = None) -> None:
+                 container_backends: Mapping[str, RootlessTaskBackend | ComposeTaskBackend] | None = None) -> None:
         self.store, self.resolver = store, resolver
         self.projects, self.profiles = dict(projects), dict(profiles)
         self.container_backends = dict(container_backends or {})
@@ -300,13 +301,16 @@ class NativeTaskRunner:
                  "outcome": result.outcome, "exit_code": result.exit_code,
                  "cleanup_verified": result.cleanup_verified, "duration_seconds": result.duration_seconds}
         try:
-            return self._seal(operation, project, snapshot, snapshot.path, result.output_root, None,
+            sealed = self._seal(operation, project, snapshot, snapshot.path, result.output_root, None,
                               profile_id, None, task_digest, backend.timeout_seconds(profile_id), host_os,
                               started, [phase], declarations, roots, task["quality_gate"],
                               result.cleanup_verified, result.outcome, result.exit_code,
                               backend_details={"mode": "container", "execution_os": result.execution_os,
                                                "execution_arch": result.execution_arch,
-                                               "image": result.image, "rootless": dict(result.provenance)})
+                                               "image": result.image, "rootless": dict(result.provenance),
+                                               "error_code": result.error_code,
+                                               "capture_complete": result.capture_complete})
+            return replace(sealed, code=result.error_code) if result.error_code and not sealed.code else sealed
         except (OSError, ValueError, ResultError) as error:
             return TaskOutcome("FAILED", getattr(error, "code", "LOCAL_PERSISTENCE_FAILED"),
                                {"phase_evidence_path": str(result.output_root.parent)}, result.cleanup_verified)

@@ -230,32 +230,59 @@ def _canonical(value: object) -> bytes:
 
 def _listing(repo: Path, commit: str, limits: SourceLimits
              ) -> dict[str, tuple[int, str, int]]:
-    raw = run_git_bytes(repo, ["ls-tree", "-r", "-z", "-l", "--full-tree", commit])
-    if raw and not raw.endswith(b"\0"):
-        raise SourceError("INVALID_SOURCE_TREE")
+    # Result history grows in the tested branch. Do not enumerate its files or
+    # charge them to the workload budget. Record each excluded subtree itself,
+    # matching local capture's directory-level exclusion records.
     result: dict[str, tuple[int, str, int]] = {}
     portable: dict[str, str] = {}
-    for record in raw[:-1].split(b"\0") if raw else ():
-        metadata, sep, raw_name = record.partition(b"\t")
-        fields = metadata.split()
-        if sep != b"\t" or len(fields) != 4:
+    subtrees: list[str] = []
+    file_count = 0
+
+    def accept(raw: bytes, prefix: str = "", *, allow_trees: bool = False) -> None:
+        nonlocal file_count
+        if raw and not raw.endswith(b"\0"):
             raise SourceError("INVALID_SOURCE_TREE")
-        try:
-            name = _path(raw_name.decode("utf-8", "strict"), limits)
-            mode, oid = int(fields[0], 8), _oid(fields[2].decode("ascii"))
-            size = int(fields[3]) if fields[3] != b"-" else 0
-        except (UnicodeDecodeError, ValueError):
-            raise SourceError("INVALID_SOURCE_TREE") from None
-        if mode == 0o160000:
-            raise SourceError("SUBMODULE_UNSUPPORTED")
-        if mode == 0o120000:
-            raise SourceError("SYMLINK_UNSUPPORTED")
-        if mode not in {0o100644, 0o100755} or fields[1] != b"blob" or size < 0:
-            raise SourceError("INVALID_SOURCE_TREE")
-        _check_collision(name, portable)
-        result[name] = (mode, oid, size)
-        if len(result) > limits.max_files:
-            raise SourceError("SOURCE_FILE_COUNT_LIMIT")
+        for record in raw[:-1].split(b"\0") if raw else ():
+            metadata, sep, raw_name = record.partition(b"\t")
+            fields = metadata.split()
+            if sep != b"\t" or len(fields) != 4:
+                raise SourceError("INVALID_SOURCE_TREE")
+            try:
+                name = _path(prefix + raw_name.decode("utf-8", "strict"), limits)
+                mode, oid = int(fields[0], 8), _oid(fields[2].decode("ascii"))
+                size = int(fields[3]) if fields[3] != b"-" else 0
+            except (UnicodeDecodeError, ValueError):
+                raise SourceError("INVALID_SOURCE_TREE") from None
+            _check_collision(name, portable)
+            if allow_trees and mode == 0o040000 and fields[1] == b"tree" and fields[3] == b"-":
+                if _excluded(name) == "controller_owned":
+                    result[name] = (mode, oid, 0)
+                elif name.casefold() == ".runner":
+                    accept(run_git_bytes(repo, ["ls-tree", "-z", "-l", "--full-tree", oid]),
+                           name + "/", allow_trees=True)
+                else:
+                    subtrees.append(name)
+                    if len(subtrees) > limits.max_files:
+                        raise SourceError("SOURCE_FILE_COUNT_LIMIT")
+                continue
+            if mode == 0o160000:
+                raise SourceError("SUBMODULE_UNSUPPORTED")
+            if mode == 0o120000:
+                raise SourceError("SYMLINK_UNSUPPORTED")
+            if mode not in {0o100644, 0o100755} or fields[1] != b"blob" or size < 0:
+                raise SourceError("INVALID_SOURCE_TREE")
+            result[name] = (mode, oid, size)
+            if _excluded(name) != "controller_owned":
+                file_count += 1
+                if file_count > limits.max_files:
+                    raise SourceError("SOURCE_FILE_COUNT_LIMIT")
+
+    accept(run_git_bytes(repo, ["ls-tree", "-z", "-l", "--full-tree", commit]), allow_trees=True)
+    # Literal paths preserve names containing Git pathspec metacharacters. The
+    # batches stay below the shared argv limit; every response is still bounded.
+    for start in range(0, len(subtrees), 100):
+        accept(run_git_bytes(repo, ["--literal-pathspecs", "ls-tree", "-r", "-z", "-l",
+                                    "--full-tree", commit, "--", *subtrees[start:start + 100]]))
     return result
 
 

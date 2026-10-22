@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -174,6 +175,30 @@ def test_concurrent_calls_prepare_once(harness: Harness) -> None:
     assert all(port.provider is harness.provider for port in ports)
     assert len(harness.credentials) == len(harness.builds) == len(harness.attaches) == 1
     assert harness.provider.batches == []
+
+
+def test_slow_mailbox_preflight_does_not_lock_other_docs(harness: Harness, monkeypatch):
+    factory = DocsPortFactory(harness.paths)
+    factory(harness.path, binding())  # Shared attachment is already established.
+    original = module.DocsMailboxPort.read_current
+    entered, release = threading.Event(), threading.Event()
+
+    def read(port):
+        if port.tab_id == TAB:
+            entered.set()
+            assert release.wait(3)
+        return original(port)
+
+    monkeypatch.setattr(module.DocsMailboxPort, 'read_current', read)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        slow = pool.submit(factory, harness.path, binding())
+        try:
+            assert entered.wait(2)
+            fast = pool.submit(factory, harness.path, binding(tab_id=OTHER))
+            assert fast.result(timeout=2).tab_id == OTHER
+        finally:
+            release.set()
+        slow.result(timeout=2)
 
 
 def test_setup_errors_are_sanitized_and_not_cached(harness: Harness) -> None:

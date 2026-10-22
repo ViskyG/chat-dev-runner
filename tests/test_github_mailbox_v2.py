@@ -12,6 +12,7 @@ from typing import Any
 
 import pytest
 
+import runner_app.adapters.github_mailbox_v2 as github_v2
 from runner_app.adapters.github import GitHubHTTPResponse, GitHubRepository
 from runner_app.adapters.github_mailbox_v2 import (
     BoundedGitHubV2HTTP,
@@ -243,6 +244,104 @@ def test_construction_is_inert_and_read_is_current_head_only(fixture: Fixture) -
     assert all(old not in path for _, path, _ in fixture.api.calls)
     assert all(method == "GET" for method, _, _ in fixture.api.calls)
     assert fixture.token_calls == 0
+
+
+def test_unchanged_poll_reuses_objects_but_reads_identity_and_head(fixture: Fixture) -> None:
+    original = fixture.port.read_current()
+    assert len(fixture.api.calls) == 7
+    fixture.api.calls.clear()
+    assert fixture.port.read_current() == original
+    assert [(method, path) for method, path, _ in fixture.api.calls] == [
+        ("GET", "/repos/owner/project"),
+        ("GET", "/repos/owner/project/git/ref/heads/tested"),
+    ]
+
+    advanced = fixture.api.advance({"app.txt": b"new source\n"})
+    fixture.api.calls.clear()
+    observed = fixture.port.read_current()
+    assert observed.payload == original.payload
+    revision = json.loads(base64.urlsafe_b64decode(observed.revision[10:]))
+    assert revision["head"] == advanced
+    # Only the new commit/root tree need reads; command subtree and blob are immutable.
+    assert len(fixture.api.calls) == 4
+    assert not any("/git/blobs/" in path for _, path, _ in fixture.api.calls)
+
+    replacement = mailbox().replace(b'"test"', b'"another-task"')
+    fixture.api.advance({COMMAND: replacement})
+    fixture.api.calls.clear()
+    assert fixture.port.read_current().payload == replacement
+    assert len(fixture.api.calls) == 7
+
+
+@pytest.mark.parametrize("failure", ["identity", "unavailable", "missing_branch"])
+def test_cached_objects_do_not_mask_new_observation_failures(
+    fixture: Fixture, failure: str,
+) -> None:
+    fixture.port.read_current()
+    if failure == "identity":
+        fixture.api.identity_id = 999
+    elif failure == "unavailable":
+        fixture.api.reads_unavailable = True
+    else:
+        git(fixture.remote, "update-ref", "-d", "refs/heads/tested")
+    with pytest.raises(GitHubV2Error):
+        fixture.port.read_current()
+
+
+def test_cached_tree_cannot_be_mutated_by_a_caller(fixture: Fixture) -> None:
+    root = fixture.client.commit_tree(fixture.initial)
+    original = copy.deepcopy(fixture.client.tree(root))
+    entries = fixture.client.tree(root)
+    entries[0]["sha"] = "0" * 40
+    entries.clear()
+    before = len(fixture.api.calls)
+    assert fixture.client.tree(root) == original
+    assert len(fixture.api.calls) == before
+
+
+def test_cached_blob_still_obeys_the_requested_size_budget(fixture: Fixture) -> None:
+    observed = fixture.port.read_current()
+    revision = json.loads(base64.urlsafe_b64decode(observed.revision[10:]))
+    before = len(fixture.api.calls)
+    with pytest.raises(GitHubV2Error, match="GITHUB_BLOB_INVALID"):
+        fixture.client.blob(revision["blob"], len(observed.payload) - 1)
+    assert len(fixture.api.calls) == before
+
+
+@pytest.mark.parametrize("bound", ["entries", "bytes"])
+def test_immutable_cache_evicts_within_bounded_memory(
+    fixture: Fixture, monkeypatch: pytest.MonkeyPatch, bound: str,
+) -> None:
+    monkeypatch.setattr(github_v2, "_OBJECT_CACHE_ENTRIES", 1 if bound == "entries" else 128)
+    monkeypatch.setattr(github_v2, "_OBJECT_CACHE_BYTES", 1024 if bound == "entries" else 192)
+    first, second = b"a" * 128, b"b" * 128
+    first_oid = _write_object(fixture.remote, "blob", first)
+    second_oid = _write_object(fixture.remote, "blob", second)
+    assert fixture.client.blob(first_oid, 128) == first
+    assert fixture.client.blob(second_oid, 128) == second
+    assert fixture.client.blob(first_oid, 128) == first
+    assert len(fixture.api.calls) == 3
+
+
+def test_rejected_object_response_is_not_cached(
+    fixture: Fixture, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = fixture.client.commit_tree(fixture.initial)
+    request = fixture.api.request
+    corrupt = True
+
+    def response(method: str, path: str, **kwargs: Any) -> GitHubHTTPResponse:
+        result = request(method, path, **kwargs)
+        if corrupt and path.endswith("/git/trees/" + root):
+            result.data["truncated"] = True
+        return result
+
+    monkeypatch.setattr(fixture.api, "request", response)
+    with pytest.raises(GitHubV2Error, match="GITHUB_TREE_INVALID"):
+        fixture.client.tree(root)
+    corrupt = False
+    assert fixture.client.tree(root)
+    assert len([path for _, path, _ in fixture.api.calls if "/git/trees/" in path]) == 2
 
 
 def test_ack_preserves_payload_and_retries_only_unchanged_blob_on_new_head(fixture: Fixture) -> None:

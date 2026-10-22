@@ -9,7 +9,7 @@ from uuid import uuid4
 import pytest
 
 from runner_app.engine.intake_v2 import AckResult, IntakeCoordinator, Observation
-from runner_app.storage.database import SCHEMA_VERSION, _MIGRATIONS, Database
+from runner_app.storage.database import _MIGRATIONS, SCHEMA_VERSION, Database
 from runner_app.storage.intake_v2 import IntakeStore
 
 

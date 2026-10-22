@@ -85,6 +85,7 @@ class V2RuntimeConfig:
     queue_limit: int
     poll_seconds: int
     rootless_profile_dir: Path | None = None
+    compose_profile_dir: Path | None = None
 
 
 def _object(value: Any, required: set[str], optional: set[str] | None = None) -> dict[str, Any]:
@@ -127,7 +128,7 @@ def parse_v2_config(raw: bytes) -> V2RuntimeConfig:
     try:
         value = _object(parse_contract_json(raw), {"protocol", "runner_id", "projects", "mailboxes"},
                         {"enable_v1", "github_token_file", "google_config_file", "native_profiles",
-                         "queue_limit", "poll_seconds", "rootless_profile_dir"})
+                         "queue_limit", "poll_seconds", "rootless_profile_dir", "compose_profile_dir"})
         if value["protocol"] != "cdr-runtime/2" or type(value.get("enable_v1", False)) is not bool:
             raise V2ConfigError()
         profiles: dict[str, NativeProfile] = {}
@@ -203,7 +204,9 @@ def parse_v2_config(raw: bytes) -> V2RuntimeConfig:
             if set(selected) - profiles.keys() or repository is None and not workspaces:
                 raise V2ConfigError()
             containers = _strings(item.get("container_profiles", []))
-            if set(containers) - {"python-quick"}:
+            for container in containers:
+                _id(container)
+            if set(containers) - {"python-quick"} and not value.get("compose_profile_dir"):
                 raise V2ConfigError()
             targets: dict[str, HandoffTargetConfig] = {}
             target_values = item.get("handoff_targets", {})
@@ -287,7 +290,8 @@ def parse_v2_config(raw: bytes) -> V2RuntimeConfig:
                                google, projects, profiles, tuple(mailboxes),
                                _integer(value.get("queue_limit", 100), 1, 10000),
                                _integer(value.get("poll_seconds", 2), 1, 60),
-                               _path(value["rootless_profile_dir"]) if value.get("rootless_profile_dir") else None)
+                               _path(value["rootless_profile_dir"]) if value.get("rootless_profile_dir") else None,
+                               _path(value["compose_profile_dir"]) if value.get("compose_profile_dir") else None)
     except (DomainError, GitError, TypeError, KeyError, AttributeError) as error:
         raise V2ConfigError() from error
 

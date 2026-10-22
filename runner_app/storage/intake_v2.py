@@ -196,10 +196,10 @@ class IntakeStore:
             if changed != 1:
                 raise IntakeError("MAILBOX_NOT_ENROLLED")
 
-    def observation_gap(self, binding_id: str) -> None:
+    def observation_gap(self, binding_id: str, *, session_id: str | None = None) -> None:
         with self._transaction() as c:
-            c.execute("UPDATE v2_mailboxes SET continuous=0,updated_at=? WHERE binding_id=?",
-                      (_now(), binding_id))
+            c.execute("UPDATE v2_mailboxes SET continuous=0,updated_at=? WHERE binding_id=? "
+                      "AND (? IS NULL OR session_id=?)", (_now(), binding_id, session_id, session_id))
 
     def record_diagnostic(self, binding_id: str, code: str, observed_sha256: str) -> None:
         with self._transaction() as c:
@@ -342,8 +342,10 @@ class IntakeStore:
                               (request["request_id"],)).fetchone()
             return int(queue[0]) if queue else None
 
-    def ack_proof_lost(self, candidate_id: str) -> None:
+    def ack_proof_lost(self, candidate_id: str, *, code: str = "ACK_PROOF_LOST") -> None:
         """Keep ambiguous acceptance visible while permitting a fresh, baselined slot."""
+        if code not in {"ACK_PROOF_LOST", "INTAKE_REVOKED"}:
+            raise ValueError("Invalid acknowledgement reconciliation code")
         with self._transaction() as c:
             row = c.execute("SELECT * FROM v2_candidates WHERE candidate_id=?", (candidate_id,)).fetchone()
             if row is None or row["state"] not in {"ACK_PENDING", "ACK_UNKNOWN"}:
@@ -351,10 +353,11 @@ class IntakeStore:
             c.execute("UPDATE v2_candidates SET state='ACK_UNKNOWN',updated_at=? WHERE candidate_id=?",
                       (_now(), candidate_id))
             c.execute("UPDATE v2_requests SET status='NEEDS_RECONCILIATION',"
-                      "code='ACK_PROOF_LOST',updated_at=? WHERE request_id=? AND status='ACK_PENDING'",
-                      (_now(), row["request_id"]))
-            c.execute("UPDATE v2_mailboxes SET continuous=0 WHERE binding_id=?", (row["binding_id"],))
-            self._event(c, row["request_id"], "ACK_PROOF_LOST")
+                      "code=?,updated_at=? WHERE request_id=? AND status='ACK_PENDING'",
+                      (code, _now(), row["request_id"]))
+            c.execute("UPDATE v2_mailboxes SET continuous=0 WHERE binding_id=? AND session_id=?",
+                      (row["binding_id"], row["session_id"]))
+            self._event(c, row["request_id"], code)
 
     def claim_control(self, request_id: str) -> bool:
         with self._transaction() as c:

@@ -96,11 +96,15 @@ values. Keep config, token files and rootless grants outside repositories.
   terminal results there using a revision guard; the existing command slot and
   its Runner-owned ACK receipt retain their normal roles. Do not enroll an
   unrelated existing tab or create these resources from an example implicitly.
-- Container support is only backend `rootless-docker`, enrolled profile
+- Single-container support uses backend `rootless-docker`, enrolled profile
   `python-quick`, and an existing approved `rootless_profile_dir` with matching
   `python-quick-grant.json`, profiles, pinned image and hard-quota helper.
   Its task must match the fixed one-step test argv/cwd/timeout and approved
   outputs; arbitrary container tasks and container SHELL are refused.
+- Finite Linux stacks use backend `rootless-compose` and a separate private
+  `compose_profile_dir` with hash-pinned profiles. The intended project must list
+  the profile in `container_profiles`. See [Compose tasks](COMPOSE_TASKS.md) for
+  supported input, readiness/migration/test ordering, output retention and cleanup.
 
 Native execution runs as the chosen ordinary user and can access that user's
 host files. A per-run copy and environment shaping provide repeatability, not a
@@ -193,6 +197,8 @@ For local source use `{"kind":"local_workspace","branch":"example-work",
 "workspace_id":"editor"}`. For the fixed container route select
 `mode: "container"`, `backend_id: "rootless-docker"`, `profile_id: "python-quick"`
 and the qualified guest `expected_os`; the budget must cover preparation+test.
+For an enrolled finite stack select `backend_id: "rootless-compose"` and its
+actual profile/task; the budget also covers readiness, migrations and cleanup.
 
 One execution lane is shared by live-accepted v2 FIFO work and retained v1
 execution. `CANCEL` and `STATUS` target an exact request and bypass execution

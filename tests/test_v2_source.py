@@ -118,11 +118,72 @@ def test_reserved_and_credentials_excluded_but_manifest_tasks_ci_retained(fixtur
                      ".runner/tasks/test.sh", ".github/workflows/test.yml"}
     excluded = {item.path: item.reason for item in snapshot.excluded_paths}
     assert excluded[".env"] == "credential_material"
-    assert excluded[".runner/results/old/result.json"] == "controller_owned"
-    assert excluded[".runner/commands/slot.json"] == "controller_owned"
-    assert excluded[".runner/state/local.json"] == "controller_owned"
+    assert excluded[".runner/results"] == "controller_owned"
+    assert excluded[".runner/commands"] == "controller_owned"
+    assert excluded[".runner/state"] == "controller_owned"
     assert not snapshot.path.joinpath(".git").exists()
     assert all(item.source_identity is None for item in snapshot.files)
+
+
+def test_result_history_is_pruned_before_source_listing_budget(
+    fixture: Fixture, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    for subtree in ("commands", "results", "state", "handoffs"):
+        directory = fixture.workspace / ".runner" / subtree / "many"
+        directory.mkdir(parents=True)
+        for index in range(40):
+            (directory / f"{index}.json").write_bytes(b"{}\n")
+    commit(fixture.workspace, "Accumulate controller history")
+    git(fixture.workspace, "push", "receiver", "HEAD:refs/heads/tested")
+    listed_paths: list[str] = []
+    read_git = source_module.run_git_bytes
+
+    def inspect_listing(repo: Path, arguments: list[str]) -> bytes:
+        raw = read_git(repo, arguments)
+        if "ls-tree" in arguments:
+            listed_paths.extend(record.partition(b"\t")[2].decode()
+                                for record in raw.split(b"\0") if record)
+        return raw
+
+    monkeypatch.setattr(source_module, "run_git_bytes", inspect_listing)
+    snapshot = fixture.capture(limits=SourceLimits(max_files=6))
+    assert len(snapshot.files) == 5
+    assert snapshot.path.joinpath(".runner/project.json").is_file()
+    assert snapshot.path.joinpath(".runner/tasks/test.sh").is_file()
+    assert snapshot.path.joinpath(".github/workflows/test.yml").is_file()
+    assert not any("/many/" in path or path.startswith("many/") for path in listed_paths)
+    for subtree in ("commands", "results", "state", "handoffs"):
+        assert SourceExclusion(f".runner/{subtree}", "controller_owned") in snapshot.excluded_paths
+        assert not snapshot.path.joinpath(".runner", subtree).exists()
+
+    # The same limit still rejects one additional workload file.
+    (fixture.workspace / "extra.txt").write_bytes(b"new source\n")
+    commit(fixture.workspace, "Exceed source file budget")
+    git(fixture.workspace, "push", "receiver", "HEAD:refs/heads/tested")
+    with pytest.raises(SourceError, match="SOURCE_FILE_COUNT_LIMIT"):
+        fixture.capture(limits=SourceLimits(max_files=6))
+
+
+def test_pruned_listing_uses_literal_subtree_paths(fixture: Fixture) -> None:
+    directory = fixture.workspace / "source[1]"
+    directory.mkdir()
+    (directory / "test.py").write_bytes(b"assert True\n")
+    commit(fixture.workspace, "Literal directory name")
+    git(fixture.workspace, "push", "receiver", "HEAD:refs/heads/tested")
+    snapshot = fixture.capture()
+    assert snapshot.path.joinpath("source[1]/test.py").read_bytes() == b"assert True\n"
+
+
+def test_pruned_listing_batches_wide_source_roots(fixture: Fixture) -> None:
+    for index in range(101):
+        directory = fixture.workspace / f"source-{index:03}"
+        directory.mkdir()
+        (directory / "test.py").write_bytes(b"assert True\n")
+    commit(fixture.workspace, "Source paths exceed one argv batch")
+    git(fixture.workspace, "push", "receiver", "HEAD:refs/heads/tested")
+    snapshot = fixture.capture(limits=SourceLimits(max_files=107))
+    assert len(snapshot.files) == 106
+    assert snapshot.path.joinpath("source-100/test.py").read_bytes() == b"assert True\n"
 
 
 def test_local_dirty_untracked_and_deletion_capture_without_touching_originals(fixture: Fixture) -> None:
