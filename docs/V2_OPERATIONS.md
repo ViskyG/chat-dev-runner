@@ -1,14 +1,20 @@
 # Runner v2 operations — Linux preview / предварительные инструкции
 
-**Linux preview, package 0.3.0.dev2.** Installed-wheel upgrade/rollback and the
-existing v1 readback are recorded under `verification/implementation/GP-07/release`.
+**Linux preview, installed package 0.3.0.dev3.** Handoff delivery passed one real
+ZIP+text transfer with a matching connected-chat terminal Docs receipt. Upload
+and guarded Docs authoring are verified; file version metadata was SDK-assisted
+because the connected metadata action omits it. Full automatic metadata
+authoring remains unqualified; see [H2](../codex/checkpoints/handoff/H2.md).
+Earlier installed-wheel upgrade/rollback and existing v1 readback are recorded
+under `verification/implementation/GP-07/release`.
 Provider and target qualification remains specific to its evidence. On 2026-10-16,
 Docs v2 passed its live canary and installed STATUS route; connected-chat read
 and guarded DRAFT write also passed. Other native OS targets are not qualified.
-The current dedicated slot for test project `gp03-github-pass`, runner
+The dedicated slot recorded for test project `gp03-github-pass`, runner
 `local-runner`, tab `t.0`, is
 [DOCS V2 COMMAND](https://docs.google.com/document/d/1soKWAI1yyesh05xABAi78bb61Rri2nTFEWcetYSsFyU/edit).
-It is left as DRAFT; read its live token/receipt before preparing another intent.
+It was left as DRAFT at that checkpoint; read its live token/receipt before
+preparing another intent.
 Other project mailboxes retain their existing registrations. The bilingual entrypoints are in
 [skills/v2](../skills/v2/README.md). Their verbatim design sources remain unchanged
 under [design/github-native-v2/skills](../design/github-native-v2/skills/README.md).
@@ -68,6 +74,28 @@ values. Keep config, token files and rootless grants outside repositories.
 - `workspaces` are approved local bindings; `include_dirty` and
   `include_untracked` are owner rules, not grants a mailbox can enlarge.
   The latter contains exact relative paths or directory prefixes ending `/`.
+- Optional project `handoff_targets` maps each `target_id` to an existing
+  `workspace_id`, one or more `allowed_drive_parents`, optional `limits`,
+  `timeout_seconds` and `request_timeout_seconds`, and paired
+  `result_document_id` + `result_tab_id`. The example's `editor-handoff` target
+  selects its registered `editor` workspace; all Drive/Docs IDs are placeholders.
+  A GitHub-only project has no local handoff target until the owner registers a
+  persistent workspace and target. The chat cannot supply or alter a host path.
+  Default target selection is allowed only when exactly one target is enrolled.
+- Handoff limits are checked against the implementation bounds; unspecified
+  values use [the handoff contract defaults](../runner_app/handoff/contracts.py).
+  The optional overall deadline defaults to 120 seconds (allowed 1–600), and
+  each blocking provider-call deadline to 15 seconds (allowed 1–30). These are
+  delivery limits, not execution budgets. The owner-configured Drive folder
+  controls raw-file inputs; public sharing, a second root or new OAuth scopes
+  are unnecessary.
+- Both result IDs must be supplied together for confirmed Docs-origin handoff
+  feedback. Enroll a dedicated result document and exact tab, separate from all
+  command documents and protected v1 resources. Start its selected tab empty or
+  with `{"protocol":"cdr-handoff-results/1","results":{}}`. Runner publishes
+  terminal results there using a revision guard; the existing command slot and
+  its Runner-owned ACK receipt retain their normal roles. Do not enroll an
+  unrelated existing tab or create these resources from an example implicitly.
 - Container support is only backend `rootless-docker`, enrolled profile
   `python-quick`, and an existing approved `rootless_profile_dir` with matching
   `python-quick-grant.json`, profiles, pinned image and hard-quota helper.
@@ -113,7 +141,7 @@ Select `github_branch` to fetch the exact selected branch at execution start,
 or `local_workspace` with a registered `workspace_id` and its actual branch.
 Local dirty/untracked inclusion follows the configured rules. Detached source
 has no inferred result branch. Source is copied and frozen before preparation;
-results/command/state subtrees and credential material are excluded while
+results/command/state/handoff subtrees and credential material are excluded while
 `.runner/project.json` and approved task scripts remain. Report original commit
 and actual workload/overlay digest separately.
 
@@ -182,7 +210,140 @@ Read its fresh token and resubmit only on current user intent. Accepted queued
 work suspended on restart is not automatically replayed. `ACK_UNKNOWN` and
 uncertain cleanup require exact reconciliation, not a duplicate run.
 
+## Handoff delivery to a registered local inbox
+
+Use [deliver-handoff-to-runner](../skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.md)
+([Russian](../skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.ru.md)) when
+the owner explicitly asks ordinary ChatGPT to transfer specified design,
+roadmap, implementation, asset or reference files. Require installed
+`DELIVER_HANDOFF` support and the actual enrollment before dispatch. The
+unmodified `d1e930a5` baseline did not accept this action. Existing v1 and v2
+task/control routes keep their contracts.
+
+This operation uses the existing v2 FIFO and one local Runner. It does not run
+an archive or script, apply source, install dependencies, invoke Codex, create a
+commit/PR, or grant native/container execution. The owner separately copies the
+delivered prompt into Codex and authorizes subsequent work. `purpose` and a
+recorded design `base_commit` describe the package; they are not execution
+instructions or a source-selection grant.
+
+1. Resolve the exact runner/project/target, allowed Drive folder, registered
+   command Doc/tab and separately registered result Doc/tab. Confirm that the
+   current chat exposes real raw-file upload, independent metadata reading and
+   guarded native Docs tab updates. A connected app name is not capability proof.
+2. Treat one ZIP or several files as one package. Preserve each original's
+   exact bytes and compute size/SHA-256. Upload ordinary Drive files into the
+   allowed folder without converting them to Docs or changing sharing. Make a
+   separate metadata read of each returned Drive ID to confirm parent, ordinary
+   MIME type, filename, size, version and non-trashed state. Native Docs and
+   arbitrary download URLs are not handoff inputs. Freeze those observations
+   in one manifest and do not modify the uploaded files after publication.
+   Confirm that the actual tool response includes Drive's numeric `version`;
+   some connectors omit it even when explicitly requested. Never assume `"1"`,
+   substitute a revision ID, or infer a version from upload success. If required
+   metadata is unavailable, block that leg or use an explicitly owner-authorized
+   real `files.get` metadata handoff for the exact file ID. Label the latter
+   **SDK_ASSISTED_METADATA** and retain its readback evidence; it does not prove
+   a fully automatic connected-chat route.
+3. Validate `request.handoff` against the canonical
+   [handoff-manifest.schema.json](../schemas/handoff-manifest.schema.json),
+   then the complete mailbox against
+   [v2-mailbox.schema.json](../schemas/v2-mailbox.schema.json). Set
+   `request.action` to `DELIVER_HANDOFF`, use one stable handoff UUID and a fresh
+   request identity for the intent. Do not add source, task, execution, shell,
+   absolute-path or URL fields. A package revision needs a new handoff ID.
+   ZIP expansion is opt-in through `unpack: "zip"` under the enrolled bounds;
+   otherwise preserve the archive with `unpack: "none"`.
+4. Reuse the **Fresh-chat remote submission** procedure above: read the full
+   live command tab/current token/revision, preserve the Runner-owned receipt,
+   write and reread one guarded DRAFT, then separately change only dispatch to
+   READY against the latest revision. The Google Drive connector's native batch
+   argument is `write_control.requiredRevisionId`; scope content requests to
+   the exact tab and use real native indexes. Never overwrite unacknowledged
+   READY. A conflict or uncertain write requires reading the same identity and
+   reconciling it, not a blind resend or another hidden queue.
+5. Read the matching ACK, including `accepted_slot_token` and `request_id`.
+   Then read the terminal result for that request as described below. A file
+   upload, READY write or ACK alone does not prove local delivery.
+
+If upload is unavailable, retain the prepared package and identify the missing
+leg. The explicitly labelled **MANUAL_UPLOAD** fallback lets the owner upload
+the same bytes into the exact allowed folder and supply real Drive file IDs;
+the chat must still verify the metadata before dispatch. It does not establish
+automatic end-to-end delivery. If guarded Docs writing is unavailable, retain
+the prepared DRAFT and report **TRANSPORT_BLOCKED** without publishing READY.
+Do not replace either missing leg with a hidden local sender, UI scraper,
+arbitrary URL or credential grant.
+
+Runner downloads only the manifest's exact raw Drive IDs, checks the enrolled
+parent and observed version before and after the bounded download, and verifies
+actual size/SHA-256. It stages originals byte-for-byte and optional safe ZIP
+content, then publishes one new unique directory:
+
+```text
+<registered workspace>/.runner/handoffs/<handoff_id>/
+  files/<artifact_id>/<filename>   # exact originals
+  content/<artifact_id>/           # populated for requested ZIP expansion
+  manifest.json
+  delivery.json
+  START_HERE.md
+  CODEX_PROMPT.txt
+```
+
+There is no extraction over the project root. A matching handoff ID + manifest
+digest reconciles the existing delivery; another manifest with that ID is a
+conflict. An uncertain local commit is reconciled from receipt/inventory before
+any further effect. Missing or changed delivered files are not permission to
+overwrite the destination. Cancel before local commit can stop delivery; a
+completed local commit is not reported as cancelled because feedback failed.
+
+The inbox is excluded from source/context capture, including dirty/untracked
+inclusion. Its creation can still be visible to Git as untracked content:
+`handoff.inbox_visible_in_git` reports that fact. Runner preserves HEAD, index
+and tracked files, refuses an already tracked handoff inbox, and does not edit
+`.gitignore` or `.git/info/exclude`. Ignoring or removing received files is a
+separate owner decision.
+
+### Handoff terminal result and Codex prompt
+
+The dedicated result tab contains `cdr-handoff-results/1`; read
+`results[request_id]` for the accepted request. Its payload is
+`cdr-handoff-state/1`, separate from the mailbox ACK. Successful local delivery
+has `status: "DELIVERED"`, `operation_status: "COMPLETED"` and
+`handoff.local_delivery_status: "DELIVERED"`. Match runner/project/request IDs,
+`handoff_id`, `target_id`, `manifest_sha256`, `files_count` and the returned
+safe project-relative paths: `safe_relative_handoff_path`, `codex_entrypoint`
+and `delivery_receipt`. `codex_entrypoint` points to the trusted generated
+`START_HERE.md`; it does not directly select an untrusted archive instruction.
+
+The payload's top-level `codex_prompt` is the exact text of the generated,
+verified local `CODEX_PROMPT.txt`, using project-relative paths. Return that text
+for the owner to copy and the actual entrypoint path. Do not invent absolute
+host paths or download links. These are non-executable delivery results; no
+tested commit, test count, quality gate or PR is implied.
+
+The authenticated local request record retains `result.receipt_publication`
+independently of `result.handoff`: a successful verified remote readback is
+`CONFIRMED / DELIVERY_RESULT_CONFIRMED`; a lost write/readback can remain
+`UNCONFIRMED / DELIVERY_RESULT_UNCONFIRMED`. A definite publication rejection
+may be `FAILED` with its observed code. Publication failure never deletes a
+confirmed local package or turns local delivery into failed execution. If the
+remote result is absent, chat must report delivery as unknown from that channel
+unless an authenticated local readback supplies evidence. Do not infer success
+from an ACK or infer failed local delivery from a missing cloud receipt.
+
+Report `UPLOADED_TO_DRIVE`, `ACCEPTED_BY_RUNNER`, `DELIVERED_LOCAL` and
+`REMOTE_RECEIPT_CONFIRMED` as separate observed facts. Use bounded readback;
+later status requests reread the known request/handoff instead of reuploading or
+sending another `DELIVER_HANDOFF`. Separately authorized STATUS/REDELIVER controls
+use the current v2 slot and exact target request. For handoffs, these reconcile
+the known delivery and refresh receipt publication without rerunning input or
+redownloading a confirmed package. A restart never grants automatic replay.
+
 ## Results, availability and redelivery
+
+The following execution/result-bundle rules apply to task operations. For
+`DELIVER_HANDOFF`, use the separate terminal contract above.
 
 For GitHub-origin commands, read `.runner/state/<runner_id>/<request_id>.json`
 on the **mailbox branch** for terminal `status`, sanitized failure `code`,
@@ -226,32 +387,47 @@ accepts a replacement branch/bundle/path from the new command.
 
 ## Upgrade and rollback boundary
 
-Preview source is not an installed wheel. The existing user installer requires
+Preview source is not an installed wheel. Candidate **0.3.0.dev3** migrates the
+durable database to **schema 11** for additive handoff admission. A retained
+0.3.0.dev2 installation normally uses schema 10; earlier v1 installations use
+schema 9. Record the actual installed version/schema before any candidate
+launch. The old binary rejects a newer schema; removing handoff configuration
+does not reverse the migration.
+
+The existing user installer requires
 a wheel; an editable/source install is rejected with `WHEEL_INSTALL_REQUIRED`.
 Keep the old binary/environment and its approved artifact identity intact.
-Before the first schema-10 launch, use the **retained schema-9 binary**, with the
-existing service stopped, for the pre-upgrade backup:
+Before the first schema-11 launch, use the **currently installed retained
+binary**, with the existing service stopped, for the pre-upgrade backup. The
+paths below are placeholders, not deployment instructions for a known host:
 
 ```bash
-/absolute/retained-v1/bin/runner stop
-/absolute/retained-v1/bin/runner backup --output /absolute/private-backups/pre-v2-schema9
+/absolute/retained-installed/bin/runner stop
+/absolute/retained-installed/bin/runner backup --output /absolute/private-backups/pre-handoff-state
 ```
 
 Record and verify the backup's schema/version/digest and restoration on a
 disposable copy. Config and credential values are excluded from `runner backup`;
 retain owner-local config references and protected configuration separately.
+Handoff inboxes live in enrolled workspaces outside the Runner state directory;
+preserve those artifacts separately when needed. A state backup or restore does
+not itself copy, delete or undo a previously delivered workspace package.
 Candidate backup revision 2 includes v2 source/execution/result directories and
 preserves sealed files and executable modes; revision-1 archives remain readable.
-The actual scratch round trip is recorded in
+The earlier schema-9/schema-10 scratch round trip is recorded in
 `verification/implementation/GP-07/v2-backup/result.json`.
+It does not qualify the candidate schema-11 upgrade or rollback. The same
+matching-binary/pre-upgrade-backup rule applies to a first schema-9 → schema-10
+v2 upgrade; do not treat the handoff example as an existing deployment.
 After approved wheel/config changes, `runner install --dry-run` inspects the
 existing user-service plan; apply only the authorized deployment and then
 qualify real mailbox/provider/result readback before claiming deployed support.
 
 Rollback requires a stopped service, the matching retained old binary **and**
-the pre-upgrade schema-9 state/config binding. Never open schema 10 with the old
-binary or treat removing `runtime-v2.json` as database rollback. Use the retained
-binary's `restore --from /absolute/private-backups/pre-v2-schema9` only after
+its matching pre-upgrade state/config binding. Never open schema 11 with the
+schema-10 or schema-9 binary, or schema 10 with a schema-9 binary. Do not treat
+removing `runtime-v2.json` as database rollback. Use the retained binary's
+`restore --from /absolute/private-backups/pre-handoff-state` only after
 preserving/quarantining the newer state and satisfying the restore command's
 absent-target requirement. Preserve uncertain process/provider effects for
 reconciliation; restoring a backup is not permission to replay old READY work.

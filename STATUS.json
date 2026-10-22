@@ -1,6 +1,6 @@
 {
-  "version": "0.3.0.dev2-GP07-in-progress",
-  "date": "2026-10-20",
+  "version": "0.3.0.dev3-handoff-Linux-preview",
+  "date": "2026-10-22",
   "source_publication": {
     "status": "PUBLISHED",
     "visibility": "public",
@@ -17,10 +17,10 @@
   "ui": "EP-06 VERIFIED packaged same-origin control centre. Installed 0.2.6 browser/API acceptance matched the prior passing/failing runs, JUnit, 18 dark/light/reduced-motion screenshots, keyboard/viewport behavior and exact-workspace VS Code open request. Focused installed 0.2.7 Chromium readback passed keyboard Console/Tests tab selection and registered JUnit inspection GETs for both runs; the disabled GitHub import option exposed its exact visible/accessibility reason, and the enabled local-context dialog explained local-only scope and unavailable diff. The browser-only context form was not submitted during that UI probe; a separate installed owner-local API EXPORT_CONTEXT operation later completed. These runs contain no structured application-log output, so installed Console inspection GET for that format is not claimed. A focused installed browser GET-failure probe showed truthful partial/global offline status, disabled command reasons, accessible retry and online recovery while retaining the same historical run; old run badges stay visible beneath the global offline strip. See verification/implementation/EP-07/installed-ui-0.2.7.json, installed-ui-0.2.7-offline.json and ui-evidence-installed-20260928.md.",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
-  "live_runner": "LINUX_PREVIEW_ACTIVE: existing user service0.3.0.dev2 enabled/armed on127.0.0.1:8765, schema10, all26 historical v1 operations and5 pre-upgrade v2 requests retained. GitHub terminal-state receipts cover early failures and control replies separately from immutable result bundles. Existing v1, Docs and rootless bindings remain configured; earlier qualification evidence is retained. See verification/implementation/GP-07/remote-state-20261020/ for the focused fix and installed proof.",
+  "live_runner": "LINUX_PREVIEW_ACTIVE: existing user service0.3.0.dev3 enabled/armed on127.0.0.1:8765, schema11;26 v1 operations and9 prior v2 requests preserved. Four enrolled v2 channels baselined. One DELIVER_HANDOFF accepted through connected guarded Docs and delivered ZIP+text into registered cdr-runner-test/editor-handoff, with matching connected-chat terminal receipt and Codex prompt; v2requests10/lane0. Upload and Docs legs are connector-verified; file version metadata was SDK-assisted because connector normalizes that field away.",
   "github_live_adapter": "EP-05 created three disposable private repositories under ViskyG. EP-07 installed 0.2.1 service published passing primary and failing parallel runs to distinct branches of the disposable private UI project, with draft PRs #1 and #2 and Drive report links. The failing draft PR is labelled [FAILED]. Owner-only tokens remain outside the repository. Owner-local GitHub read independently confirmed the calculator repository is private; this chat GitHub connector returned 404 for that new repository.",
   "credentials": "None bundled",
-  "service_installation": "Wheel0.3.0.dev2 is installed separately in .runner-install/venv-0.3.0.dev2 and is the active user-unit executable. Prior0.3.0.dev1 and0.2.7 binaries remain. Owner-private stopped-state backup .runner-backups/remote-state-20261020/state-before retains8374 files,3 symlinks and schema10. No database migration or credential/configuration change in this update. Prior actual schema rollback evidence remains under verification/implementation/GP-07/release/.",
+  "service_installation": "Separate wheel0.3.0.dev3 environment .runner-install/venv-0.3.0.dev3 is active;0.3.0.dev2 and0.2.7 retained. Actual stopped-state pre-schema11 backup .runner-backups/handoff-20261022/state-before retained privately.136 package payloads match source. Copied real37-table ledger10→11 preserves all rows; old binary refuses11 and opens matching restored10. Prior service lifecycle rollback evidence reused. No duplicate daemon, Drive root, scope grant or credential migration.",
   "automatic_chat_access": "CONNECTED_DRIVE_COMMAND_ROUNDTRIPS_VERIFIED_IN_CURRENT_CHAT: connected chat Drive app issued revision-guarded DRAFT/READY CREATE_PROJECT through the existing root COMMAND and read a matching COMPLETED root RECEIPT after deployed service execution. On installed 0.2.2, it issued FETCH through an existing project COMMAND and read a matching COMPLETED project RECEIPT. An owner-reported separate-chat CREATE_PROJECT for cdr-calculator-smoke-20260928-1759 was independently observed as COMPLETED in the installed ledger and connected Drive root RECEIPT; the originating chat session identity is not independently proven. CONNECTED_GITHUB_RUNNER_REPO_READ_VERIFIED: private ViskyG/chat-dev-runner is visible. The current chat GitHub connector returned 404 for the newly created private calculator repository, which owner-local gh independently verified exists. On 2026-09-29, the same connected Drive app submitted an exact existing-project CREATE_WORKSPACE DRAFT/READY command and read its matching COMPLETED project RECEIPT and new SOURCE CONTEXT. Evidence: verification/implementation/EP-07/live-project-create-workspace-20260929.json. On 2026-09-29, the connected GitHub App installation was independently read as selected-repositories and still returned 404 for the owner-local verified private calculator repository; the owner chose manual addition of new cdr-* repositories for now. See verification/implementation/EP-07/chat-github-selection-20260929.json. This manual ChatGPT GitHub App selected-repository choice is separate from the still-unapproved owner-local Runner GitHub source-import grant for ViskyG/cdr-ep07-ui-20260928; no import was performed. See verification/implementation/EP-07/github-import-provider-preflight-20260929.json. Installed 0.2.7 then received a connected-chat workspace RETARGET_WORKSPACE DRAFT/READY request through the exact registered workspace COMMAND; its terminal RECEIPT matched request/digest after an earlier invalid-TTL request had been rejected with its own terminal receipt. See verification/implementation/EP-07/live-workspace-retarget-0.2.7.json. On2026-10-16, connected Google Drive get_document read the new dedicated Docs v2 mailbox and batch_update_document wrote the next DRAFT with requiredRevisionId; exact readback matched and no new command was admitted. An earlier SDK-authored STATUS in this same registered Doc was accepted and completed by the installed service against the prior GitHub-run request. Evidence: verification/implementation/GP-04/live-20261016/.",
   "user_projects": "Three disposable EP-05 projects and three EP-07 projects (cdr-ep07-ui-20260928, cdr-ep07-drive-20260928 and owner-requested cdr-calculator-smoke-20260928-1759) exist under the existing Drive installation and private GitHub owner. All three EP-07 projects are READY. The UI project has primary, parallel and chat-route-20260929 ACTIVE workspaces. Primary PASSED and parallel FAILED their independent deployed publications, each with private draft PR and Drive report. Connected-chat RETARGET_WORKSPACE moved only chat-route-20260929 to feature/ep07-retarget-acceptance-20260929 at the same commit, source generation 1; primary and parallel kept their original clean branches, heads and generations. Chat-route has not run tests or published. The calculator project is a scaffold; application code has not been submitted. No pre-existing user project was imported or modified.",
   "drive_installation": {
@@ -175,10 +175,10 @@
         "service": "ACTIVE_ENABLED_ARMED_BOTH_CHANNELS_IDLE",
         "evidence": "verification/implementation/GP-07/release/oauth-recovery-20261020.json"
       },
-      "live_database_schema": 10,
+      "live_database_schema": 11,
       "source_freeze": "a26fe8ca64d25442ce80f2f80f1f0c6bb5302974",
-      "candidate_version": "0.3.0.dev2",
-      "candidate_wheel_sha256": "039b2e6bd8a3dab145a831168586772bbdcec36e65365e8080ca12fdd09e1cae",
+      "candidate_version": "0.3.0.dev3",
+      "candidate_wheel_sha256": "b34a5f21bc410c7297f96411d3e5182e1b8e8b17b54401fbc2dad72c66a83e78",
       "broad_regression": "Frozen9005b625:1695 passed,7 failed,1 expected skip; all7 failures fixed and passed focused rerun. No broad repetition. Subsequent backup27 and copied-venv3 focused cases passed; mypy121 files passed.",
       "real_boundaries": "Actual host rootless pass/fail cleanup; four language cold/warm52 cases; GitHub51 journalled writes including ACK, source-at-start, rootlesspytest and same-branch11file results; copied installed schema9 migration10/rollback copy; v2 backup roundtrip; packaged153file audit. Docs attach13roles and exactcanary readonly only.",
       "actual_rollback_verified": true,
@@ -225,6 +225,27 @@
         "broad_regression": "Reused prior GP07 freeze; this bounded fix changes neither schema nor execution profiles.",
         "live_acceptance": "Existing installed0.3.0.dev2: normal task PASSED with zero warnings and exact immutable bytes; early preparation failure and STATUS returned through GitHub; historical delivery receipt refreshed. Four finite commands, one project execution, source unchanged, mailbox DRAFT. v1operations26/v2requests9/lane0, armed."
       }
+    },
+    "handoff_stage": {
+      "design": "design/handoff-v1",
+      "baseline_commit": "d1e930a5ebdf87f5ab64fb70914420b6d18db03b",
+      "owner_authorization": "2026-10-22: implement supplied runner-project-handoff-kit and integration roadmap; add repository-local chat usage skills",
+      "packets": {
+        "H0": "VERIFIED",
+        "H1": "OFFLINE_AND_LIVE_VERIFIED",
+        "H2": "INSTALLED_LIVE_VERIFIED_WITH_SDK_METADATA_ASSIST"
+      },
+      "candidate_version": "0.3.0.dev3",
+      "candidate_schema": 11,
+      "checkpoint": "codex/checkpoints/handoff/H2.md",
+      "tests": "Frozen569 cases:568 passed; one original byte-exact mailbox-design assertion needed additive compatibility update; all6 schema checks then passed. Full Ruff and strict mypy128 source files passed.",
+      "installed_version": "0.3.0.dev3",
+      "chat_metadata": "SDK_ASSISTED_METADATA. Connected upload and revision-guarded Docs DRAFT/READY/ACK/terminal readback passed; connected metadata tool omits required Drive version. Full automatic new-package ChatGPT metadata leg remains NOT_QUALIFIED until a tool returns version or owner supplies observed metadata. Never guess version1 or substitute revision ID.",
+      "source_commit": "df76c69",
+      "evidence": "verification/implementation/handoff/",
+      "live_request_id": "17db31e2-b62a-4d1d-912c-97592857022a",
+      "live_handoff_id": "15da2f4b-f36f-4de6-a75c-573b6145549a",
+      "remaining_gate": "External connected Drive metadata exposure: version is required by the approved pinned-input contract. No further Runner authorization/configuration needed for the already enrolled test target."
     }
   },
   "implementation_source_repository": {

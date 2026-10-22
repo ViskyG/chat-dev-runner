@@ -1,0 +1,36 @@
+{
+  "status": "INSTALLED_ARMED_FOUR_BASELINED_CHANNELS",
+  "version": "0.3.0.dev3",
+  "schema": 11,
+  "preserved_history": {
+    "v1_operations": 26,
+    "v2_requests": 9
+  },
+  "lane_rows": 0,
+  "commands_submitted": 0,
+  "baseline_bindings": [
+    [
+      "gp07-github-preview",
+      1
+    ],
+    [
+      "gp04-docs-preview",
+      1
+    ],
+    [
+      "cdr-runner-test-github",
+      1
+    ],
+    [
+      "cdr-runner-test-docs-handoff",
+      1
+    ]
+  ],
+  "backup_manifest_sha256": "a1f8ad8135bc4938ecb24e5acef7313fda860747aa4c3165ec4b053e9afd0810",
+  "runtime_sha256": "27a3d1e0e34338a95d77af7e990d9b1b1ff0cef47f788c774c1ceaf4ed6d8cc6",
+  "old_binary_retained": true,
+  "drive_root_reused": true,
+  "index_modified": false,
+  "preflight_pending_READY": false,
+  "helper_readback_correction": "Upgrade finished; final HTTP helper shadowed its module variable. Corrected helper and performed read-only final proof; no backup/migration/install replay."
+}

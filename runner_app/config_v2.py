@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 import re
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -45,12 +45,24 @@ class WorkspaceConfig:
 
 
 @dataclass(frozen=True)
+class HandoffTargetConfig:
+    workspace_id: str
+    allowed_drive_parents: frozenset[str]
+    limits: Mapping[str, int]
+    timeout_seconds: int = 120
+    request_timeout_seconds: int = 15
+    result_document_id: str | None = None
+    result_tab_id: str | None = None
+
+
+@dataclass(frozen=True)
 class ProjectConfig:
     project_id: str
     repository: GitHubRepository | None
     workspaces: Mapping[str, WorkspaceConfig]
     native_profiles: tuple[str, ...]
     container_profiles: tuple[str, ...] = ()
+    handoff_targets: Mapping[str, HandoffTargetConfig] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -153,7 +165,7 @@ def parse_v2_config(raw: bytes) -> V2RuntimeConfig:
         projects: dict[str, ProjectConfig] = {}
         for candidate in project_values:
             item = _object(candidate, {"project_id"}, {"github", "workspaces", "native_profiles",
-                                                     "container_profiles"})
+                                                     "container_profiles", "handoff_targets"})
             project_id = _id(item["project_id"])
             if project_id in projects:
                 raise V2ConfigError()
@@ -193,7 +205,42 @@ def parse_v2_config(raw: bytes) -> V2RuntimeConfig:
             containers = _strings(item.get("container_profiles", []))
             if set(containers) - {"python-quick"}:
                 raise V2ConfigError()
-            projects[project_id] = ProjectConfig(project_id, repository, workspaces, selected, containers)
+            targets: dict[str, HandoffTargetConfig] = {}
+            target_values = item.get("handoff_targets", {})
+            if not isinstance(target_values, dict) or len(target_values) > 32:
+                raise V2ConfigError()
+            for target_id, candidate_target in target_values.items():
+                target = _object(candidate_target, {"workspace_id", "allowed_drive_parents"},
+                                 {"limits", "timeout_seconds", "request_timeout_seconds",
+                                  "result_document_id", "result_tab_id"})
+                workspace_id = _id(target["workspace_id"])
+                if workspace_id not in workspaces:
+                    raise V2ConfigError("HANDOFF_TARGET_NOT_CONFIGURED")
+                parents = _strings(target["allowed_drive_parents"])
+                if not parents or any(not re.fullmatch(r"[A-Za-z0-9_-]{1,200}", p) for p in parents):
+                    raise V2ConfigError()
+                from runner_app.handoff.contracts import Limits
+
+                bounds = target.get("limits", {})
+                defaults = Limits()
+                if not isinstance(bounds, dict) or set(bounds) - defaults.__dataclass_fields__.keys():
+                    raise V2ConfigError()
+                for key, bound in bounds.items():
+                    _integer(bound, 1, getattr(defaults, key))
+                result_doc, result_tab = target.get("result_document_id"), target.get("result_tab_id")
+                if ((result_doc is None) != (result_tab is None)
+                        or result_doc is not None and (
+                            not isinstance(result_doc, str)
+                            or re.fullmatch(r"[A-Za-z0-9_-]{8,200}", result_doc) is None
+                            or not isinstance(result_tab, str)
+                            or re.fullmatch(r"[A-Za-z0-9._-]{1,200}", result_tab) is None)):
+                    raise V2ConfigError()
+                targets[_id(target_id)] = HandoffTargetConfig(
+                    workspace_id, frozenset(parents), dict(bounds),
+                    _integer(target.get("timeout_seconds", 120), 1, 600),
+                    _integer(target.get("request_timeout_seconds", 15), 1, 30), result_doc, result_tab)
+            projects[project_id] = ProjectConfig(project_id, repository, workspaces, selected,
+                                                  containers, targets)
         mailboxes: list[MailboxConfig] = []
         if not isinstance(value["mailboxes"], list) or len(value["mailboxes"]) > 200:
             raise V2ConfigError()
@@ -231,6 +278,11 @@ def parse_v2_config(raw: bytes) -> V2RuntimeConfig:
         if any(box.provider == "github" for box in mailboxes) and token is None:
             raise V2ConfigError("V2_GITHUB_TOKEN_REFERENCE_REQUIRED")
         google = _path(value["google_config_file"]) if value.get("google_config_file") else None
+        command_docs = {m.coordinates["document_id"] for m in mailboxes if m.provider == "drive"}
+        for project in projects.values():
+            for handoff_target in project.handoff_targets.values():
+                if handoff_target.result_document_id in command_docs:
+                    raise V2ConfigError("HANDOFF_RESULT_OVERLAPS_COMMAND")
         return V2RuntimeConfig(_id(value["runner_id"]), value.get("enable_v1", False), token,
                                google, projects, profiles, tuple(mailboxes),
                                _integer(value.get("queue_limit", 100), 1, 10000),

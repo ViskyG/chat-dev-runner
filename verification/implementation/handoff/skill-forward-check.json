@@ -1,0 +1,7 @@
+{
+  "skill": "skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.md",
+  "mode": "independent read-only new-package simulation",
+  "observations": "Upload ID and local SHA available; connected metadata omits Drive version; guarded Docs supported.",
+  "result": "PASS: preserve uploaded ID/SHA and do not submit DRAFT/READY without observed Drive version; require exact-ID metadata readback explicitly labeled SDK_ASSISTED_METADATA. Prior canary does not supply version for another file; no guess1, ZIP execution or automatic-delivery claim.",
+  "external_writes": 0
+}

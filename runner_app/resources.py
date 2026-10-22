@@ -8,7 +8,7 @@ from typing import Any
 SCHEMA_NAMES = frozenset({
     "application-log", "changeset", "command", "operation-manifest", "output", "receipt",
     "run-manifest",
-    "v2-mailbox", "v2-project", "v2-environment", "v2-approval", "v2-result",
+    "v2-mailbox", "v2-project", "v2-environment", "v2-approval", "v2-result", "handoff-manifest",
 })
 
 

@@ -386,6 +386,31 @@ class IntakeStore:
             return c.execute("SELECT 1 FROM v2_journal WHERE request_id=? AND event='RUNNING' "
                              "LIMIT 1", (request_id,)).fetchone() is not None
 
+    def record_handoff_publication(self, request_id: str, publication: Mapping[str, Any]) -> None:
+        """Receipt delivery is independent of local delivery and terminal time."""
+        with self._transaction() as c:
+            row = c.execute("SELECT result_json FROM v2_requests WHERE request_id=?",
+                            (request_id,)).fetchone()
+            if row is None:
+                raise IntakeError("REQUEST_NOT_FOUND")
+            result = json.loads(row[0]) if row[0] else {}
+            result["receipt_publication"] = dict(publication)
+            c.execute("UPDATE v2_requests SET result_json=? WHERE request_id=?",
+                      (_json(result), request_id))
+            self._event(c, request_id, "HANDOFF_RECEIPT_DELIVERY", dict(publication))
+
+    def confirm_handoff_recovery(self, request_id: str, result: Mapping[str, Any]) -> None:
+        """Record a verified existing local commit; never schedule or execute it."""
+        with self._transaction() as c:
+            row = c.execute("SELECT * FROM v2_requests WHERE request_id=?", (request_id,)).fetchone()
+            if (row is None or row["action"] != "DELIVER_HANDOFF"
+                    or row["status"] not in {"INTERRUPTED", "SUSPENDED_RESTART", "FAILED"}):
+                raise IntakeError("HANDOFF_RECOVERY_NOT_APPLICABLE")
+            c.execute("UPDATE v2_requests SET status='COMPLETED',code=NULL,result_json=?,updated_at=? "
+                      "WHERE request_id=?", (_json(dict(result)), _now(), request_id))
+            c.execute("DELETE FROM execution_lane WHERE protocol='v2' AND request_id=?", (request_id,))
+            self._event(c, request_id, "HANDOFF_RECOVERED", dict(result))
+
     def record_redelivery(self, request_id: str, *, actor_id: str,
                           delivery: Mapping[str, Any]) -> None:
         """Update only the current delivery view; frozen result evidence stays exact."""

@@ -1,0 +1,16 @@
+{
+  "ack_request_id": "17db31e2-b62a-4d1d-912c-97592857022a",
+  "accepted_slot_token_matches": true,
+  "ack_status": "ACCEPTED",
+  "result_status": "DELIVERED",
+  "handoff_id": "15da2f4b-f36f-4de6-a75c-573b6145549a",
+  "manifest_sha256": "75e31e315a9bcf0af46fa58343561d46eba21cdde7ceb65b15b753d92161c55a",
+  "codex_prompt": "В текущем проекте прочитай `.runner/handoffs/15da2f4b-f36f-4de6-a75c-573b6145549a/START_HERE.md`, затем указанную там точку входа. Сверь пакет с текущим кодом и выполни согласованную задачу. Не заменяй корневые инструкции и конфигурацию простым копированием архива.\n",
+  "enrollment_tab_unchanged": true,
+  "upload_tool": "google_drive.upload_file",
+  "docs_write_tool": "google_drive.batch_update_document",
+  "guarded_draft_and_ready": true,
+  "metadata_tool_version_exposed": false,
+  "metadata_assist": "authorized owner-local SDK; no version invented; automatic metadata leg unqualified",
+  "commands_submitted": 1
+}

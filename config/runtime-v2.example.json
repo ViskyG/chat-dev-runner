@@ -43,6 +43,24 @@
       "workspaces": {
         "editor": {"path": "/absolute/owner-workspaces/example-project", "include_dirty": false, "include_untracked": []}
       },
+      "handoff_targets": {
+        "editor-handoff": {
+          "workspace_id": "editor",
+          "allowed_drive_parents": ["EXAMPLE_HANDOFF_DRIVE_FOLDER_ID"],
+          "limits": {
+            "max_files": 8,
+            "file_bytes": 16777216,
+            "total_bytes": 33554432,
+            "expanded_bytes": 67108864,
+            "zip_entries": 512,
+            "max_depth": 8
+          },
+          "timeout_seconds": 120,
+          "request_timeout_seconds": 15,
+          "result_document_id": "EXAMPLE_HANDOFF_RESULTS_DOCUMENT_ID",
+          "result_tab_id": "EXAMPLE_HANDOFF_RESULTS_TAB_ID"
+        }
+      },
       "native_profiles": ["python-native", "node-native", "dotnet-vstest-native"],
       "container_profiles": ["python-quick"]
     }
