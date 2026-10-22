@@ -17,7 +17,7 @@ import signal
 import stat
 import subprocess
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from threading import Event
@@ -30,6 +30,7 @@ from runner_app.outputs.collection import OutputSpec, collect_outputs
 from runner_app.storage.paths import ensure_private_directory, open_private_file
 
 from .broker import RootlessDockerBroker, _snapshot_tree, _verified_run_volume
+from .native_v2 import _snapshot as _process_snapshot
 from .profiles import ProfileOutput, ProfileRegistry, _constant, _pairs
 from .rootless_v2 import JournalCallback, RootlessError, RootlessTaskResult, _write_json
 from .volume_provider import VOLUME_BASE, HardQuotaVolumeProvider, _verified_retired_volume
@@ -272,10 +273,12 @@ class ComposeTaskBackend:
     """Fixed profile adapter; admission and durable one-lane ownership stay in Engine."""
 
     def __init__(self, profile_dir: Path, runs_root: Path, *,
-                 require_running: Callable[[str], None], record_event: JournalCallback) -> None:
+                 require_running: Callable[[str], None], record_event: JournalCallback,
+                 require_recovering: Callable[[str], None] | None = None) -> None:
         self.profile_dir = profile_dir
         self.profiles = load_compose_profiles(profile_dir)
         self.require_running, self.record_event = require_running, record_event
+        self.require_recovering = require_recovering
         self.root = runs_root / "compose-v2"
         ensure_private_directory(self.root)
         self.broker = RootlessDockerBroker(ProfileRegistry(profile_dir, {}))
@@ -293,7 +296,8 @@ class ComposeTaskBackend:
                 + profile.timeout_seconds + 2 * profile.cleanup_seconds + 120)
 
     def _command(self, arguments: list[str], *, timeout: float = 8,
-                 limit: int = _MIB, allow_truncate: bool = False) -> tuple[int, bytes, bytes]:
+                 limit: int = _MIB, allow_truncate: bool = False,
+                 lease: Path | None = None) -> tuple[int, bytes, bytes]:
         """Bound memory while draining Docker pipes; kill only this control CLI on failure."""
         try:
             process = subprocess.Popen(self.broker._docker_argv(*arguments), stdin=subprocess.DEVNULL,
@@ -305,6 +309,12 @@ class ComposeTaskBackend:
         truncated = False
         deadline = time.monotonic() + timeout
         try:
+            if lease is not None:
+                processes, complete = _process_snapshot()
+                observed = processes.get(process.pid)
+                if not complete or observed is None:
+                    raise _fail("COMPOSE_CONTROL_IDENTITY_UNCERTAIN", cleanup=False)
+                _write_json(lease / "process.json", {"pid": process.pid, "start": observed.start})
             with selectors.DefaultSelector() as selector:
                 for index, pipe in enumerate((process.stdout, process.stderr)):
                     assert pipe is not None
@@ -325,6 +335,8 @@ class ComposeTaskBackend:
                             if not allow_truncate:
                                 raise _fail("COMPOSE_CLI_OUTPUT_LIMIT", cleanup=False)
                 code = process.wait(timeout=max(0.1, deadline - time.monotonic()))
+                if lease is not None:
+                    self._control_group_absent(process.pid, None)
                 return -1000 if truncated else code, bytes(streams[0]), bytes(streams[1])
         except (OSError, subprocess.TimeoutExpired):
             raise _fail("COMPOSE_CLI_UNAVAILABLE", cleanup=False) from None
@@ -335,6 +347,36 @@ class ComposeTaskBackend:
             for pipe in (process.stdout, process.stderr):
                 if pipe is not None:
                     pipe.close()
+
+    @staticmethod
+    def _control_group_absent(pid: int, start: str | None) -> None:
+        processes, complete = _process_snapshot()
+        leader = processes.get(pid)
+        if (not complete or leader is not None and start is not None and leader.start != start
+                or any(item.pgid == pid and not item.state.startswith(("Z", "X"))
+                       for item in processes.values())):
+            raise _fail("COMPOSE_CONTROL_NOT_QUIESCENT", cleanup=False)
+
+    def _mutate(self, arguments: list[str], *, root: Path, timeout: float,
+                guard: Callable[[], None]) -> tuple[int, bytes, bytes]:
+        guard()
+        leases = root / "control"
+        ensure_private_directory(leases)
+        if len(list(leases.iterdir())) >= 128:
+            raise _fail("COMPOSE_CONTROL_BUDGET_EXCEEDED", cleanup=False)
+        lease = leases / uuid4().hex
+        lease.mkdir(mode=0o700)
+        _write_json(lease / "intent.json", {"argv": arguments})
+        guard()
+        result = self._command(arguments, timeout=timeout, lease=lease)
+        _write_json(lease / "complete.json", {"exit_code": result[0]})
+        return result
+
+    def recover(self, snapshot: SourceSnapshot, *, request_id: str, profile_id: str,
+                journal: Sequence[tuple[str, Mapping[str, Any]]]) -> RootlessTaskResult:
+        """Reconcile one retained lane without re-executing a workload command."""
+        from .compose_recovery_v2 import recover
+        return recover(self, snapshot, request_id=request_id, profile_id=profile_id, journal=journal)
 
     def _json(self, *arguments: str, timeout: float = 8) -> Any:
         code, raw, _ = self._command(list(arguments), timeout=timeout)
@@ -433,7 +475,8 @@ class ComposeTaskBackend:
     @staticmethod
     def _verify_created(containers: Mapping[str, Any], profile: ComposeProfile,
                         source: Mapping[str, Any], snapshot: SourceSnapshot,
-                        volume: Path, image_ids: Mapping[str, str], project: str) -> None:
+                        volume: Path, image_ids: Mapping[str, str], project: str, *,
+                        recovering: bool = False) -> None:
         for name, item in containers.items():
             config, host = item.get("Config", {}), item.get("HostConfig", {})
             reference = source["services"][name]["image"]
@@ -441,7 +484,7 @@ class ComposeTaskBackend:
                     or config.get("Cmd") != source["services"][name]["command"]
                     or config.get("Entrypoint") not in ([], None) or config.get("User") != "0:0"
                     or config.get("WorkingDir") != "/src" or config.get("Volumes")
-                    or item.get("State", {}).get("Status") != "created"
+                    or not recovering and item.get("State", {}).get("Status") != "created"
                     or host.get("ReadonlyRootfs") is not True or host.get("Privileged") is not False
                     or host.get("CapDrop") != ["ALL"] or host.get("CapAdd")
                     or set(host.get("SecurityOpt") or []) != {"no-new-privileges:true"}
@@ -565,10 +608,19 @@ class ComposeTaskBackend:
             root.mkdir(mode=0o700)
         except FileExistsError:
             raise _fail("COMPOSE_REQUEST_REUSED", cleanup=False) from None
+        intent_digest = _write_json(root / "intent.json", {
+            "schema_version": "cdr-compose-intent/1", "request_id": request_id,
+            "project": project, "nonce": nonce, "daemon_id": daemon, "image_ids": image_ids,
+            "compose_version": version.strip().decode("ascii"), "profile_id": profile_id,
+            "profile_revision_sha256": profile.revision_sha256,
+            "source_sha256": snapshot.workload_snapshot_sha256,
+            "source_path": str(snapshot.path), "source_tree": snapshot.workload_tree,
+            "volume": str(VOLUME_BASE / request_id), "volume_mb": profile.volume_mb})
         def event(name: str, detail: dict[str, object]) -> None:
             self.require_running(request_id)
             self.record_event(request_id, name, detail)
-        event("COMPOSE_VOLUME_INTENDED", {"run_id": request_id, "volume_mb": profile.volume_mb})
+        event("COMPOSE_VOLUME_INTENDED", {"run_id": request_id, "volume_mb": profile.volume_mb,
+                                          "intent_sha256": intent_digest})
         try:
             volume = self._allocate(request_id, profile)
         except Exception as error:  # noqa: BLE001 -- allocation uncertainty must retain the lane.
@@ -602,7 +654,8 @@ class ComposeTaskBackend:
             "profile_revision_sha256": profile.revision_sha256, "config_sha256": config_digest,
             "source_sha256": snapshot.workload_snapshot_sha256, "volume": str(volume)})
         self._daemon(daemon)
-        create_code, _, _ = self._command(compose + ["create", "--no-build", "--pull", "never"], timeout=30)
+        create_code, _, _ = self._mutate(compose + ["create", "--no-build", "--pull", "never"],
+                                          root=root, timeout=30, guard=lambda: self.require_running(request_id))
         containers, network = self._owned(project, request_id, nonce, profile, complete=create_code == 0)
         if create_code:
             raise _fail("COMPOSE_CREATE_FAILED", cleanup=False)
@@ -627,7 +680,8 @@ class ComposeTaskBackend:
                 if phase == "test":
                     test_start_intended, test_started = True, None
                 phase_deadline = time.monotonic() + timeout
-                code, _, _ = self._command(compose + ["start", *names], timeout=min(15, timeout))
+                code, _, _ = self._mutate(compose + ["start", *names], root=root,
+                                          timeout=min(15, timeout), guard=lambda: self.require_running(request_id))
                 if code:
                     error_code = "COMPOSE_SERVICE_START_FAILED"
                     if phase == "test":
@@ -661,8 +715,9 @@ class ComposeTaskBackend:
         if ({name: item["Id"] for name, item in owned.items()} != identifiers
                 or current_network is None or network is None or current_network["Id"] != network["Id"]):
             raise _fail("COMPOSE_RESOURCE_IDENTITY_MISMATCH", cleanup=False)
-        stop_code, _, _ = self._command(compose + ["stop", "--timeout", str(profile.cleanup_seconds)],
-                                         timeout=profile.cleanup_seconds + 15)
+        stop_code, _, _ = self._mutate(compose + ["stop", "--timeout", str(profile.cleanup_seconds)],
+                                        root=root, timeout=profile.cleanup_seconds + 15,
+                                        guard=lambda: self.require_running(request_id))
         stopped, stopped_network = self._owned(project, request_id, nonce, profile, complete=True)
         if ({name: item["Id"] for name, item in stopped.items()} != identifiers
                 or stopped_network is None or stopped_network["Id"] != network["Id"]):
@@ -709,9 +764,10 @@ class ComposeTaskBackend:
                        "per_service_memory_bytes": profile.memory_mb * _MIB,
                        "per_service_cpu": profile.cpu_limit, "per_service_pids": profile.pids_limit},
             "stopped_containers": stopped,
+            "error_code": error_code,
+            "capture_sha256": {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+                               for path in (stdout_path, stderr_path)},
         }
-        evidence_digest = _write_json(root / "backend.json", details)
-        event("COMPOSE_EVIDENCE_SEALED", {"sha256": evidence_digest})
         # Missing test reports are quality findings, not evidence loss. Unsafe
         # paths/copy failures retain the mount for explicit reconciliation.
         parser_findings = {f"{output_id}:{finding}"
@@ -722,6 +778,9 @@ class ComposeTaskBackend:
             and all(finding in parser_findings
                     or finding.endswith((":REQUIRED_OUTPUT_MISSING", ":OPTIONAL_OUTPUT_MISSING"))
                     for finding in collection.findings))
+        details["evidence_complete"] = evidence_complete
+        evidence_digest = _write_json(root / "backend.json", details)
+        event("COMPOSE_EVIDENCE_SEALED", {"sha256": evidence_digest})
         execution_os, _, execution_arch = profile.platform.partition("/")
         if not logs_complete or not evidence_complete:
             return RootlessTaskResult(outcome, exit_code, False, root / "outputs", stdout_path,
@@ -735,8 +794,9 @@ class ComposeTaskBackend:
             raise _fail("COMPOSE_RESOURCE_IDENTITY_MISMATCH", cleanup=False)
         event("COMPOSE_TEARDOWN_INTENDED", {"project": project, "containers": identifiers,
                                              "network": network["Id"]})
-        code, _, _ = self._command(compose + ["down", "--volumes", "--timeout", str(profile.cleanup_seconds)],
-                                  timeout=profile.cleanup_seconds + 15)
+        code, _, _ = self._mutate(compose + ["down", "--volumes", "--timeout", str(profile.cleanup_seconds)],
+                                   root=root, timeout=profile.cleanup_seconds + 15,
+                                   guard=lambda: self.require_running(request_id))
         self._daemon(daemon)
         remaining, remaining_network = self._owned(project, request_id, nonce, profile)
         if code or remaining or remaining_network is not None:

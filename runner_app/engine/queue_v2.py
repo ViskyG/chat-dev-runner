@@ -67,9 +67,11 @@ class TaskHandler(Protocol):
 
 class QueueWorker:
     def __init__(self, store: IntakeStore, session_id: str, handler: TaskHandler, *,
-                 terminal_observer: Callable[[str], None] | None = None) -> None:
+                 terminal_observer: Callable[[str], None] | None = None,
+                 startup_recovery: Callable[[], None] | None = None) -> None:
         self.store, self.session_id, self.handler = store, session_id, handler
         self.terminal_observer = terminal_observer
+        self.startup_recovery = startup_recovery
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self._active_cancel: threading.Event | None = None
@@ -121,6 +123,13 @@ class QueueWorker:
         return True
 
     def _loop(self) -> None:
+        if self.startup_recovery is not None:
+            try:
+                self.startup_recovery()
+            except Exception:  # noqa: BLE001 -- retained lane fences unproven startup recovery
+                _LOG.error("V2_STARTUP_RECOVERY_FAILED")
+                self._stop.set()
+                return
         while not self._stop.is_set():
             try:
                 if not self.run_once():
@@ -150,13 +159,15 @@ class V2Service:
     def __init__(self, store: IntakeStore, session_id: str,
                  bindings: Sequence[tuple[str, MailboxPort]], handler: TaskHandler,
                  *, intake_enabled: Callable[[], bool], poll_seconds: float = 2.0,
-                 terminal_observer: Callable[[str], None] | None = None) -> None:
+                 terminal_observer: Callable[[str], None] | None = None,
+                 startup_recovery: Callable[[], None] | None = None) -> None:
         if not 0.1 <= poll_seconds <= 60:
             raise ValueError("Invalid polling interval")
         self.store, self.session_id = store, session_id
         self.bindings = tuple(bindings)
         self.coordinator = IntakeCoordinator(store, session_id, terminal_observer=terminal_observer)
-        self.worker = QueueWorker(store, session_id, handler, terminal_observer=terminal_observer)
+        self.worker = QueueWorker(store, session_id, handler, terminal_observer=terminal_observer,
+                                  startup_recovery=startup_recovery)
         self.intake_enabled, self.poll_seconds = intake_enabled, poll_seconds
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None

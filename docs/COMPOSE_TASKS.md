@@ -72,3 +72,20 @@ not retain the execution lane. Uncertain mutations, changed resource identities
 or incomplete evidence retain the lane for reconciliation; they never cause an
 automatic rerun or global prune. Preserve the local journal, resolved config and
 exact IDs when investigating an interrupted run.
+
+From `0.3.0.dev5`, startup reconciles the retained Compose operation using its
+original frozen source, enrolled profile and recorded resource identities. It
+requires proof that old control processes have ended, preserves available logs
+and reports, and removes only that run's containers, network and quota mount.
+A sealed execution result keeps its proven outcome. An unfinished execution
+becomes `INTERRUPTED` / `UNKNOWN`; recovery does not run the workload again.
+Cleanup and the latest delivery are published in the terminal GitHub state even
+when an immutable older result still describes the pre-recovery state.
+
+Successful cleanup releases the execution lane before normal startup arming.
+Explicit `--start-unarmed` remains respected; queued work from the old session
+stays suspended. Changed identities, damaged evidence, a still-running control
+process or a missing process identity retain `NEEDS_RECONCILIATION`. Older
+unsealed runs without process leases also require reconciliation. A previously
+attempted result publication is read back without another write; unresolved
+delivery remains `UNKNOWN` and can be handled by explicit `REDELIVER`.

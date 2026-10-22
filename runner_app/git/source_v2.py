@@ -15,8 +15,10 @@ import shutil
 import stat
 import unicodedata
 from collections.abc import Callable, Mapping
+from contextlib import ExitStack
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 from uuid import UUID
 
 from .argv import GitError, run_git, run_git_bytes, validate_branch
@@ -31,6 +33,14 @@ _EXCLUSION_VERSION = "cdr-source-exclusions/1"
 _RESERVED = (".runner/commands", ".runner/results", ".runner/state", ".runner/handoffs")
 _SECRET_PARTS = _PROTECTED_COMPONENTS - {".github", ".gitattributes", ".gitmodules", ".lfsconfig"}
 _FLAGS = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+_MAX_RECOVERY_MANIFEST_BYTES = 32 * 1024 * 1024
+_SHA256 = re.compile(r"[0-9a-f]{64}\Z", re.ASCII)
+_MANIFEST_KEYS = frozenset({
+    "schema_version", "project_id", "request_id", "kind", "branch", "workspace_id",
+    "source_commit", "source_tree", "workload_tree", "workload_snapshot_sha256", "files",
+    "dirty", "dirty_paths", "untracked_paths", "overlay_sha256", "source_identities",
+    "exclusion_version", "excluded_paths",
+})
 
 
 class SourceError(RuntimeError):
@@ -322,6 +332,38 @@ def _branch(repo: Path) -> str:
         raise SourceError("BRANCH_REQUIRED") from None
 
 
+def _open_existing_directory(path: Path) -> int:
+    """Walk every path component without following links, including ancestors."""
+    if not path.is_absolute() or ".." in path.parts:
+        raise SourceError("UNSAFE_RUNS_ROOT")
+    descriptor = os.open(path.anchor, _FLAGS)
+    try:
+        for part in path.parts[1:]:
+            child = os.open(part, _FLAGS, dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child
+        return descriptor
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def _read_existing_file(parent: int, name: str, limit: int,
+                        mode: int) -> tuple[bytes, tuple[int, ...]]:
+    descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
+    with os.fdopen(descriptor, "rb") as stream:
+        info = os.fstat(stream.fileno())
+        if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1
+                or info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) != mode):
+            raise SourceError("UNSAFE_SOURCE_FILE")
+        if info.st_size > limit:
+            raise SourceError("SOURCE_BYTE_LIMIT")
+        data = stream.read(limit + 1)
+        if _identity(info) != _identity(os.fstat(stream.fileno())) or len(data) != info.st_size:
+            raise SourceError("INPUT_CHANGED")
+        return data, _identity(info)
+
+
 class SourceResolver:
     """Controller-bound resolver; resolve only when the request enters execution."""
 
@@ -333,6 +375,234 @@ class SourceResolver:
             limits.per_file_bytes, limits.source_bytes, limits.max_files, limits.max_depth,
         )):
             raise SourceError("INVALID_SOURCE_LIMITS")
+
+    def load_existing(self, project_id: str, request_id: str) -> SourceSnapshot:
+        """Verify and restore a frozen copy, without touching Git or current source."""
+        if not isinstance(project_id, str) or _ID.fullmatch(project_id) is None:
+            raise SourceError("INVALID_PROJECT_ID")
+        try:
+            if str(UUID(request_id)) != request_id:
+                raise ValueError
+        except (ValueError, TypeError, AttributeError):
+            raise SourceError("INVALID_REQUEST_ID") from None
+        if project_id not in self.projects:
+            raise SourceError("PROJECT_NOT_REGISTERED")
+        if (not hasattr(os, "O_NOFOLLOW") or not hasattr(os, "O_DIRECTORY")
+                or os.scandir not in os.supports_fd or os.open not in os.supports_dir_fd):
+            raise SourceError("UNSUPPORTED_SECURE_FILESYSTEM")
+        project = self.projects[project_id]
+        root = Path(project.runs_root)
+        operation = root / request_id
+        sources = [Path(project.repository), *(Path(w.path) for w in project.workspaces.values())]
+        if any(root.is_relative_to(path) or path.is_relative_to(operation) for path in sources):
+            raise SourceError("UNSAFE_RUNS_ROOT")
+        try:
+            with ExitStack() as stack:
+                root_fd = _open_existing_directory(root)
+                stack.callback(os.close, root_fd)
+                root_info = os.fstat(root_fd)
+                if root_info.st_uid != os.geteuid() or root_info.st_mode & 0o077:
+                    raise SourceError("UNSAFE_RUNS_ROOT")
+                operation_fd = os.open(request_id, _FLAGS, dir_fd=root_fd)
+                stack.callback(os.close, operation_fd)
+                operation_info = os.fstat(operation_fd)
+                if operation_info.st_uid != os.geteuid() or operation_info.st_mode & 0o077:
+                    raise SourceError("UNSAFE_RUNS_ROOT")
+                payload, manifest_identity = _read_existing_file(
+                    operation_fd, "source-manifest.json", _MAX_RECOVERY_MANIFEST_BYTES, 0o400)
+                manifest = self._existing_manifest(payload, project_id, request_id)
+                source_fd = os.open("source", _FLAGS, dir_fd=operation_fd)
+                stack.callback(os.close, source_fd)
+                files = self._existing_files(source_fd, manifest)
+                index = [{"path": item.path, "sha256": item.sha256,
+                          "bytes": item.bytes, "mode": item.mode} for item in files]
+                digest = hashlib.sha256(_canonical(index)).hexdigest()
+                tree = _git_tree(files, len(manifest["source_commit"]))
+                if (digest != manifest["workload_snapshot_sha256"]
+                        or tree != manifest["workload_tree"]):
+                    raise SourceError("SOURCE_SNAPSHOT_CHANGED")
+                # Verify the manifest and opened directories are still the named objects.
+                if (manifest_identity != _identity(os.stat("source-manifest.json",
+                        dir_fd=operation_fd, follow_symlinks=False))
+                        or _identity(os.fstat(source_fd)) != _identity(os.stat(
+                            "source", dir_fd=operation_fd, follow_symlinks=False))
+                        or _identity(operation_info) != _identity(os.stat(
+                            request_id, dir_fd=root_fd, follow_symlinks=False))):
+                    raise SourceError("INPUT_CHANGED")
+                check_fd = _open_existing_directory(root)
+                stack.callback(os.close, check_fd)
+                check_info = os.fstat(check_fd)
+                if (root_info.st_dev, root_info.st_ino) != (check_info.st_dev, check_info.st_ino):
+                    raise SourceError("INPUT_CHANGED")
+                return SourceSnapshot(
+                    project_id, request_id, manifest["kind"], manifest["branch"],
+                    manifest["workspace_id"], operation / "source", manifest["source_commit"],
+                    manifest["source_tree"], tree, digest, files, manifest["dirty"],
+                    tuple(manifest["dirty_paths"]), tuple(manifest["untracked_paths"]),
+                    tuple(SourceExclusion(item["path"], item["reason"])
+                          for item in manifest["excluded_paths"]), manifest["overlay_sha256"],
+                    operation / "source-manifest.json", hashlib.sha256(payload).hexdigest())
+        except OSError:
+            raise SourceError("SOURCE_SNAPSHOT_UNAVAILABLE") from None
+
+    def _existing_manifest(self, payload: bytes, project_id: str,
+                           request_id: str) -> dict[str, Any]:
+        try:
+            manifest = json.loads(payload)
+            if (not isinstance(manifest, dict) or set(manifest) != _MANIFEST_KEYS
+                    or payload != _canonical(manifest)
+                    or manifest["schema_version"] != "cdr-source-snapshot/2"
+                    or manifest["exclusion_version"] != _EXCLUSION_VERSION
+                    or manifest["project_id"] != project_id or manifest["request_id"] != request_id):
+                raise SourceError("INVALID_SOURCE_MANIFEST")
+            validate_branch(manifest["branch"])
+            kind, workspace = manifest["kind"], manifest["workspace_id"]
+            if (kind not in {"github_branch", "local_workspace"}
+                    or (kind == "github_branch" and workspace is not None)
+                    or (kind == "local_workspace" and (not isinstance(workspace, str)
+                        or workspace not in self.projects[project_id].workspaces))):
+                raise SourceError("INVALID_SOURCE_MANIFEST")
+            for name in ("source_commit", "source_tree", "workload_tree"):
+                if (not isinstance(manifest[name], str) or not _OID.fullmatch(manifest[name])
+                        or len(manifest[name]) != len(manifest["source_commit"])):
+                    raise SourceError("INVALID_SOURCE_MANIFEST")
+            if (not isinstance(manifest["workload_snapshot_sha256"], str)
+                    or not _SHA256.fullmatch(manifest["workload_snapshot_sha256"])):
+                raise SourceError("INVALID_SOURCE_MANIFEST")
+            entries = manifest["files"]
+            if not isinstance(entries, list) or len(entries) > self.limits.max_files:
+                raise SourceError("SOURCE_FILE_COUNT_LIMIT")
+            paths: list[str] = []
+            portable: dict[str, str] = {}
+            total = 0
+            for item in entries:
+                if not isinstance(item, dict) or set(item) != {"path", "sha256", "bytes", "mode"}:
+                    raise SourceError("INVALID_SOURCE_MANIFEST")
+                path = _path(item["path"], self.limits)
+                _check_collision(path, portable)
+                if (_excluded(path) or type(item["mode"]) is not int
+                        or item["mode"] not in {0o100644, 0o100755}
+                        or not isinstance(item["sha256"], str) or not _SHA256.fullmatch(item["sha256"])
+                        or type(item["bytes"]) is not int or item["bytes"] < 0):
+                    raise SourceError("INVALID_SOURCE_MANIFEST")
+                total += item["bytes"]
+                if item["bytes"] > self.limits.per_file_bytes or total > self.limits.source_bytes:
+                    raise SourceError("SOURCE_BYTE_LIMIT")
+                paths.append(path)
+            if paths != sorted(set(paths)):
+                raise SourceError("INVALID_SOURCE_MANIFEST")
+            identities = manifest["source_identities"]
+            if not isinstance(identities, dict) or set(identities) != (
+                    set(paths) if kind == "local_workspace" else set()):
+                raise SourceError("INVALID_SOURCE_MANIFEST")
+            for item in entries if kind == "local_workspace" else ():
+                identity = identities[item["path"]]
+                if (not isinstance(identity, list) or len(identity) != 7
+                        or any(type(value) is not int or abs(value) >= 2**64 for value in identity)
+                        or any(identity[index] < 0 for index in (0, 1, 2, 3, 6))
+                        or not stat.S_ISREG(identity[2]) or identity[3] != item["bytes"]
+                        or identity[6] != 1
+                        or bool(identity[2] & 0o111) != (item["mode"] == 0o100755)):
+                    raise SourceError("INVALID_SOURCE_MANIFEST")
+            for name in ("dirty_paths", "untracked_paths"):
+                values = manifest[name]
+                if not isinstance(values, list) or len(values) > self.limits.max_files:
+                    raise SourceError("SOURCE_FILE_COUNT_LIMIT")
+                for path in values:
+                    _path(path, self.limits)
+                    if _excluded(path):
+                        raise SourceError("INVALID_SOURCE_MANIFEST")
+                if values != sorted(set(values)):
+                    raise SourceError("INVALID_SOURCE_MANIFEST")
+            dirty, untracked = manifest["dirty_paths"], manifest["untracked_paths"]
+            if (type(manifest["dirty"]) is not bool or manifest["dirty"] != bool(dirty or untracked)
+                    or (kind == "github_branch" and (dirty or untracked))
+                    or set(dirty) & set(untracked) or not set(untracked).issubset(paths)):
+                raise SourceError("INVALID_SOURCE_MANIFEST")
+            overlay = hashlib.sha256(_canonical({
+                "base": manifest["source_commit"], "workload": manifest["workload_snapshot_sha256"],
+                "dirty_paths": dirty, "untracked_paths": untracked,
+            })).hexdigest() if dirty or untracked else None
+            if manifest["overlay_sha256"] != overlay:
+                raise SourceError("INVALID_SOURCE_MANIFEST")
+            excluded = manifest["excluded_paths"]
+            if not isinstance(excluded, list) or len(excluded) > self.limits.max_files + len(_RESERVED):
+                raise SourceError("SOURCE_FILE_COUNT_LIMIT")
+            excluded_paths = []
+            for item in excluded:
+                if not isinstance(item, dict) or set(item) != {"path", "reason"}:
+                    raise SourceError("INVALID_SOURCE_MANIFEST")
+                path = _path(item["path"], self.limits)
+                reason = _excluded(path)
+                if (item["reason"] != reason and not (kind == "local_workspace"
+                        and reason is None and item["reason"] == "unapproved_untracked")):
+                    raise SourceError("INVALID_SOURCE_MANIFEST")
+                if item["reason"] is None:
+                    raise SourceError("INVALID_SOURCE_MANIFEST")
+                excluded_paths.append(path)
+            if excluded_paths != sorted(set(excluded_paths)):
+                raise SourceError("INVALID_SOURCE_MANIFEST")
+            return manifest
+        except (ValueError, TypeError, RecursionError, GitError):
+            raise SourceError("INVALID_SOURCE_MANIFEST") from None
+
+    def _existing_files(self, root_fd: int, manifest: Mapping[str, Any]) -> tuple[SourceFile, ...]:
+        entries = {item["path"]: item for item in manifest["files"]}
+        children: dict[str, set[str]] = {"": set()}
+        for path in entries:
+            parts = path.split("/")
+            for index, name in enumerate(parts):
+                children.setdefault("/".join(parts[:index]), set()).add(name)
+            if any("/".join(parts[:index]) in entries for index in range(1, len(parts))):
+                raise SourceError("SOURCE_PATH_COLLISION")
+        identities: dict[str, tuple[int, ...]] = {}
+        files: list[SourceFile] = []
+
+        def visit(fd: int, prefix: str, *, verify: bool = False) -> None:
+            info = os.fstat(fd)
+            if info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) != 0o555:
+                raise SourceError("UNSAFE_SOURCE_ROOT")
+            if verify and _identity(info) != identities[prefix]:
+                raise SourceError("INPUT_CHANGED")
+            identities[prefix] = _identity(info)
+            names: set[str] = set()
+            with os.scandir(fd) as iterator:
+                for item in iterator:
+                    if item.name not in children[prefix]:
+                        raise SourceError("SOURCE_SNAPSHOT_CHANGED")
+                    names.add(item.name)
+            if names != children[prefix]:
+                raise SourceError("SOURCE_SNAPSHOT_CHANGED")
+            for name in sorted(names):
+                path = f"{prefix}/{name}" if prefix else name
+                if path in children:
+                    child = os.open(name, _FLAGS, dir_fd=fd)
+                    try:
+                        visit(child, path, verify=verify)
+                    finally:
+                        os.close(child)
+                elif verify:
+                    if identities[path] != _identity(os.stat(name, dir_fd=fd, follow_symlinks=False)):
+                        raise SourceError("INPUT_CHANGED")
+                else:
+                    entry = entries[path]
+                    data, identity = _read_existing_file(
+                        fd, name, entry["bytes"], 0o555 if entry["mode"] == 0o100755 else 0o444)
+                    digest = hashlib.sha256(data).hexdigest()
+                    if digest != entry["sha256"] or len(data) != entry["bytes"]:
+                        raise SourceError("SOURCE_SNAPSHOT_CHANGED")
+                    _feature(path, data)
+                    identities[path] = identity
+                    original = manifest["source_identities"].get(path)
+                    files.append(SourceFile(path, digest, len(data), entry["mode"],
+                        _object("blob", data, len(manifest["source_commit"])),
+                        tuple(original) if original is not None else None))
+            if _identity(info) != _identity(os.fstat(fd)):
+                raise SourceError("INPUT_CHANGED")
+
+        visit(root_fd, "")
+        visit(root_fd, "", verify=True)
+        return tuple(sorted(files, key=lambda item: item.path))
 
     def resolve_current(self, project_id: str, request_id: str,
                         source_selector: Mapping[str, object]) -> SourceSnapshot:

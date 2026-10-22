@@ -36,6 +36,30 @@ def paths_and_config(tmp_path):
     return paths, path
 
 
+def test_startup_arms_after_recovery_and_notifications(tmp_path, monkeypatch):
+    paths, _ = paths_and_config(tmp_path)
+    runtime = Runtime(Settings(), paths)
+    events = []
+    try:
+        assembly = runtime.v2
+        assert assembly is not None
+        def recovery(*_args):
+            assert not runtime.ledger.state()["armed"]
+            events.append("recovered")
+        monkeypatch.setattr("runner_app.engine.runtime_v2.recover_interrupted", recovery)
+        monkeypatch.setattr(assembly.store, "restart_notifications", lambda *_a: [])
+        def ready():
+            assert events == ["recovered"]
+            assert runtime.arm_on_startup()
+            events.append("armed")
+            assembly.service.worker.request_stop()
+        monkeypatch.setattr(assembly.service, "start", assembly.service.worker._loop)
+        assembly.start(on_recovered=ready)
+        assert events == ["recovered", "armed"]
+    finally:
+        runtime.close()
+
+
 def test_github_only_startup_ignores_broken_disabled_legacy_google_and_reads_no_token(tmp_path):
     paths, _ = paths_and_config(tmp_path)
     legacy = paths.config_dir / "owner-runtime.json"

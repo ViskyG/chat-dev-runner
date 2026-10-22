@@ -4,6 +4,7 @@ import base64
 import copy
 import hashlib
 import json
+import threading
 from collections.abc import Callable, Mapping
 from dataclasses import replace
 from datetime import datetime
@@ -24,7 +25,13 @@ from runner_app.adapters.github_mailbox_v2 import (
 )
 from runner_app.domain.mailbox_v2 import acknowledge_mailbox, parse_mailbox
 from runner_app.git.argv import GitError, run_git, run_git_bytes
-from runner_app.git.results_v2 import ResultPublishIntent, _write_object, publish_results
+from runner_app.git.results_v2 import (
+    ResultPublishIntent,
+    ResultPushRejected,
+    _write_object,
+    publish_results,
+)
+from runner_app.git.state_v2 import publish_state
 
 INSTALLATION = "aa111111-1111-4111-8111-111111111111"
 TOKEN = "bb222222-2222-4222-8222-222222222222"
@@ -458,6 +465,139 @@ def test_result_object_budget_refusal_never_updates_ref(fixture: Fixture) -> Non
     assert result.status == "LOCAL_ONLY"
     assert fixture.api.head() == fixture.initial
     assert all(method != "PATCH" for method, _, _ in fixture.api.calls)
+
+
+def test_late_result_object_limit_is_rejected_before_any_upload(fixture: Fixture) -> None:
+    # Five changed trees, three blobs and the commit require nine objects.
+    result, _ = fixture.publish(limits=GitHubV2Limits(objects=8))
+    assert result.status == "LOCAL_ONLY"
+    assert fixture.api.head() == fixture.initial
+    assert all(method == "GET" for method, _, _ in fixture.api.calls)
+
+
+def test_result_tree_is_uploaded_once_with_all_paths_and_unique_blobs(fixture: Fixture) -> None:
+    directory = fixture.root / "sealed-results"
+    for name in ("one", "two"):
+        child = directory / name
+        child.mkdir(parents=True)
+        (child / "same.bin").write_bytes(b"same binary\0contents")
+    result, intents = fixture.publish()
+    assert result.status == "DELIVERED" and result.commit == intents[0].commit
+    trees = [body for method, path, body in fixture.api.calls
+             if method == "POST" and path.endswith("/git/trees")]
+    blobs = [body for method, path, body in fixture.api.calls
+             if method == "POST" and path.endswith("/git/blobs")]
+    assert len(trees) == 1 and len(blobs) == 4
+    assert trees[0]["base_tree"] == git(fixture.repo, "rev-parse", f"{fixture.initial}^{{tree}}")
+    assert {entry["path"] for entry in trees[0]["tree"]} == {
+        f".runner/results/node/request/{name}" for name in (
+            ".runner-bundle.json", "result.json", "summary.md", "one/same.bin", "two/same.bin")}
+    for name in ("one", "two"):
+        assert run_git_bytes(fixture.remote, [
+            "show", f"{result.commit}:.runner/results/node/request/{name}/same.bin",
+        ]) == b"same binary\0contents"
+    assert git(fixture.remote, "show", f"{result.commit}:app.txt") == "tested source"
+
+
+def test_small_custom_tree_limit_retains_exact_dependency_ordered_upload(fixture: Fixture) -> None:
+    directory = fixture.root / "sealed-results" / "artifacts"
+    directory.mkdir(parents=True)
+    (directory / "one.txt").write_text("one")
+    (directory / "two.txt").write_text("two")
+    result, intents = fixture.publish(limits=GitHubV2Limits(tree_entries=4))
+    assert result.status == "DELIVERED" and result.commit == intents[0].commit
+    trees = [body for method, path, body in fixture.api.calls
+             if method == "POST" and path.endswith("/git/trees")]
+    assert len(trees) > 1 and all(len(body["tree"]) <= 4 for body in trees)
+    assert git(fixture.remote, "show", f"{result.commit}:app.txt") == "tested source"
+
+
+@pytest.mark.parametrize("failed", [False, True])
+def test_blob_upload_groups_are_bounded_and_fail_before_trees_or_ref(
+    fixture: Fixture, monkeypatch: pytest.MonkeyPatch, failed: bool,
+) -> None:
+    directory = fixture.root / "sealed-results"
+    directory.mkdir()
+    for index in range(8):
+        (directory / f"artifact-{index}.bin").write_bytes(bytes([index]))
+    original = fixture.api.request
+    lock, ready = threading.Lock(), threading.Event()
+    active = started = peak = 0
+
+    def request(method: str, path: str, *, params: Mapping[str, str] | None = None,
+                body: Mapping[str, Any] | None = None) -> GitHubHTTPResponse:
+        nonlocal active, started, peak
+        if method != "POST" or not path.endswith("/git/blobs"):
+            with lock:
+                assert active == 0
+            return original(method, path, params=params, body=body)
+        with lock:
+            if started % 4 == 0:
+                assert active == 0  # A later group never overlaps the prior one.
+            active += 1
+            started += 1
+            sequence = started
+            peak = max(peak, active)
+            if active == 4:
+                ready.set()
+        try:
+            if sequence <= 4:
+                assert ready.wait(5), "First four blob uploads must overlap"
+            if failed and sequence == 1:
+                raise OSError("Lost immutable-object response")
+            return original(method, path, params=params, body=body)
+        finally:
+            with lock:
+                active -= 1
+
+    monkeypatch.setattr(fixture.api, "request", request)
+    result, _ = fixture.publish()
+    assert active == 0 and peak == 4
+    if failed:
+        assert result.status == "LOCAL_ONLY" and started == 4
+        assert fixture.api.head() == fixture.initial
+        assert all(method == "GET" or path.endswith("/git/blobs")
+                   for method, path, _ in fixture.api.calls)
+    else:
+        assert result.status == "DELIVERED" and started == 11
+
+
+@pytest.mark.parametrize(("path", "mode"), [
+    ("app.txt", "100644"), (".runner/results/node/request/run.sh", "100755"),
+])
+def test_result_source_or_mode_change_is_rejected_before_upload(
+    fixture: Fixture, path: str, mode: str,
+) -> None:
+    base = git(fixture.repo, "rev-parse", f"{fixture.initial}^{{tree}}")
+    local = FakeGitAPI(fixture.repo)
+    tree = local.tree([{"path": path, "mode": mode, "type": "blob",
+                       "sha": _write_object(fixture.repo, "blob", b"changed\n")}], base)
+    identity = f"{github_v2.COMMIT_AUTHOR} 1700000000 +0000"
+    commit = _write_object(fixture.repo, "commit", (
+        f"tree {tree}\nparent {fixture.initial}\nauthor {identity}\ncommitter {identity}\n\n"
+        "Publish runner results: node/request\n").encode())
+    with pytest.raises(ResultPushRejected, match="RESULT_OBJECT_UPLOAD_FAILED"):
+        GitHubResultTransport(fixture.client, fetch_objects=fixture.fetch).push_commit(
+            fixture.repo, commit, "tested")
+    assert all(method == "GET" for method, _, _ in fixture.api.calls)
+
+
+def test_terminal_state_addition_and_update_use_one_exact_tree_each(fixture: Fixture) -> None:
+    state = {"runner_id": "node", "request_id": "request", "project_id": "project",
+             "request_digest": "a" * 64, "updated_at": "2026-10-23T00:00:00Z", "status": "FAILED"}
+    transport = GitHubResultTransport(fixture.client, fetch_objects=fixture.fetch)
+    for updated in (False, True):
+        if updated:
+            state.update(updated_at="2026-10-23T00:00:01Z", status="COMPLETED")
+        fixture.api.calls.clear()
+        result = publish_state(fixture.repo, transport, branch="tested", state=state,
+                               record_intent=lambda _: None)
+        assert result.status == "DELIVERED"
+        assert json.loads(run_git_bytes(fixture.remote, [
+            "show", f"{result.commit}:.runner/state/node/request.json"])) == state
+        assert len([1 for method, path, _ in fixture.api.calls
+                    if method == "POST" and path.endswith("/git/trees")]) == 1
+        assert git(fixture.remote, "show", f"{result.commit}:app.txt") == "tested source"
 
 
 def test_large_result_blob_uses_separate_json_budget_above_legacy_git_limit(fixture: Fixture) -> None:

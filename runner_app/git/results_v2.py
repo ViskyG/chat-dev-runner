@@ -385,7 +385,7 @@ def publish_results(
     record_intent: Callable[[ResultPublishIntent], None],
     limits: ResultLimits = DEFAULT_RESULT_LIMITS, max_conflict_retries: int = 3,
     publication_marker: str | None = None, commit_timestamp: int | None = None,
-    expected_bundle_sha256: str | None = None,
+    expected_bundle_sha256: str | None = None, reconcile_only: bool = False,
 ) -> ResultPublication:
     """Publish one sealed bundle; keep every failure local and finitely bounded.
 
@@ -393,6 +393,8 @@ def publish_results(
     An UNKNOWN candidate is reconciled only by readback in this call, never pushed
     again under a different commit identity. The controller writes its local
     delivery record from this response; delivery.json is excluded from hashing.
+    Restart recovery uses reconcile_only after a durable prior publication intent:
+    absence cannot authorize replay of a possibly submitted ref update.
     """
     result_dir = Path(result_dir)
     locator = str(result_dir.absolute())
@@ -403,6 +405,11 @@ def publish_results(
     local_available = False
 
     def answer(status: str, code: str, commit: str | None = None) -> ResultPublication:
+        # After a prior durable intent, absence, conflicts and failed readback
+        # cannot prove that its ref write never applied. Only the exact fetched
+        # subtree can resolve that uncertainty, including on local evidence errors.
+        if reconcile_only and status == "LOCAL_ONLY":
+            status = "UNKNOWN"
         return ResultPublication(status, code, commit, locator, local_available,
                                  bundle.digest if bundle else None, head, marker)
 
@@ -446,6 +453,8 @@ def publish_results(
                 # merely an untrusted manifest's asserted bundle digest.
                 return answer("DELIVERED", "ALREADY_DELIVERED",
                               _proof_commit(repo, head, result_path, None))
+            if reconcile_only:
+                return answer("UNKNOWN", "DELIVERY_UNKNOWN")
             tree = _insert(repo, base_tree, parts, subtree)
             identity = f"{COMMIT_AUTHOR} {timestamp} +0000"
             raw_commit = (f"tree {tree}\nparent {head}\nauthor {identity}\n"

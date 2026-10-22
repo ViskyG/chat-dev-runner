@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chat-dev-runner"
-version = "0.3.0.dev4"
+version = "0.3.0.dev5"
 description = "Local finite development runner with guarded Drive mailbox and loopback control"
 requires-python = ">=3.10"
 dependencies = ["jsonschema==4.26.0", "fastapi==0.141.1", "uvicorn==0.54.0"]

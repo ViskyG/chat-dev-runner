@@ -23,6 +23,7 @@ import urllib.parse
 import urllib.request
 from collections import OrderedDict
 from collections.abc import Callable, Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -94,6 +95,7 @@ class GitHubV2Limits:
 DEFAULT_LIMITS = GitHubV2Limits()
 _OBJECT_CACHE_ENTRIES = 128
 _OBJECT_CACHE_BYTES = 4 * 1024 * 1024
+_BLOB_UPLOAD_WORKERS = 4
 _CONDITIONAL_CACHE_ENTRIES = 64
 _CONDITIONAL_CACHE_BYTES = 1024 * 1024
 _CONDITIONAL_PATH = re.compile(r"/repos/[^/]+/[^/]+(?:/git/ref/heads/.+)?\Z")
@@ -725,27 +727,33 @@ class GitHubResultTransport:
         if (_git_hash("commit", raw) != commit
                 or not (state_commit or message.startswith("Publish runner results: "))):
             raise GitHubV2Error("RESULT_COMMIT_INVALID")
-        changes = run_git_bytes(repo, ["diff-tree", "--no-commit-id", "--name-status", "-r", "-z",
+        changes = run_git_bytes(repo, ["diff-tree", "--no-commit-id", "--raw", "--no-abbrev", "-r", "-z",
                                        "--no-renames", parent, commit]).split(b"\0")
         changes = changes[:-1] if changes[-1] == b"" else changes
         if not changes or len(changes) % 2:
             raise GitHubV2Error("RESULT_SOURCE_CHANGE_REFUSED")
         prefixes: set[bytes] = set()
-        for status, path in zip(changes[::2], changes[1::2], strict=True):
+        updates: list[dict[str, str]] = []
+        for metadata, path in zip(changes[::2], changes[1::2], strict=True):
+            _, mode, _, object_id, status = metadata.split(b" ")
             allowed = (status in {b"A", b"M"} and _STATE_PATH.fullmatch(path) is not None
                        if state_commit else status == b"A" and _RESULT_PATH.fullmatch(path) is not None)
-            if not allowed:
+            if not allowed or mode != b"100644":
                 raise GitHubV2Error("RESULT_SOURCE_CHANGE_REFUSED")
             prefixes.add(b"/".join(path.split(b"/")[:4]))
+            updates.append({"path": path.decode("utf-8"), "mode": "100644", "type": "blob",
+                            "sha": _sha(object_id.decode("ascii"))})
         if (len(prefixes) != 1 or len(changes) // 2 > self.client.limits.objects
                 or state_commit and len(changes) != 2):
             raise GitHubV2Error("RESULT_SOURCE_CHANGE_REFUSED")
         total, count = len(raw), 1
-        uploaded: set[str] = set()
+        planned: set[str] = set()
+        blobs: dict[str, bytes] = {}
+        trees: list[tuple[str, list[dict[str, str]]]] = []
 
-        def upload_tree(oid: str, base_oid: str | None) -> None:
+        def plan_tree(oid: str, base_oid: str | None) -> None:
             nonlocal total, count
-            if oid == base_oid or oid in uploaded:
+            if oid == base_oid or oid in planned:
                 return
             data = run_git_bytes(repo, ["ls-tree", "-z", oid])
             total += len(data)
@@ -766,8 +774,8 @@ class GitHubResultTransport:
                 mode, kind, object_id = metadata.decode("ascii").split(" ")
                 object_id = _sha(object_id)
                 if kind == "tree":
-                    upload_tree(object_id, base_entries.get(name))
-                elif object_id != base_entries.get(name) and object_id not in uploaded:
+                    plan_tree(object_id, base_entries.get(name))
+                elif object_id != base_entries.get(name) and object_id not in planned:
                     if kind != "blob" or mode != "100644":
                         raise GitHubV2Error("RESULT_SOURCE_CHANGE_REFUSED")
                     blob = _large_blob(repo, object_id, self.client.limits.blob_bytes)
@@ -775,15 +783,47 @@ class GitHubResultTransport:
                     count += 1
                     if total > self.client.limits.bundle_bytes or count > self.client.limits.objects:
                         raise GitHubV2Error("GITHUB_BUNDLE_LIMIT")
-                    self.client.create_blob(blob)
-                    uploaded.add(object_id)
+                    encoded_size = ((len(blob) + 2) // 3) * 4
+                    if encoded_size + len(_json({"content": "", "encoding": "base64"})) > self.client.limits.json_bytes:
+                        raise GitHubV2Error("GITHUB_JSON_LIMIT")
+                    blobs[object_id] = blob
+                    planned.add(object_id)
                 entries.append({"path": name.decode("utf-8"), "mode": mode,
                                 "type": kind, "sha": object_id})
-            self.client.create_tree(entries, expected=oid)
-            uploaded.add(oid)
+            if len(entries) > self.client.limits.tree_entries:
+                raise GitHubV2Error("GITHUB_TREE_LIMIT")
+            if len(_json({"tree": entries})) > self.client.limits.json_bytes:
+                raise GitHubV2Error("GITHUB_JSON_LIMIT")
+            trees.append((oid, entries))
+            planned.add(oid)
 
         base_tree = run_git(repo, ["rev-parse", "--verify", f"{parent}^{{tree}}"] ).strip()
-        upload_tree(tree, base_tree)
+        # Validate the entire immutable object graph and its existing budgets
+        # before writes. Retained blob bytes are bounded by bundle_bytes.
+        plan_tree(tree, base_tree)
+        payloads = list(blobs.values())
+        if len(payloads) == 1:
+            self.client.create_blob(payloads[0])
+        elif payloads:
+            with ThreadPoolExecutor(max_workers=_BLOB_UPLOAD_WORKERS,
+                                    thread_name_prefix="cdr-github-blob") as executor:
+                for offset in range(0, len(payloads), _BLOB_UPLOAD_WORKERS):
+                    # Do not enqueue later groups until every current upload is
+                    # proved. On failure only this bounded group may be in flight;
+                    # the executor drains it before returning without a ref write.
+                    futures = [executor.submit(self.client.create_blob, blob)
+                               for blob in payloads[offset:offset + _BLOB_UPLOAD_WORKERS]]
+                    for future in futures:
+                        future.result()
+        # GitHub builds intermediate trees for full paths, just as mailbox ACKs
+        # do. Checking the root SHA proves the exact local tree, including source.
+        # Small custom request limits retain the dependency-ordered tree path.
+        if (len(updates) <= self.client.limits.tree_entries
+                and len(_json({"tree": updates, "base_tree": base_tree})) <= self.client.limits.json_bytes):
+            self.client.create_tree(updates, base=base_tree, expected=tree)
+        else:
+            for oid, entries in trees:
+                self.client.create_tree(entries, expected=oid)
         self.client.create_commit(tree, parent, message, timestamp, expected=commit)
         return parent, tree
 

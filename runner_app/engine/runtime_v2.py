@@ -19,8 +19,9 @@ from runner_app.adapters.github_mailbox_v2 import (
 from runner_app.config_v2 import MailboxConfig, V2RuntimeConfig
 from runner_app.engine.docs_v2 import DocsPortFactory, RecoveringDocsPort
 from runner_app.engine.handoff_v2 import HandoffRunner, V2TaskDispatcher
-from runner_app.engine.intake_v2 import MailboxPort
+from runner_app.engine.intake_v2 import MailboxPort, notify_terminal
 from runner_app.engine.queue_v2 import V2Service
+from runner_app.engine.recovery_v2 import recover_interrupted
 from runner_app.engine.task_v2 import NativeTaskRunner, TaskProject
 from runner_app.executors.compose_v2 import ComposeTaskBackend
 from runner_app.executors.rootless_v2 import RootlessError, RootlessTaskBackend
@@ -69,6 +70,7 @@ class V2Assembly:
         self.docs_ports: dict[str, RecoveringDocsPort] = {}
         self.backend_codes: dict[str, str] = {}
         self._closed = False
+        self._on_recovered: Callable[[], Any] | None = None
         clients: dict[str, GitHubV2Client] = {}
         sources: dict[str, SourceProject] = {}
         projects: dict[str, TaskProject] = {}
@@ -148,9 +150,15 @@ class V2Assembly:
                     self.backend_codes["rootless-docker"] = getattr(error, "code", "ROOTLESS_UNAVAILABLE")
             if config.compose_profile_dir is not None:
                 try:
+                    def require_recovering(request_id: str) -> None:
+                        if not any(item["request_id"] == request_id for item in
+                                   self.store.recovery_candidates(config.runner_id, self.session_id)):
+                            raise IntakeError("RECOVERY_AUTHORITY_ENDED")
+
                     backends["rootless-compose"] = ComposeTaskBackend(
                         config.compose_profile_dir, paths.state_dir / "executions-v2",
                         require_running=require_running, record_event=self.store.record_event,
+                        require_recovering=require_recovering,
                     )
                     self.backend_codes["rootless-compose"] = "CONFIGURED_NOT_PROBED"
                 except (OSError, ValueError, RootlessError) as error:
@@ -175,7 +183,8 @@ class V2Assembly:
             self.service = V2Service(self.store, self.session_id, bindings, self.dispatcher,
                                      intake_enabled=lambda: bool(ledger.state()["armed"]),
                                      poll_seconds=config.poll_seconds,
-                                     terminal_observer=self.dispatcher.publish_state)
+                                     terminal_observer=self.dispatcher.publish_state,
+                                     startup_recovery=self._recover)
         except BaseException:
             self.store.end_session(self.session_id)
             raise
@@ -183,6 +192,14 @@ class V2Assembly:
     @property
     def configured(self) -> bool:
         return bool(self.service.bindings)
+
+    def _recover(self) -> None:
+        recover_interrupted(self.handler, self.config.runner_id, self.session_id)
+        for operation in self.store.restart_notifications(self.config.runner_id, self.session_id):
+            if operation["project_id"] in self.handler.projects:
+                notify_terminal(self.store, self.dispatcher.publish_state, operation["request_id"])
+        if not self._closed and self._on_recovered is not None:
+            self._on_recovered()
 
     def status(self) -> dict[str, Any]:
         channels = {**self.channel_codes, **self.service.last_states}
@@ -207,7 +224,8 @@ class V2Assembly:
                 "handoff_protocol": "cdr-handoff/1",
                 "capability_status": "IMPLEMENTED_NOT_QUALIFIED"}
 
-    def start(self) -> None:
+    def start(self, *, on_recovered: Callable[[], Any] | None = None) -> None:
+        self._on_recovered = on_recovered
         self.service.start()
 
     def request_stop(self) -> None:

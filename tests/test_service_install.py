@@ -73,6 +73,30 @@ def test_serve_auto_arms_by_default_with_explicit_unarmed_override() -> None:
     assert parser().parse_args(["serve", "--start-unarmed"]).start_unarmed is True
 
 
+@pytest.mark.parametrize("unarmed", [False, True])
+def test_serve_waits_for_v2_recovery_before_arming(monkeypatch, unarmed):
+    from types import SimpleNamespace
+
+    from runner_app import cli
+
+    events = []
+    callbacks = []
+    runtime = SimpleNamespace(
+        integrations=None, app=object(),
+        v2=SimpleNamespace(start=lambda *, on_recovered: callbacks.append(on_recovered)),
+        arm_on_startup=lambda: events.append("armed"), close=lambda: events.append("closed"))
+    monkeypatch.setattr("runner_app.engine.runtime.Runtime", lambda *_a: runtime)
+
+    def serve(*_a, **_kw):
+        assert events == [] and len(callbacks) == 1
+        events.append("recovery-finished")
+        if callbacks[0] is not None:
+            callbacks[0]()
+    monkeypatch.setattr("uvicorn.run", serve)
+    assert cli.main(["serve", *(["--start-unarmed"] if unarmed else [])]) == 0
+    assert events == ["recovery-finished", *([] if unarmed else ["armed"]), "closed"]
+
+
 def test_packaged_template_matches_reviewed_source_and_is_loopback_auto_armed(paths: Paths) -> None:
     assert files("runner_app").joinpath("production.service.in").read_text() == (
         ROOT / "deploy" / "production.service.in"

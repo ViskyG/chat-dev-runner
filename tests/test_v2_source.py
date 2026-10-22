@@ -216,6 +216,125 @@ def test_local_dirty_untracked_and_deletion_capture_without_touching_originals(f
     assert (fixture.workspace / "a.txt").stat().st_mode & 0o200
 
 
+@pytest.mark.parametrize("local", [False, True])
+def test_restore_uses_only_frozen_source_and_preserves_original_provenance(
+    fixture: Fixture, monkeypatch: pytest.MonkeyPatch, local: bool,
+) -> None:
+    workspace = None
+    if local:
+        (fixture.workspace / "a.txt").write_bytes(b"original dirty content\n")
+        (fixture.workspace / "a.txt").chmod(0o755)
+        (fixture.workspace / "delete.txt").unlink()
+        (fixture.workspace / "new.txt").write_bytes(b"approved untracked\n")
+        workspace = LocalWorkspace(fixture.workspace, include_dirty=True, include_untracked=("new.txt",))
+    snapshot = fixture.capture(local=workspace)
+    resolver = fixture.resolver(local=workspace)
+    fixture.workspace.rename(fixture.root / "unavailable-workspace")
+    fixture.repo.rename(fixture.root / "unavailable-repository")
+
+    def unexpected(*args: object, **kwargs: object) -> None:
+        pytest.fail("Recovery must not fetch, invoke Git or capture current source")
+
+    monkeypatch.setattr(source_module, "run_git", unexpected)
+    monkeypatch.setattr(source_module, "run_git_bytes", unexpected)
+    monkeypatch.setattr(resolver, "resolve_current", unexpected)
+    assert resolver.load_existing("demo", snapshot.request_id) == snapshot
+
+
+@pytest.mark.parametrize("field,value", [
+    ("schema_version", "cdr-source-snapshot/1"), ("project_id", "other"),
+    ("request_id", str(uuid4())), ("extra", True), ("kind", []),
+    ("workspace_id", "editor"), ("dirty", 0), ("source_tree", "bad"),
+    ("workload_snapshot_sha256", "0" * 64), ("workload_tree", "0" * 40),
+    ("overlay_sha256", "0" * 64), ("source_identities", {"a.txt": [0] * 7}),
+])
+def test_restore_rejects_changed_or_invalid_manifest(
+    fixture: Fixture, field: str, value: object,
+) -> None:
+    snapshot = fixture.capture()
+    manifest = json.loads(snapshot.manifest_path.read_bytes())
+    manifest[field] = value
+    snapshot.manifest_path.chmod(0o600)
+    snapshot.manifest_path.write_bytes(source_module._canonical(manifest))
+    snapshot.manifest_path.chmod(0o400)
+    with pytest.raises(SourceError):
+        fixture.resolver().load_existing("demo", snapshot.request_id)
+
+
+@pytest.mark.parametrize("mutation", ["content", "extra", "missing", "mode", "symlink", "hardlink"])
+def test_restore_rejects_changed_frozen_files(fixture: Fixture, mutation: str) -> None:
+    snapshot = fixture.capture()
+    target = snapshot.path / "a.txt"
+    snapshot.path.chmod(0o755)
+    if mutation == "content":
+        target.chmod(0o644)
+        target.write_bytes(b"tampered\n")  # Same length as the original.
+        target.chmod(0o444)
+    elif mutation == "extra":
+        (snapshot.path / "extra.txt").write_bytes(b"extra")
+    elif mutation == "missing":
+        target.unlink()
+    elif mutation == "mode":
+        target.chmod(0o555)
+    elif mutation == "symlink":
+        target.unlink()
+        target.symlink_to(fixture.workspace / "a.txt")
+    else:
+        os.link(target, fixture.root / "alias.txt")
+    snapshot.path.chmod(0o555)
+    with pytest.raises(SourceError):
+        fixture.resolver().load_existing("demo", snapshot.request_id)
+
+
+@pytest.mark.parametrize("location", ["root", "operation", "source", "directory", "manifest"])
+def test_restore_does_not_follow_snapshot_links(fixture: Fixture, location: str) -> None:
+    snapshot = fixture.capture()
+    target = {"root": fixture.runs, "operation": snapshot.path.parent,
+              "source": snapshot.path, "directory": snapshot.path / ".runner",
+              "manifest": snapshot.manifest_path}[location]
+    if location == "directory":
+        snapshot.path.chmod(0o755)
+    moved = target.with_name(target.name + "-moved")
+    target.rename(moved)
+    target.symlink_to(moved)
+    if location == "directory":
+        snapshot.path.chmod(0o555)
+    with pytest.raises(SourceError):
+        fixture.resolver().load_existing("demo", snapshot.request_id)
+
+
+def test_restore_bounds_manifest_and_files(fixture: Fixture, monkeypatch: pytest.MonkeyPatch) -> None:
+    snapshot = fixture.capture()
+    with pytest.raises(SourceError, match="SOURCE_BYTE_LIMIT"):
+        fixture.resolver(limits=SourceLimits(per_file_bytes=1)).load_existing("demo", snapshot.request_id)
+    with pytest.raises(SourceError, match="SOURCE_FILE_COUNT_LIMIT"):
+        fixture.resolver(limits=SourceLimits(max_files=1)).load_existing("demo", snapshot.request_id)
+    monkeypatch.setattr(source_module, "_MAX_RECOVERY_MANIFEST_BYTES", 16)
+    with pytest.raises(SourceError, match="SOURCE_BYTE_LIMIT"):
+        fixture.resolver().load_existing("demo", snapshot.request_id)
+
+
+def test_restore_detects_file_change_after_it_was_read(
+    fixture: Fixture, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    snapshot = fixture.capture()
+    read = source_module._read_existing_file
+
+    def change_previous(parent: int, name: str, limit: int,
+                        mode: int) -> tuple[bytes, tuple[int, ...]]:
+        result = read(parent, name, limit, mode)
+        if name == "delete.txt":
+            previous = snapshot.path / "a.txt"
+            previous.chmod(0o644)
+            previous.write_bytes(b"tampered\n")
+            previous.chmod(0o444)
+        return result
+
+    monkeypatch.setattr(source_module, "_read_existing_file", change_previous)
+    with pytest.raises(SourceError, match="INPUT_CHANGED"):
+        fixture.resolver().load_existing("demo", snapshot.request_id)
+
+
 def test_staged_add_is_dirty_and_not_misreported_as_untracked(fixture: Fixture) -> None:
     (fixture.workspace / "new.txt").write_bytes(b"staged content\n")
     git(fixture.workspace, "add", "new.txt")

@@ -7,17 +7,21 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
+import sys
 from pathlib import Path
 from threading import Event
+from types import SimpleNamespace
 from typing import Any
 from uuid import uuid4
 
 import pytest
 
+import runner_app.executors.compose_recovery_v2 as recovery_module
 import runner_app.executors.compose_v2 as module
 from runner_app.executors.compose_v2 import ComposeTaskBackend, load_compose_profiles
-from runner_app.executors.rootless_v2 import RootlessError
+from runner_app.executors.rootless_v2 import RootlessError, _write_json
 from runner_app.git.argv import run_git
 from runner_app.git.source_v2 import LocalWorkspace, SourceProject, SourceResolver
 
@@ -89,8 +93,10 @@ class Fixture:
                                        "workspace_id": "editor"})
         self.backend = ComposeTaskBackend(self.profile_dir, root / "runs",
                                           require_running=lambda _request: None,
-                                          record_event=self.record)
-        self.volume = root / "quota"
+                                          record_event=self.record,
+                                          require_recovering=lambda _request: None)
+        (root / "volumes").mkdir(mode=0o700)
+        self.volume = root / "volumes" / self.request
         self.containers: dict[str, dict[str, Any]] = {}
         self.network: dict[str, Any] | None = None
         self.plan: dict[str, Any] = {}
@@ -100,6 +106,11 @@ class Fixture:
         monkeypatch.setattr(self.backend, "_release", self.release)
         monkeypatch.setattr(self.backend, "_command", self.command)
         monkeypatch.setattr(module, "_verified_retired_volume", lambda path, *_args: path)
+        monkeypatch.setattr(module, "VOLUME_BASE", self.volume.parent)
+        monkeypatch.setattr(recovery_module, "VOLUME_BASE", self.volume.parent)
+        monkeypatch.setattr(recovery_module, "_verified_retired_volume", lambda path, *_args: path)
+        monkeypatch.setattr(module, "_process_snapshot", lambda: ({}, True))
+        monkeypatch.setattr(recovery_module, "_helpers_absent", lambda _request: None)
 
     def record(self, _request: str, event: str, details: dict[str, object]) -> None:
         self.events.append((event, details))
@@ -120,7 +131,8 @@ class Fixture:
 
     def release(self, _request: str, _profile: Any, volume: Path) -> None:
         assert not self.containers and self.network is None
-        assert any(name == "COMPOSE_EVIDENCE_SEALED" for name, _ in self.events)
+        assert any(name in {"COMPOSE_EVIDENCE_SEALED", "COMPOSE_RECOVERY_EVIDENCE_SEALED"}
+                   for name, _ in self.events)
         if self.mode == "release-failure":
             raise OSError("release unavailable")
         shutil.rmtree(volume)
@@ -161,6 +173,8 @@ class Fixture:
 
     def command(self, arguments: list[str], **_kwargs: Any) -> tuple[int, bytes, bytes]:
         self.calls.append(arguments)
+        if _kwargs.get("lease"):
+            _write_json(_kwargs["lease"] / "process.json", {"pid": 999999999, "start": "1"})
         if arguments[:2] == ["compose", "version"]:
             return 0, b"5.5.1\n", b""
         if arguments[:2] == ["image", "inspect"]:
@@ -211,6 +225,20 @@ class Fixture:
                 raise AssertionError(arguments)
             return 0, b"", b""
         kind, action = arguments[:2]
+        if action == "stop":
+            for identifier in arguments[4:]:
+                self.containers[identifier]["State"].update(Running=False, Status="exited")
+            return 0, b"", b""
+        if action == "rm":
+            if kind == "container":
+                for identifier in arguments[2:]:
+                    assert self.containers[identifier]["State"]["Running"] is False
+                    del self.containers[identifier]
+            elif kind == "network":
+                assert not self.containers and self.network is not None
+                assert arguments[2] == self.network["Id"]
+                self.network = None
+            return 0, b"", b""
         if action == "ls":
             values = list(self.containers) if kind == "container" else (
                 [self.network["Id"]] if kind == "network" and self.network else [])
@@ -229,6 +257,10 @@ class Fixture:
     def run(self) -> Any:
         return self.backend.run(self.snapshot, request_id=self.request,
                                 profile_id="compose-python", cancel=self.cancel)
+
+    def recover(self) -> Any:
+        return self.backend.recover(self.snapshot, request_id=self.request,
+                                    profile_id="compose-python", journal=list(self.events))
 
 
 @pytest.fixture
@@ -431,3 +463,250 @@ def test_timeout_partial_opaque_report_does_not_turn_missing_junit_into_cleanup_
     assert "junit:REQUIRED_OUTPUT_MISSING" in result.provenance["collection_findings"]
     assert (result.output_root / "partial.json").read_text() == '{"started":true}'
     assert not (result.output_root / "junit.xml").exists()
+
+
+class ControllerCrash(BaseException):
+    """Simulates controller death, bypassing the ordinary exception cleanup path."""
+
+
+def crash_command(fixture: Fixture, monkeypatch: pytest.MonkeyPatch, action: str,
+                  service: str | None = None) -> None:
+    original = fixture.backend._command
+    def cut(arguments: list[str], **kwargs: Any) -> tuple[int, bytes, bytes]:
+        result = original(arguments, **kwargs)
+        if arguments[0] == "compose" and action in arguments and (service is None or arguments[-1] == service):
+            raise ControllerCrash
+        return result
+    monkeypatch.setattr(fixture.backend, "_command", cut)
+    with pytest.raises(ControllerCrash):
+        fixture.run()
+    monkeypatch.setattr(fixture.backend, "_command", original)
+    fixture.calls.clear()
+
+
+@pytest.mark.parametrize(("action", "service", "outcome"), [
+    ("create", None, "NOT_RUN"), ("start", "api", "NOT_RUN"),
+    ("start", "test", "UNKNOWN"), ("down", None, "PASSED"),
+])
+def test_recovery_after_lost_control_ack_preserves_truth_and_never_starts(
+        fixture: Fixture, monkeypatch: pytest.MonkeyPatch, action: str,
+        service: str | None, outcome: str) -> None:
+    crash_command(fixture, monkeypatch, action, service)
+    recovered = fixture.recover()
+    assert recovered.cleanup_verified and recovered.outcome == outcome and fixture.released
+    assert not fixture.containers and fixture.network is None and not fixture.volume.exists()
+    assert not any("create" in call or "start" in call or "down" in call for call in fixture.calls)
+    assert recovered.stdout_path.is_file() and recovered.stderr_path.is_file()
+    if action == "start" and service == "test":
+        assert (recovered.output_root / "junit.xml").exists()
+        assert recovered.provenance["test_started"] is None
+
+
+def test_recovery_after_allocation_reply_loss_uses_preallocation_identity(
+        fixture: Fixture, monkeypatch: pytest.MonkeyPatch) -> None:
+    original = fixture.backend._allocate
+    def cut(*args: Any) -> Path:
+        original(*args)
+        raise ControllerCrash
+    monkeypatch.setattr(fixture.backend, "_allocate", cut)
+    with pytest.raises(ControllerCrash):
+        fixture.run()
+    assert fixture.volume.exists() and not fixture.containers
+    assert fixture.recover().outcome == "NOT_RUN"
+    assert fixture.released
+
+
+def test_recovery_readonly_preflight_crash_has_no_execution_to_replay(fixture: Fixture) -> None:
+    recovered = fixture.recover()
+    assert recovered.cleanup_verified and recovered.outcome == "NOT_RUN"
+    assert not fixture.volume.exists() and not fixture.containers
+
+
+def test_recovery_preserves_already_sealed_result_and_repeated_calls_are_idempotent(
+        fixture: Fixture, monkeypatch: pytest.MonkeyPatch) -> None:
+    original = fixture.backend.record_event
+    def cut(request: str, event: str, detail: dict[str, object]) -> None:
+        original(request, event, detail)
+        if event == "COMPOSE_EVIDENCE_SEALED":
+            raise ControllerCrash
+    monkeypatch.setattr(fixture.backend, "record_event", cut)
+    with pytest.raises(ControllerCrash):
+        fixture.run()
+    monkeypatch.setattr(fixture.backend, "record_event", original)
+    first = fixture.recover()
+    files = {path.name: path.read_bytes() for path in first.output_root.iterdir()}
+    fixture.calls.clear()
+    second = fixture.recover()
+    assert first.outcome == second.outcome == "PASSED"
+    assert first.output_root == second.output_root
+    assert files == {path.name: path.read_bytes() for path in second.output_root.iterdir()}
+    assert not any("stop" in call or "rm" in call for call in fixture.calls)
+
+
+@pytest.mark.parametrize("cut", ["container", "network", "volume"])
+def test_recovery_itself_can_resume_after_partial_exact_cleanup(
+        fixture: Fixture, monkeypatch: pytest.MonkeyPatch, cut: str) -> None:
+    crash_command(fixture, monkeypatch, "start", "test")
+    original = fixture.backend._command
+    release = fixture.backend._release
+    if cut == "volume":
+        def lost_release(*args: Any) -> None:
+            release(*args)
+            raise ControllerCrash
+        monkeypatch.setattr(fixture.backend, "_release", lost_release)
+    else:
+        def lost_remove(arguments: list[str], **kwargs: Any) -> tuple[int, bytes, bytes]:
+            result = original(arguments, **kwargs)
+            if arguments[:2] == [cut, "rm"]:
+                raise ControllerCrash
+            return result
+        monkeypatch.setattr(fixture.backend, "_command", lost_remove)
+    with pytest.raises(ControllerCrash):
+        fixture.recover()
+    monkeypatch.setattr(fixture.backend, "_command", original)
+    monkeypatch.setattr(fixture.backend, "_release", release)
+    recovered = fixture.recover()
+    assert recovered.cleanup_verified and recovered.outcome == "UNKNOWN"
+    assert len(list((fixture.backend.root / fixture.request).glob("recovery-[0-9][0-9][0-9][0-9]"))) == 1
+    assert (recovered.output_root / "junit.xml").exists()
+
+
+@pytest.mark.parametrize("damage", ["daemon", "nonce", "container", "network", "profile", "config", "source"])
+def test_recovery_identity_ambiguity_never_removes_resources(
+        fixture: Fixture, monkeypatch: pytest.MonkeyPatch, damage: str) -> None:
+    crash_command(fixture, monkeypatch, "start", "test")
+    if damage == "daemon":
+        fixture.mode = "daemon-change"
+    elif damage == "nonce":
+        next(iter(fixture.containers.values()))["Config"]["Labels"]["cdr.compose-nonce"] = "e" * 32
+    elif damage == "container":
+        identifier = next(iter(fixture.containers))
+        item = fixture.containers.pop(identifier)
+        item["Id"] = "e" * 64
+        fixture.containers[item["Id"]] = item
+    elif damage == "network":
+        assert fixture.network is not None
+        fixture.network["Id"] = "e" * 64
+    elif damage == "profile":
+        (fixture.profile_dir / "compose-python.json").write_bytes(b"{}")
+    elif damage == "config":
+        config = fixture.backend.root / fixture.request / "resolved.json"
+        config.chmod(0o600)
+        config.write_bytes(b"{}")
+    else:
+        source = fixture.snapshot.path / "compose.json"
+        source.chmod(0o600)
+        source.write_bytes(b"{}")
+    with pytest.raises(RootlessError) as caught:
+        fixture.recover()
+    assert not caught.value.cleanup_verified and fixture.volume.exists() and fixture.containers
+    assert not any("rm" in call or "stop" in call for call in fixture.calls)
+
+
+def test_recovery_refuses_missing_original_before_any_cleanup_intent(
+        fixture: Fixture, monkeypatch: pytest.MonkeyPatch) -> None:
+    crash_command(fixture, monkeypatch, "start", "test")
+    fixture.containers.pop(next(iter(fixture.containers)))
+    with pytest.raises(RootlessError, match="COMPOSE_RECOVERY_RESOURCE_MISSING"):
+        fixture.recover()
+    assert fixture.volume.exists() and not fixture.released
+
+
+@pytest.mark.parametrize("damage", ["capture", "output", "metadata"])
+def test_recovery_damaged_sealed_evidence_keeps_stopped_resources(
+        fixture: Fixture, monkeypatch: pytest.MonkeyPatch, damage: str) -> None:
+    fixture.mode = "cleanup-failure"
+    with pytest.raises(RootlessError):
+        fixture.run()
+    fixture.mode = "pass"
+    root = fixture.backend.root / fixture.request
+    selected = {"capture": root / "stdout.bin", "output": root / "outputs/junit.xml",
+                "metadata": root / "backend.json"}[damage]
+    selected.chmod(0o600)
+    selected.write_bytes(b"tampered")
+    fixture.calls.clear()
+    with pytest.raises(RootlessError):
+        fixture.recover()
+    assert fixture.containers and fixture.volume.exists()
+    assert not any("rm" in call for call in fixture.calls)
+
+
+def test_recovery_stops_when_session_guard_expires_before_cleanup(
+        fixture: Fixture, monkeypatch: pytest.MonkeyPatch) -> None:
+    crash_command(fixture, monkeypatch, "start", "test")
+    expired = [False]
+    original = fixture.backend.record_event
+    def guard(_request: str) -> None:
+        if expired[0]:
+            raise RootlessError("RECOVERY_SESSION_EXPIRED", cleanup_verified=False)
+    def record(request: str, event: str, detail: dict[str, object]) -> None:
+        original(request, event, detail)
+        if event == "COMPOSE_RECOVERY_EVIDENCE_SEALED":
+            expired[0] = True
+    monkeypatch.setattr(fixture.backend, "require_recovering", guard)
+    monkeypatch.setattr(fixture.backend, "record_event", record)
+    with pytest.raises(RootlessError, match="RECOVERY_SESSION_EXPIRED"):
+        fixture.recover()
+    assert fixture.containers and fixture.volume.exists() and not fixture.released
+    assert not any("rm" in call for call in fixture.calls)
+
+
+def test_recovery_active_or_unrecorded_control_cli_is_not_replayed(
+        fixture: Fixture, monkeypatch: pytest.MonkeyPatch) -> None:
+    crash_command(fixture, monkeypatch, "create")
+    controls = fixture.backend.root / fixture.request / "control"
+    lease = next(path for path in controls.iterdir() if not (path / "complete.json").exists())
+    original = fixture.backend._control_group_absent
+    monkeypatch.setattr(fixture.backend, "_control_group_absent", lambda *_args: (
+        _ for _ in ()).throw(RootlessError("COMPOSE_CONTROL_NOT_QUIESCENT", cleanup_verified=False)))
+    with pytest.raises(RootlessError, match="COMPOSE_CONTROL_NOT_QUIESCENT"):
+        fixture.recover()
+    monkeypatch.setattr(fixture.backend, "_control_group_absent", original)
+    (lease / "process.json").unlink()
+    with pytest.raises(RootlessError, match="COMPOSE_CONTROL_PROOF_MISSING"):
+        fixture.recover()
+    assert fixture.volume.exists() and fixture.containers and not fixture.released
+
+
+def test_actual_control_child_records_identity_and_completes_before_recovery_permission(
+        tmp_path: Path) -> None:
+    backend = object.__new__(ComposeTaskBackend)
+    backend.broker = SimpleNamespace(  # type: ignore[assignment]
+        _docker_argv=lambda *args: [sys.executable, *args],
+        _docker_env=lambda: {"PATH": os.defpath})
+    code, output, error = backend._mutate(["-c", "print('controlled child')"], root=tmp_path,
+                                         timeout=3, guard=lambda: None)
+    assert code == 0 and output == b"controlled child\n" and not error
+    lease = next((tmp_path / "control").iterdir())
+    process = json.loads((lease / "process.json").read_bytes())
+    assert process["pid"] > 0 and process["start"].isdecimal()
+    assert json.loads((lease / "complete.json").read_bytes()) == {"exit_code": 0}
+    backend._control_group_absent(process["pid"], process["start"])
+
+
+def test_control_quiescence_checks_leader_reuse_and_live_descendants(monkeypatch: pytest.MonkeyPatch) -> None:
+    backend = object.__new__(ComposeTaskBackend)
+    cases = [
+        ({50: SimpleNamespace(pgid=50, state="R", start="2")}, True),
+        ({51: SimpleNamespace(pgid=50, state="S", start="3")}, True),
+        ({}, False),
+    ]
+    for processes, complete in cases:
+        monkeypatch.setattr(module, "_process_snapshot", lambda items=processes, ready=complete: (items, ready))
+        with pytest.raises(RootlessError, match="COMPOSE_CONTROL_NOT_QUIESCENT"):
+            backend._control_group_absent(50, "1")
+    monkeypatch.setattr(module, "_process_snapshot", lambda: ({}, True))
+    backend._control_group_absent(50, "1")
+
+
+def test_recovery_requires_explicit_guard_even_when_resources_are_absent(fixture: Fixture) -> None:
+    fixture.backend.require_recovering = None
+    with pytest.raises(RootlessError, match="COMPOSE_RECOVERY_NOT_AUTHORIZED"):
+        fixture.recover()
+    assert not fixture.calls and not (fixture.backend.root / fixture.request).exists()
+
+
+def test_recovery_no_mutation_intent_does_not_require_a_cached_image(
+        fixture: Fixture, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(fixture.backend, "_image", lambda *_args: pytest.fail("preflight image recheck"))
+    assert fixture.recover().outcome == "NOT_RUN"
