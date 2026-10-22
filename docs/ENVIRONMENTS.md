@@ -57,8 +57,12 @@ See [the current service upgrade](../verification/implementation/EP-07/release-u
 [failing route](../verification/implementation/EP-07/live-publish-parallel-20260928.jsonl).
 Broader EP-07 recovery, isolation and fresh-chat release acceptance remains open.
 
-The helper accepts only 64 MiB PREPARATION and 256 MiB TEST allocations, with
-at most eight mounted phase slots. The owner releases a settled run with:
+The EP-05 installed helper accepts 64 MiB PREPARATION and 256 MiB TEST allocations,
+with at most eight mounted phase slots. The reviewed GP-08 source additionally
+allows 1024 MiB for the released browser Compose profile; this requires the
+root-owned helper upgrade recorded in [GP-08](../codex/checkpoints/GP-08.md).
+Changing a project profile alone does not upgrade that helper. The owner releases
+a settled v1 run with:
 
 ```bash
 .venv/bin/python scripts/release_run_volumes.py \

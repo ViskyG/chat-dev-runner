@@ -13,6 +13,13 @@ resource limits, labels and cleanup policy. Builds, pulls, implicit `.env`,
 external volumes, socket mounts and project-selected host paths are unavailable.
 The reference fixture is [compose-v2](../tests/fixtures/compose-v2/).
 
+For an existing Analytics Control Center release, the
+[project adapter](../examples/v2/analytics-control-center-compose/README.md)
+generates the pinned stack, task and private profile from its release manifest.
+It runs the released `npm run test:ui` against the bundled example catalog and
+temporary state. Its JUnit entry represents the complete command; original test
+diagnostics remain in the log. This route does not start the analytics server stack.
+
 ## Enroll a project once
 
 1. Prepare the project's `compose.json` and finite client that writes reports

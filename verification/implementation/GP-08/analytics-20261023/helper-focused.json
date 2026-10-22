@@ -1,0 +1,77 @@
+{
+  "schema_version": "cdr-focused-evidence/1",
+  "scope": "Source-only 1024 MiB quota extension; mocked helper mount/unmount commands, no sudo/install/mount/live-resource actions.",
+  "reason": "First real Analytics request df68f3cd-e5bd-4a2d-be11-f8f7a50799d9 encountered VOLUME_HELPER_REFUSED because the prior helper allowed only 64 and 256 MiB.",
+  "files": {
+    "scripts/cdr_volume_helper.py": {
+      "sha256": "9e09be2ada8c6b1cfa4d6bf53dabd64efe9969172970b4f3fa2ec381cf45387b",
+      "bytes": 5836
+    },
+    "scripts/install_volume_helper.sh": {
+      "sha256": "e4a7b510e28914f2915d2a9587b173f991bf3e9cd15b2cd4e8c0ec50f6fda07a",
+      "bytes": 4198
+    },
+    "tests/test_volume_helper_policy.py": {
+      "sha256": "abcf5de05e246d4190adf69c55fe75203418d3b8155fe194aa281eeb2d3a8975",
+      "bytes": 7498
+    }
+  },
+  "checks": [
+    {
+      "command": "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python -m pytest -q tests/test_volume_helper_policy.py --junitxml=verification/implementation/GP-08/analytics-20261023/helper-focused.xml",
+      "exit_code": 0,
+      "passed": 23,
+      "failed": 0,
+      "reported_duration_seconds": 0.08,
+      "junit": "helper-focused.xml"
+    },
+    {
+      "command": "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/ruff check scripts/cdr_volume_helper.py tests/test_volume_helper_policy.py",
+      "exit_code": 0,
+      "result": "All checks passed"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "check": "Installer expected SHA256 matches checked-in helper and bash -n succeeds without executing installer",
+      "covered_by": "test_installer_pin_matches_reviewed_helper_without_executing_installer"
+    }
+  ],
+  "policy": {
+    "allowed_mb": [
+      64,
+      256,
+      1024
+    ],
+    "max_slots": 8,
+    "probe_fields_unchanged": [
+      "status",
+      "base",
+      "max_slots"
+    ],
+    "fixed_base": "/var/lib/chat-dev-runner/volumes",
+    "uid": 1000,
+    "gid": 1000,
+    "inode_limit": 16384,
+    "sudoers_scope_changed": false
+  },
+  "installation": {
+    "performed": false,
+    "root_authorization_required": true,
+    "expected_sha256": "9e09be2ada8c6b1cfa4d6bf53dabd64efe9969172970b4f3fa2ec381cf45387b",
+    "accepted_previous_sha256": [
+      "c1e7c8e749dde40f49b644830525dbcf931ed1f3397ce943ed5542e0233f6daa",
+      "d78abf99a53c790a76e74438d0b4270148eb4ec26d73ba89cae3dd0abfc7c567"
+    ],
+    "source_selection": "cdr_volume_helper.py adjacent to the invoked reviewed installer",
+    "legacy_mount_guard_preserved": true,
+    "root_owned_staging_hash_and_atomic_replacement_preserved": true
+  },
+  "limitations": [
+    "This source check does not establish installed helper parity or real mount operation.",
+    "The additional size raises the maximum aggregate capacity possible within the existing eight-slot bound to 8192 MiB; ordinary execution remains single-lane.",
+    "A resumed workload needs a new request after exact reconciliation of the first attempt; no automatic replay was performed."
+  ]
+}

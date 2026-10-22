@@ -1,0 +1,70 @@
+{
+  "schema_version": "cdr-focused-evidence/1",
+  "evidence_origin": "Reconstructed from completed foreground tool results in the active task; unchanged checks were not rerun to save this summary.",
+  "scope": "Adapter construction and reporting only; fake release metadata/local child processes, no Docker, sudo, mount, application test suite, GitHub, or original Analytics workspace mutation.",
+  "files": {
+    "examples/v2/analytics-control-center-compose/prepare.py": {
+      "sha256": "155603a91a192cc8d5c9593ffbe5945438eb96e24aedd964cc77e30357d7bc25",
+      "bytes": 8806
+    },
+    "examples/v2/analytics-control-center-compose/run-ui-contract.cjs": {
+      "sha256": "92b97d0480d5ad25ef139d2937c74d7c4adce597a868b5643832a82851490eb8",
+      "bytes": 6742
+    },
+    "examples/v2/analytics-control-center-compose/README.md": {
+      "sha256": "5c71aa8dc6ee043b7a4c171f7b6a2e06145d8a04d943f261f2fcc900eecdcdf1",
+      "bytes": 6467
+    },
+    "examples/v2/analytics-control-center-compose/test_prepare.py": {
+      "sha256": "d7cdf3a8c89b91a3f1121111d51d62fdca7cee33da2e46d24a77056e82fdae1a",
+      "bytes": 3975
+    },
+    "examples/v2/analytics-control-center-compose/test-run-ui-contract.cjs": {
+      "sha256": "fca0fab27e38cffb6d105fbadefd93e6388dcf1ca1fc3a4d4ba943c36014391b",
+      "bytes": 3098
+    }
+  },
+  "checks": [
+    {
+      "command": "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python -m pytest -q examples/v2/analytics-control-center-compose/test_prepare.py",
+      "exit_code": 0,
+      "passed": 7,
+      "failed": 0,
+      "reported_duration_seconds": 0.05
+    },
+    {
+      "command": "node examples/v2/analytics-control-center-compose/test-run-ui-contract.cjs",
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "reported_duration_seconds": 0.041538139
+    },
+    {
+      "command": "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/ruff check --no-respect-gitignore examples/v2/analytics-control-center-compose/prepare.py examples/v2/analytics-control-center-compose/test_prepare.py",
+      "exit_code": 0,
+      "result": "All checks passed",
+      "reported_duration_seconds": null
+    },
+    {
+      "check": "Read-only validation of project-owned release manifest by prepare.release_identity",
+      "exit_code": 0,
+      "release_version": "0.8.1",
+      "source_revision": "e0e94a613f9f6017b433c5d63801a82bba639252",
+      "platform": "linux/amd64",
+      "validated_roles": [
+        "runtime",
+        "uiContract"
+      ]
+    }
+  ],
+  "initial_failures_and_corrections": [
+    "Python construction test initially used schema filename v2-project.schema.json; corrected to registry key v2-project. Final seven cases passed.",
+    "Ruff initially skipped ignored example directory; explicit file check with --no-respect-gitignore exposed implicit concatenation/set-comprehension warnings, both corrected.",
+    "Local child Node console output over a socket-backed stdio pipe was not observed, while synchronous fd writes were captured. Reporter test fixtures now use fs.writeSync for deterministic actual bytes. Container UI stdout remains a live acceptance check, not inferred from these fixtures.",
+    "Outer node --test signal handling conflicted with the intentional SIGTERM test. Final command runs the node:test file directly; all four tests and its TAP aggregate completed successfully."
+  ],
+  "limitations": [
+    "No durable raw logs were created for those short foreground checks; this file records observed tool results and final source hashes, not a fresh rerun.",
+    "No live application qualification is claimed here."
+  ]
+}

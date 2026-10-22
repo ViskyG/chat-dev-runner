@@ -1,0 +1,22 @@
+{
+  "action": "RUN_TASK",
+  "code": "VOLUME_HELPER_REFUSED",
+  "delivery": null,
+  "execution": {
+    "cleanup": "UNCERTAIN",
+    "outcome": "UNKNOWN",
+    "quality_gate": "INSUFFICIENT"
+  },
+  "project_id": "cdr-runner-test",
+  "request_digest": "1982c3e77f43884684303508b131d084de20ea6a94c7871d3fb220f5df19554b",
+  "request_id": "df68f3cd-e5bd-4a2d-be11-f8f7a50799d9",
+  "result": {},
+  "runner_id": "local-runner",
+  "schema_version": 1,
+  "source": {
+    "branch": "runner/analytics-cc-20261023",
+    "kind": "github_branch"
+  },
+  "status": "NEEDS_RECONCILIATION",
+  "updated_at": "2026-10-22T20:20:05.868458+00:00"
+}

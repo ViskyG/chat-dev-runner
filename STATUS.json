@@ -1,6 +1,6 @@
 {
   "version": "0.3.0.dev4-audit-Compose-Linux-preview",
-  "date": "2026-10-22",
+  "date": "2026-10-23",
   "source_publication": {
     "status": "PUBLISHED",
     "visibility": "public",
@@ -17,7 +17,7 @@
   "ui": "EP-06 VERIFIED packaged same-origin control centre. Installed 0.2.6 browser/API acceptance matched the prior passing/failing runs, JUnit, 18 dark/light/reduced-motion screenshots, keyboard/viewport behavior and exact-workspace VS Code open request. Focused installed 0.2.7 Chromium readback passed keyboard Console/Tests tab selection and registered JUnit inspection GETs for both runs; the disabled GitHub import option exposed its exact visible/accessibility reason, and the enabled local-context dialog explained local-only scope and unavailable diff. The browser-only context form was not submitted during that UI probe; a separate installed owner-local API EXPORT_CONTEXT operation later completed. These runs contain no structured application-log output, so installed Console inspection GET for that format is not claimed. A focused installed browser GET-failure probe showed truthful partial/global offline status, disabled command reasons, accessible retry and online recovery while retaining the same historical run; old run badges stay visible beneath the global offline strip. See verification/implementation/EP-07/installed-ui-0.2.7.json, installed-ui-0.2.7-offline.json and ui-evidence-installed-20260928.md.",
   "reference_core": "Executable protocol, admission, changeset and output primitives; real local Git demo on generated toy code",
   "drive_bootstrap": "Existing workspace already provisioned by owner; never bootstrap a duplicate. drive-seed is reference only.",
-  "live_runner": "LINUX_PREVIEW_ACTIVE: existing user service0.3.0.dev4 active/enabled/armed on127.0.0.1:8765, schema11;26 v1 operations and10 v2 requests retained, execution lane empty. All10 existing v2 channels (2 GitHub,8 Docs) baselined. Runtime configuration unchanged; no live cloud task submitted during audit. Seven projects/ten targets retain prior handoff enrollment. Compose backend is installed; actual-project profiles require explicit owner-local enrollment.",
+  "live_runner": "LINUX_PREVIEW_ACTIVE: installed user service 0.3.0.dev4 active/enabled/armed on 127.0.0.1:8765, schema 11; 26 v1 operations and 11 v2 requests retained, execution lane empty after exact absence reconciliation. All 10 existing v2 channels preserved. Analytics Control Center profile enrolled only for cdr-runner-test; first live Compose request stopped before container creation because installed quota helper lacks 1024 MiB. Reviewed helper upgrade awaits local sudo authentication; browser acceptance remains open.",
   "github_live_adapter": "EP-05 created three disposable private repositories under ViskyG. EP-07 installed 0.2.1 service published passing primary and failing parallel runs to distinct branches of the disposable private UI project, with draft PRs #1 and #2 and Drive report links. The failing draft PR is labelled [FAILED]. Owner-only tokens remain outside the repository. Owner-local GitHub read independently confirmed the calculator repository is private; this chat GitHub connector returned 404 for that new repository.",
   "credentials": "None bundled",
   "service_installation": "Separate wheel0.3.0.dev4 environment .runner-install/venv-0.3.0.dev4 is active; dev3 and older binaries retained. Matching stopped-state backup .runner-backups/audit-20261022/state-before retained privately.137 payloads match source, existing dependencies retained, no schema change. Same daemon, Drive root, credentials/scopes and owner runtime configuration.",
@@ -286,7 +286,33 @@
         "serial result upload/terminal publication latency",
         "prior Windows/macOS/Java/Unity gates",
         "connected Drive file-version metadata gate"
-      ]
+      ],
+      "analytics_contract": {
+        "date": "2026-10-23",
+        "status": "WAITING_FOR_LOCAL_SUDO_AUTHENTICATION",
+        "release": "Analytics Control Center 0.8.1",
+        "project_id": "cdr-runner-test",
+        "source_branch": "runner/analytics-cc-20261023",
+        "source_commit": "1285d171d0ab8ddbd5a778035e8918b54437c745",
+        "profile_id": "analytics-cc-ui",
+        "enrolled": true,
+        "first_request_id": "df68f3cd-e5bd-4a2d-be11-f8f7a50799d9",
+        "first_request_code": "VOLUME_HELPER_REFUSED",
+        "container_creation_started": false,
+        "terminal_github_readback_verified": true,
+        "exact_absence_reconciled": true,
+        "execution_lane_rows": 0,
+        "helper_source_sha256": "9e09be2ada8c6b1cfa4d6bf53dabd64efe9969172970b4f3fa2ec381cf45387b",
+        "helper_installed": false,
+        "focused_checks": {
+          "adapter_python": 7,
+          "node_reporter": 4,
+          "helper_policy": 23
+        },
+        "broad_regression": "Reuse unchanged audit-20261022 regression; no core package change.",
+        "evidence": "verification/implementation/GP-08/analytics-20261023/",
+        "next": "Install reviewed root-owned helper with local sudo authentication; use a fresh request for actual browser contract and GitHub bundle acceptance."
+      }
     }
   },
   "implementation_source_repository": {

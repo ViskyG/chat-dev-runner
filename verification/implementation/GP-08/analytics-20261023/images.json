@@ -1,0 +1,62 @@
+{
+  "runtime": {
+    "Id": "sha256:7d22e86236895bbf1eb499caa4491fa4af24796bce6dbfb7adf05cc9d6c791e1",
+    "RepoDigests": [
+      "ghcr.io/viskyg/analytics-control-center@sha256:7d22e86236895bbf1eb499caa4491fa4af24796bce6dbfb7adf05cc9d6c791e1"
+    ],
+    "Architecture": "amd64",
+    "Os": "linux",
+    "config": {
+      "WorkingDir": "/app",
+      "Entrypoint": [
+        "python3",
+        "/app/server.py"
+      ],
+      "Cmd": null,
+      "User": "10001:10001",
+      "Volumes": null
+    }
+  },
+  "uiContract": {
+    "Id": "sha256:2e3c72d7d4f8055be84264699a79a82e87b0933cbc9e6fbfa3021febefbc5b66",
+    "RepoDigests": [
+      "ghcr.io/viskyg/analytics-control-center@sha256:2e3c72d7d4f8055be84264699a79a82e87b0933cbc9e6fbfa3021febefbc5b66"
+    ],
+    "Architecture": "amd64",
+    "Os": "linux",
+    "config": {
+      "WorkingDir": "/work",
+      "Entrypoint": [
+        "node",
+        "tests/browser-resource-probe.js"
+      ],
+      "Cmd": null,
+      "User": "pwuser",
+      "Volumes": null
+    }
+  },
+  "uiContents": {
+    "scripts": {
+      "test:ui": "node tests/check_project_state.js && node tests/check_project_detail.js && node tests/check_terminology_exchange_ui.js && node tests/check_project_archive.js && node tests/check_todos_ui.js && node tests/check_project_overview_ui.js && node tests/check_material_system_ui.js && node tests/check_dwh_ui.js",
+      "test:dwh": "node tests/check_dwh_ui.js",
+      "test:materials": "node tests/check_material_system_ui.js",
+      "test:project-state": "node tests/check_project_state.js",
+      "test:cc-p1": "node tests/check_project_state.js && node tests/check_project_detail.js && node tests/check_project_overview_ui.js && node tests/check_terminology_ui.js && node tests/check_todos_ui.js && node tests/check_material_system_ui.js",
+      "test:overview": "node tests/check_project_overview_ui.js",
+      "preview:overview": "node tools/preview_overview.js",
+      "test:terminology": "node tests/check_terminology_ui.js",
+      "test:terminology-exchange-unit": "node tests/check_terminology_exchange_ui.js",
+      "test:cc-p3": "node tests/check_terminology_exchange_ui.js && node tests/check_terminology_exchange.js && node tests/check_terminology_packages.js && node tests/check_terminology_workflows.js",
+      "test:cc-p2": "node tests/check_project_state.js && node tests/check_project_detail.js && node tests/check_terminology_packages.js && node tests/check_terminology_ui.js && node tests/check_terminology_workflows.js",
+      "test:archive": "node tests/check_project_archive.js",
+      "test:cc-p6-a": "node tests/check_project_detail.js && node tests/check_project_archive.js"
+    },
+    "probe": true,
+    "todos": true
+  },
+  "runtimeContents": {
+    "/app/server.py": true,
+    "/app/examples/catalog": true,
+    "/app/catalog": false
+  }
+}

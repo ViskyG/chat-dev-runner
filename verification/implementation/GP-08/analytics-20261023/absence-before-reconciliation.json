@@ -1,0 +1,11 @@
+{
+  "request_id": "df68f3cd-e5bd-4a2d-be11-f8f7a50799d9",
+  "process_state": "ABSENT",
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "resources": {
+    "container": [],
+    "network": [],
+    "volume": []
+  },
+  "quota_mount_absent": true
+}
