@@ -1,11 +1,12 @@
 # Runner v2 operations — Linux preview / предварительные инструкции
 
-**Linux preview, installed package 0.3.0.dev4.** The [runtime audit](AUDIT_2026-10-22.md)
-adds independent mailbox polling and the finite Compose backend. Handoff delivery passed one real
-ZIP+text transfer with a matching connected-chat terminal Docs receipt. Upload
-and guarded Docs authoring are verified; file version metadata was SDK-assisted
-because the connected metadata action omits it. Full automatic metadata
-authoring remains unqualified; see [H2](../codex/checkpoints/handoff/H2.md).
+**Linux preview, installed package 0.3.0.dev6.** The [runtime audit](AUDIT_2026-10-22.md)
+adds independent mailbox polling and the finite Compose backend. Handoff delivery
+passed a connector-only ZIP upload, guarded Docs DRAFT/READY and terminal readback
+with no sender `drive_version` or SDK metadata helper. Runner pins the API version
+before download and checks it afterward; see [H3](../codex/checkpoints/handoff/H3.md).
+The earlier assisted ZIP+text transfer remains historical evidence in
+[H2](../codex/checkpoints/handoff/H2.md).
 Earlier installed-wheel upgrade/rollback and existing v1 readback are recorded
 under `verification/implementation/GP-07/release`.
 Provider and target qualification remains specific to its evidence. On 2026-10-16,
@@ -247,16 +248,17 @@ instructions or a source-selection grant.
    exact bytes and compute size/SHA-256. Upload ordinary Drive files into the
    allowed folder without converting them to Docs or changing sharing. Make a
    separate metadata read of each returned Drive ID to confirm parent, ordinary
-   MIME type, filename, size, version and non-trashed state. Native Docs and
+   MIME type, filename, size and non-trashed state. Native Docs and
    arbitrary download URLs are not handoff inputs. Freeze those observations
    in one manifest and do not modify the uploaded files after publication.
-   Confirm that the actual tool response includes Drive's numeric `version`;
-   some connectors omit it even when explicitly requested. Never assume `"1"`,
-   substitute a revision ID, or infer a version from upload success. If required
-   metadata is unavailable, block that leg or use an explicitly owner-authorized
-   real `files.get` metadata handoff for the exact file ID. Label the latter
-   **SDK_ASSISTED_METADATA** and retain its readback evidence; it does not prove
-   a fully automatic connected-chat route.
+   From **0.3.0.dev6**, artifact `drive_version` is optional; the runtime advertises
+   `handoff_optional_drive_version: true`. Include a genuinely observed version
+   as a strict sender pin, or omit the field when the connector drops it. Null,
+   a guessed `"1"` or a Docs revision is not an omitted version. Runner reads the
+   exact Drive file's numeric version before download and rejects any version
+   change afterward. All ID/parent/type/size/SHA-256, download and archive checks
+   remain mandatory. The submitted manifest and its digest are never rewritten
+   with the resolved version. Older installations still require the explicit pin.
 3. Validate `request.handoff` against the canonical
    [handoff-manifest.schema.json](../schemas/handoff-manifest.schema.json),
    then the complete mailbox against

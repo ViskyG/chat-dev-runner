@@ -151,6 +151,9 @@ Distinguish **runtime/repository registered**, **chat route registered**, and
 of the requested route is verified; otherwise name the missing leg and completed
 parts. An idle DRAFT proves enrollment, not task execution, delivery, connector
 guarded-write support or automatic Drive file-version metadata availability.
+Runner 0.3.0.dev6 can resolve an omitted artifact version itself; use the
+[handoff skill's version policy](../skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.md#check-actual-transport-capabilities)
+when qualifying delivery, rather than requiring the connector to expose it.
 
 ## Русский
 
@@ -301,3 +304,6 @@ runtime и неизменность всех прежних записей; те
 запрошенного маршрута; иначе назвать недостающую часть и уже выполненные шаги.
 Idle DRAFT подтверждает регистрацию, но не запуск/доставку, поддержку guarded
 write коннектором или автоматическое получение Drive file-version metadata.
+Runner 0.3.0.dev6 сам определяет опущенную версию artifact; при проверке доставки
+применять [правило версии из скилла передачи](../skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.ru.md#проверка-реальных-возможностей-передачи),
+не требуя от коннектора вернуть это поле.

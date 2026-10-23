@@ -196,8 +196,13 @@ def journal(store: IntakeStore, request_id: str) -> list[str]:
             'SELECT event FROM v2_journal WHERE request_id=? ORDER BY event_id', (request_id,))]
 
 
-def test_draft_ready_ack_worker_receipt_is_delivery_only_and_preserves_git(tmp_path: Path) -> None:
+@pytest.mark.parametrize('versions', ['explicit', 'omitted', 'mixed'])
+def test_draft_ready_ack_worker_receipt_is_delivery_only_and_preserves_git(
+        tmp_path: Path, versions: str) -> None:
     a = assembly(tmp_path)
+    if versions != 'explicit':
+        for artifact in a.manifest['artifacts'][:1 if versions == 'mixed' else None]:
+            artifact.pop('drive_version')
     before = source_fingerprint(a.workspace)
     baseline(a)
     assert a.store.list_requests() == []

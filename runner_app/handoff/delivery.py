@@ -13,6 +13,7 @@ import fcntl
 import hashlib
 import json
 import os
+import re
 import shutil
 import stat
 import struct
@@ -108,9 +109,12 @@ def _hash_file(path: Path, maximum: int,
     return h.hexdigest(), n
 
 
-def _check_metadata(meta: Mapping[str, Any], art: Mapping[str, Any], allowed: frozenset[str]) -> None:
+def _check_metadata(meta: Mapping[str, Any], art: Mapping[str, Any],
+                    allowed: frozenset[str]) -> str:
+    version = meta.get('version')
     if (meta.get('id') != art['drive_file_id'] or meta.get('trashed') is not False
-            or meta.get('version') != art['drive_version']
+            or not isinstance(version, str) or not re.fullmatch(r'[0-9]{1,30}', version)
+            or version != art.get('drive_version', version)
             or meta.get('mimeType') != art['media_type']
             or meta.get('shortcutDetails') is not None
             or not isinstance(meta.get('parents'), list) or len(meta['parents']) != 1
@@ -125,6 +129,7 @@ def _check_metadata(meta: Mapping[str, Any], art: Mapping[str, Any], allowed: fr
     known_hash = meta.get('sha256Checksum')
     if known_hash is not None and known_hash != art['sha256']:
         raise HandoffError('DRIVE_HASH_MISMATCH')
+    return version
 
 
 def _download(provider: BlobProvider, art: dict[str, Any], path: Path,
@@ -134,7 +139,9 @@ def _download(provider: BlobProvider, art: dict[str, Any], path: Path,
         check()
         before = dict(provider.metadata(art['drive_file_id']))
         check()
-        _check_metadata(before, art, binding.allowed_drive_parents)
+        # Pin the API-observed version even when the sender cannot observe it.
+        # Keep the submitted manifest unchanged for its digest and reconciliation.
+        original_version = _check_metadata(before, art, binding.allowed_drive_parents)
         original_parents = tuple(before['parents'])
         with os.fdopen(_private_open(path, True), 'wb') as stream:
             for chunk in provider.chunks(art['drive_file_id']):
@@ -150,8 +157,8 @@ def _download(provider: BlobProvider, art: dict[str, Any], path: Path,
         check()
         after = dict(provider.metadata(art['drive_file_id']))
         check()
-        _check_metadata(after, art, binding.allowed_drive_parents)
-        if tuple(after['parents']) != original_parents:
+        final_version = _check_metadata(after, art, binding.allowed_drive_parents)
+        if final_version != original_version or tuple(after['parents']) != original_parents:
             raise HandoffError('DRIVE_BINDING_MISMATCH')
     except HandoffError:
         raise

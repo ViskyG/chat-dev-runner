@@ -5,16 +5,18 @@ The owner's 2026-10-22 request authorized practical reliability/performance fixe
 and continuation of the container/Compose roadmap. Read `codex/checkpoints/GP-08.md`
 and `docs/AUDIT_2026-10-22.md`. The Linux finite Compose preview has actual host
 evidence; GP07's other-platform/toolchain gates remain open independently.
-Preserve the existing ten configured v2 channels and handoff registrations.
+Preserve all existing configured v2 channels and handoff registrations.
 Reuse the completed audit regression and live cases; do not replay sample tasks.
 
 ## Owner-approved handoff stage
 The owner requested implementation of `runner-project-handoff-kit.zip` and
 `runner-handoff-integration-roadmap.md` on 2026-10-22, including repository-local
-chat usage skills. Current additive frontier is H2 in
-`codex/checkpoints/handoff/H2.md`; H0/H1 and installed Linux delivery are verified.
-H2 used SDK-assisted version metadata; do not repeat the live transfer or claim
-the connected metadata tool exposes Drive version. Follow
+chat usage skills. Current handoff checkpoint is
+`codex/checkpoints/handoff/H3.md`: the owner's 2026-10-23 optional-version request
+is installed and connector-only Linux delivery is verified on dev6. Runner pins
+an omitted version through its own API reads; explicit versions remain strict.
+The connector still omits version. H2's SDK-assisted transfer is historical;
+reuse both records rather than replaying unchanged live canaries. Follow
 `design/handoff-v1/INTEGRATION_ROADMAP_RU.md`. Keep delivery separate from execution,
 reuse v2 intake/lane and existing Drive installation. Unrelated GP07 OS/toolchain
 gates do not block this bounded feature. No global skill registration is implied.

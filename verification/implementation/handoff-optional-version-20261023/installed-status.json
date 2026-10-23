@@ -1,0 +1,181 @@
+{
+  "health": {
+    "service": "chat-dev-runner",
+    "version": "0.3.0.dev6",
+    "status": "PARTIALLY_CONFIGURED",
+    "armed": true,
+    "capabilities": [
+      "local_api",
+      "durable_admission",
+      "CREATE_PROJECT",
+      "CREATE_WORKSPACE",
+      "DELIVER_VERIFY_PUBLISH",
+      "EXPORT_CONTEXT",
+      "FETCH",
+      "PUBLISH_REPORT",
+      "RECONCILE",
+      "RESUME_PROVISION",
+      "RESUME_RETARGET",
+      "RETARGET_WORKSPACE"
+    ]
+  },
+  "v2": {
+    "protocol": "cdr-runtime/2",
+    "runner_id": "local-runner",
+    "session_id": "ea18c8a1-b5c0-4ded-b836-6bf77f724abd",
+    "armed": true,
+    "configured": true,
+    "channels": {
+      "gp07-github-preview": "IDLE",
+      "gp04-docs-preview": "IDLE",
+      "cdr-runner-test-github": "IDLE",
+      "cdr-runner-test-docs-handoff": "IDLE",
+      "handoff-a42da246c6f3aabba0541987": "IDLE",
+      "handoff-e741c49629df7e4aac60d041": "IDLE",
+      "handoff-61b492cbe0b95e13512b5706": "IDLE",
+      "handoff-d006eddc870a5227307d3e65": "IDLE",
+      "handoff-0354c1c4006d35be7200a9c4": "IDLE",
+      "handoff-e774f582105ab259b7ebbdf2": "IDLE",
+      "projectworkspace-docs-handoff": "IDLE"
+    },
+    "projects": [
+      "gp03-github-pass",
+      "cdr-runner-test",
+      "cdr-calculator-2-smoke-20260928-1923",
+      "cdr-calculator-smoke-20260928-1759",
+      "cdr-ep05-drive-20260928",
+      "cdr-ep07-drive-20260928",
+      "cdr-ep07-ui-20260928",
+      "cdr-scheduled-calc-20260929-1835",
+      "projectworkspace"
+    ],
+    "queue_limit": 100,
+    "native_profiles": [
+      "native-python"
+    ],
+    "container_backends": {
+      "rootless-docker": "CONFIGURED_NOT_PROBED",
+      "rootless-compose": "CONFIGURED_NOT_PROBED"
+    },
+    "handoff_targets": {
+      "cdr-runner-test": {
+        "editor-handoff": {
+          "workspace_id": "editor",
+          "allowed_drive_parents": [
+            "1VtXL5Mn1V4mX-qt5HZK1-CnIlU9AgHAB"
+          ],
+          "result_document_id": "1TdvsBYksiaxyOgSfmpCP9EJZApZMZR76lNc0BlaDAKU",
+          "result_tab_id": "t.0",
+          "relative_inbox": ".runner/handoffs"
+        }
+      },
+      "cdr-calculator-2-smoke-20260928-1923": {
+        "primary": {
+          "workspace_id": "primary",
+          "allowed_drive_parents": [
+            "1usJt8X1DIFhMMXkOVJtS0LueDnOuhj06"
+          ],
+          "result_document_id": "12p8-Mwc2xzZ5aLxC7KkuhYOFEWPPN4zNyoWCvdNAvFM",
+          "result_tab_id": "t.0",
+          "relative_inbox": ".runner/handoffs"
+        }
+      },
+      "cdr-calculator-smoke-20260928-1759": {
+        "primary": {
+          "workspace_id": "primary",
+          "allowed_drive_parents": [
+            "1Pyv4kAoESomR96t5fbTYu-7x_K7Mew7V"
+          ],
+          "result_document_id": "1ehkC9B6vw4s1ie2EoWsoYv8y0fyal28ioaugiX_mU30",
+          "result_tab_id": "t.0",
+          "relative_inbox": ".runner/handoffs"
+        }
+      },
+      "cdr-ep05-drive-20260928": {
+        "primary": {
+          "workspace_id": "primary",
+          "allowed_drive_parents": [
+            "1XEFXoZ9m7gFRTjqWXoijhY_SLXHs0r7Z"
+          ],
+          "result_document_id": "1_Z8Qf6s1MO52cTgFy639CkVRTCSkgeFyh0kRdEpaaXg",
+          "result_tab_id": "t.0",
+          "relative_inbox": ".runner/handoffs"
+        }
+      },
+      "cdr-ep07-drive-20260928": {
+        "hello-world-20260930": {
+          "workspace_id": "hello-world-20260930",
+          "allowed_drive_parents": [
+            "13_J7FXdQkFo23f6cxZY5Ju0U-Jb7Ddo_"
+          ],
+          "result_document_id": "1m4sPNfPUPWwwO0hwUlAzrUxzz4eGHVp8j9rPOO_rMFw",
+          "result_tab_id": "t.0",
+          "relative_inbox": ".runner/handoffs"
+        },
+        "primary": {
+          "workspace_id": "primary",
+          "allowed_drive_parents": [
+            "13_J7FXdQkFo23f6cxZY5Ju0U-Jb7Ddo_"
+          ],
+          "result_document_id": "1m4sPNfPUPWwwO0hwUlAzrUxzz4eGHVp8j9rPOO_rMFw",
+          "result_tab_id": "t.0",
+          "relative_inbox": ".runner/handoffs"
+        }
+      },
+      "cdr-ep07-ui-20260928": {
+        "chat-route-20260929": {
+          "workspace_id": "chat-route-20260929",
+          "allowed_drive_parents": [
+            "1WaCvFsjYWr4lfLybP2U__DqG7ztNk8bS"
+          ],
+          "result_document_id": "1PztHJ7qoMZQBluk848_QzWG50fOq3HLriinA5e5Y5sQ",
+          "result_tab_id": "t.0",
+          "relative_inbox": ".runner/handoffs"
+        },
+        "parallel": {
+          "workspace_id": "parallel",
+          "allowed_drive_parents": [
+            "1WaCvFsjYWr4lfLybP2U__DqG7ztNk8bS"
+          ],
+          "result_document_id": "1PztHJ7qoMZQBluk848_QzWG50fOq3HLriinA5e5Y5sQ",
+          "result_tab_id": "t.0",
+          "relative_inbox": ".runner/handoffs"
+        },
+        "primary": {
+          "workspace_id": "primary",
+          "allowed_drive_parents": [
+            "1WaCvFsjYWr4lfLybP2U__DqG7ztNk8bS"
+          ],
+          "result_document_id": "1PztHJ7qoMZQBluk848_QzWG50fOq3HLriinA5e5Y5sQ",
+          "result_tab_id": "t.0",
+          "relative_inbox": ".runner/handoffs"
+        }
+      },
+      "cdr-scheduled-calc-20260929-1835": {
+        "primary": {
+          "workspace_id": "primary",
+          "allowed_drive_parents": [
+            "1PwXH8CXZcPdX-ohGHDwIGoKiOjnLGjWo"
+          ],
+          "result_document_id": "1e8YMTJp3kguf6T2KEjRcaB9__TDeu1xCwdodguLcuNw",
+          "result_tab_id": "t.0",
+          "relative_inbox": ".runner/handoffs"
+        }
+      },
+      "projectworkspace": {
+        "editor-handoff": {
+          "workspace_id": "editor",
+          "allowed_drive_parents": [
+            "1PGPQi2osuWmGG0gTjlrxHBXEHceRVHPb"
+          ],
+          "result_document_id": "18T8ZU16K56Jq7vUrczBI2LY7bzPzg3hK8fsvRXX7qqU",
+          "result_tab_id": "t.0",
+          "relative_inbox": ".runner/handoffs"
+        }
+      }
+    },
+    "handoff_protocol": "cdr-handoff/1",
+    "handoff_optional_drive_version": true,
+    "capability_status": "IMPLEMENTED_NOT_QUALIFIED"
+  }
+}

@@ -70,6 +70,7 @@ def test_github_only_startup_ignores_broken_disabled_legacy_google_and_reads_no_
         assert runtime.integrations is None
         assert runtime.v2 is not None and runtime.v2.configured
         assert runtime.v2.status()["channels"]["docs-slot"] == "CONFIGURED_NOT_OBSERVED"
+        assert runtime.v2.status()["handoff_optional_drive_version"] is True
         # Missing optional Google configuration is checked lazily; its channel
         # stays registered and can recover on a later observation.
         with pytest.raises(OSError):

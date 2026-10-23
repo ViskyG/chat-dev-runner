@@ -1,0 +1,42 @@
+{
+  "ruff": {
+    "command": [
+      "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "runner_app",
+      "tests",
+      "scripts/bootstrap_drive.py"
+    ],
+    "exit_code": 0
+  },
+  "mypy": {
+    "command": [
+      "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+      "-m",
+      "mypy"
+    ],
+    "exit_code": 0
+  },
+  "regression": {
+    "command": [
+      "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "--junitxml=/tmp/runner-handoff-version-20261023/verification/implementation/handoff-optional-version-20261023/regression.xml"
+    ],
+    "exit_code": 0
+  },
+  "wheel": {
+    "command": [
+      "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+      "-m",
+      "build",
+      "--wheel",
+      "--no-isolation"
+    ],
+    "exit_code": 0
+  }
+}
