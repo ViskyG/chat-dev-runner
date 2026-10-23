@@ -41,6 +41,12 @@ exact Drive root/index IDs unchanged. Apply an approved wheel/service plan with
 the existing installer, not a second daemon. Normal configured startup arms
 intake; `--start-unarmed` is for a controlled stopped-intake process.
 
+When an upgrade changes the accepted command contract, update the installation's
+safe enrollment/catalog metadata to the actual installed version and a coherent
+published skill/schema revision. Preserve every recipient binding, command tab,
+pending intent and receipt. Read the updated discovery metadata through the chat
+connector; a local binary upgrade alone does not update a fresh chat's instructions.
+
 Report source/wheel identity, applied scope, actual channel/backend observations,
 rollback evidence and remaining target gates. Only real installed provider/OS
 acceptance can promote deployment status. Reading these files does not register

@@ -1,0 +1,67 @@
+{
+  "catalog_document_id": "1HwYuhzukUqj2RK6q5sj2AlJU3a0FFKTYeehMXV69F_s",
+  "minimum_runner_version": "0.3.0.dev6",
+  "skill_branch": "fix/handoff-optional-drive-version-20261023",
+  "metadata_gate": "drive_version is optional on installed Runner 0.3.0.dev6. Omit it when unavailable; Runner pins the Google Drive API version before download and verifies it afterward. Sender SHA-256 and size remain required.",
+  "project_bindings_preserved": 8,
+  "revision_guards_used": true,
+  "enrollments": [
+    {
+      "project": "projectworkspace",
+      "metadata_readback": true,
+      "command_tabs_unchanged": true,
+      "document_id": "1HA9r2luhA0bLammu70nUt4BrTCq9id2czp6ePMnuiUg",
+      "revision": "AHj4eMQWV7dgA-HtJ0xJmfG-d9Hp52Bx1dETGiAYnw8AhB5Sr9SDltOCQo3vC22REvewfXRhfA9d1DaCiE9Ooybk9nrsc2WZ0i628NCXIT4"
+    },
+    {
+      "project": "cdr-calculator-2-smoke-20260928-1923",
+      "metadata_readback": true,
+      "command_tabs_unchanged": true,
+      "document_id": "1iWJ64CYjEcEP3ajP1p8SvHyjVeDB4OB6oyCxfjNdJf0",
+      "revision": "AHj4eMT92QjmLcDcUsrgF6lXoJcvUX9fIO2Pxs3CJzeQjdMWYddQmle-k2YsltdVieU8XPZ8YzISDcaWHKAhFFf_cUtwD8fHEn88q8NZrec"
+    },
+    {
+      "project": "cdr-calculator-smoke-20260928-1759",
+      "metadata_readback": true,
+      "command_tabs_unchanged": true,
+      "document_id": "10bF9KPVAwziigDAz7jn8iCf8vjjScyKKfAuOkp1k-SQ",
+      "revision": "AHj4eMQCNyegTCxQbjsl3htoWA-FJCYEr2jm2fpPKRwHYBtC_WH3QQ8vVj1_optn9vP4UY2XkQr0wx1nKPM4tmtw_jouWGr_2FLaI1fkUc8"
+    },
+    {
+      "project": "cdr-ep05-drive-20260928",
+      "metadata_readback": true,
+      "command_tabs_unchanged": true,
+      "document_id": "1jpL5oyW1QVbB5WQOcl-buUrA3TCqTpHs234GRKSSw_k",
+      "revision": "AHj4eMTaRsZaeLZCJtfQsVEdYDpW1lVzzMK-PJ-HS5xPvcZxAzlXQxWD_Q9f3ZDULwgHJupcwvkXLDX8SlHgPb8TUtFiKcyl7kwQGwglMP8"
+    },
+    {
+      "project": "cdr-ep07-drive-20260928",
+      "metadata_readback": true,
+      "command_tabs_unchanged": true,
+      "document_id": "1WJvUzgfDyQmFcB1TSepv_nG_K5rDMnHjmofdjpckGQQ",
+      "revision": "AHj4eMRA74GmUhAG3Olv1kztUMIHlKXDhB9C4BMvyyQEDM3ZCAngxnK4a08jIn2nTQMo7sDCxGzR-FF70Vz4f8x5XkaabgtnAHxhyzNCphQ"
+    },
+    {
+      "project": "cdr-ep07-ui-20260928",
+      "metadata_readback": true,
+      "command_tabs_unchanged": true,
+      "document_id": "1KT832kE3fiQNRUAkzuuaFOAC6KSWZekHJiuM7Uqdp6I",
+      "revision": "AHj4eMSWvZSGqa9iLsmHsxu1Um7Ix6BVQ0t8iWtVFZ_ohZNuD4VFQobEMP5KT1M67zRz4n9Dk_23Ycr4n64by_3QADqHT2XtUASax7xtqXY"
+    },
+    {
+      "project": "cdr-runner-test",
+      "metadata_readback": true,
+      "command_tabs_unchanged": true,
+      "document_id": "1MTxQ1mDLV6AiiH4p2eTQiDir_-v8_JmhFoNpmgX-3bw",
+      "revision": "AHj4eMTdh0EivhATbt9NEnv-TfZJDvDwU-rACUfwZnu4DqgWVpAZVdDyPcAEgXKSCNgSKj22RV-32TOdjG6tUQoHgHORYW7dq1FfFsVL6Qc"
+    },
+    {
+      "project": "cdr-scheduled-calc-20260929-1835",
+      "metadata_readback": true,
+      "command_tabs_unchanged": true,
+      "document_id": "1T5R4YBlJDMxsPIM7hfhptbBkxTBfOk5GrBDSIUzfyQQ",
+      "revision": "AHj4eMQNpsRr7tW_AdIqAvbXlVXfVGdrcJ_wEMP_fQjv0usgQvUeNHUHqsw3Br6oTYuYOLf789RzZcgdThXJiqxRO0t332UNwYGiHrzeLyU"
+    }
+  ],
+  "command_tabs_and_receipts_unchanged": true
+}
