@@ -43,7 +43,8 @@ Resolve exact `runner_id`, `project_id`, `target_id`, allowed Drive parent folde
 ID, command document ID + tab ID, and dedicated result document ID + tab ID from
 owner enrollment. A target maps to a registered persistent `workspace_id` through
 the project's owner-local `handoff_targets`; the local inbox is fixed at
-`.runner/handoffs/`. Use the sole enrolled target by default only when exactly
+`handoffs/` from Runner 0.3.0.dev7. Earlier deliveries remain under
+`.runner/handoffs/`; use their actual receipt paths. Use the sole enrolled target by default only when exactly
 one exists. Multiple plausible targets need a choice. A GitHub-visible project
 without a registered local handoff target is not a destination.
 

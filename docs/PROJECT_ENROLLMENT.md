@@ -80,7 +80,8 @@ When handoffs are requested, initialize the dedicated result tab empty or with
 
 For local handoffs, bind `project.handoff_targets[target_id]` to its registered `workspace_id`, exact
 `allowed_drive_parents` and paired `result_document_id`/`result_tab_id`. The local
-inbox is `.runner/handoffs/`; the chat does not choose a host path. For either
+inbox is the visible `handoffs/` on Runner 0.3.0.dev7+; old receipts may still
+point to `.runner/handoffs/`. The chat does not choose a host path. For either
 Docs route, add the project's `provider: drive` mailbox with exact command `document_id`/`tab_id`.
 Result Docs must be separate from every command Doc. Preserve all other targets,
 mailboxes, profile grants and limits; registration does not add execution rights.
@@ -127,7 +128,7 @@ by `project_id`. Merge only this project's entry, preserving every other entry
 and existing metadata, skill links and notes. Its observed shape contains
 `project_id`, `command_document_id`, `command_tab_id`, and `targets[target_id]`
 with `workspace_id`, `allowed_drive_parents`, `result_document_id`,
-`result_tab_id`, `relative_inbox: ".runner/handoffs"`. Use actual bindings, never
+`result_tab_id`, `relative_inbox: "handoffs"`. Use actual bindings, never
 example IDs. If this installation has no catalog, establish its intended
 discovery record within the requested route instead of inventing a live ID.
 
@@ -235,7 +236,8 @@ Runner либо проверенный явный доступ приложен�
 
 Для локальных handoff связать `project.handoff_targets[target_id]` с зарегистрированным `workspace_id`,
 точными `allowed_drive_parents` и парой `result_document_id`/`result_tab_id`.
-Локальный inbox — `.runner/handoffs/`; чат не задаёт путь на машине. Для обоих
+Локальный inbox с Runner 0.3.0.dev7 — видимый `handoffs/`; старые квитанции
+могут указывать на `.runner/handoffs/`. Чат не задаёт путь на машине. Для обоих
 Docs-маршрутов добавить mailbox проекта с `provider: drive` и точными command `document_id`/`tab_id`.
 Result Doc должен отличаться от всех command Docs. Сохранить остальные targets,
 mailboxes, grants профилей и лимиты; регистрация не добавляет права исполнения.
@@ -281,7 +283,7 @@ active enrollments** по зарегистрированным ID, вкладк�
 metadata, ссылки на скиллы и notes. Наблюдаемый формат записи: `project_id`,
 `command_document_id`, `command_tab_id` и `targets[target_id]` с `workspace_id`,
 `allowed_drive_parents`, `result_document_id`, `result_tab_id`,
-`relative_inbox: ".runner/handoffs"`. Использовать реальные привязки. Если у этой
+`relative_inbox: "handoffs"`. Использовать реальные привязки. Если у этой
 установки каталога нет, оформить нужную запись обнаружения в рамках запрошенного
 маршрута, не выдумывая живой ID.
 

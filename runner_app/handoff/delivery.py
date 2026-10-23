@@ -50,7 +50,7 @@ class TargetBinding:
     inbox: Path
     allowed_drive_parents: frozenset[str]
     # Runner resolves this from local enrollment, not from COMMAND.
-    relative_inbox: str = '.runner/handoffs'
+    relative_inbox: str = 'handoffs'
 
 
 def _open_directory(path: Path) -> int:

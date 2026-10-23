@@ -133,6 +133,10 @@ def test_result_history_is_pruned_before_source_listing_budget(
         directory.mkdir(parents=True)
         for index in range(40):
             (directory / f"{index}.json").write_bytes(b"{}\n")
+    visible = fixture.workspace / "handoffs/many"
+    visible.mkdir(parents=True)
+    for index in range(40):
+        (visible / f"{index}.json").write_bytes(b"{}\n")
     commit(fixture.workspace, "Accumulate controller history")
     git(fixture.workspace, "push", "receiver", "HEAD:refs/heads/tested")
     listed_paths: list[str] = []
@@ -155,6 +159,9 @@ def test_result_history_is_pruned_before_source_listing_budget(
     for subtree in ("commands", "results", "state", "handoffs"):
         assert SourceExclusion(f".runner/{subtree}", "controller_owned") in snapshot.excluded_paths
         assert not snapshot.path.joinpath(".runner", subtree).exists()
+
+    assert SourceExclusion("handoffs", "controller_owned") in snapshot.excluded_paths
+    assert not snapshot.path.joinpath("handoffs").exists()
 
     # The same limit still rejects one additional workload file.
     (fixture.workspace / "extra.txt").write_bytes(b"new source\n")
