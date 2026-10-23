@@ -247,16 +247,17 @@ instructions or a source-selection grant.
    exact bytes and compute size/SHA-256. Upload ordinary Drive files into the
    allowed folder without converting them to Docs or changing sharing. Make a
    separate metadata read of each returned Drive ID to confirm parent, ordinary
-   MIME type, filename, size, version and non-trashed state. Native Docs and
+   MIME type, filename, size and non-trashed state. Native Docs and
    arbitrary download URLs are not handoff inputs. Freeze those observations
    in one manifest and do not modify the uploaded files after publication.
-   Confirm that the actual tool response includes Drive's numeric `version`;
-   some connectors omit it even when explicitly requested. Never assume `"1"`,
-   substitute a revision ID, or infer a version from upload success. If required
-   metadata is unavailable, block that leg or use an explicitly owner-authorized
-   real `files.get` metadata handoff for the exact file ID. Label the latter
-   **SDK_ASSISTED_METADATA** and retain its readback evidence; it does not prove
-   a fully automatic connected-chat route.
+   From **0.3.0.dev6**, artifact `drive_version` is optional; the runtime advertises
+   `handoff_optional_drive_version: true`. Include a genuinely observed version
+   as a strict sender pin, or omit the field when the connector drops it. Null,
+   a guessed `"1"` or a Docs revision is not an omitted version. Runner reads the
+   exact Drive file's numeric version before download and rejects any version
+   change afterward. All ID/parent/type/size/SHA-256, download and archive checks
+   remain mandatory. The submitted manifest and its digest are never rewritten
+   with the resolved version. Older installations still require the explicit pin.
 3. Validate `request.handoff` against the canonical
    [handoff-manifest.schema.json](../schemas/handoff-manifest.schema.json),
    then the complete mailbox against

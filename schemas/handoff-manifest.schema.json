@@ -64,7 +64,6 @@
         "required": [
           "artifact_id",
           "drive_file_id",
-          "drive_version",
           "filename",
           "size_bytes",
           "sha256",
@@ -81,6 +80,7 @@
             "pattern": "^[A-Za-z0-9_-]{1,200}$"
           },
           "drive_version": {
+            "description": "Optional sender pin. When omitted, Runner pins the Google Drive API version before download and verifies it again afterward.",
             "type": "string",
             "pattern": "^[0-9]{1,30}$"
           },

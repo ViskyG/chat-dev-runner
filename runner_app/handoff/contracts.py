@@ -74,8 +74,9 @@ def parse(raw: bytes, limits: Limits = DEFAULT_LIMITS) -> dict[str, Any]:
     return validate(value, limits)
 
 
-def _keys(value: Any, keys: set[str]) -> None:
-    if not isinstance(value, dict) or set(value) != keys:
+def _keys(value: Any, keys: set[str], optional: set[str] | None = None) -> None:
+    if (not isinstance(value, dict) or not keys.issubset(value)
+            or set(value) - keys - (optional or set())):
         raise HandoffError('INVALID_MANIFEST')
 
 
@@ -142,13 +143,15 @@ def validate(value: Any, limits: Limits = DEFAULT_LIMITS) -> dict[str, Any]:
     ids: dict[str, dict[str, Any]] = {}
     total = 0
     for artifact in artifacts:
-        _keys(artifact, {'artifact_id', 'drive_file_id', 'drive_version', 'filename',
-                         'size_bytes', 'sha256', 'media_type', 'unpack'})
+        _keys(artifact, {'artifact_id', 'drive_file_id', 'filename',
+                         'size_bytes', 'sha256', 'media_type', 'unpack'}, {'drive_version'})
         key = slug(artifact['artifact_id'])
         if key in ids:
             raise HandoffError('DUPLICATE_ARTIFACT')
         ids[key] = artifact
         for field in ('drive_file_id', 'drive_version'):
+            if field not in artifact:
+                continue
             v = artifact[field]
             pat = r'[A-Za-z0-9_-]{1,200}' if field == 'drive_file_id' else r'[0-9]{1,30}'
             if not isinstance(v, str) or not re.fullmatch(pat, v):

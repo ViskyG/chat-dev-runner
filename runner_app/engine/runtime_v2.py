@@ -222,6 +222,7 @@ class V2Assembly:
                     for key, target in project.handoff_targets.items()}
                     for project in self.config.projects.values() if project.handoff_targets},
                 "handoff_protocol": "cdr-handoff/1",
+                "handoff_optional_drive_version": True,
                 "capability_status": "IMPLEMENTED_NOT_QUALIFIED"}
 
     def start(self, *, on_recovered: Callable[[], Any] | None = None) -> None:
