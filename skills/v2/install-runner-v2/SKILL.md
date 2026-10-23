@@ -13,6 +13,10 @@ current installed version/evidence and [V2 operations](../../../docs/V2_OPERATIO
 sections “Owner configuration and service” and “Upgrade and rollback boundary”.
 The [Russian companion](SKILL.ru.md) carries the same contract.
 
+When the request also adds a project, complete the
+[project enrollment procedure](../../../docs/PROJECT_ENROLLMENT.md#english).
+An installed service or new runtime entry alone does not complete chat enrollment.
+
 Establish ordinary account, actual service/XDG paths, durable `runner_id`, DB
 schema, exact existing Drive attachment, selected GitHub repository grants and
 installed tool/profile paths without exposing credentials. Keep the existing

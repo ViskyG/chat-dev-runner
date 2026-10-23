@@ -1,17 +1,26 @@
 ---
 name: prepare-runner-project-v2
-description: Prepare an existing project for enrolled Runner v2 native or rootless container tasks, including finite Compose stacks, recognized outputs and truthful target qualification.
+description: Register an existing folder or repository with Runner v2 and its requested chat channels, or prepare its native/rootless tasks and reports.
 metadata:
-  version: "2.0.0-source-preview"
+  version: "2.1.0-source-preview"
   state: source-preview
 ---
-# Prepare an existing project for Runner v2 — source preview
+# Register or prepare an existing project for Runner v2 — source preview
 
-Use for a project-preparation request, not routine task submission. Read its
+Use for project registration or preparation, not routine task submission. Read its
 AGENTS, manifests/tests/CI and the actual enrolled capabilities. Consult
 [V2 operations](../../../docs/V2_OPERATIONS.md), “Project preparation” and the
 owner configuration fields; [Russian text](SKILL.ru.md) is the companion.
 This source does not establish a live enrollment or install a global skill.
+
+For registration, follow [Project enrollment](../../../docs/PROJECT_ENROLLMENT.md#english)
+through verification of the requested route. A local workspace and GitHub repo
+alone do not make a project discoverable or reachable from chat. Infer required
+channels from the owner's request and current workflow; GitHub-only needs no
+Drive. Register the requested existing folder itself. Report runtime binding,
+chat enrollment and task qualification separately; registration does not require
+inventing a task recipe or sending READY. Continue below when task preparation
+is also requested.
 
 Identify project/runner, branch or registered local workspace, language/package
 manager, exact tool paths, target OS/backend, real report format and required

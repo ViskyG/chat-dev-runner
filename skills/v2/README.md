@@ -13,7 +13,7 @@ Russian companion; loading all three is unnecessary.
 | Request / запрос | Entry / вход | Русский текст |
 | --- | --- | --- |
 | Install or upgrade / установка, обновление | [install-runner-v2](install-runner-v2/SKILL.md) | [Перевод](install-runner-v2/SKILL.ru.md) |
-| Prepare a project / подготовка проекта | [prepare-runner-project-v2](prepare-runner-project-v2/SKILL.md) | [Перевод](prepare-runner-project-v2/SKILL.ru.md) |
+| Register or prepare a project / регистрация, подготовка проекта | [prepare-runner-project-v2](prepare-runner-project-v2/SKILL.md) | [Перевод](prepare-runner-project-v2/SKILL.ru.md) |
 | Submit/read/control a task / отправка, результат, управление | [operate-runner-v2](operate-runner-v2/SKILL.md) | [Перевод](operate-runner-v2/SKILL.ru.md) |
 
 [Operations and concrete fields](../../docs/V2_OPERATIONS.md) explain the actual
