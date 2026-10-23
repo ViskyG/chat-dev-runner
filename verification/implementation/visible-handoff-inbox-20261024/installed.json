@@ -1,0 +1,144 @@
+{
+  "status": "INSTALLED_ARMED_ALL_NEW_SESSION_BASELINES",
+  "version": "0.3.0.dev7",
+  "schema": 11,
+  "preserved_history": {
+    "v1_operations": 26,
+    "v2_requests": 16,
+    "identity_status_sha256": "1df52bbf6e5e9ebd45b8769d02f27ed61449e7a01d8d961fce4485dd4ad919ed"
+  },
+  "lane_rows": 0,
+  "commands_submitted": 0,
+  "mailbox_preflight": [
+    {
+      "binding_id": "gp07-github-preview",
+      "dispatch": "ACCEPTED",
+      "sha256": "bff6a71585522cc2f265977d1596cf49889089fa0ffa545b31354c150cb3ba8c"
+    },
+    {
+      "binding_id": "gp04-docs-preview",
+      "dispatch": "DRAFT",
+      "sha256": "c52e6f2265d673134f7a45e10dc47dd3fba2688311305d2b96313eeb01044647"
+    },
+    {
+      "binding_id": "cdr-runner-test-github",
+      "dispatch": "ACCEPTED",
+      "sha256": "16eb78fde642a7aec2e7ba5a58d99c8f9c1880f11cd1c1b06ce677c10c26885a"
+    },
+    {
+      "binding_id": "cdr-runner-test-docs-handoff",
+      "dispatch": "ACCEPTED",
+      "sha256": "5941d4bcb074f96a49de3d66b4bf4530cb63645fff03ec576d8c01ce13f8a1e3"
+    },
+    {
+      "binding_id": "handoff-a42da246c6f3aabba0541987",
+      "dispatch": "DRAFT",
+      "sha256": "9846bc84205cd4147191472d90ebb6d4d7cd7e2da34b4cee42e396e63979b5ae"
+    },
+    {
+      "binding_id": "handoff-e741c49629df7e4aac60d041",
+      "dispatch": "DRAFT",
+      "sha256": "3f46bb4aef7360afc8b44fd60cde39bd85d8d73281dd84fe94d3db4003115026"
+    },
+    {
+      "binding_id": "handoff-61b492cbe0b95e13512b5706",
+      "dispatch": "DRAFT",
+      "sha256": "ab41d21b336039d1d9bf5b8021a016e7175a604b61a7cf2c0a62d1c5dbc82356"
+    },
+    {
+      "binding_id": "handoff-d006eddc870a5227307d3e65",
+      "dispatch": "DRAFT",
+      "sha256": "1b39916108f6843f3db62e06d4a658da94ad3260805e2f10ee68d3a1c2cc072c"
+    },
+    {
+      "binding_id": "handoff-0354c1c4006d35be7200a9c4",
+      "dispatch": "DRAFT",
+      "sha256": "de49baee30ec5a9831d934d52b106707bf7a7b736f4feb0b36f96daf7dffa27d"
+    },
+    {
+      "binding_id": "handoff-e774f582105ab259b7ebbdf2",
+      "dispatch": "DRAFT",
+      "sha256": "5cef6ec7f71ac848805567cef836ec67c581e01b0f1085fbf70a5eece760eb83"
+    },
+    {
+      "binding_id": "projectworkspace-docs-handoff",
+      "dispatch": "ACCEPTED",
+      "sha256": "6bdcc3e09df049619e92f76e21c726020e58777d078a883d199cba5ab0a437ec"
+    }
+  ],
+  "mailbox_stopped_preflight": [
+    {
+      "binding_id": "gp07-github-preview",
+      "dispatch": "ACCEPTED",
+      "sha256": "bff6a71585522cc2f265977d1596cf49889089fa0ffa545b31354c150cb3ba8c"
+    },
+    {
+      "binding_id": "gp04-docs-preview",
+      "dispatch": "DRAFT",
+      "sha256": "c52e6f2265d673134f7a45e10dc47dd3fba2688311305d2b96313eeb01044647"
+    },
+    {
+      "binding_id": "cdr-runner-test-github",
+      "dispatch": "ACCEPTED",
+      "sha256": "16eb78fde642a7aec2e7ba5a58d99c8f9c1880f11cd1c1b06ce677c10c26885a"
+    },
+    {
+      "binding_id": "cdr-runner-test-docs-handoff",
+      "dispatch": "ACCEPTED",
+      "sha256": "5941d4bcb074f96a49de3d66b4bf4530cb63645fff03ec576d8c01ce13f8a1e3"
+    },
+    {
+      "binding_id": "handoff-a42da246c6f3aabba0541987",
+      "dispatch": "DRAFT",
+      "sha256": "9846bc84205cd4147191472d90ebb6d4d7cd7e2da34b4cee42e396e63979b5ae"
+    },
+    {
+      "binding_id": "handoff-e741c49629df7e4aac60d041",
+      "dispatch": "DRAFT",
+      "sha256": "3f46bb4aef7360afc8b44fd60cde39bd85d8d73281dd84fe94d3db4003115026"
+    },
+    {
+      "binding_id": "handoff-61b492cbe0b95e13512b5706",
+      "dispatch": "DRAFT",
+      "sha256": "ab41d21b336039d1d9bf5b8021a016e7175a604b61a7cf2c0a62d1c5dbc82356"
+    },
+    {
+      "binding_id": "handoff-d006eddc870a5227307d3e65",
+      "dispatch": "DRAFT",
+      "sha256": "1b39916108f6843f3db62e06d4a658da94ad3260805e2f10ee68d3a1c2cc072c"
+    },
+    {
+      "binding_id": "handoff-0354c1c4006d35be7200a9c4",
+      "dispatch": "DRAFT",
+      "sha256": "de49baee30ec5a9831d934d52b106707bf7a7b736f4feb0b36f96daf7dffa27d"
+    },
+    {
+      "binding_id": "handoff-e774f582105ab259b7ebbdf2",
+      "dispatch": "DRAFT",
+      "sha256": "5cef6ec7f71ac848805567cef836ec67c581e01b0f1085fbf70a5eece760eb83"
+    },
+    {
+      "binding_id": "projectworkspace-docs-handoff",
+      "dispatch": "ACCEPTED",
+      "sha256": "6bdcc3e09df049619e92f76e21c726020e58777d078a883d199cba5ab0a437ec"
+    }
+  ],
+  "backup": {
+    "archive": "/home/visky/Work/GPTRunner/.runner-backups/visible-handoff-inbox-20261024/state-before",
+    "manifest_sha256": "7cd7e1bdf9649b8ab2dda67d89c2382f7a4e2bbc2b5ccd7aba65fac4c1353470",
+    "files": 11309,
+    "symlinks": 4,
+    "database_schema_version": 11
+  },
+  "runtime_sha256": "7bc1a8a02d53fe0cb51d1aa6cb5a0428874ed53fb6c6414e2b18e8219f366e7b",
+  "previous_live_session_ids": [
+    "ea18c8a1-b5c0-4ded-b836-6bf77f724abd"
+  ],
+  "new_live_session_ids": [
+    "89bc3a22-e481-4727-ab4b-1e8121bb99f4"
+  ],
+  "old_binary_retained": true,
+  "credential_contents_printed": false,
+  "drive_root_reused": true,
+  "index_modified": false
+}

@@ -94,7 +94,7 @@ These files are public distribution copies from the owner's canonical skill libr
 
 ### Send a design or roadmap package
 
-`DELIVER_HANDOFF` transfers ordinary Drive files into an enrolled project’s `handoffs/<handoff_id>/` (Runner 0.3.0.dev7+), with optional bounded ZIP extraction and a copyable Codex instruction. It does not execute or apply the package. Use the [handoff skill](skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.md) and [enrollment instructions](docs/V2_OPERATIONS.md#handoff-delivery-to-a-registered-local-inbox). From 0.3.0.dev6, `drive_version` may be omitted: Runner obtains it through its own Drive API and checks it across download. Automatic connector-only ChatGPT ZIP delivery without a sender SDK helper is verified on the installed Linux Runner, including the Docs receipt and exact local bytes. See [H3](codex/checkpoints/handoff/H3.md).
+`DELIVER_HANDOFF` transfers ordinary Drive files into an enrolled project’s `handoffs/<handoff_id>/` (Runner 0.3.0.dev7+), with optional bounded ZIP extraction and a copyable Codex instruction. It does not execute or apply the package. Use the [handoff skill](skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.md) and [enrollment instructions](docs/V2_OPERATIONS.md#handoff-delivery-to-a-registered-local-inbox). From 0.3.0.dev6, `drive_version` may be omitted: Runner obtains it through its own Drive API and checks it across download. Automatic connector-only ChatGPT ZIP delivery without a sender SDK helper is verified on the installed Linux Runner, including the Docs receipt and exact local bytes. See [H3](codex/checkpoints/handoff/H3.md) and [dev7 visible-inbox evidence](codex/checkpoints/handoff/H4.md).
 
 ### Getting started: Linux preview
 
@@ -229,7 +229,7 @@ Runner — **не бесконтрольный удалённый термина
 
 ### Передача проектирования и дорожных карт
 
-`DELIVER_HANDOFF` доставляет обычные файлы Drive в `handoffs/<handoff_id>/` (Runner 0.3.0.dev7+) зарегистрированного проекта, при необходимости распаковывает ZIP и возвращает инструкцию для Codex. Команда не запускает и не применяет пакет. Используйте [скилл передачи](skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.ru.md) и [инструкцию настройки](docs/V2_OPERATIONS.md#handoff-delivery-to-a-registered-local-inbox). С версии 0.3.0.dev6 `drive_version` можно опустить: Runner сам получает её через Drive API и проверяет неизменность при скачивании. Автоматическая передача ZIP через коннекторы ChatGPT без SDK-помощника подтверждена на установленном Linux Runner, включая квитанцию Docs и точные локальные байты. Подробности — в [H3](codex/checkpoints/handoff/H3.md).
+`DELIVER_HANDOFF` доставляет обычные файлы Drive в `handoffs/<handoff_id>/` (Runner 0.3.0.dev7+) зарегистрированного проекта, при необходимости распаковывает ZIP и возвращает инструкцию для Codex. Команда не запускает и не применяет пакет. Используйте [скилл передачи](skills/usage/chatgpt/deliver-handoff-to-runner/SKILL.ru.md) и [инструкцию настройки](docs/V2_OPERATIONS.md#handoff-delivery-to-a-registered-local-inbox). С версии 0.3.0.dev6 `drive_version` можно опустить: Runner сам получает её через Drive API и проверяет неизменность при скачивании. Автоматическая передача ZIP через коннекторы ChatGPT без SDK-помощника подтверждена на установленном Linux Runner, включая квитанцию Docs и точные локальные байты. Подробности — в [H3](codex/checkpoints/handoff/H3.md) и [проверке видимой папки dev7](codex/checkpoints/handoff/H4.md).
 
 ### Как начать: предварительная версия для Linux
 

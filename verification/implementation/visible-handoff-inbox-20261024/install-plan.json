@@ -27,7 +27,7 @@
   },
   "paths": {
     "config": "/home/visky/.config/chat-dev-runner",
-    "state": "/home/visky/.local/share/chat-dev-runner",
+    "state": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner",
     "cache": "/home/visky/.cache/chat-dev-runner",
     "tokens": "/home/visky/.config/chat-dev-runner/tokens"
   },
@@ -80,7 +80,7 @@
     "EP-07 installed user-service host acceptance and signed release gate"
   ],
   "installable": true,
-  "unit_state": "MANAGED_DIFFERENT",
+  "unit_state": "CURRENT",
   "unit_path": "/home/visky/.config/systemd/user/chat-dev-runner.service",
   "argv": [
     "/home/visky/Work/GPTRunner/.runner-install/venv-0.3.0.dev7/bin/python",
@@ -100,7 +100,7 @@
     ]
   },
   "config_dir": "/home/visky/.config/chat-dev-runner",
-  "state_dir": "/home/visky/.local/share/chat-dev-runner",
+  "state_dir": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner",
   "cache_dir": "/home/visky/.cache/chat-dev-runner",
   "service_changes": false,
   "cloud_writes": false,

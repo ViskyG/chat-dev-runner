@@ -1,0 +1,93 @@
+{
+  "reused_verified_drive_file": "1a3fMQJxYid6zDYpcjZFjSGhoAxdBHp5h",
+  "metadata": {
+    "id": "1a3fMQJxYid6zDYpcjZFjSGhoAxdBHp5h",
+    "title": "automatic-chat-handoff.zip",
+    "mime_type": "application/zip",
+    "size": "451",
+    "url": null,
+    "file_or_folder": "file",
+    "created_time": null,
+    "modified_time": null,
+    "parent_ids": [
+      "1PGPQi2osuWmGG0gTjlrxHBXEHceRVHPb"
+    ],
+    "drive_id": null,
+    "current_user_can_share": null,
+    "has_augmented_permissions": null,
+    "shared": null,
+    "permissions": null,
+    "source_visibility_status": "access_not_verified"
+  },
+  "sender_drive_version_omitted": true,
+  "guarded_draft_readback_and_ready": true,
+  "ack": {
+    "dispatch": "ACCEPTED",
+    "project_id": "projectworkspace",
+    "protocol": "cdr-mailbox/2",
+    "receipt": {
+      "accepted_slot_token": "5a73f958-0f8b-43f6-acf0-56287c7bf7cf",
+      "code": null,
+      "payload_sha256": "829f6ab89ee7edc82812154cc742ce7a4036a2bc6b41e9c09fc47c8941b1830e",
+      "queue_sequence": null,
+      "request_id": "eff64d64-c04f-4ec8-b016-406ee1d7ce6f",
+      "status": "ACCEPTED"
+    },
+    "request": {
+      "action": "DELIVER_HANDOFF",
+      "handoff": {
+        "artifacts": [
+          {
+            "artifact_id": "verification",
+            "drive_file_id": "1a3fMQJxYid6zDYpcjZFjSGhoAxdBHp5h",
+            "filename": "automatic-chat-handoff.zip",
+            "media_type": "application/zip",
+            "sha256": "167ee5e69ef6edd0e8e051746f2298b8de0efce46712cbbee567b60b724a312b",
+            "size_bytes": 451,
+            "unpack": "zip"
+          }
+        ],
+        "base_commit": null,
+        "entrypoint": {
+          "artifact_id": "verification",
+          "path": "handoff-check/START.md"
+        },
+        "handoff_id": "afec443a-f767-4e0e-839c-ce2fe2cbd43a",
+        "project_id": "projectworkspace",
+        "protocol": "cdr-handoff/1",
+        "purpose": "reference",
+        "target_id": "editor-handoff",
+        "title": "Verify visible project handoff inbox on Runner dev7"
+      },
+      "request_id": "eff64d64-c04f-4ec8-b016-406ee1d7ce6f"
+    },
+    "runner_id": "local-runner",
+    "slot_token": "d6a0d034-32ca-4688-8dd2-6462fd050643"
+  },
+  "terminal": {
+    "action": "DELIVER_HANDOFF",
+    "code": null,
+    "codex_prompt": "В текущем проекте прочитай `handoffs/afec443a-f767-4e0e-839c-ce2fe2cbd43a/START_HERE.md`, затем указанную там точку входа. Сверь пакет с текущим кодом и выполни согласованную задачу. Не заменяй корневые инструкции и конфигурацию простым копированием архива.\n",
+    "handoff": {
+      "codex_entrypoint": "handoffs/afec443a-f767-4e0e-839c-ce2fe2cbd43a/START_HERE.md",
+      "delivery_receipt": "handoffs/afec443a-f767-4e0e-839c-ce2fe2cbd43a/delivery.json",
+      "files_count": 1,
+      "handoff_id": "afec443a-f767-4e0e-839c-ce2fe2cbd43a",
+      "inbox_visible_in_git": true,
+      "local_delivery_status": "DELIVERED",
+      "manifest_sha256": "5abf1a9a41bf66c3afb450a589cbc0211bf90224a4e73e9e649f831c3437dd3c",
+      "project_id": "projectworkspace",
+      "safe_relative_handoff_path": "handoffs/afec443a-f767-4e0e-839c-ce2fe2cbd43a",
+      "target_id": "editor-handoff"
+    },
+    "operation_status": "COMPLETED",
+    "project_id": "projectworkspace",
+    "protocol": "cdr-handoff-state/1",
+    "request_digest": "829f6ab89ee7edc82812154cc742ce7a4036a2bc6b41e9c09fc47c8941b1830e",
+    "request_id": "eff64d64-c04f-4ec8-b016-406ee1d7ce6f",
+    "runner_id": "local-runner",
+    "schema_version": 1,
+    "status": "DELIVERED",
+    "updated_at": "2026-10-23T21:14:41.846219+00:00"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "dispatch": "DRAFT",
+  "project_id": "projectworkspace",
+  "protocol": "cdr-mailbox/2",
+  "receipt": {
+    "accepted_slot_token": "bef30f2a-3ea0-44a9-9cae-d79de728ec87",
+    "code": null,
+    "payload_sha256": "9517e769d9646b570d53c18c3987d9c152472d1529c7d2f25bb7e73dff7c5dff",
+    "queue_sequence": null,
+    "request_id": "cb5a249a-e45c-460d-a3d0-5396bf176af5",
+    "status": "ACCEPTED"
+  },
+  "request": {
+    "request_id": "eff64d64-c04f-4ec8-b016-406ee1d7ce6f",
+    "action": "DELIVER_HANDOFF",
+    "handoff": {
+      "protocol": "cdr-handoff/1",
+      "handoff_id": "afec443a-f767-4e0e-839c-ce2fe2cbd43a",
+      "project_id": "projectworkspace",
+      "target_id": "editor-handoff",
+      "purpose": "reference",
+      "title": "Verify visible project handoff inbox on Runner dev7",
+      "base_commit": null,
+      "entrypoint": {
+        "artifact_id": "verification",
+        "path": "handoff-check/START.md"
+      },
+      "artifacts": [
+        {
+          "artifact_id": "verification",
+          "drive_file_id": "1a3fMQJxYid6zDYpcjZFjSGhoAxdBHp5h",
+          "filename": "automatic-chat-handoff.zip",
+          "size_bytes": 451,
+          "sha256": "167ee5e69ef6edd0e8e051746f2298b8de0efce46712cbbee567b60b724a312b",
+          "media_type": "application/zip",
+          "unpack": "zip"
+        }
+      ]
+    }
+  },
+  "runner_id": "local-runner",
+  "slot_token": "5a73f958-0f8b-43f6-acf0-56287c7bf7cf"
+}
