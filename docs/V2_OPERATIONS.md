@@ -134,6 +134,11 @@ required intermediary for remote submission.
 
 ## Project preparation
 
+For new registrations or a project missing from chat, follow
+[Project enrollment / Регистрация проекта](PROJECT_ENROLLMENT.md). It covers the
+requested runtime, mailbox and discovery bindings and their independent readback.
+Creating a repository or adding a local workspace is only part of a chat route.
+
 Use the [prepare skill](../skills/v2/prepare-runner-project-v2/SKILL.md) when
 preparation is requested. Preserve existing framework, CI, branch and dirty
 files. `.runner/project.json` uses `cdr-project/2`; its `project_id`, selected
