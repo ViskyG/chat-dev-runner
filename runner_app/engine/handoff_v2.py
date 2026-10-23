@@ -76,12 +76,21 @@ class HandoffRunner:
             raise HandoffError("TARGET_CHANGED")
         if Path(run_git(workspace, ["rev-parse", "--show-toplevel"]).strip()) != workspace:
             raise HandoffError("TARGET_NOT_WORKSPACE")
-        if run_git_bytes(workspace, ["ls-files", "-z", "--", ".runner/handoffs"]):
+        relative_inbox = "handoffs"
+        legacy_inbox = ".runner/handoffs"
+        # Preserve committed legacy receipts and their generated prompts verbatim.
+        # Never create a second copy of an already delivered handoff identity.
+        if os.path.lexists(workspace / legacy_inbox / value["handoff_id"]):
+            if os.path.lexists(workspace / relative_inbox / value["handoff_id"]):
+                raise HandoffError("HANDOFF_ID_CONFLICT")
+            relative_inbox = legacy_inbox
+        if run_git_bytes(workspace, ["ls-files", "-z", "--", relative_inbox]):
             raise HandoffError("HANDOFF_INBOX_TRACKED")
-        inbox = workspace / ".runner" / "handoffs"
+        inbox = workspace / relative_inbox
         if create:
             ensure_private_directory(inbox)
-        binding = TargetBinding(project_id, target_id, inbox, target.allowed_drive_parents)
+        binding = TargetBinding(project_id, target_id, inbox, target.allowed_drive_parents,
+                                relative_inbox=relative_inbox)
         return binding, target, workspace, value
 
     def _result(self, receipt: Mapping[str, Any], value: Mapping[str, Any], workspace: Path
@@ -95,7 +104,7 @@ class HandoffRunner:
                 "delivery_receipt": relative + "/delivery.json",
                 "inbox_visible_in_git": bool(run_git_bytes(workspace, [
                     "--no-optional-locks", "status", "--porcelain=v1", "--untracked-files=normal",
-                    "--", ".runner/handoffs"]))}
+                    "--", relative]))}
 
     def _local_result(self, receipt: Mapping[str, Any], value: Mapping[str, Any],
                       workspace: Path) -> dict[str, Any]:

@@ -1,0 +1,20 @@
+{
+  "service": "chat-dev-runner",
+  "version": "0.3.0.dev7",
+  "status": "PARTIALLY_CONFIGURED",
+  "armed": true,
+  "capabilities": [
+    "local_api",
+    "durable_admission",
+    "CREATE_PROJECT",
+    "CREATE_WORKSPACE",
+    "DELIVER_VERIFY_PUBLISH",
+    "EXPORT_CONTEXT",
+    "FETCH",
+    "PUBLISH_REPORT",
+    "RECONCILE",
+    "RESUME_PROVISION",
+    "RESUME_RETARGET",
+    "RETARGET_WORKSPACE"
+  ]
+}

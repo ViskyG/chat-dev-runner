@@ -30,7 +30,8 @@ from .worktrees import _inspect_config, _reject_object_alternates
 _ID = re.compile(r"[a-z0-9][a-z0-9-]{0,47}\Z", re.ASCII)
 _OID = re.compile(r"(?:[0-9a-f]{40}|[0-9a-f]{64})\Z", re.ASCII)
 _EXCLUSION_VERSION = "cdr-source-exclusions/1"
-_RESERVED = (".runner/commands", ".runner/results", ".runner/state", ".runner/handoffs")
+_RESERVED = (".runner/commands", ".runner/results", ".runner/state", ".runner/handoffs",
+             "handoffs")
 _SECRET_PARTS = _PROTECTED_COMPONENTS - {".github", ".gitattributes", ".gitmodules", ".lfsconfig"}
 _FLAGS = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
 _MAX_RECOVERY_MANIFEST_BYTES = 32 * 1024 * 1024

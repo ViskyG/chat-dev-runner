@@ -1,0 +1,9 @@
+{
+  "head_sha": "d490ae20b098c4334a033e5d54dedb5817617ab5",
+  "workflow_run_id": 40024973822,
+  "workflow_job_id": 120658763510,
+  "conclusion": "success",
+  "full_regression_summary": [
+    "2026-10-23T21:14:43.7207968Z 2066 passed, 1 warning in 147.10s (0:02:27)"
+  ]
+}

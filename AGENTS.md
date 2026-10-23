@@ -12,8 +12,9 @@ Reuse the completed audit regression and live cases; do not replay sample tasks.
 The owner requested implementation of `runner-project-handoff-kit.zip` and
 `runner-handoff-integration-roadmap.md` on 2026-10-22, including repository-local
 chat usage skills. Current handoff checkpoint is
-`codex/checkpoints/handoff/H3.md`: the owner's 2026-10-23 optional-version request
-is installed and connector-only Linux delivery is verified on dev6. Runner pins
+`codex/checkpoints/handoff/H4.md`: the owner's visible-inbox request is installed
+and connector-only Linux delivery is verified on dev7. New packages use visible
+`handoffs/`; old `.runner/handoffs/` receipts and prompts remain valid. Runner pins
 an omitted version through its own API reads; explicit versions remain strict.
 The connector still omits version. H2's SDK-assisted transfer is historical;
 reuse both records rather than replaying unchanged live canaries. Follow

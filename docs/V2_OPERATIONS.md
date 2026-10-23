@@ -295,7 +295,7 @@ actual size/SHA-256. It stages originals byte-for-byte and optional safe ZIP
 content, then publishes one new unique directory:
 
 ```text
-<registered workspace>/.runner/handoffs/<handoff_id>/
+<registered workspace>/handoffs/<handoff_id>/
   files/<artifact_id>/<filename>   # exact originals
   content/<artifact_id>/           # populated for requested ZIP expansion
   manifest.json
@@ -310,6 +310,13 @@ conflict. An uncertain local commit is reconciled from receipt/inventory before
 any further effect. Missing or changed delivered files are not permission to
 overwrite the destination. Cancel before local commit can stop delivery; a
 completed local commit is not reported as cancelled because feedback failed.
+
+From **0.3.0.dev7**, new deliveries use the visible `handoffs/` directory.
+Existing packages under `.runner/handoffs/` keep their original paths, receipts
+and generated prompts. Runner reconciles them without downloading again; an ID
+present in both inboxes is refused as a conflict. Do not move an old delivery
+manually: its receipt and published entrypoint refer to its original location.
+Both inboxes retain the same privacy, integrity and source-exclusion checks.
 
 The inbox is excluded from source/context capture, including dirty/untracked
 inclusion. Its creation can still be visible to Git as untracked content:

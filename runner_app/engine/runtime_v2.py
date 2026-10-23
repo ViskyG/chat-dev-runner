@@ -218,7 +218,7 @@ class V2Assembly:
                           "allowed_drive_parents": sorted(target.allowed_drive_parents),
                           "result_document_id": target.result_document_id,
                           "result_tab_id": target.result_tab_id,
-                          "relative_inbox": ".runner/handoffs"}
+                          "relative_inbox": "handoffs"}
                     for key, target in project.handoff_targets.items()}
                     for project in self.config.projects.values() if project.handoff_targets},
                 "handoff_protocol": "cdr-handoff/1",

@@ -25,11 +25,13 @@ from runner_app.engine.handoff_v2 import HandoffRunner, V2TaskDispatcher
 from runner_app.engine.intake_v2 import IntakeCoordinator
 from runner_app.engine.queue_v2 import QueueWorker
 from runner_app.git.argv import run_git, run_git_bytes
+from runner_app.git.changes import ChangeError, safe_source_path
 from runner_app.git.source_v2 import LocalWorkspace
 from runner_app.handoff.contracts import digest
+from runner_app.handoff.delivery import TargetBinding, deliver
 from runner_app.storage.database import Database
 from runner_app.storage.intake_v2 import IntakeStore
-from runner_app.storage.paths import Paths
+from runner_app.storage.paths import Paths, ensure_private_directory
 
 
 class NoNativeExecution:
@@ -196,6 +198,74 @@ def journal(store: IntakeStore, request_id: str) -> list[str]:
             'SELECT event FROM v2_journal WHERE request_id=? ORDER BY event_id', (request_id,))]
 
 
+@pytest.mark.parametrize('recover', [False, True])
+def test_legacy_delivery_keeps_receipt_and_prompt_without_download(
+        tmp_path: Path, recover: bool) -> None:
+    a = assembly(tmp_path)
+    baseline(a)
+    request_id = submit(a)
+    legacy = a.workspace / '.runner/handoffs'
+    ensure_private_directory(legacy)
+    binding = TargetBinding('project-1', 'inbox', legacy, frozenset({'allowed-folder'}),
+                            relative_inbox='.runner/handoffs')
+    receipt = deliver(a.manifest, a.factory.provider, binding, request_id=request_id)
+    folder = legacy / a.manifest['handoff_id']
+    original = {str(p.relative_to(folder)): p.read_bytes() for p in folder.rglob('*') if p.is_file()}
+    downloads = list(a.factory.provider.downloads)
+    if recover:
+        a.store.claim_next(a.session)
+        a.store.finish(request_id, status='FAILED', code='INTERRUPTED')
+        operation = a.handoff._recover(a.store.get(request_id))
+    else:
+        assert a.worker.run_once()
+        operation = a.store.get(request_id)
+    assert operation['status'] == 'COMPLETED'
+    assert operation['result']['handoff']['safe_relative_handoff_path'] == receipt['relative_path']
+    assert '.runner/handoffs/' in operation['result']['codex_prompt']
+    assert a.factory.calls == [] and a.factory.provider.downloads == downloads
+    assert not (a.workspace / 'handoffs').exists()
+    assert original == {str(p.relative_to(folder)): p.read_bytes()
+                        for p in folder.rglob('*') if p.is_file()}
+
+
+@pytest.mark.parametrize('unsafe', ['tracked', 'symlink', 'duplicate', 'legacy-symlink'])
+def test_visible_inbox_does_not_bypass_existing_safety(tmp_path: Path, unsafe: str) -> None:
+    a = assembly(tmp_path)
+    visible = a.workspace / 'handoffs'
+    legacy = a.workspace / '.runner/handoffs'
+    if unsafe == 'tracked':
+        visible.mkdir()
+        (visible / 'owner.txt').write_text('owner file')
+        run_git(a.workspace, ['add', 'handoffs/owner.txt'])
+    elif unsafe == 'symlink':
+        visible.symlink_to(tmp_path, target_is_directory=True)
+    elif unsafe == 'legacy-symlink':
+        ensure_private_directory(legacy)
+        (legacy / a.manifest['handoff_id']).symlink_to(tmp_path, target_is_directory=True)
+    else:
+        for root in (visible, legacy):
+            (root / a.manifest['handoff_id']).mkdir(parents=True)
+    before = source_fingerprint(a.workspace)
+    baseline(a)
+    request_id = submit(a)
+    assert a.worker.run_once()
+    operation = a.store.get(request_id)
+    assert operation['status'] == 'FAILED'
+    assert operation['code'] == {'tracked': 'HANDOFF_INBOX_TRACKED',
+                                 'symlink': 'TARGET_UNSAFE',
+                                 'duplicate': 'HANDOFF_ID_CONFLICT',
+                                 'legacy-symlink': 'HANDOFF_CHANGED'}[unsafe]
+    assert a.factory.provider.downloads == []
+    assert source_fingerprint(a.workspace) == before
+
+
+@pytest.mark.parametrize('path', ['handoffs', 'handoffs/file.zip', 'HANDOFFS/file.zip',
+                                '.runner/handoffs/file.zip'])
+def test_both_inboxes_are_protected_from_source_changes(path: str) -> None:
+    with pytest.raises(ChangeError, match='separate from project source'):
+        safe_source_path(path)
+
+
 @pytest.mark.parametrize('versions', ['explicit', 'omitted', 'mixed'])
 def test_draft_ready_ack_worker_receipt_is_delivery_only_and_preserves_git(
         tmp_path: Path, versions: str) -> None:
@@ -221,6 +291,7 @@ def test_draft_ready_ack_worker_receipt_is_delivery_only_and_preserves_git(
     result = operation['result']
     assert operation['status'] == 'COMPLETED'
     assert result['handoff']['local_delivery_status'] == 'DELIVERED'
+    assert result['handoff']['safe_relative_handoff_path'] == 'handoffs/' + a.manifest['handoff_id']
     assert result['handoff']['files_count'] == 2
     assert result['handoff']['manifest_sha256'] == digest(a.manifest)
     assert result['handoff']['inbox_visible_in_git'] is True
@@ -268,7 +339,7 @@ def test_unregistered_target_has_no_provider_effects(tmp_path: Path, mode: str) 
     operation = a.store.get(request_id)
     assert operation['status'] == 'FAILED' and operation['code'] == 'TARGET_NOT_ENROLLED'
     assert a.factory.calls == a.factory.provider.reads == a.factory.publisher_calls == []
-    assert not (a.workspace / '.runner/handoffs').exists()
+    assert not (a.workspace / 'handoffs').exists()
     assert a.native.calls == a.native.publications == []
 
 
@@ -341,7 +412,7 @@ def test_queued_cancel_bypasses_worker_without_provider_access(tmp_path: Path) -
     assert a.store.get(target)['status'] == 'CANCELLED'
     assert not a.worker.run_once()
     assert a.factory.calls == a.factory.provider.reads == []
-    assert not (a.workspace / '.runner/handoffs').exists()
+    assert not (a.workspace / 'handoffs').exists()
     assert a.native.calls == a.native.publications == []
     target_states = [state for state in a.factory.states if state['request_id'] == target]
     assert target_states[-1]['handoff']['local_delivery_status'] == 'NOT_DELIVERED'
@@ -451,21 +522,25 @@ def test_delivered_inbox_is_excluded_from_dirty_untracked_source_snapshot(tmp_pa
     (fixture.workspace / '.runner/project.json').write_bytes(project_bytes)
     (fixture.workspace / '.runner/owner-notes.txt').write_bytes(b'approved untracked notes\n')
     a = assembly(application_root, workspace=fixture.workspace)
+    legacy = fixture.workspace / '.runner/handoffs/legacy/sentinel.txt'
+    legacy.parent.mkdir(parents=True)
+    legacy.write_bytes(b'legacy receipt material\n')
     before = source_fingerprint(fixture.workspace)
     baseline(a)
     target = submit(a)
     assert a.worker.run_once() and a.store.get(target)['status'] == 'COMPLETED'
     snapshot = fixture.capture(local=LocalWorkspace(
-        fixture.workspace, include_dirty=True, include_untracked=('.runner/',)))
+        fixture.workspace, include_dirty=True, include_untracked=('.runner/', 'handoffs/')))
     included = {item.path for item in snapshot.files}
     assert '.runner/project.json' in included and '.runner/owner-notes.txt' in included
-    assert not any(name == '.runner/handoffs' or name.startswith('.runner/handoffs/')
+    assert not any(name == 'handoffs' or name.startswith('handoffs/')
                    for name in included)
     assert any(item.reason == 'controller_owned' and (
-        item.path == '.runner/handoffs' or item.path.startswith('.runner/handoffs/'))
+        item.path == 'handoffs' or item.path.startswith('handoffs/'))
                for item in snapshot.excluded_paths)
     assert (snapshot.path / '.runner/project.json').read_bytes() == project_bytes
     assert (snapshot.path / '.runner/owner-notes.txt').read_bytes() == b'approved untracked notes\n'
+    assert not (snapshot.path / 'handoffs').exists()
     assert not (snapshot.path / '.runner/handoffs').exists()
     folder = a.workspace / a.store.get(target)['result']['handoff']['safe_relative_handoff_path']
     assert (folder / 'files/roadmap/roadmap.zip').read_bytes() == a.blobs['zip-file'][0]
@@ -501,7 +576,7 @@ def test_rename_before_database_finish_recovers_in_fresh_session_via_status(
         with pytest.raises((OSError, SimulatedPowerLoss)):
             a.worker.run_once()
     assert a.store.get(target)['status'] == 'STARTING'
-    assert (a.workspace / '.runner/handoffs' / a.manifest['handoff_id'] / 'delivery.json').exists()
+    assert (a.workspace / 'handoffs' / a.manifest['handoff_id'] / 'delivery.json').exists()
     assert not a.factory.states
     assert ('HANDOFF_LOCAL_COMMITTED' in journal(a.store, target)) == (cut == 'before-finish')
     before_downloads = list(a.factory.provider.downloads)

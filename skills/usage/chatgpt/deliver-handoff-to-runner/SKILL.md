@@ -5,7 +5,8 @@ metadata:
   version: "0.3.0-Linux-preview"
   status: "installed-Linux-automatic-connected-chat-verified"
   optional_drive_version_minimum_runner: "0.3.0.dev6"
-  reviewed_runner_commit: "f60e26e16704ffe12b52cf331883edd9935da1ab"
+  visible_inbox_minimum_runner: "0.3.0.dev7"
+  reviewed_runner_commit: "d490ae20b098c4334a033e5d54dedb5817617ab5"
 ---
 
 # Deliver a handoff to Runner
@@ -24,7 +25,8 @@ sender version. Qualification remains specific to the installed version and
 actual upload, guarded Docs authoring and terminal readback.
 The installed Linux dev6 route passed a connector-only ZIP transfer without a
 sender version or SDK metadata helper. See [H3](../../../../codex/checkpoints/handoff/H3.md)
-for current evidence and [H2](../../../../codex/checkpoints/handoff/H2.md) for the older assisted route,
+for optional-version evidence; [H4](../../../../codex/checkpoints/handoff/H4.md)
+records installed dev7 visible-inbox delivery. [H2](../../../../codex/checkpoints/handoff/H2.md) for the older assisted route,
 [provenance](../../PROVENANCE.json) and [Russian](SKILL.ru.md).
 
 ## Resolve the installed contract and recipient
@@ -43,7 +45,8 @@ Resolve exact `runner_id`, `project_id`, `target_id`, allowed Drive parent folde
 ID, command document ID + tab ID, and dedicated result document ID + tab ID from
 owner enrollment. A target maps to a registered persistent `workspace_id` through
 the project's owner-local `handoff_targets`; the local inbox is fixed at
-`.runner/handoffs/`. Use the sole enrolled target by default only when exactly
+`handoffs/` from Runner 0.3.0.dev7. Earlier deliveries remain under
+`.runner/handoffs/`; use their actual receipt paths. Use the sole enrolled target by default only when exactly
 one exists. Multiple plausible targets need a choice. A GitHub-visible project
 without a registered local handoff target is not a destination.
 

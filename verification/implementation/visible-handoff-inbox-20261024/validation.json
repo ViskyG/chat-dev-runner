@@ -1,0 +1,11 @@
+{
+  "subsystem": {
+    "tests": 216,
+    "failures": 0,
+    "scope": "handoff core, Docs, Drive, integration, Git source capture, v1 snapshots"
+  },
+  "ruff": "passed",
+  "mypy": "131 source files passed",
+  "wheel": "built; 164 installed candidate payloads verified",
+  "initial_check": "Initial combined run contained a corrected test fixture permission failure; separate runtime test portion stalled locally and was terminated. Corrected full subsystem run and safety rerun passed; broad regression belongs to GitHub CI."
+}

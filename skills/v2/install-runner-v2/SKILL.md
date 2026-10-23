@@ -47,6 +47,10 @@ published skill/schema revision. Preserve every recipient binding, command tab,
 pending intent and receipt. Read the updated discovery metadata through the chat
 connector; a local binary upgrade alone does not update a fresh chat's instructions.
 
+For dev7 visible inbox upgrades, advertise `relative_inbox: "handoffs"` for new
+deliveries. Keep existing `.runner/handoffs/` packages and their published
+receipts/prompts intact; both paths remain protected from source capture.
+
 Report source/wheel identity, applied scope, actual channel/backend observations,
 rollback evidence and remaining target gates. Only real installed provider/OS
 acceptance can promote deployment status. Reading these files does not register
