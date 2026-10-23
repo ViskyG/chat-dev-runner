@@ -19,7 +19,8 @@ from uuid import UUID
 BASE = Path('/var/lib/chat-dev-runner/volumes')
 SOURCE = 'cdr-run-quota'
 UID = GID = 1000
-ALLOWED_MB = frozenset({64, 256})
+# Existing Python slots plus the bounded released-browser Compose profile.
+ALLOWED_MB = frozenset({64, 256, 1024})
 MAX_SLOTS = 8
 
 

@@ -60,9 +60,14 @@ def check_existing_installation(
 
 def _build_provider(credentials: Any) -> GoogleReadProvider:
     try:
+        from runner_app.adapters.drive_transport import isolated_request_builder
+
         build = import_module("googleapiclient.discovery").build
-        drive = build("drive", "v3", credentials=credentials, cache_discovery=False)
-        docs = build("docs", "v1", credentials=credentials, cache_discovery=False)
+        builder = isolated_request_builder(credentials)
+        drive = build("drive", "v3", credentials=credentials, requestBuilder=builder,
+                      cache_discovery=False)
+        docs = build("docs", "v1", credentials=credentials, requestBuilder=builder,
+                     cache_discovery=False)
     except Exception:  # noqa: BLE001 - third-party exceptions may contain OAuth material
         raise DriveError("GOOGLE_SERVICE_UNAVAILABLE", "Google services are unavailable") from None
     return GoogleReadProvider(drive, docs)

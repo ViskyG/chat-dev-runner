@@ -13,6 +13,10 @@ current installed version/evidence and [V2 operations](../../../docs/V2_OPERATIO
 sections “Owner configuration and service” and “Upgrade and rollback boundary”.
 The [Russian companion](SKILL.ru.md) carries the same contract.
 
+When the request also adds a project, complete the
+[project enrollment procedure](../../../docs/PROJECT_ENROLLMENT.md#english).
+An installed service or new runtime entry alone does not complete chat enrollment.
+
 Establish ordinary account, actual service/XDG paths, durable `runner_id`, DB
 schema, exact existing Drive attachment, selected GitHub repository grants and
 installed tool/profile paths without exposing credentials. Keep the existing
@@ -36,6 +40,16 @@ runner ID; preserve `enable_v1` deliberately. Keep credentials outside repos and
 exact Drive root/index IDs unchanged. Apply an approved wheel/service plan with
 the existing installer, not a second daemon. Normal configured startup arms
 intake; `--start-unarmed` is for a controlled stopped-intake process.
+
+When an upgrade changes the accepted command contract, update the installation's
+safe enrollment/catalog metadata to the actual installed version and a coherent
+published skill/schema revision. Preserve every recipient binding, command tab,
+pending intent and receipt. Read the updated discovery metadata through the chat
+connector; a local binary upgrade alone does not update a fresh chat's instructions.
+
+For dev7 visible inbox upgrades, advertise `relative_inbox: "handoffs"` for new
+deliveries. Keep existing `.runner/handoffs/` packages and their published
+receipts/prompts intact; both paths remain protected from source capture.
 
 Report source/wheel identity, applied scope, actual channel/backend observations,
 rollback evidence and remaining target gates. Only real installed provider/OS

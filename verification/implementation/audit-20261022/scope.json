@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-22",
+  "baseline_commit": "d0a6fd442db526d8121af97d9e2e0362d5db7265",
+  "installed_baseline": "0.3.0.dev3",
+  "scope": [
+    "GitHub/Docs latency and recovery",
+    "source growth and intake revocation",
+    "finite Linux rootless Compose GP08"
+  ],
+  "stage_authority": "Owner requested practical audit, performance/reliability fixes and continuation of container/Compose roadmap; prior GP00\u2013GP09 approval retained.",
+  "gp07_separation": "Independent Linux GP08 backend proceeds under current owner request; Windows/macOS/Java and overall GP07 release acceptance remain incomplete.",
+  "unchanged_evidence_reused": [
+    "v1 Drive installation and full routes",
+    "handoff live ZIP/text delivery",
+    "existing GitHub publication and terminal receipt acceptance",
+    "same-schema backup/rollback primitive"
+  ],
+  "not_qualified": [
+    "arbitrary Compose YAML",
+    "production deployments",
+    "automatic Compose restart reconciliation",
+    "other OS hosts",
+    "Unity"
+  ],
+  "new_live_cloud_commands": 0,
+  "drive_installation_recreated": false,
+  "credential_contents_exposed": false
+}

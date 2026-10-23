@@ -1,0 +1,8 @@
+{
+  "checked_at": 1792703981.2800868,
+  "original_option_rejected": "systemctl: unrecognized option '--kill-whom=all'",
+  "same_service_invocation": "e6a5acdd66994898b58b50eeef44454c",
+  "original_exit_code": 1,
+  "new_request": false,
+  "correction": "--kill-who=all"
+}

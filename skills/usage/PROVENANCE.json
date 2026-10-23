@@ -65,7 +65,14 @@
           "Separate ACK, local delivery and dedicated terminal receipt, preserve stable identity and read before any retry.",
           "Expose manual-upload and transport-blocked fallbacks and return a Codex prompt without execution."
         ],
-        "qualification": "Source instructions only; selected installed capabilities and permissions must be checked live."
+        "qualification": "Source instructions only; selected installed capabilities and permissions must be checked live.",
+        "protocol_update": {
+          "date": "2026-10-23",
+          "version": "0.3.0",
+          "implementation_commit": "f60e26e16704ffe12b52cf331883edd9935da1ab",
+          "owner_requested": "Optional sender drive_version; preserve strict supplied pins and all integrity checks",
+          "qualification": "Installed Linux dev6 connector-only delivery without sender SDK metadata helper; see codex/checkpoints/handoff/H3.md"
+        }
       }
     },
     {
@@ -87,7 +94,14 @@
           "Separate ACK, local delivery and dedicated terminal receipt, preserve stable identity and read before any retry.",
           "Expose manual-upload and transport-blocked fallbacks and return a Codex prompt without execution."
         ],
-        "qualification": "Source instructions only; selected installed capabilities and permissions must be checked live."
+        "qualification": "Source instructions only; selected installed capabilities and permissions must be checked live.",
+        "protocol_update": {
+          "date": "2026-10-23",
+          "version": "0.3.0",
+          "implementation_commit": "f60e26e16704ffe12b52cf331883edd9935da1ab",
+          "owner_requested": "Optional sender drive_version; preserve strict supplied pins and all integrity checks",
+          "qualification": "Installed Linux dev6 connector-only delivery without sender SDK metadata helper; see codex/checkpoints/handoff/H3.md"
+        }
       }
     }
   ],

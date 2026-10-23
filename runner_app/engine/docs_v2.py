@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import re
 import threading
-from collections.abc import Iterable, Mapping
+import time
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
@@ -18,6 +20,7 @@ from runner_app.adapters.drive_mailbox_v2 import (
     DriveDocsAPI,
 )
 from runner_app.config import DRIVE_INDEX_ID, DRIVE_ROOT_ID
+from runner_app.engine.intake_v2 import AckResult, MailboxPort, Observation
 from runner_app.storage.paths import Paths
 
 
@@ -29,6 +32,50 @@ class _MailboxConfig(Protocol):
 
     @property
     def coordinates(self) -> Mapping[str, Any]: ...
+
+
+class RecoveringDocsPort:
+    """Keep an enrolled channel observable after a transient setup failure.
+
+    Provider attachment is lazy and retried only by a later read. An uncertain
+    ACK is never replayed here; the existing durable coordinator reconciles it.
+    """
+
+    def __init__(self, factory: Callable[[], MailboxPort], *, retry_seconds: float = 10,
+                 clock: Callable[[], float] = time.monotonic) -> None:
+        self.factory, self.retry_seconds, self.clock = factory, retry_seconds, clock
+        self._port: MailboxPort | None = None
+        self._retry_at = 0.0
+        self.last_error: str | None = None
+
+    def _failed(self, error: Exception) -> None:
+        code = getattr(error, "code", "GOOGLE_UNAVAILABLE")
+        self.last_error = (code if isinstance(code, str) and re.fullmatch(r"[A-Z][A-Z0-9_]{0,95}", code)
+                           else "GOOGLE_UNAVAILABLE")
+        self._port = None
+        self._retry_at = self.clock() + self.retry_seconds
+
+    def read_current(self) -> Observation:
+        if self.clock() < self._retry_at:
+            raise DocsMailboxError(self.last_error or "GOOGLE_UNAVAILABLE")
+        try:
+            if self._port is None:
+                self._port = self.factory()
+            observation = self._port.read_current()
+        except (OSError, ValueError) as error:
+            self._failed(error)
+            raise DocsMailboxError(self.last_error or "GOOGLE_UNAVAILABLE") from None
+        self.last_error = None
+        return observation
+
+    def ack_if_current(self, observed: Observation, payload: bytes, /) -> AckResult:
+        if self._port is None:
+            return AckResult("UNKNOWN")
+        try:
+            return self._port.ack_if_current(observed, payload)
+        except OSError as error:
+            self._failed(error)
+            return AckResult("UNKNOWN")
 
 
 Fingerprint = tuple[tuple[int, ...] | None, ...]
@@ -121,5 +168,7 @@ class DocsPortFactory:
             if document_id in prepared.protected:
                 raise DocsMailboxError("LEGACY_DOCS_MAILBOX_PROTECTED")
             port = DocsMailboxPort(prepared.provider, document_id=document_id, tab_id=tab_id)
-            port.read_current()  # Exact target/tab preflight; provider setup remains cached.
-            return port
+        # Exact target/tab preflight is independent of other enrolled mailboxes.
+        # Keep the shared lock only around provider/configuration preparation.
+        port.read_current()
+        return port

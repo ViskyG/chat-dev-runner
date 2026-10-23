@@ -1,0 +1,149 @@
+[
+  {
+    "created_at": "2026-10-22T19:34:04.107200+00:00",
+    "detail_json": "{\"session_id\":\"716bec30-af1f-4caf-ab64-e87a338b3c82\"}",
+    "event": "SESSION_STARTED",
+    "event_id": 1,
+    "request_id": null
+  },
+  {
+    "created_at": "2026-10-22T19:34:04.178393+00:00",
+    "detail_json": "{}",
+    "event": "RESERVED",
+    "event_id": 2,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:04.203550+00:00",
+    "detail_json": "{}",
+    "event": "QUEUED",
+    "event_id": 3,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:04.220697+00:00",
+    "detail_json": "{}",
+    "event": "STARTING",
+    "event_id": 4,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:04.308509+00:00",
+    "detail_json": "{\"mode\":\"container\",\"profile_revision\":\"c0d2c5887214419fa9eb719e52093dfe8b92130fdc0c8451f12f23c9866cfafc\",\"source_commit\":\"b477f01e660f717e3ea8b6ce4250766e63f6a9f1\",\"task_digest\":\"61aaa5883a328777e5f5c493acb64e46cad3f912aa580c615b85bf6802dd19c8\",\"workload_sha256\":\"395452068cff71f666dcd259a5e6546de9808d1994efc5e2854ab3a5550294ac\"}",
+    "event": "RUNNING",
+    "event_id": 5,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:04.403578+00:00",
+    "detail_json": "{\"run_id\":\"d1433e9b-4175-45ae-9de1-1d6a43349bb9\",\"volume_mb\":64}",
+    "event": "COMPOSE_VOLUME_INTENDED",
+    "event_id": 6,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:04.476836+00:00",
+    "detail_json": "{\"config_sha256\":\"3db5a2da5fe93a207f659b5869bdcd12fa8776132bca4d18f9acc51bb275fb48\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"image_ids\":{\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\":\"sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\"},\"nonce\":\"675565b223794e78935b2300fd3affbb\",\"profile_revision_sha256\":\"c0d2c5887214419fa9eb719e52093dfe8b92130fdc0c8451f12f23c9866cfafc\",\"project\":\"cdr-compose-d1433e9b-4175-45ae-9de1-1d6a43349bb9\",\"source_sha256\":\"395452068cff71f666dcd259a5e6546de9808d1994efc5e2854ab3a5550294ac\",\"volume\":\"/var/lib/chat-dev-runner/volumes/d1433e9b-4175-45ae-9de1-1d6a43349bb9\"}",
+    "event": "COMPOSE_CREATE_INTENDED",
+    "event_id": 7,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:04.726478+00:00",
+    "detail_json": "{\"containers\":{\"api\":\"acde78e2090fa2ece39262d40dd60737150e3192cfaa16d34d9d30b1a6cbcdc0\",\"migrate\":\"85cbc511c60293c1fc7612f35ded9dad10775993fc5f8955400f9753e38ea9f9\",\"test\":\"bbf8020d13f688f7192475d25d8016a9691f4abd655fcdd73295cfcfd41a2bef\"},\"network\":\"36743feed113e4f77ac3c91ffe0dd2747592db80855212ebac1a1b0421155e9d\"}",
+    "event": "COMPOSE_RESOURCES_CREATED",
+    "event_id": 8,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:04.759929+00:00",
+    "detail_json": "{\"phase\":\"readiness\",\"services\":[\"api\"]}",
+    "event": "COMPOSE_PHASE_START_INTENDED",
+    "event_id": 9,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:06.343246+00:00",
+    "detail_json": "{\"exit_code\":0,\"outcome\":\"PASSED\",\"phase\":\"readiness\",\"services\":[\"api\"]}",
+    "event": "COMPOSE_PHASE_FINISHED",
+    "event_id": 10,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:06.372329+00:00",
+    "detail_json": "{\"phase\":\"migration\",\"services\":[\"migrate\"]}",
+    "event": "COMPOSE_PHASE_START_INTENDED",
+    "event_id": 11,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:06.652016+00:00",
+    "detail_json": "{\"exit_code\":0,\"outcome\":\"PASSED\",\"phase\":\"migration\",\"services\":[\"migrate\"]}",
+    "event": "COMPOSE_PHASE_FINISHED",
+    "event_id": 12,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:06.682184+00:00",
+    "detail_json": "{\"phase\":\"test\",\"services\":[\"test\"]}",
+    "event": "COMPOSE_PHASE_START_INTENDED",
+    "event_id": 13,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:07.399396+00:00",
+    "detail_json": "{\"exit_code\":0,\"outcome\":\"PASSED\",\"phase\":\"test\",\"services\":[\"test\"]}",
+    "event": "COMPOSE_PHASE_FINISHED",
+    "event_id": 14,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:09.768710+00:00",
+    "detail_json": "{\"sha256\":\"476c98637f8789cad4cc6cdce698c5cbe8cc5e4ae4edcabc36aa70f386527050\"}",
+    "event": "COMPOSE_EVIDENCE_SEALED",
+    "event_id": 15,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:09.871358+00:00",
+    "detail_json": "{\"containers\":{\"api\":\"acde78e2090fa2ece39262d40dd60737150e3192cfaa16d34d9d30b1a6cbcdc0\",\"migrate\":\"85cbc511c60293c1fc7612f35ded9dad10775993fc5f8955400f9753e38ea9f9\",\"test\":\"bbf8020d13f688f7192475d25d8016a9691f4abd655fcdd73295cfcfd41a2bef\"},\"network\":\"36743feed113e4f77ac3c91ffe0dd2747592db80855212ebac1a1b0421155e9d\",\"project\":\"cdr-compose-d1433e9b-4175-45ae-9de1-1d6a43349bb9\"}",
+    "event": "COMPOSE_TEARDOWN_INTENDED",
+    "event_id": 16,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:10.126517+00:00",
+    "detail_json": "{\"containers\":{\"api\":\"acde78e2090fa2ece39262d40dd60737150e3192cfaa16d34d9d30b1a6cbcdc0\",\"migrate\":\"85cbc511c60293c1fc7612f35ded9dad10775993fc5f8955400f9753e38ea9f9\",\"test\":\"bbf8020d13f688f7192475d25d8016a9691f4abd655fcdd73295cfcfd41a2bef\"},\"network\":\"36743feed113e4f77ac3c91ffe0dd2747592db80855212ebac1a1b0421155e9d\"}",
+    "event": "COMPOSE_RESOURCES_REMOVED",
+    "event_id": 17,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:10.176707+00:00",
+    "detail_json": "{\"run_id\":\"d1433e9b-4175-45ae-9de1-1d6a43349bb9\"}",
+    "event": "COMPOSE_VOLUME_RELEASED",
+    "event_id": 18,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:10.266194+00:00",
+    "detail_json": "{\"bundle_path\":\"/tmp/cdr-compose-qualification-a4mpc9g5/results/compose-canary/d1433e9b-4175-45ae-9de1-1d6a43349bb9/bundle\",\"bundle_sha256\":\"d0f390f620e82eda68e810565f591437f223994e54cb98333d6aacc3de1659fa\"}",
+    "event": "RESULT_SEALED",
+    "event_id": 19,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:10.294730+00:00",
+    "detail_json": "{\"bundle_sha256\":\"d0f390f620e82eda68e810565f591437f223994e54cb98333d6aacc3de1659fa\",\"code\":\"GITHUB_DELIVERY_NOT_CONFIGURED\",\"commit\":null,\"local_available\":true,\"local_locator\":\"/tmp/cdr-compose-qualification-a4mpc9g5/results/compose-canary/d1433e9b-4175-45ae-9de1-1d6a43349bb9/bundle\",\"marker\":null,\"remote_head\":null,\"status\":\"LOCAL_ONLY\"}",
+    "event": "RESULT_DELIVERY",
+    "event_id": 20,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  },
+  {
+    "created_at": "2026-10-22T19:34:10.310417+00:00",
+    "detail_json": "{\"code\":null}",
+    "event": "COMPLETED",
+    "event_id": 21,
+    "request_id": "d1433e9b-4175-45ae-9de1-1d6a43349bb9"
+  }
+]

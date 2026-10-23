@@ -1,0 +1,24 @@
+{
+  "protocol": "cdr-handoff/1",
+  "handoff_id": "3aae836b-d567-4281-ad45-8d1bb1d03e0b",
+  "project_id": "projectworkspace",
+  "target_id": "editor-handoff",
+  "purpose": "reference",
+  "title": "Automatic ChatGPT delivery without sender Drive version",
+  "base_commit": null,
+  "entrypoint": {
+    "artifact_id": "verification",
+    "path": "handoff-check/START.md"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "verification",
+      "drive_file_id": "1a3fMQJxYid6zDYpcjZFjSGhoAxdBHp5h",
+      "filename": "automatic-chat-handoff.zip",
+      "size_bytes": 451,
+      "sha256": "167ee5e69ef6edd0e8e051746f2298b8de0efce46712cbbee567b60b724a312b",
+      "media_type": "application/zip",
+      "unpack": "zip"
+    }
+  ]
+}

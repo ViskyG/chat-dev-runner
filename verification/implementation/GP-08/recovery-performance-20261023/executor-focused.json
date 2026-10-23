@@ -1,0 +1,56 @@
+{
+  "schema_version": "cdr-focused-evidence/1",
+  "scope": "Executor recovery; controlled Docker/quota boundary and one local Python child for CLI lease identity. No Docker, sudo, live recovery, service changes or broad suite.",
+  "checks": [
+    {
+      "name": "executor-tests",
+      "argv": [
+        "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_compose_v2.py",
+        "--junitxml=/home/visky/Work/GPTRunner/chat-dev-runner-gp-v2/verification/implementation/GP-08/recovery-performance-20261023/executor-tests.xml"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 27.95,
+      "log": "executor-tests.log"
+    },
+    {
+      "name": "executor-ruff",
+      "argv": [
+        "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/ruff",
+        "check",
+        "runner_app/executors/compose_v2.py",
+        "runner_app/executors/compose_recovery_v2.py",
+        "tests/test_compose_v2.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.004,
+      "log": "executor-ruff.log"
+    },
+    {
+      "name": "executor-mypy",
+      "argv": [
+        "/home/visky/Work/GPTRunner/chat-dev-runner/.venv/bin/mypy",
+        "runner_app/executors/compose_v2.py",
+        "runner_app/executors/compose_recovery_v2.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.053,
+      "log": "executor-mypy.log"
+    }
+  ],
+  "source_sha256": {
+    "runner_app/executors/compose_v2.py": "8618e343ca857301dac84e5cb0ce0011531b920e6850d824328fc8d9bb263d99",
+    "runner_app/executors/compose_recovery_v2.py": "762eaf899abc69466cfc17a3a3685ded7a826ad234e716b887d72c15b6f0560f",
+    "tests/test_compose_v2.py": "1d2d5b0b6a80638b85d4702a07966bddfc16ac40ce3f5e2c02f452f39f8ab3cd"
+  },
+  "baseline_reused": "Existing33 Compose boundary tests and prior actual Linux browser/finite lifecycle acceptance; affected normal lease/intent path checked in this focused file.",
+  "cases": "lost create/start ack, pre-allocation/read-only preflight, sealed pass, repeated recovery, partial container/network/quota cleanup, changed daemon/nonce/IDs/profile/config/source, missing/damaged evidence, session expiry, control process lease/PID reuse/active group/refusal, real local child lease",
+  "limits": [
+    "Legacy unsealed create/start without process leases fails closed.",
+    "Spawn intent without PID/completion and active/changed control group retain resources/lane.",
+    "Damaged immutable identity/evidence remains an explicit blocker; no workload replay or global prune."
+  ]
+}

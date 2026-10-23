@@ -1,0 +1,19 @@
+{
+  "source_commit": "046acee3412dc96b3e149434e08c9920b589abab",
+  "installed_sha256": "9e09be2ada8c6b1cfa4d6bf53dabd64efe9969172970b4f3fa2ec381cf45387b",
+  "uid": 65534,
+  "gid": 65534,
+  "mode": "0o755",
+  "nlink": 1,
+  "owner_installation_reported": true,
+  "probe": {
+    "status": "READY",
+    "base": "/var/lib/chat-dev-runner/volumes",
+    "max_slots": 8
+  },
+  "service": "active",
+  "armed": true,
+  "continuous_channels": 10,
+  "execution_lane_rows": 0,
+  "live_1024_allocation": "Not yet proven; next request will exercise installed helper."
+}

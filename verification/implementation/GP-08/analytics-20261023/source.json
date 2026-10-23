@@ -1,0 +1,11 @@
+{
+  "branch": "runner/analytics-cc-20261023",
+  "source_commit": "1285d171d0ab8ddbd5a778035e8918b54437c745",
+  "parent": "e95c3c83e0e8a681d405f9058c069216503abb66",
+  "files": {
+    "compose.json": "ce25588f8061e5ba9de168f5f47ddafe24cc3729ab63e7d6b84b69a09c24a922",
+    "run-ui-contract.cjs": "92b97d0480d5ad25ef139d2937c74d7c4adce597a868b5643832a82851490eb8",
+    "release-provenance.json": "390f06ac662dd1a7ef3b09a1cbec8c4f0bedd75a367aa5e500260cb9b1da367f",
+    ".runner/project.json": "89189d794c669317a90fb65ec8a4052dd11d33445b5bb42fdd93cb56279fcae5"
+  }
+}

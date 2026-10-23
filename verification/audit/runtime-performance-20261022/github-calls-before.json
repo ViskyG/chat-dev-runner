@@ -1,0 +1,19 @@
+{
+  "ack": {
+    "gets": 15,
+    "patches": 1,
+    "posts": 3,
+    "status": "APPLIED",
+    "total": 19
+  },
+  "cold_poll": 7,
+  "credential_reads": 0,
+  "publication": {
+    "gets": 8,
+    "patches": 1,
+    "posts": 9,
+    "status": "DELIVERED",
+    "total_rest": 18
+  },
+  "unchanged_poll": 7
+}

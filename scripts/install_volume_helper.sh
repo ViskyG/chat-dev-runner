@@ -12,11 +12,13 @@ if [[ $(id -u visky) != 1000 || $(id -g visky) != 1000 ]]; then
   exit 1
 fi
 
-source_file=/home/visky/Work/GPTRunner/chat-dev-runner/scripts/cdr_volume_helper.py
+source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+source_file=$source_dir/cdr_volume_helper.py
 install_path=/usr/local/libexec/chat-dev-runner-volume-helper
 sudoers_path=/etc/sudoers.d/chat-dev-runner-volumes
-expected_sha256=c1e7c8e749dde40f49b644830525dbcf931ed1f3397ce943ed5542e0233f6daa
-previous_sha256=d78abf99a53c790a76e74438d0b4270148eb4ec26d73ba89cae3dd0abfc7c567
+expected_sha256=9e09be2ada8c6b1cfa4d6bf53dabd64efe9969172970b4f3fa2ec381cf45387b
+previous_sha256=c1e7c8e749dde40f49b644830525dbcf931ed1f3397ce943ed5542e0233f6daa
+legacy_sha256=d78abf99a53c790a76e74438d0b4270148eb4ec26d73ba89cae3dd0abfc7c567
 expected_sudoers='visky ALL=(root) NOPASSWD: /usr/local/libexec/chat-dev-runner-volume-helper'
 
 # Stage owner-writable source into a root-owned directory, then hash the staged
@@ -53,11 +55,12 @@ if [[ -e "$install_path" || -L "$install_path" ]]; then
     exit 1
   fi
   installed_sha256=$(sha256sum "$install_path" | cut -d' ' -f1)
-  if [[ "$installed_sha256" != "$expected_sha256" && "$installed_sha256" != "$previous_sha256" ]]; then
+  if [[ "$installed_sha256" != "$expected_sha256" && "$installed_sha256" != "$previous_sha256" \
+        && "$installed_sha256" != "$legacy_sha256" ]]; then
     printf '%s\n' 'Existing root helper bytes differ; refusing overwrite' >&2
     exit 1
   fi
-  if [[ "$installed_sha256" == "$previous_sha256" ]]; then
+  if [[ "$installed_sha256" != "$expected_sha256" ]]; then
     # The old executable is the only approved way to retire its /run mounts.
     # Replacing it first would strand those mounts after a failed run.
     ensure_no_legacy_mounts

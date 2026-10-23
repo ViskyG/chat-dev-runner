@@ -1,0 +1,238 @@
+[
+  {
+    "created_at": "2026-10-22T21:15:23.642140+00:00",
+    "detail": {},
+    "event": "RESERVED",
+    "event_id": 186
+  },
+  {
+    "created_at": "2026-10-22T21:15:30.900607+00:00",
+    "detail": {},
+    "event": "QUEUED",
+    "event_id": 187
+  },
+  {
+    "created_at": "2026-10-22T21:15:30.949393+00:00",
+    "detail": {},
+    "event": "STARTING",
+    "event_id": 188
+  },
+  {
+    "created_at": "2026-10-22T21:15:32.127360+00:00",
+    "detail": {
+      "mode": "container",
+      "profile_revision": "1c90425ec84e416b265e1b37f8cc2f70e07d1a7f0b08a415778a89a8304d2c85",
+      "source_commit": "1b4396078906115c6715eb1f152ebef728e09d87",
+      "source_manifest_sha256": "db2ac930ad57f4790cb669f503427edb1670bd73e911abfcb552e65ae5e9191d",
+      "task_digest": "c7cd176534f344d59f0358e5fa4fb9a1580028d6755c1007fb83ccda3ee2b427",
+      "workload_sha256": "ae192d104a185cc5056476db30b8888a9c1de3bbe46b2c8ff47d4e4a8a43042a"
+    },
+    "event": "RUNNING",
+    "event_id": 189
+  },
+  {
+    "created_at": "2026-10-22T21:15:32.244050+00:00",
+    "detail": {
+      "intent_sha256": "cdfe9454f95e63b0e9768d821520ac71e00a1147926410bc4409eb68aba9d544",
+      "run_id": "6b254698-cdfd-4978-895c-0da4a7b39c56",
+      "volume_mb": 1024
+    },
+    "event": "COMPOSE_VOLUME_INTENDED",
+    "event_id": 190
+  },
+  {
+    "created_at": "2026-10-22T21:15:32.360262+00:00",
+    "detail": {
+      "config_sha256": "c32589289de39aae95482c5158377f498a8596eaa6e10eb553a5dbdafed22ab4",
+      "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+      "image_ids": {
+        "ghcr.io/viskyg/analytics-control-center@sha256:2e3c72d7d4f8055be84264699a79a82e87b0933cbc9e6fbfa3021febefbc5b66": "sha256:2e3c72d7d4f8055be84264699a79a82e87b0933cbc9e6fbfa3021febefbc5b66",
+        "ghcr.io/viskyg/analytics-control-center@sha256:7d22e86236895bbf1eb499caa4491fa4af24796bce6dbfb7adf05cc9d6c791e1": "sha256:7d22e86236895bbf1eb499caa4491fa4af24796bce6dbfb7adf05cc9d6c791e1"
+      },
+      "nonce": "f8bdb02d6e824014b3c3d8dcdae5afb6",
+      "profile_revision_sha256": "1c90425ec84e416b265e1b37f8cc2f70e07d1a7f0b08a415778a89a8304d2c85",
+      "project": "cdr-compose-6b254698-cdfd-4978-895c-0da4a7b39c56",
+      "source_sha256": "ae192d104a185cc5056476db30b8888a9c1de3bbe46b2c8ff47d4e4a8a43042a",
+      "volume": "/var/lib/chat-dev-runner/volumes/6b254698-cdfd-4978-895c-0da4a7b39c56"
+    },
+    "event": "COMPOSE_CREATE_INTENDED",
+    "event_id": 191
+  },
+  {
+    "created_at": "2026-10-22T21:15:32.745539+00:00",
+    "detail": {
+      "containers": {
+        "control-center": "512662ada1b7fe6fbf34ef54691737149e3ea960ecabffb55ef92033fac09fbb",
+        "ui-contract": "b9b94548fe3675ca9fccddc6316477a49ea52a99553547e00bbd20129eb67479"
+      },
+      "network": "3b8f337a249a12c801e59ae140deee12bca8a4a2f3ef2e60e0a0de9eb6ae5de5"
+    },
+    "event": "COMPOSE_RESOURCES_CREATED",
+    "event_id": 192
+  },
+  {
+    "created_at": "2026-10-22T21:15:32.797068+00:00",
+    "detail": {
+      "phase": "readiness",
+      "services": [
+        "control-center"
+      ]
+    },
+    "event": "COMPOSE_PHASE_START_INTENDED",
+    "event_id": 193
+  },
+  {
+    "created_at": "2026-10-22T21:15:35.216424+00:00",
+    "detail": {
+      "exit_code": 0,
+      "outcome": "PASSED",
+      "phase": "readiness",
+      "services": [
+        "control-center"
+      ]
+    },
+    "event": "COMPOSE_PHASE_FINISHED",
+    "event_id": 194
+  },
+  {
+    "created_at": "2026-10-22T21:15:35.256972+00:00",
+    "detail": {
+      "phase": "test",
+      "services": [
+        "ui-contract"
+      ]
+    },
+    "event": "COMPOSE_PHASE_START_INTENDED",
+    "event_id": 195
+  },
+  {
+    "created_at": "2026-10-22T21:16:42.848780+00:00",
+    "detail": {
+      "exit_code": 0,
+      "outcome": "PASSED",
+      "phase": "test",
+      "services": [
+        "ui-contract"
+      ]
+    },
+    "event": "COMPOSE_PHASE_FINISHED",
+    "event_id": 196
+  },
+  {
+    "created_at": "2026-10-22T21:16:43.496638+00:00",
+    "detail": {
+      "sha256": "f4fc5e7223e04ca053f60e6d20e599b2130b4dffbfbfc8ff922b2c2c84c08bb0"
+    },
+    "event": "COMPOSE_EVIDENCE_SEALED",
+    "event_id": 197
+  },
+  {
+    "created_at": "2026-10-22T21:16:43.576882+00:00",
+    "detail": {
+      "containers": {
+        "control-center": "512662ada1b7fe6fbf34ef54691737149e3ea960ecabffb55ef92033fac09fbb",
+        "ui-contract": "b9b94548fe3675ca9fccddc6316477a49ea52a99553547e00bbd20129eb67479"
+      },
+      "network": "3b8f337a249a12c801e59ae140deee12bca8a4a2f3ef2e60e0a0de9eb6ae5de5",
+      "project": "cdr-compose-6b254698-cdfd-4978-895c-0da4a7b39c56"
+    },
+    "event": "COMPOSE_TEARDOWN_INTENDED",
+    "event_id": 198
+  },
+  {
+    "created_at": "2026-10-22T21:16:43.900631+00:00",
+    "detail": {
+      "containers": {
+        "control-center": "512662ada1b7fe6fbf34ef54691737149e3ea960ecabffb55ef92033fac09fbb",
+        "ui-contract": "b9b94548fe3675ca9fccddc6316477a49ea52a99553547e00bbd20129eb67479"
+      },
+      "network": "3b8f337a249a12c801e59ae140deee12bca8a4a2f3ef2e60e0a0de9eb6ae5de5"
+    },
+    "event": "COMPOSE_RESOURCES_REMOVED",
+    "event_id": 199
+  },
+  {
+    "created_at": "2026-10-22T21:16:43.962573+00:00",
+    "detail": {
+      "run_id": "6b254698-cdfd-4978-895c-0da4a7b39c56"
+    },
+    "event": "COMPOSE_VOLUME_RELEASED",
+    "event_id": 200
+  },
+  {
+    "created_at": "2026-10-22T21:16:44.107500+00:00",
+    "detail": {
+      "bundle_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/6b254698-cdfd-4978-895c-0da4a7b39c56/bundle",
+      "bundle_sha256": "1701f457c794f1b0b3ae2e7f6387225cf62ad0505e16d43c5ad7b9fc18545221"
+    },
+    "event": "RESULT_SEALED",
+    "event_id": 201
+  },
+  {
+    "created_at": "2026-10-22T21:16:45.093200+00:00",
+    "detail": {
+      "base_commit": "1b4396078906115c6715eb1f152ebef728e09d87",
+      "bundle_sha256": "1701f457c794f1b0b3ae2e7f6387225cf62ad0505e16d43c5ad7b9fc18545221",
+      "commit": "b4d074858716917272195337544ce08b915cea1c",
+      "commit_message": "Publish runner results: local-runner/6b254698-cdfd-4978-895c-0da4a7b39c56\n\nBundle-SHA256: 1701f457c794f1b0b3ae2e7f6387225cf62ad0505e16d43c5ad7b9fc18545221\nPublication-Marker: bceb652c0f4b4e83bb6a1fe4bb1bf8c1\n",
+      "commit_timestamp": 1792703804,
+      "marker": "bceb652c0f4b4e83bb6a1fe4bb1bf8c1",
+      "request_id": "6b254698-cdfd-4978-895c-0da4a7b39c56",
+      "result_path": ".runner/results/local-runner/6b254698-cdfd-4978-895c-0da4a7b39c56",
+      "runner_id": "local-runner",
+      "tested_branch": "runner/analytics-cc-20261023",
+      "tree": "5c5c567d05beaae8e2836401ab5ef0d540decece"
+    },
+    "event": "RESULT_PUBLISH_INTENT",
+    "event_id": 202
+  },
+  {
+    "created_at": "2026-10-22T21:16:53.875878+00:00",
+    "detail": {
+      "bundle_sha256": "1701f457c794f1b0b3ae2e7f6387225cf62ad0505e16d43c5ad7b9fc18545221",
+      "code": "DELIVERED",
+      "commit": "b4d074858716917272195337544ce08b915cea1c",
+      "local_available": true,
+      "local_locator": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/6b254698-cdfd-4978-895c-0da4a7b39c56/bundle",
+      "marker": "bceb652c0f4b4e83bb6a1fe4bb1bf8c1",
+      "remote_head": "b4d074858716917272195337544ce08b915cea1c",
+      "status": "DELIVERED"
+    },
+    "event": "RESULT_DELIVERY",
+    "event_id": 203
+  },
+  {
+    "created_at": "2026-10-22T21:16:53.894156+00:00",
+    "detail": {
+      "code": null
+    },
+    "event": "COMPLETED",
+    "event_id": 204
+  },
+  {
+    "created_at": "2026-10-22T21:16:55.896898+00:00",
+    "detail": {
+      "base_commit": "1703cd183b7ef36495fce1bdd0c765640a23fc33",
+      "branch": "main",
+      "commit": "1cadc6e2184cc28f95ff3ad17cee9d7c2a48dc5f",
+      "marker": "1957e5bd018d4956bbafd50e2951b189",
+      "path": ".runner/state/local-runner/6b254698-cdfd-4978-895c-0da4a7b39c56.json",
+      "payload_sha256": "ca820550bc40577a12be2481bded96ac3cd50280067fdfc7315fd32134562c8e"
+    },
+    "event": "STATE_PUBLISH_INTENT",
+    "event_id": 205
+  },
+  {
+    "created_at": "2026-10-22T21:17:01.285233+00:00",
+    "detail": {
+      "branch": "main",
+      "code": "DELIVERED",
+      "commit": "1cadc6e2184cc28f95ff3ad17cee9d7c2a48dc5f",
+      "path": ".runner/state/local-runner/6b254698-cdfd-4978-895c-0da4a7b39c56.json",
+      "payload_sha256": "ca820550bc40577a12be2481bded96ac3cd50280067fdfc7315fd32134562c8e",
+      "status": "DELIVERED"
+    },
+    "event": "STATE_DELIVERY",
+    "event_id": 206
+  }
+]

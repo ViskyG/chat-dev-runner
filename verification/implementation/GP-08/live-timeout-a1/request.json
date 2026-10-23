@@ -1,0 +1,21 @@
+{
+  "request": {
+    "action": "RUN_TASK",
+    "execution": {
+      "backend_id": "rootless-compose",
+      "expected_os": "linux",
+      "mode": "container",
+      "profile_id": "compose-python",
+      "timeout_seconds": 152
+    },
+    "request_id": "556bfc63-9746-4f93-becd-07d0831f31c0",
+    "source": {
+      "branch": "compose-qualification",
+      "kind": "local_workspace",
+      "workspace_id": "fixture"
+    },
+    "task": "test"
+  },
+  "request_id": "556bfc63-9746-4f93-becd-07d0831f31c0",
+  "scratch": "/tmp/cdr-compose-qualification-_vnwh50_"
+}

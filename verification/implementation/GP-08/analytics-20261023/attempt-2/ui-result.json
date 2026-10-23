@@ -1,0 +1,77 @@
+{
+  "schema_version": "cdr-analytics-ui-result/1",
+  "status": "passed",
+  "started": true,
+  "complete": true,
+  "argv": [
+    "npm",
+    "run",
+    "test:ui"
+  ],
+  "cwd": "/work",
+  "base_url": "http://control-center:8768",
+  "package_script": "node tests/check_project_state.js && node tests/check_project_detail.js && node tests/check_terminology_exchange_ui.js && node tests/check_project_archive.js && node tests/check_todos_ui.js && node tests/check_project_overview_ui.js && node tests/check_material_system_ui.js && node tests/check_dwh_ui.js",
+  "provenance": {
+    "adapter_sha256": "92b97d0480d5ad25ef139d2937c74d7c4adce597a868b5643832a82851490eb8",
+    "compose_sha256": "ce25588f8061e5ba9de168f5f47ddafe24cc3729ab63e7d6b84b69a09c24a922",
+    "contract": {
+      "argv": [
+        "npm",
+        "run",
+        "test:ui"
+      ],
+      "base_url": "http://control-center:8768",
+      "cwd": "/work"
+    },
+    "images": {
+      "runtime": "ghcr.io/viskyg/analytics-control-center@sha256:7d22e86236895bbf1eb499caa4491fa4af24796bce6dbfb7adf05cc9d6c791e1",
+      "uiContract": "ghcr.io/viskyg/analytics-control-center@sha256:2e3c72d7d4f8055be84264699a79a82e87b0933cbc9e6fbfa3021febefbc5b66"
+    },
+    "platform": "linux/amd64",
+    "release_manifest_sha256": "b2b51c1b1c9ecf76aa38b157080e71e093dd670474dbb1d85dfd971f43ab6a27",
+    "release_version": "0.8.1",
+    "schema_version": "cdr-analytics-ui-release/1",
+    "scope": "Released image UI contract against bundled example catalog and temporary state",
+    "source": {
+      "repository": "https://github.com/ViskyG/analytics-control-center",
+      "revision": "e0e94a613f9f6017b433c5d63801a82bba639252",
+      "tag": "v0.8.1"
+    }
+  },
+  "started_at": "2026-10-22T20:35:59.645Z",
+  "junit_scope": "one aggregate released npm run test:ui command; not individual assertion counts",
+  "resources": {
+    "/tmp": {
+      "total_bytes": 1073741824,
+      "peak_used_bytes": 263028736
+    },
+    "/dev/shm": {
+      "total_bytes": 8388608,
+      "peak_used_bytes": 0
+    }
+  },
+  "counters_before": {
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memory.peak": "10190848\n",
+    "pids.events": "max 0\n",
+    "pids.peak": "7\n"
+  },
+  "log": {
+    "path": "ui-contract.log",
+    "limit_bytes": 4194304,
+    "observed_bytes": 9265,
+    "stored_bytes": 9265,
+    "truncated": false
+  },
+  "exit_code": 0,
+  "signal": null,
+  "spawn_error": null,
+  "duration_seconds": 67.912951091,
+  "finished_at": "2026-10-22T20:37:07.558Z",
+  "counters_after": {
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memory.peak": "1383104512\n",
+    "pids.events": "max 0\n",
+    "pids.peak": "110\n"
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "scope": "two real current reads of one registered GitHub port; no ACK or writes",
+  "binding_id": "gp07-github-preview",
+  "cloud_writes": 0,
+  "service_state_writes": 0,
+  "source_sha256": "7c8b836ab3afd23e0d729853ab9d5e5ec0c4b2b119c4f81e7a425f5d1e4ee5ed",
+  "probe_sha256": "f67de131dca62a8942b62b074e311d0740addb6c9bf97f62e86d68c8bff63f7b",
+  "passes": [
+    {
+      "pass": 1,
+      "status": "OK",
+      "elapsed_seconds": 3.4367,
+      "payload_bytes": 739,
+      "revision_present": true
+    },
+    {
+      "pass": 2,
+      "status": "OK",
+      "elapsed_seconds": 1.0274,
+      "payload_bytes": 739,
+      "revision_present": true
+    }
+  ],
+  "http": [
+    {
+      "pass": 1,
+      "endpoint": "repository_identity",
+      "status": 200,
+      "conditional_sent": false,
+      "etag_present": true,
+      "quota_headers": {
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "1639",
+        "x-ratelimit-reset": "1792698336"
+      }
+    },
+    {
+      "pass": 1,
+      "endpoint": "reference",
+      "status": 200,
+      "conditional_sent": false,
+      "etag_present": true,
+      "quota_headers": {
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "1638",
+        "x-ratelimit-reset": "1792698336",
+        "x-poll-interval": "300"
+      }
+    },
+    {
+      "pass": 1,
+      "endpoint": "git_object",
+      "status": 200,
+      "conditional_sent": false,
+      "etag_present": true,
+      "quota_headers": {
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "1636",
+        "x-ratelimit-reset": "1792698336"
+      }
+    },
+    {
+      "pass": 1,
+      "endpoint": "git_object",
+      "status": 200,
+      "conditional_sent": false,
+      "etag_present": true,
+      "quota_headers": {
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "1634",
+        "x-ratelimit-reset": "1792698336"
+      }
+    },
+    {
+      "pass": 1,
+      "endpoint": "git_object",
+      "status": 200,
+      "conditional_sent": false,
+      "etag_present": true,
+      "quota_headers": {
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "1632",
+        "x-ratelimit-reset": "1792698336"
+      }
+    },
+    {
+      "pass": 1,
+      "endpoint": "git_object",
+      "status": 200,
+      "conditional_sent": false,
+      "etag_present": true,
+      "quota_headers": {
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "1630",
+        "x-ratelimit-reset": "1792698336"
+      }
+    },
+    {
+      "pass": 1,
+      "endpoint": "git_object",
+      "status": 200,
+      "conditional_sent": false,
+      "etag_present": true,
+      "quota_headers": {
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "1628",
+        "x-ratelimit-reset": "1792698336"
+      }
+    },
+    {
+      "pass": 2,
+      "endpoint": "repository_identity",
+      "status": 304,
+      "conditional_sent": true,
+      "etag_present": true,
+      "quota_headers": {
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "1626",
+        "x-ratelimit-reset": "1792698336"
+      }
+    },
+    {
+      "pass": 2,
+      "endpoint": "reference",
+      "status": 304,
+      "conditional_sent": true,
+      "etag_present": true,
+      "quota_headers": {
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "1626",
+        "x-ratelimit-reset": "1792698336"
+      }
+    }
+  ],
+  "status": "OK",
+  "elapsed_seconds": 4.4644,
+  "source_unchanged": true
+}

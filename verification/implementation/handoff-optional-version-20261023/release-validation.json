@@ -1,0 +1,26 @@
+{
+  "source_commit": "f60e26e16704ffe12b52cf331883edd9935da1ab",
+  "version": "0.3.0.dev6",
+  "checks": {
+    "focused": {
+      "tests": 141,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "regression": {
+      "tests": 2056,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    }
+  },
+  "stages": {
+    "ruff": 0,
+    "mypy": 0,
+    "regression": 0,
+    "wheel": 0
+  },
+  "wheel_sha256": "84c9f07fa21be8637a2b3ec896c6af20d02e7984b447c94e04dd9fcbefe03925",
+  "monitor_note": "HUD reported a signalled adopted descendant (-9); the finite harness completed and every recorded stage exited 0. XML and wheel artifacts independently verified. No suite rerun."
+}

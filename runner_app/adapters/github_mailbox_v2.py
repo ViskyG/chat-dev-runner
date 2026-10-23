@@ -8,21 +8,26 @@ history polling, automatic branch, PR, release, LFS or write replay is provided.
 from __future__ import annotations
 
 import base64
+import copy
 import hashlib
 import json
+import math
 import os
 import re
 import selectors
 import subprocess
+import threading
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from collections import OrderedDict
 from collections.abc import Callable, Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 from uuid import UUID
 
 from runner_app.adapters.github import (
@@ -88,6 +93,14 @@ class GitHubV2Limits:
 
 
 DEFAULT_LIMITS = GitHubV2Limits()
+_OBJECT_CACHE_ENTRIES = 128
+_OBJECT_CACHE_BYTES = 4 * 1024 * 1024
+_BLOB_UPLOAD_WORKERS = 4
+_CONDITIONAL_CACHE_ENTRIES = 64
+_CONDITIONAL_CACHE_BYTES = 1024 * 1024
+_CONDITIONAL_PATH = re.compile(r"/repos/[^/]+/[^/]+(?:/git/ref/heads/.+)?\Z")
+_RESPONSE_HEADERS = ("etag", "retry-after", "x-ratelimit-limit", "x-ratelimit-remaining",
+                     "x-ratelimit-reset", "x-poll-interval")
 
 
 def _sha(value: Any) -> str:
@@ -118,12 +131,91 @@ def _command_path(path: str) -> str:
 class BoundedGitHubV2HTTP:
     """HTTPS api.github.com only, no redirects/proxies, bounded large-blob JSON."""
 
+    # GitHub accounts share quota across repositories and transports. Keys are
+    # credential fingerprints kept only in memory, never diagnostics or evidence.
+    _cooldowns: ClassVar[OrderedDict[str, tuple[float, int]]] = OrderedDict()
+    _cooldown_lock = threading.Lock()
+
     def __init__(self, token_provider: Callable[[], str], *, timeout: float = 20,
                  limits: GitHubV2Limits = DEFAULT_LIMITS) -> None:
         if not callable(token_provider) or not 1 <= timeout <= 30:
             raise ValueError("An owner token callable and bounded timeout are required")
         self._token_provider, self._timeout, self._limits = token_provider, timeout, limits
         self._opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedirect())
+        self._conditional: OrderedDict[tuple[str, str], tuple[str, bytes]] = OrderedDict()
+        self._conditional_bytes = 0
+        self._conditional_lock = threading.Lock()
+
+    def _cached_response(self, key: tuple[str, str]) -> tuple[str, bytes] | None:
+        with self._conditional_lock:
+            value = self._conditional.get(key)
+            if value is not None:
+                self._conditional.move_to_end(key)
+            return value
+
+    def _remember_response(self, key: tuple[str, str], etag: str, payload: bytes) -> None:
+        budget = min(_CONDITIONAL_CACHE_BYTES, self._limits.json_bytes)
+
+        def size(entry_key: tuple[str, str], entry: tuple[str, bytes]) -> int:
+            return len(entry_key[0]) + len(entry_key[1].encode()) + len(entry[0]) + len(entry[1])
+
+        with self._conditional_lock:
+            previous = self._conditional.pop(key, None)
+            if previous is not None:
+                self._conditional_bytes -= size(key, previous)
+            if (not etag or len(etag) > 512 or any(ord(char) < 32 or ord(char) > 126 for char in etag)
+                    or size(key, (etag, payload)) > budget):
+                return
+            self._conditional[key] = (etag, payload)
+            self._conditional_bytes += size(key, (etag, payload))
+            while (len(self._conditional) > _CONDITIONAL_CACHE_ENTRIES
+                   or self._conditional_bytes > budget):
+                removed_key, removed = self._conditional.popitem(last=False)
+                self._conditional_bytes -= size(removed_key, removed)
+
+    @classmethod
+    def _check_cooldown(cls, auth: str) -> None:
+        with cls._cooldown_lock:
+            state = cls._cooldowns.get(auth)
+            if state is not None and state[0] > time.monotonic():
+                raise GitHubV2Error("GITHUB_RATE_LIMITED")
+
+    @classmethod
+    def _update_cooldown(cls, auth: str, status: int, headers: Mapping[str, str],
+                         data: Any = None) -> None:
+        now = time.monotonic()
+        message = data.get("message") if isinstance(data, dict) else None
+        rate_message = isinstance(message, str) and message.lower().startswith((
+            "api rate limit exceeded", "you have exceeded a secondary rate limit",
+            "you have exceeded a rate limit"))
+        limited = (status == 429 or headers.get("x-ratelimit-remaining") == "0"
+                   or status == 403 and (bool(headers.get("retry-after")) or rate_message))
+        with cls._cooldown_lock:
+            previous = cls._cooldowns.get(auth, (0.0, 0))
+            if not limited:
+                if previous[0] <= now:
+                    cls._cooldowns.pop(auth, None)
+                return
+            failures = min(previous[1] + 1, 7)
+            delay = float(min(3600, 60 * 2 ** (failures - 1)))
+            advised: list[float] = []
+            for name in ("retry-after", "x-ratelimit-reset"):
+                if name == "x-ratelimit-reset" and headers.get("x-ratelimit-remaining") != "0":
+                    continue
+                try:
+                    value = float(headers[name])
+                except (KeyError, ValueError):
+                    continue
+                if name == "x-ratelimit-reset":
+                    value -= time.time()
+                if math.isfinite(value) and value > 0:
+                    advised.append(value)
+            if advised:
+                delay = max(advised)
+            cls._cooldowns[auth] = (max(previous[0], now + delay), failures)
+            cls._cooldowns.move_to_end(auth)
+            while len(cls._cooldowns) > 128:
+                cls._cooldowns.popitem(last=False)
 
     def request(self, method: str, path: str, *, params: Mapping[str, str] | None = None,
                 body: Mapping[str, Any] | None = None) -> GitHubHTTPResponse:
@@ -138,11 +230,17 @@ class BoundedGitHubV2HTTP:
             token = _validate_token(self._token_provider()).decode("ascii")
         except Exception:  # noqa: BLE001 - a credential provider may include secret exception text
             raise GitHubV2Error("GITHUB_AUTH_UNAVAILABLE") from None
+        auth = hashlib.sha256(token.encode("ascii")).hexdigest()
+        self._check_cooldown(auth)
+        cache_key = ((auth, path) if method == "GET" and body is None and not params
+                     and _CONDITIONAL_PATH.fullmatch(path) else None)
+        cached = self._cached_response(cache_key) if cache_key is not None else None
         query = "?" + urllib.parse.urlencode(params) if params else ""
         request = urllib.request.Request(
             "https://api.github.com" + path + query, data=raw, method=method,
             headers={"Accept": "application/vnd.github+json", "Authorization": "Bearer " + token,
                      "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "chat-dev-runner-v2",
+                     **({"If-None-Match": cached[0]} if cached is not None else {}),
                      **({"Content-Type": "application/json"} if raw is not None else {})},
         )
         try:
@@ -151,11 +249,31 @@ class BoundedGitHubV2HTTP:
             except urllib.error.HTTPError as error:
                 response = error
             with response:
+                headers = {name: str(response.headers.get(name, ""))[:1024]
+                           for name in _RESPONSE_HEADERS}
+                status = int(response.status)
                 data = response.read(self._limits.json_bytes + 1)
                 if len(data) > self._limits.json_bytes:
+                    self._update_cooldown(auth, status, headers)
                     raise GitHubV2Error("GITHUB_JSON_LIMIT")
-                parsed = json.loads(data) if data else {}
-                return GitHubHTTPResponse(int(response.status), parsed)
+                if status == 304:
+                    self._update_cooldown(auth, status, headers)
+                    if cached is None:
+                        raise GitHubV2Error("GITHUB_CONDITIONAL_CACHE_MISS")
+                    # This response is freshly authorized by GitHub. Parsing the
+                    # stored bytes also gives each caller an independent body.
+                    return GitHubHTTPResponse(200, json.loads(cached[1]), headers)
+                parsed = None
+                try:
+                    parsed = json.loads(data) if data else {}
+                finally:
+                    self._update_cooldown(auth, status, headers, parsed)
+                if cache_key is not None:
+                    if status == 200:
+                        self._remember_response(cache_key, headers["etag"], data or b"{}")
+                    elif status in {401, 403, 404}:
+                        self._remember_response(cache_key, "", b"")
+                return GitHubHTTPResponse(status, parsed, headers)
         except GitHubV2Error:
             raise
         except Exception:  # noqa: BLE001 - urllib exceptions may contain private request details
@@ -196,6 +314,37 @@ class GitHubV2Client:
         self._token_provider = token_provider
         self._transport = transport or BoundedGitHubV2HTTP(token_provider, limits=limits)
         self._prefix = f"/repos/{repository.owner}/{repository.name}"
+        # Only validated, content-addressed objects are reusable. Identity and
+        # branch HEAD must still be read from the provider for every observation.
+        self._object_cache: OrderedDict[tuple[str, str], tuple[Any, int]] = OrderedDict()
+        self._object_cache_bytes = 0
+        self._object_cache_lock = threading.Lock()
+
+    def _cached_object(self, kind: str, oid: str) -> Any:
+        with self._object_cache_lock:
+            key = (kind, oid)
+            entry = self._object_cache.get(key)
+            if entry is None:
+                return None
+            self._object_cache.move_to_end(key)
+            # A caller must not be able to mutate a cached tree response.
+            return copy.deepcopy(entry[0])
+
+    def _cache_object(self, kind: str, oid: str, value: Any, size: int) -> None:
+        budget = min(_OBJECT_CACHE_BYTES, self.limits.json_bytes)
+        if size > budget:
+            return
+        with self._object_cache_lock:
+            key = (kind, oid)
+            prior = self._object_cache.pop(key, None)
+            if prior is not None:
+                self._object_cache_bytes -= prior[1]
+            self._object_cache[key] = (copy.deepcopy(value), size)
+            self._object_cache_bytes += size
+            while (len(self._object_cache) > min(_OBJECT_CACHE_ENTRIES, self.limits.objects)
+                   or self._object_cache_bytes > budget):
+                _, (_, removed_size) = self._object_cache.popitem(last=False)
+                self._object_cache_bytes -= removed_size
 
     def request(self, method: str, suffix: str, *,
                 body: Mapping[str, Any] | None = None) -> GitHubHTTPResponse:
@@ -247,14 +396,24 @@ class GitHubV2Client:
         return _sha(data["object"].get("sha"))
 
     def commit_tree(self, commit: str) -> str:
-        data = self.read(f"/git/commits/{_sha(commit)}")
+        commit = _sha(commit)
+        cached = self._cached_object("commit", commit)
+        if isinstance(cached, str):
+            return cached
+        data = self.read(f"/git/commits/{commit}")
         if (not isinstance(data, dict) or data.get("sha") != commit
                 or not isinstance(data.get("tree"), dict)):
             raise GitHubV2Error("GITHUB_OBJECT_INVALID")
-        return _sha(data["tree"].get("sha"))
+        tree = _sha(data["tree"].get("sha"))
+        self._cache_object("commit", commit, tree, len(tree))
+        return tree
 
     def tree(self, tree: str) -> list[dict[str, Any]]:
-        data = self.read(f"/git/trees/{_sha(tree)}")
+        tree = _sha(tree)
+        cached = self._cached_object("tree", tree)
+        if isinstance(cached, list):
+            return cached
+        data = self.read(f"/git/trees/{tree}")
         if (not isinstance(data, dict) or data.get("sha") != tree
                 or data.get("truncated") is not False or not isinstance(data.get("tree"), list)
                 or len(data["tree"]) > self.limits.tree_entries):
@@ -268,10 +427,17 @@ class GitHubV2Client:
                 raise GitHubV2Error("GITHUB_TREE_INVALID")
             _sha(entry.get("sha"))
             names.add(entry["path"])
+        self._cache_object("tree", tree, entries, len(_json(entries)))
         return entries
 
     def blob(self, blob: str, budget: int) -> bytes:
-        data = self.read(f"/git/blobs/{_sha(blob)}")
+        blob = _sha(blob)
+        cached = self._cached_object("blob", blob)
+        if isinstance(cached, bytes):
+            if len(cached) > budget:
+                raise GitHubV2Error("GITHUB_BLOB_INVALID")
+            return cached
+        data = self.read(f"/git/blobs/{blob}")
         if (not isinstance(data, dict) or data.get("sha") != blob
                 or data.get("encoding") != "base64" or not isinstance(data.get("content"), str)
                 or type(data.get("size")) is not int or not 0 <= data["size"] <= budget):
@@ -285,6 +451,7 @@ class GitHubV2Client:
             raise GitHubV2Error("GITHUB_BLOB_INVALID") from None
         if len(raw) != data["size"] or _git_hash("blob", raw) != blob:
             raise GitHubV2Error("GITHUB_BLOB_INVALID")
+        self._cache_object("blob", blob, raw, len(raw))
         return raw
 
     def current_file(self, branch: str, path: str) -> _File:
@@ -560,27 +727,33 @@ class GitHubResultTransport:
         if (_git_hash("commit", raw) != commit
                 or not (state_commit or message.startswith("Publish runner results: "))):
             raise GitHubV2Error("RESULT_COMMIT_INVALID")
-        changes = run_git_bytes(repo, ["diff-tree", "--no-commit-id", "--name-status", "-r", "-z",
+        changes = run_git_bytes(repo, ["diff-tree", "--no-commit-id", "--raw", "--no-abbrev", "-r", "-z",
                                        "--no-renames", parent, commit]).split(b"\0")
         changes = changes[:-1] if changes[-1] == b"" else changes
         if not changes or len(changes) % 2:
             raise GitHubV2Error("RESULT_SOURCE_CHANGE_REFUSED")
         prefixes: set[bytes] = set()
-        for status, path in zip(changes[::2], changes[1::2], strict=True):
+        updates: list[dict[str, str]] = []
+        for metadata, path in zip(changes[::2], changes[1::2], strict=True):
+            _, mode, _, object_id, status = metadata.split(b" ")
             allowed = (status in {b"A", b"M"} and _STATE_PATH.fullmatch(path) is not None
                        if state_commit else status == b"A" and _RESULT_PATH.fullmatch(path) is not None)
-            if not allowed:
+            if not allowed or mode != b"100644":
                 raise GitHubV2Error("RESULT_SOURCE_CHANGE_REFUSED")
             prefixes.add(b"/".join(path.split(b"/")[:4]))
+            updates.append({"path": path.decode("utf-8"), "mode": "100644", "type": "blob",
+                            "sha": _sha(object_id.decode("ascii"))})
         if (len(prefixes) != 1 or len(changes) // 2 > self.client.limits.objects
                 or state_commit and len(changes) != 2):
             raise GitHubV2Error("RESULT_SOURCE_CHANGE_REFUSED")
         total, count = len(raw), 1
-        uploaded: set[str] = set()
+        planned: set[str] = set()
+        blobs: dict[str, bytes] = {}
+        trees: list[tuple[str, list[dict[str, str]]]] = []
 
-        def upload_tree(oid: str, base_oid: str | None) -> None:
+        def plan_tree(oid: str, base_oid: str | None) -> None:
             nonlocal total, count
-            if oid == base_oid or oid in uploaded:
+            if oid == base_oid or oid in planned:
                 return
             data = run_git_bytes(repo, ["ls-tree", "-z", oid])
             total += len(data)
@@ -601,8 +774,8 @@ class GitHubResultTransport:
                 mode, kind, object_id = metadata.decode("ascii").split(" ")
                 object_id = _sha(object_id)
                 if kind == "tree":
-                    upload_tree(object_id, base_entries.get(name))
-                elif object_id != base_entries.get(name) and object_id not in uploaded:
+                    plan_tree(object_id, base_entries.get(name))
+                elif object_id != base_entries.get(name) and object_id not in planned:
                     if kind != "blob" or mode != "100644":
                         raise GitHubV2Error("RESULT_SOURCE_CHANGE_REFUSED")
                     blob = _large_blob(repo, object_id, self.client.limits.blob_bytes)
@@ -610,15 +783,47 @@ class GitHubResultTransport:
                     count += 1
                     if total > self.client.limits.bundle_bytes or count > self.client.limits.objects:
                         raise GitHubV2Error("GITHUB_BUNDLE_LIMIT")
-                    self.client.create_blob(blob)
-                    uploaded.add(object_id)
+                    encoded_size = ((len(blob) + 2) // 3) * 4
+                    if encoded_size + len(_json({"content": "", "encoding": "base64"})) > self.client.limits.json_bytes:
+                        raise GitHubV2Error("GITHUB_JSON_LIMIT")
+                    blobs[object_id] = blob
+                    planned.add(object_id)
                 entries.append({"path": name.decode("utf-8"), "mode": mode,
                                 "type": kind, "sha": object_id})
-            self.client.create_tree(entries, expected=oid)
-            uploaded.add(oid)
+            if len(entries) > self.client.limits.tree_entries:
+                raise GitHubV2Error("GITHUB_TREE_LIMIT")
+            if len(_json({"tree": entries})) > self.client.limits.json_bytes:
+                raise GitHubV2Error("GITHUB_JSON_LIMIT")
+            trees.append((oid, entries))
+            planned.add(oid)
 
         base_tree = run_git(repo, ["rev-parse", "--verify", f"{parent}^{{tree}}"] ).strip()
-        upload_tree(tree, base_tree)
+        # Validate the entire immutable object graph and its existing budgets
+        # before writes. Retained blob bytes are bounded by bundle_bytes.
+        plan_tree(tree, base_tree)
+        payloads = list(blobs.values())
+        if len(payloads) == 1:
+            self.client.create_blob(payloads[0])
+        elif payloads:
+            with ThreadPoolExecutor(max_workers=_BLOB_UPLOAD_WORKERS,
+                                    thread_name_prefix="cdr-github-blob") as executor:
+                for offset in range(0, len(payloads), _BLOB_UPLOAD_WORKERS):
+                    # Do not enqueue later groups until every current upload is
+                    # proved. On failure only this bounded group may be in flight;
+                    # the executor drains it before returning without a ref write.
+                    futures = [executor.submit(self.client.create_blob, blob)
+                               for blob in payloads[offset:offset + _BLOB_UPLOAD_WORKERS]]
+                    for future in futures:
+                        future.result()
+        # GitHub builds intermediate trees for full paths, just as mailbox ACKs
+        # do. Checking the root SHA proves the exact local tree, including source.
+        # Small custom request limits retain the dependency-ordered tree path.
+        if (len(updates) <= self.client.limits.tree_entries
+                and len(_json({"tree": updates, "base_tree": base_tree})) <= self.client.limits.json_bytes):
+            self.client.create_tree(updates, base=base_tree, expected=tree)
+        else:
+            for oid, entries in trees:
+                self.client.create_tree(entries, expected=oid)
         self.client.create_commit(tree, parent, message, timestamp, expected=commit)
         return parent, tree
 

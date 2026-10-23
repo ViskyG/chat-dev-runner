@@ -1,0 +1,15 @@
+[
+  {
+    "argv": [
+      "python",
+      "/src/client.py",
+      "fail"
+    ],
+    "cleanup_verified": true,
+    "duration_seconds": 5.641596106001089,
+    "exit_code": 1,
+    "outcome": "FAILED",
+    "phase": "test",
+    "step": "compose-test"
+  }
+]

@@ -1,0 +1,134 @@
+{
+  "status": "INSTALLED_ARMED_TEN_NEW_SESSION_BASELINES",
+  "version": "0.3.0.dev5",
+  "schema": 11,
+  "preserved_history": {
+    "v1_operations": 26,
+    "v2_requests": 12,
+    "identity_status_sha256": "23204acefa3bf9bd9c80ee065ea520034e51cae111b62e2dc37ad70abe591fcf"
+  },
+  "lane_rows": 0,
+  "commands_submitted": 0,
+  "mailbox_preflight": [
+    {
+      "binding_id": "gp07-github-preview",
+      "dispatch": "ACCEPTED",
+      "sha256": "097f4bd74ebb2ff1ff5ddb0c96fd506829580a7347a0e7734b86bf44b3fc5e7a"
+    },
+    {
+      "binding_id": "gp04-docs-preview",
+      "dispatch": "DRAFT",
+      "sha256": "86de5adea9046383a84fbf621d9eeb2efa177dfc1a05fc39d5da788a01fc6c31"
+    },
+    {
+      "binding_id": "cdr-runner-test-github",
+      "dispatch": "ACCEPTED",
+      "sha256": "399060c7e41f047fa4c30dc71d3cb21f29cefc4d0148cc2dbfdf9c0fe041db08"
+    },
+    {
+      "binding_id": "cdr-runner-test-docs-handoff",
+      "dispatch": "ACCEPTED",
+      "sha256": "e834817338c89411a99315944e64563be332ec99cc1a50850d856f22f6617aed"
+    },
+    {
+      "binding_id": "handoff-a42da246c6f3aabba0541987",
+      "dispatch": "DRAFT",
+      "sha256": "4569fd3ef7b03e91cb0e4577bcea5aba9808cf5eb971bae295dd2f40063fbe9b"
+    },
+    {
+      "binding_id": "handoff-e741c49629df7e4aac60d041",
+      "dispatch": "DRAFT",
+      "sha256": "67f09dcb8f0f718bcfad5277dd27af885c12b96429854694fd5c397fa150733b"
+    },
+    {
+      "binding_id": "handoff-61b492cbe0b95e13512b5706",
+      "dispatch": "DRAFT",
+      "sha256": "3715d56e6a5c0670607278890b4a3260f38ed093d444c97d294dca46fea7493c"
+    },
+    {
+      "binding_id": "handoff-d006eddc870a5227307d3e65",
+      "dispatch": "DRAFT",
+      "sha256": "10a974246c1a12792c1ec4c77364f5e89f6123546167f4eb426dae8010623a6b"
+    },
+    {
+      "binding_id": "handoff-0354c1c4006d35be7200a9c4",
+      "dispatch": "DRAFT",
+      "sha256": "4b68d56118798c86bf3cfb779acc0ab4288fca707aa5552918f176325b28fec2"
+    },
+    {
+      "binding_id": "handoff-e774f582105ab259b7ebbdf2",
+      "dispatch": "DRAFT",
+      "sha256": "ab09dc45e5e95c7c6ec42ae00e4ded8805047ec75f59242432fa8ce34212784a"
+    }
+  ],
+  "mailbox_stopped_preflight": [
+    {
+      "binding_id": "gp07-github-preview",
+      "dispatch": "ACCEPTED",
+      "sha256": "097f4bd74ebb2ff1ff5ddb0c96fd506829580a7347a0e7734b86bf44b3fc5e7a"
+    },
+    {
+      "binding_id": "gp04-docs-preview",
+      "dispatch": "DRAFT",
+      "sha256": "86de5adea9046383a84fbf621d9eeb2efa177dfc1a05fc39d5da788a01fc6c31"
+    },
+    {
+      "binding_id": "cdr-runner-test-github",
+      "dispatch": "ACCEPTED",
+      "sha256": "399060c7e41f047fa4c30dc71d3cb21f29cefc4d0148cc2dbfdf9c0fe041db08"
+    },
+    {
+      "binding_id": "cdr-runner-test-docs-handoff",
+      "dispatch": "ACCEPTED",
+      "sha256": "e834817338c89411a99315944e64563be332ec99cc1a50850d856f22f6617aed"
+    },
+    {
+      "binding_id": "handoff-a42da246c6f3aabba0541987",
+      "dispatch": "DRAFT",
+      "sha256": "4569fd3ef7b03e91cb0e4577bcea5aba9808cf5eb971bae295dd2f40063fbe9b"
+    },
+    {
+      "binding_id": "handoff-e741c49629df7e4aac60d041",
+      "dispatch": "DRAFT",
+      "sha256": "67f09dcb8f0f718bcfad5277dd27af885c12b96429854694fd5c397fa150733b"
+    },
+    {
+      "binding_id": "handoff-61b492cbe0b95e13512b5706",
+      "dispatch": "DRAFT",
+      "sha256": "3715d56e6a5c0670607278890b4a3260f38ed093d444c97d294dca46fea7493c"
+    },
+    {
+      "binding_id": "handoff-d006eddc870a5227307d3e65",
+      "dispatch": "DRAFT",
+      "sha256": "10a974246c1a12792c1ec4c77364f5e89f6123546167f4eb426dae8010623a6b"
+    },
+    {
+      "binding_id": "handoff-0354c1c4006d35be7200a9c4",
+      "dispatch": "DRAFT",
+      "sha256": "4b68d56118798c86bf3cfb779acc0ab4288fca707aa5552918f176325b28fec2"
+    },
+    {
+      "binding_id": "handoff-e774f582105ab259b7ebbdf2",
+      "dispatch": "DRAFT",
+      "sha256": "ab09dc45e5e95c7c6ec42ae00e4ded8805047ec75f59242432fa8ce34212784a"
+    }
+  ],
+  "backup": {
+    "archive": "/home/visky/Work/GPTRunner/.runner-backups/recovery-performance-20261023/state-before",
+    "manifest_sha256": "31b020e37662d706a2b71c822fc25227d9ebdf361ce1b3f51f1bb12f23be591a",
+    "files": 11076,
+    "symlinks": 4,
+    "database_schema_version": 11
+  },
+  "runtime_sha256": "2eec1283bd9a0d1ce702e552d58ae96eb784fc0037cf69e9e25714ea14a1f2a4",
+  "previous_live_session_ids": [
+    "3f77a2ea-9ab6-49ca-ad4d-bdd173a2941b"
+  ],
+  "new_live_session_ids": [
+    "7ac22ea5-97db-47b1-afcd-dfdfe69bde67"
+  ],
+  "old_binary_retained": true,
+  "credential_contents_printed": false,
+  "drive_root_reused": true,
+  "index_modified": false
+}

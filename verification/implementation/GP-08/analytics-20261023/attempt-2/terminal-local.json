@@ -1,0 +1,31 @@
+{
+  "request_id": "d62882a6-ebe1-48e3-af09-b4d10c631f88",
+  "digest": "af859d6bf99853e00e1cf0739dffd22261752477951981456a1bfa50edd543ab",
+  "status": "COMPLETED",
+  "code": null,
+  "execution": {
+    "cleanup": "CONFIRMED",
+    "exit_code": 0,
+    "outcome": "PASSED",
+    "quality_gate": "PASSED"
+  },
+  "delivery": {
+    "bundle_sha256": "9739479815fd2241ef206923ee68ac0ebfa88addcbff1c31c70cf646c6e934b2",
+    "code": "DELIVERED",
+    "commit": "1b4396078906115c6715eb1f152ebef728e09d87",
+    "local_available": true,
+    "local_locator": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/d62882a6-ebe1-48e3-af09-b4d10c631f88/bundle",
+    "marker": "f42fa6f267764dafa3b47821d5a96d14",
+    "remote_head": "1b4396078906115c6715eb1f152ebef728e09d87",
+    "status": "DELIVERED"
+  },
+  "source": {
+    "branch": "runner/analytics-cc-20261023",
+    "commit": "1285d171d0ab8ddbd5a778035e8918b54437c745",
+    "dirty": false,
+    "kind": "github_branch",
+    "overlay_sha256": null,
+    "workload_sha256": "ae192d104a185cc5056476db30b8888a9c1de3bbe46b2c8ff47d4e4a8a43042a"
+  },
+  "elapsed_seconds": 106.428
+}

@@ -1,0 +1,1080 @@
+{
+  "backend": {
+    "capture_complete": true,
+    "error_code": null,
+    "execution_arch": "amd64",
+    "execution_os": "linux",
+    "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+    "mode": "container",
+    "rootless": {
+      "backend": "rootless_compose",
+      "capture_complete": true,
+      "collection_complete": true,
+      "collection_findings": [
+        "partial:FORMAT_NOT_REGISTERED",
+        "answer:FORMAT_NOT_REGISTERED"
+      ],
+      "compose_version": "5.5.1",
+      "containers": {
+        "api": "f4cedfdcd5f0d8d0677dba231f12d4bbe99d9460e5728b996cc8d522e82bb4f8",
+        "migrate": "e0ec94420471c06fdca99fc1c1f76bf80dec687ef17a676c49ef7f0c03e49c10",
+        "test": "e37ef1f644d311237a175080e055ef61a69a10c5ea31d9eb488867c970674ea2"
+      },
+      "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+      "exit_code": 1,
+      "image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+      "image_ids": {
+        "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111"
+      },
+      "limits": {
+        "hard_volume_bytes": 67108864,
+        "per_service_cpu": 0.5,
+        "per_service_memory_bytes": 100663296,
+        "per_service_pids": 32
+      },
+      "log_retention": {
+        "max_bytes_per_service": 65536,
+        "max_files_per_service": 1,
+        "original_history_complete": null,
+        "policy": "bounded-docker-tail"
+      },
+      "network_id": "b69018e93e1e0b0d65afc84135bcc76a10a1e97c5193ded308d22841d1b02a6c",
+      "nonce": "58a0e80a057141d7864be9d447bcc1f5",
+      "outcome": "FAILED",
+      "outputs": [
+        {
+          "complete": true,
+          "format": "junit-xml",
+          "kind": "test_result",
+          "media_type": "application/xml",
+          "output_id": "junit",
+          "publication": "local_only",
+          "relative_path": "outputs/junit.xml",
+          "sha256": "ff7e9835ffd1f2692b073208533613110a27ca79801c18beb5b9df102e2fe988",
+          "size_bytes": 497,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "json",
+          "kind": "report",
+          "media_type": "application/json",
+          "output_id": "partial",
+          "publication": "local_only",
+          "relative_path": "outputs/partial.json",
+          "sha256": "275e313df82e65695c13501e1dfd3d178f4bd910cb15f039a778e95a65b59ed8",
+          "size_bytes": 33,
+          "truncated_reason": null
+        },
+        {
+          "complete": true,
+          "format": "json",
+          "kind": "report",
+          "media_type": "application/json",
+          "output_id": "answer",
+          "publication": "local_only",
+          "relative_path": "outputs/answer.json",
+          "sha256": "34405124daa62becdae10ab4abab300720f872da70b0b01803f902593ef34ca7",
+          "size_bytes": 35,
+          "truncated_reason": null
+        }
+      ],
+      "phases": [
+        {
+          "exit_code": 0,
+          "outcome": "PASSED",
+          "phase": "readiness",
+          "services": [
+            "api"
+          ]
+        },
+        {
+          "exit_code": 0,
+          "outcome": "PASSED",
+          "phase": "migration",
+          "services": [
+            "migrate"
+          ]
+        },
+        {
+          "exit_code": 1,
+          "outcome": "FAILED",
+          "phase": "test",
+          "services": [
+            "test"
+          ]
+        }
+      ],
+      "profile_revision_sha256": "eea488f2756eb2ea6fdc6311adc75e95eddc2c0984427922569bc9851b3bfc8f",
+      "project": "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6",
+      "request_id": "34aede98-40f7-48e6-9151-526db2db08c6",
+      "resolved_config_sha256": "e00b376925212058d0c7eb4b43e889abbed368fbf2443a187585cb4e8337466e",
+      "schema_version": "cdr-compose-backend/1",
+      "source_compose_sha256": "49bd4f9fe5a57e6b6c23bb1e16a588bf78a0d833ec4352a578883d9f87eb72ba",
+      "stopped_containers": {
+        "api": {
+          "AppArmorProfile": "",
+          "Args": [
+            "/src/api.py"
+          ],
+          "Config": {
+            "AttachStderr": true,
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "Cmd": [
+              "python",
+              "/src/api.py"
+            ],
+            "Domainname": "",
+            "Entrypoint": [],
+            "Env": [
+              "CDR_SOURCE_SHA=485bb68d8d66021c6db2c37451a2e1c69e110a68",
+              "PYTHONDONTWRITEBYTECODE=1",
+              "CDR_OUTPUT_DIR=/out",
+              "CDR_RUN_ID=34aede98-40f7-48e6-9151-526db2db08c6",
+              "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+              "LANG=C.UTF-8",
+              "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+              "PYTHON_VERSION=3.12.14",
+              "PYTHON_SHA256=5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a"
+            ],
+            "Healthcheck": {
+              "Interval": 1000000000,
+              "Retries": 2,
+              "Test": [
+                "CMD",
+                "python",
+                "-c",
+                "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/', timeout=1).read()"
+              ],
+              "Timeout": 1000000000
+            },
+            "Hostname": "f4cedfdcd5f0",
+            "Image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+            "Labels": {
+              "cdr.compose-nonce": "58a0e80a057141d7864be9d447bcc1f5",
+              "cdr.compose-run": "34aede98-40f7-48e6-9151-526db2db08c6",
+              "com.docker.compose.config-hash": "40f303a622df9b128f2a4a90279e9546d3560655d742de980bab5ef0b0be9c35",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:9b8dad7f66b5c7751df6cb7a64a07812e86bed85d0116efe82b3a11209f1440d",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6",
+              "com.docker.compose.project.config_files": "/tmp/cdr-compose-qualification-pn10y6of/backend-runs/compose-v2/34aede98-40f7-48e6-9151-526db2db08c6/resolved.json",
+              "com.docker.compose.project.environment_file": "/dev/null",
+              "com.docker.compose.project.working_dir": "/tmp/cdr-compose-qualification-pn10y6of/backend-runs/compose-v2/34aede98-40f7-48e6-9151-526db2db08c6",
+              "com.docker.compose.service": "api",
+              "com.docker.compose.version": "5.5.1"
+            },
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Tty": false,
+            "User": "0:0",
+            "Volumes": null,
+            "WorkingDir": "/src"
+          },
+          "Created": "2026-10-22T19:36:55.302459818Z",
+          "Driver": "overlayfs",
+          "ExecIDs": null,
+          "HostConfig": {
+            "AutoRemove": false,
+            "Binds": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceWriteIOps": null,
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "CapAdd": null,
+            "CapDrop": [
+              "ALL"
+            ],
+            "Cgroup": "",
+            "CgroupParent": "",
+            "CgroupnsMode": "private",
+            "ConsoleSize": [
+              0,
+              0
+            ],
+            "ContainerIDFile": "",
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpuShares": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "Devices": null,
+            "Dns": null,
+            "DnsOptions": null,
+            "DnsSearch": null,
+            "ExtraHosts": [],
+            "GroupAdd": null,
+            "IOMaximumBandwidth": 0,
+            "IOMaximumIOps": 0,
+            "IpcMode": "private",
+            "Isolation": "",
+            "Links": null,
+            "LogConfig": {
+              "Config": {
+                "max-file": "1",
+                "max-size": "65536"
+              },
+              "Type": "json-file"
+            },
+            "MaskedPaths": [
+              "/proc/acpi",
+              "/proc/asound",
+              "/proc/interrupts",
+              "/proc/kcore",
+              "/proc/keys",
+              "/proc/latency_stats",
+              "/proc/sched_debug",
+              "/proc/scsi",
+              "/proc/timer_list",
+              "/proc/timer_stats",
+              "/sys/devices/virtual/powercap",
+              "/sys/firmware"
+            ],
+            "Memory": 100663296,
+            "MemoryReservation": 0,
+            "MemorySwap": 100663296,
+            "MemorySwappiness": null,
+            "Mounts": [
+              {
+                "BindOptions": {},
+                "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/tmp-api",
+                "Target": "/tmp",
+                "Type": "bind"
+              },
+              {
+                "BindOptions": {},
+                "ReadOnly": true,
+                "Source": "/tmp/cdr-compose-qualification-pn10y6of/runs/34aede98-40f7-48e6-9151-526db2db08c6/source",
+                "Target": "/src",
+                "Type": "bind"
+              },
+              {
+                "BindOptions": {},
+                "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/out",
+                "Target": "/out",
+                "Type": "bind"
+              },
+              {
+                "BindOptions": {},
+                "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/data",
+                "Target": "/data",
+                "Type": "bind"
+              }
+            ],
+            "NanoCpus": 500000000,
+            "NetworkMode": "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6_default",
+            "OomKillDisable": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "PidsLimit": 32,
+            "PortBindings": {},
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyPaths": [
+              "/proc/bus",
+              "/proc/fs",
+              "/proc/irq",
+              "/proc/sys",
+              "/proc/sysrq-trigger"
+            ],
+            "ReadonlyRootfs": true,
+            "RestartPolicy": {
+              "MaximumRetryCount": 0,
+              "Name": "no"
+            },
+            "Runtime": "runc",
+            "SecurityOpt": [
+              "no-new-privileges:true"
+            ],
+            "ShmSize": 8388608,
+            "UTSMode": "",
+            "Ulimits": null,
+            "UsernsMode": "",
+            "VolumeDriver": "",
+            "VolumesFrom": null
+          },
+          "HostnamePath": "/home/visky/.local/share/docker/containers/f4cedfdcd5f0d8d0677dba231f12d4bbe99d9460e5728b996cc8d522e82bb4f8/hostname",
+          "HostsPath": "/home/visky/.local/share/docker/containers/f4cedfdcd5f0d8d0677dba231f12d4bbe99d9460e5728b996cc8d522e82bb4f8/hosts",
+          "Id": "f4cedfdcd5f0d8d0677dba231f12d4bbe99d9460e5728b996cc8d522e82bb4f8",
+          "Image": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+          "ImageManifestDescriptor": {
+            "annotations": {
+              "com.docker.official-images.bashbrew.arch": "amd64",
+              "org.opencontainers.image.base.digest": "sha256:d56c381f961d307a21b3ca004cf1e3910f106644aefb1f43e654c8a56c4fd395",
+              "org.opencontainers.image.base.name": "alpine:3.24",
+              "org.opencontainers.image.created": "2026-09-17T21:47:46Z",
+              "org.opencontainers.image.revision": "688a0b86bb44289df16a363e9f41d90514c1a5f9",
+              "org.opencontainers.image.source": "https://github.com/docker-library/python.git#688a0b86bb44289df16a363e9f41d90514c1a5f9:3.12/alpine3.24",
+              "org.opencontainers.image.url": "https://hub.docker.com/_/python",
+              "org.opencontainers.image.version": "3.12.14-alpine3.24"
+            },
+            "digest": "sha256:9b8dad7f66b5c7751df6cb7a64a07812e86bed85d0116efe82b3a11209f1440d",
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "platform": {
+              "architecture": "amd64",
+              "os": "linux"
+            },
+            "size": 1735
+          },
+          "LogPath": "/home/visky/.local/share/docker/containers/f4cedfdcd5f0d8d0677dba231f12d4bbe99d9460e5728b996cc8d522e82bb4f8/f4cedfdcd5f0d8d0677dba231f12d4bbe99d9460e5728b996cc8d522e82bb4f8-json.log",
+          "MountLabel": "",
+          "Mounts": [
+            {
+              "Destination": "/data",
+              "Mode": "",
+              "Propagation": "rprivate",
+              "RW": true,
+              "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/data",
+              "Type": "bind"
+            },
+            {
+              "Destination": "/out",
+              "Mode": "",
+              "Propagation": "rprivate",
+              "RW": true,
+              "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/out",
+              "Type": "bind"
+            },
+            {
+              "Destination": "/src",
+              "Mode": "",
+              "Propagation": "rprivate",
+              "RW": false,
+              "Source": "/tmp/cdr-compose-qualification-pn10y6of/runs/34aede98-40f7-48e6-9151-526db2db08c6/source",
+              "Type": "bind"
+            },
+            {
+              "Destination": "/tmp",
+              "Mode": "",
+              "Propagation": "rprivate",
+              "RW": true,
+              "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/tmp-api",
+              "Type": "bind"
+            }
+          ],
+          "Name": "/cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6-api-1",
+          "NetworkSettings": {
+            "Networks": {
+              "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6_default": {
+                "Aliases": [
+                  "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6-api-1",
+                  "api"
+                ],
+                "DNSNames": [
+                  "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6-api-1",
+                  "api",
+                  "f4cedfdcd5f0"
+                ],
+                "DriverOpts": null,
+                "EndpointID": "",
+                "Gateway": "",
+                "GlobalIPv6Address": "",
+                "GlobalIPv6PrefixLen": 0,
+                "GwPriority": 0,
+                "IPAMConfig": null,
+                "IPAddress": "",
+                "IPPrefixLen": 0,
+                "IPv6Gateway": "",
+                "Links": null,
+                "MacAddress": "",
+                "NetworkID": "b69018e93e1e0b0d65afc84135bcc76a10a1e97c5193ded308d22841d1b02a6c"
+              }
+            },
+            "Ports": {},
+            "SandboxID": "",
+            "SandboxKey": ""
+          },
+          "Path": "python",
+          "Platform": "linux",
+          "ProcessLabel": "",
+          "ResolvConfPath": "/home/visky/.local/share/docker/containers/f4cedfdcd5f0d8d0677dba231f12d4bbe99d9460e5728b996cc8d522e82bb4f8/resolv.conf",
+          "RestartCount": 0,
+          "State": {
+            "Dead": false,
+            "Error": "",
+            "ExitCode": 137,
+            "FinishedAt": "2026-10-22T19:37:00.21135364Z",
+            "Health": {
+              "FailingStreak": 0,
+              "Log": [
+                {
+                  "End": "2026-10-22T23:36:56.95368985+04:00",
+                  "ExitCode": 0,
+                  "Output": "",
+                  "Start": "2026-10-22T23:36:56.684934755+04:00"
+                },
+                {
+                  "End": "2026-10-22T23:36:58.223267623+04:00",
+                  "ExitCode": 0,
+                  "Output": "",
+                  "Start": "2026-10-22T23:36:57.954124212+04:00"
+                },
+                {
+                  "End": "2026-10-22T23:36:59.522828183+04:00",
+                  "ExitCode": 0,
+                  "Output": "",
+                  "Start": "2026-10-22T23:36:59.224259179+04:00"
+                }
+              ],
+              "Status": "unhealthy"
+            },
+            "OOMKilled": false,
+            "Paused": false,
+            "Pid": 0,
+            "Restarting": false,
+            "Running": false,
+            "StartedAt": "2026-10-22T19:36:55.585587029Z",
+            "Status": "exited"
+          },
+          "Storage": {
+            "RootFS": {
+              "Snapshot": {
+                "Name": "overlayfs"
+              }
+            }
+          }
+        },
+        "migrate": {
+          "AppArmorProfile": "",
+          "Args": [
+            "/src/migrate.py"
+          ],
+          "Config": {
+            "AttachStderr": true,
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "Cmd": [
+              "python",
+              "/src/migrate.py"
+            ],
+            "Domainname": "",
+            "Entrypoint": [],
+            "Env": [
+              "CDR_SOURCE_SHA=485bb68d8d66021c6db2c37451a2e1c69e110a68",
+              "PYTHONDONTWRITEBYTECODE=1",
+              "CDR_OUTPUT_DIR=/out",
+              "CDR_RUN_ID=34aede98-40f7-48e6-9151-526db2db08c6",
+              "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+              "LANG=C.UTF-8",
+              "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+              "PYTHON_VERSION=3.12.14",
+              "PYTHON_SHA256=5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a"
+            ],
+            "Healthcheck": {
+              "Test": [
+                "NONE"
+              ]
+            },
+            "Hostname": "e0ec94420471",
+            "Image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+            "Labels": {
+              "cdr.compose-nonce": "58a0e80a057141d7864be9d447bcc1f5",
+              "cdr.compose-run": "34aede98-40f7-48e6-9151-526db2db08c6",
+              "com.docker.compose.config-hash": "d97659f775e0ce1932da622e286ee2327d2c204f601fcbcec2ecd2cd8bcb5410",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:9b8dad7f66b5c7751df6cb7a64a07812e86bed85d0116efe82b3a11209f1440d",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6",
+              "com.docker.compose.project.config_files": "/tmp/cdr-compose-qualification-pn10y6of/backend-runs/compose-v2/34aede98-40f7-48e6-9151-526db2db08c6/resolved.json",
+              "com.docker.compose.project.environment_file": "/dev/null",
+              "com.docker.compose.project.working_dir": "/tmp/cdr-compose-qualification-pn10y6of/backend-runs/compose-v2/34aede98-40f7-48e6-9151-526db2db08c6",
+              "com.docker.compose.service": "migrate",
+              "com.docker.compose.version": "5.5.1"
+            },
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Tty": false,
+            "User": "0:0",
+            "Volumes": null,
+            "WorkingDir": "/src"
+          },
+          "Created": "2026-10-22T19:36:55.30276643Z",
+          "Driver": "overlayfs",
+          "ExecIDs": null,
+          "HostConfig": {
+            "AutoRemove": false,
+            "Binds": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceWriteIOps": null,
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "CapAdd": null,
+            "CapDrop": [
+              "ALL"
+            ],
+            "Cgroup": "",
+            "CgroupParent": "",
+            "CgroupnsMode": "private",
+            "ConsoleSize": [
+              0,
+              0
+            ],
+            "ContainerIDFile": "",
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpuShares": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "Devices": null,
+            "Dns": null,
+            "DnsOptions": null,
+            "DnsSearch": null,
+            "ExtraHosts": [],
+            "GroupAdd": null,
+            "IOMaximumBandwidth": 0,
+            "IOMaximumIOps": 0,
+            "IpcMode": "private",
+            "Isolation": "",
+            "Links": null,
+            "LogConfig": {
+              "Config": {
+                "max-file": "1",
+                "max-size": "65536"
+              },
+              "Type": "json-file"
+            },
+            "MaskedPaths": [
+              "/proc/acpi",
+              "/proc/asound",
+              "/proc/interrupts",
+              "/proc/kcore",
+              "/proc/keys",
+              "/proc/latency_stats",
+              "/proc/sched_debug",
+              "/proc/scsi",
+              "/proc/timer_list",
+              "/proc/timer_stats",
+              "/sys/devices/virtual/powercap",
+              "/sys/firmware"
+            ],
+            "Memory": 100663296,
+            "MemoryReservation": 0,
+            "MemorySwap": 100663296,
+            "MemorySwappiness": null,
+            "Mounts": [
+              {
+                "BindOptions": {},
+                "ReadOnly": true,
+                "Source": "/tmp/cdr-compose-qualification-pn10y6of/runs/34aede98-40f7-48e6-9151-526db2db08c6/source",
+                "Target": "/src",
+                "Type": "bind"
+              },
+              {
+                "BindOptions": {},
+                "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/out",
+                "Target": "/out",
+                "Type": "bind"
+              },
+              {
+                "BindOptions": {},
+                "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/data",
+                "Target": "/data",
+                "Type": "bind"
+              },
+              {
+                "BindOptions": {},
+                "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/tmp-migrate",
+                "Target": "/tmp",
+                "Type": "bind"
+              }
+            ],
+            "NanoCpus": 500000000,
+            "NetworkMode": "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6_default",
+            "OomKillDisable": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "PidsLimit": 32,
+            "PortBindings": {},
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyPaths": [
+              "/proc/bus",
+              "/proc/fs",
+              "/proc/irq",
+              "/proc/sys",
+              "/proc/sysrq-trigger"
+            ],
+            "ReadonlyRootfs": true,
+            "RestartPolicy": {
+              "MaximumRetryCount": 0,
+              "Name": "no"
+            },
+            "Runtime": "runc",
+            "SecurityOpt": [
+              "no-new-privileges:true"
+            ],
+            "ShmSize": 8388608,
+            "UTSMode": "",
+            "Ulimits": null,
+            "UsernsMode": "",
+            "VolumeDriver": "",
+            "VolumesFrom": null
+          },
+          "HostnamePath": "/home/visky/.local/share/docker/containers/e0ec94420471c06fdca99fc1c1f76bf80dec687ef17a676c49ef7f0c03e49c10/hostname",
+          "HostsPath": "/home/visky/.local/share/docker/containers/e0ec94420471c06fdca99fc1c1f76bf80dec687ef17a676c49ef7f0c03e49c10/hosts",
+          "Id": "e0ec94420471c06fdca99fc1c1f76bf80dec687ef17a676c49ef7f0c03e49c10",
+          "Image": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+          "ImageManifestDescriptor": {
+            "annotations": {
+              "com.docker.official-images.bashbrew.arch": "amd64",
+              "org.opencontainers.image.base.digest": "sha256:d56c381f961d307a21b3ca004cf1e3910f106644aefb1f43e654c8a56c4fd395",
+              "org.opencontainers.image.base.name": "alpine:3.24",
+              "org.opencontainers.image.created": "2026-09-17T21:47:46Z",
+              "org.opencontainers.image.revision": "688a0b86bb44289df16a363e9f41d90514c1a5f9",
+              "org.opencontainers.image.source": "https://github.com/docker-library/python.git#688a0b86bb44289df16a363e9f41d90514c1a5f9:3.12/alpine3.24",
+              "org.opencontainers.image.url": "https://hub.docker.com/_/python",
+              "org.opencontainers.image.version": "3.12.14-alpine3.24"
+            },
+            "digest": "sha256:9b8dad7f66b5c7751df6cb7a64a07812e86bed85d0116efe82b3a11209f1440d",
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "platform": {
+              "architecture": "amd64",
+              "os": "linux"
+            },
+            "size": 1735
+          },
+          "LogPath": "/home/visky/.local/share/docker/containers/e0ec94420471c06fdca99fc1c1f76bf80dec687ef17a676c49ef7f0c03e49c10/e0ec94420471c06fdca99fc1c1f76bf80dec687ef17a676c49ef7f0c03e49c10-json.log",
+          "MountLabel": "",
+          "Mounts": [
+            {
+              "Destination": "/data",
+              "Mode": "",
+              "Propagation": "rprivate",
+              "RW": true,
+              "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/data",
+              "Type": "bind"
+            },
+            {
+              "Destination": "/out",
+              "Mode": "",
+              "Propagation": "rprivate",
+              "RW": true,
+              "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/out",
+              "Type": "bind"
+            },
+            {
+              "Destination": "/src",
+              "Mode": "",
+              "Propagation": "rprivate",
+              "RW": false,
+              "Source": "/tmp/cdr-compose-qualification-pn10y6of/runs/34aede98-40f7-48e6-9151-526db2db08c6/source",
+              "Type": "bind"
+            },
+            {
+              "Destination": "/tmp",
+              "Mode": "",
+              "Propagation": "rprivate",
+              "RW": true,
+              "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/tmp-migrate",
+              "Type": "bind"
+            }
+          ],
+          "Name": "/cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6-migrate-1",
+          "NetworkSettings": {
+            "Networks": {
+              "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6_default": {
+                "Aliases": [
+                  "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6-migrate-1",
+                  "migrate"
+                ],
+                "DNSNames": [
+                  "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6-migrate-1",
+                  "migrate",
+                  "e0ec94420471"
+                ],
+                "DriverOpts": null,
+                "EndpointID": "",
+                "Gateway": "",
+                "GlobalIPv6Address": "",
+                "GlobalIPv6PrefixLen": 0,
+                "GwPriority": 0,
+                "IPAMConfig": null,
+                "IPAddress": "",
+                "IPPrefixLen": 0,
+                "IPv6Gateway": "",
+                "Links": null,
+                "MacAddress": "",
+                "NetworkID": "b69018e93e1e0b0d65afc84135bcc76a10a1e97c5193ded308d22841d1b02a6c"
+              }
+            },
+            "Ports": {},
+            "SandboxID": "",
+            "SandboxKey": ""
+          },
+          "Path": "python",
+          "Platform": "linux",
+          "ProcessLabel": "",
+          "ResolvConfPath": "/home/visky/.local/share/docker/containers/e0ec94420471c06fdca99fc1c1f76bf80dec687ef17a676c49ef7f0c03e49c10/resolv.conf",
+          "RestartCount": 0,
+          "State": {
+            "Dead": false,
+            "Error": "",
+            "ExitCode": 0,
+            "FinishedAt": "2026-10-22T19:36:57.193637403Z",
+            "OOMKilled": false,
+            "Paused": false,
+            "Pid": 0,
+            "Restarting": false,
+            "Running": false,
+            "StartedAt": "2026-10-22T19:36:57.066313282Z",
+            "Status": "exited"
+          },
+          "Storage": {
+            "RootFS": {
+              "Snapshot": {
+                "Name": "overlayfs"
+              }
+            }
+          }
+        },
+        "test": {
+          "AppArmorProfile": "",
+          "Args": [
+            "/src/client.py",
+            "fail"
+          ],
+          "Config": {
+            "AttachStderr": true,
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "Cmd": [
+              "python",
+              "/src/client.py",
+              "fail"
+            ],
+            "Domainname": "",
+            "Entrypoint": [],
+            "Env": [
+              "CDR_RUN_ID=34aede98-40f7-48e6-9151-526db2db08c6",
+              "CDR_SOURCE_SHA=485bb68d8d66021c6db2c37451a2e1c69e110a68",
+              "PYTHONDONTWRITEBYTECODE=1",
+              "CDR_OUTPUT_DIR=/out",
+              "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+              "LANG=C.UTF-8",
+              "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+              "PYTHON_VERSION=3.12.14",
+              "PYTHON_SHA256=5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a"
+            ],
+            "Healthcheck": {
+              "Test": [
+                "NONE"
+              ]
+            },
+            "Hostname": "e37ef1f644d3",
+            "Image": "docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+            "Labels": {
+              "cdr.compose-nonce": "58a0e80a057141d7864be9d447bcc1f5",
+              "cdr.compose-run": "34aede98-40f7-48e6-9151-526db2db08c6",
+              "com.docker.compose.config-hash": "168007b64ed1c245b5009123c38afc6022e58d6e7f1cce48d62fcd9dd02f908f",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:9b8dad7f66b5c7751df6cb7a64a07812e86bed85d0116efe82b3a11209f1440d",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6",
+              "com.docker.compose.project.config_files": "/tmp/cdr-compose-qualification-pn10y6of/backend-runs/compose-v2/34aede98-40f7-48e6-9151-526db2db08c6/resolved.json",
+              "com.docker.compose.project.environment_file": "/dev/null",
+              "com.docker.compose.project.working_dir": "/tmp/cdr-compose-qualification-pn10y6of/backend-runs/compose-v2/34aede98-40f7-48e6-9151-526db2db08c6",
+              "com.docker.compose.service": "test",
+              "com.docker.compose.version": "5.5.1"
+            },
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Tty": false,
+            "User": "0:0",
+            "Volumes": null,
+            "WorkingDir": "/src"
+          },
+          "Created": "2026-10-22T19:36:55.302427537Z",
+          "Driver": "overlayfs",
+          "ExecIDs": null,
+          "HostConfig": {
+            "AutoRemove": false,
+            "Binds": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceWriteIOps": null,
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "CapAdd": null,
+            "CapDrop": [
+              "ALL"
+            ],
+            "Cgroup": "",
+            "CgroupParent": "",
+            "CgroupnsMode": "private",
+            "ConsoleSize": [
+              0,
+              0
+            ],
+            "ContainerIDFile": "",
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpuShares": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "Devices": null,
+            "Dns": null,
+            "DnsOptions": null,
+            "DnsSearch": null,
+            "ExtraHosts": [],
+            "GroupAdd": null,
+            "IOMaximumBandwidth": 0,
+            "IOMaximumIOps": 0,
+            "IpcMode": "private",
+            "Isolation": "",
+            "Links": null,
+            "LogConfig": {
+              "Config": {
+                "max-file": "1",
+                "max-size": "65536"
+              },
+              "Type": "json-file"
+            },
+            "MaskedPaths": [
+              "/proc/acpi",
+              "/proc/asound",
+              "/proc/interrupts",
+              "/proc/kcore",
+              "/proc/keys",
+              "/proc/latency_stats",
+              "/proc/sched_debug",
+              "/proc/scsi",
+              "/proc/timer_list",
+              "/proc/timer_stats",
+              "/sys/devices/virtual/powercap",
+              "/sys/firmware"
+            ],
+            "Memory": 100663296,
+            "MemoryReservation": 0,
+            "MemorySwap": 100663296,
+            "MemorySwappiness": null,
+            "Mounts": [
+              {
+                "BindOptions": {},
+                "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/data",
+                "Target": "/data",
+                "Type": "bind"
+              },
+              {
+                "BindOptions": {},
+                "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/tmp-test",
+                "Target": "/tmp",
+                "Type": "bind"
+              },
+              {
+                "BindOptions": {},
+                "ReadOnly": true,
+                "Source": "/tmp/cdr-compose-qualification-pn10y6of/runs/34aede98-40f7-48e6-9151-526db2db08c6/source",
+                "Target": "/src",
+                "Type": "bind"
+              },
+              {
+                "BindOptions": {},
+                "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/out",
+                "Target": "/out",
+                "Type": "bind"
+              }
+            ],
+            "NanoCpus": 500000000,
+            "NetworkMode": "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6_default",
+            "OomKillDisable": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "PidsLimit": 32,
+            "PortBindings": {},
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyPaths": [
+              "/proc/bus",
+              "/proc/fs",
+              "/proc/irq",
+              "/proc/sys",
+              "/proc/sysrq-trigger"
+            ],
+            "ReadonlyRootfs": true,
+            "RestartPolicy": {
+              "MaximumRetryCount": 0,
+              "Name": "no"
+            },
+            "Runtime": "runc",
+            "SecurityOpt": [
+              "no-new-privileges:true"
+            ],
+            "ShmSize": 8388608,
+            "UTSMode": "",
+            "Ulimits": null,
+            "UsernsMode": "",
+            "VolumeDriver": "",
+            "VolumesFrom": null
+          },
+          "HostnamePath": "/home/visky/.local/share/docker/containers/e37ef1f644d311237a175080e055ef61a69a10c5ea31d9eb488867c970674ea2/hostname",
+          "HostsPath": "/home/visky/.local/share/docker/containers/e37ef1f644d311237a175080e055ef61a69a10c5ea31d9eb488867c970674ea2/hosts",
+          "Id": "e37ef1f644d311237a175080e055ef61a69a10c5ea31d9eb488867c970674ea2",
+          "Image": "sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111",
+          "ImageManifestDescriptor": {
+            "annotations": {
+              "com.docker.official-images.bashbrew.arch": "amd64",
+              "org.opencontainers.image.base.digest": "sha256:d56c381f961d307a21b3ca004cf1e3910f106644aefb1f43e654c8a56c4fd395",
+              "org.opencontainers.image.base.name": "alpine:3.24",
+              "org.opencontainers.image.created": "2026-09-17T21:47:46Z",
+              "org.opencontainers.image.revision": "688a0b86bb44289df16a363e9f41d90514c1a5f9",
+              "org.opencontainers.image.source": "https://github.com/docker-library/python.git#688a0b86bb44289df16a363e9f41d90514c1a5f9:3.12/alpine3.24",
+              "org.opencontainers.image.url": "https://hub.docker.com/_/python",
+              "org.opencontainers.image.version": "3.12.14-alpine3.24"
+            },
+            "digest": "sha256:9b8dad7f66b5c7751df6cb7a64a07812e86bed85d0116efe82b3a11209f1440d",
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "platform": {
+              "architecture": "amd64",
+              "os": "linux"
+            },
+            "size": 1735
+          },
+          "LogPath": "/home/visky/.local/share/docker/containers/e37ef1f644d311237a175080e055ef61a69a10c5ea31d9eb488867c970674ea2/e37ef1f644d311237a175080e055ef61a69a10c5ea31d9eb488867c970674ea2-json.log",
+          "MountLabel": "",
+          "Mounts": [
+            {
+              "Destination": "/data",
+              "Mode": "",
+              "Propagation": "rprivate",
+              "RW": true,
+              "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/data",
+              "Type": "bind"
+            },
+            {
+              "Destination": "/out",
+              "Mode": "",
+              "Propagation": "rprivate",
+              "RW": true,
+              "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/out",
+              "Type": "bind"
+            },
+            {
+              "Destination": "/src",
+              "Mode": "",
+              "Propagation": "rprivate",
+              "RW": false,
+              "Source": "/tmp/cdr-compose-qualification-pn10y6of/runs/34aede98-40f7-48e6-9151-526db2db08c6/source",
+              "Type": "bind"
+            },
+            {
+              "Destination": "/tmp",
+              "Mode": "",
+              "Propagation": "rprivate",
+              "RW": true,
+              "Source": "/var/lib/chat-dev-runner/volumes/34aede98-40f7-48e6-9151-526db2db08c6/tmp-test",
+              "Type": "bind"
+            }
+          ],
+          "Name": "/cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6-test-1",
+          "NetworkSettings": {
+            "Networks": {
+              "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6_default": {
+                "Aliases": [
+                  "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6-test-1",
+                  "test"
+                ],
+                "DNSNames": [
+                  "cdr-compose-34aede98-40f7-48e6-9151-526db2db08c6-test-1",
+                  "test",
+                  "e37ef1f644d3"
+                ],
+                "DriverOpts": null,
+                "EndpointID": "",
+                "Gateway": "",
+                "GlobalIPv6Address": "",
+                "GlobalIPv6PrefixLen": 0,
+                "GwPriority": 0,
+                "IPAMConfig": null,
+                "IPAddress": "",
+                "IPPrefixLen": 0,
+                "IPv6Gateway": "",
+                "Links": null,
+                "MacAddress": "",
+                "NetworkID": "b69018e93e1e0b0d65afc84135bcc76a10a1e97c5193ded308d22841d1b02a6c"
+              }
+            },
+            "Ports": {},
+            "SandboxID": "",
+            "SandboxKey": ""
+          },
+          "Path": "python",
+          "Platform": "linux",
+          "ProcessLabel": "",
+          "ResolvConfPath": "/home/visky/.local/share/docker/containers/e37ef1f644d311237a175080e055ef61a69a10c5ea31d9eb488867c970674ea2/resolv.conf",
+          "RestartCount": 0,
+          "State": {
+            "Dead": false,
+            "Error": "",
+            "ExitCode": 1,
+            "FinishedAt": "2026-10-22T19:36:57.993625222Z",
+            "OOMKilled": false,
+            "Paused": false,
+            "Pid": 0,
+            "Restarting": false,
+            "Running": false,
+            "StartedAt": "2026-10-22T19:36:57.387987825Z",
+            "Status": "exited"
+          },
+          "Storage": {
+            "RootFS": {
+              "Snapshot": {
+                "Name": "overlayfs"
+              }
+            }
+          }
+        }
+      },
+      "test_start_intended": true,
+      "test_started": true,
+      "workload_sha256": "de3badc6d22309aa2c00132c837bee34612cb3e7b5d9b49a5f8e9b18449716fa"
+    }
+  },
+  "budgets": {
+    "disk_enforced": null,
+    "memory_enforced": null,
+    "saved_log_bytes_per_phase": null,
+    "timeout_seconds": 164
+  },
+  "execution_arch": "amd64",
+  "execution_os": "linux",
+  "finished_at": "2026-10-22T19:37:00.876709+00:00",
+  "host_arch": "x86_64",
+  "host_os": "linux",
+  "host_release": "6.8.0-138-generic",
+  "locks": {},
+  "mode": "container",
+  "profile_id": "compose-python",
+  "reproducibility": "unknown",
+  "runner_version": "0.3.0.dev4",
+  "started_at": "2026-10-22T19:36:55.074480+00:00",
+  "task_digest": "f0995034dac5a721ca0b978079ea2e8019446c222e5a13cda7c90cb34bedf781",
+  "tool_observations": [],
+  "tools": []
+}

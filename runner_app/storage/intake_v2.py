@@ -146,6 +146,112 @@ class IntakeStore:
                 raise IntakeError("REQUEST_NOT_FOUND")
             self._event(c, request_id, event, detail)
 
+    def journal(self, request_id: str) -> list[tuple[str, dict[str, Any]]]:
+        """Return append-only evidence in its durable order."""
+        with self._connection() as c:
+            return [(str(row["event"]), json.loads(row["detail_json"])) for row in c.execute(
+                "SELECT event,detail_json FROM v2_journal WHERE request_id=? ORDER BY event_id",
+                (request_id,),
+            )]
+
+    def recovery_candidates(self, runner_id: str, session_id: str) -> list[dict[str, Any]]:
+        """Only the retained lane can authorize recovery; pending work is never replayed."""
+        with self._connection() as c:
+            if self._live_session(c, session_id)["runner_id"] != runner_id:
+                raise IntakeError("WRONG_RUNNER")
+            return [self._view(row) for row in c.execute(
+                "SELECT r.*,q.sequence FROM execution_lane lane "
+                "JOIN v2_requests r ON lane.request_id=r.request_id "
+                "JOIN v2_sessions old ON old.session_id=r.session_id "
+                "JOIN v2_sessions live ON live.session_id=? "
+                "LEFT JOIN v2_queue q ON q.request_id=r.request_id "
+                "WHERE lane.singleton=1 AND lane.protocol='v2' AND r.runner_id=? "
+                "AND old.runner_id=r.runner_id AND old.ended_at IS NOT NULL "
+                "AND r.session_id<>live.session_id AND live.ended_at IS NULL "
+                "AND live.runner_id=r.runner_id "
+                "AND r.status IN ('INTERRUPTED','NEEDS_RECONCILIATION') LIMIT 1",
+                (session_id, runner_id),
+            )]
+
+    def restart_notifications(self, runner_id: str, session_id: str,
+                              limit: int = 100) -> list[dict[str, Any]]:
+        """Return terminal states still lacking delivery evidence, once per startup."""
+        if type(limit) is not int or not 1 <= limit <= 1000:
+            raise ValueError("Invalid notification limit")
+        with self._connection() as c:
+            if self._live_session(c, session_id)["runner_id"] != runner_id:
+                raise IntakeError("WRONG_RUNNER")
+            # Aggregate once rather than scan the append-only journal for each request.
+            # Include the existing transition aliases and later delivery-view updates.
+            # Publication attempts/diagnostics alone do not invalidate delivered state.
+            return [self._view(row) for row in c.execute(
+                "WITH evidence AS (SELECT r.request_id, "
+                "MAX(CASE WHEN j.event=r.status OR j.event='DELIVERY_UPDATED' "
+                "OR (r.status='CANCELLED' AND r.code='CANCELLED_BEFORE_START' "
+                "AND j.event='CANCELLED_BEFORE_START') "
+                "OR (r.status='NEEDS_RECONCILIATION' AND j.event=r.code "
+                "AND j.event IN ('ACK_PROOF_LOST','INTAKE_REVOKED')) "
+                "OR (r.status='REJECTED' AND j.event IN ('ACK_FAILED','INPUT_CHANGED') "
+                "AND json_extract(j.detail_json,'$.code')=r.code) "
+                "OR (r.status='COMPLETED' AND r.action='DELIVER_HANDOFF' "
+                "AND j.event='HANDOFF_RECOVERED') "
+                "THEN j.event_id END) AS view_event, "
+                "MAX(CASE WHEN j.event='REMOTE_STATE_LOCAL_ONLY' OR "
+                "(j.event='STATE_DELIVERY' AND json_extract(j.detail_json,'$.status')='DELIVERED') "
+                "OR (j.event='HANDOFF_RECEIPT_DELIVERY' "
+                "AND json_extract(j.detail_json,'$.status')='CONFIRMED') "
+                "THEN j.event_id END) AS delivered_event "
+                "FROM v2_requests r JOIN v2_sessions old ON old.session_id=r.session_id "
+                "JOIN v2_sessions live ON live.session_id=? "
+                "JOIN v2_journal j ON j.request_id=r.request_id "
+                "WHERE r.runner_id=? AND old.runner_id=r.runner_id AND old.ended_at IS NOT NULL "
+                "AND r.session_id<>live.session_id AND live.ended_at IS NULL "
+                "AND live.runner_id=r.runner_id "
+                "AND r.status IN ('COMPLETED','FAILED','CANCELLED','REJECTED',"
+                "'SUSPENDED_RESTART','INTERRUPTED','NEEDS_RECONCILIATION') "
+                "GROUP BY r.request_id) "
+                "SELECT r.*,q.sequence FROM evidence e JOIN v2_requests r USING(request_id) "
+                "LEFT JOIN v2_queue q USING(request_id) "
+                "WHERE e.view_event>COALESCE(e.delivered_event,0) "
+                "ORDER BY e.view_event LIMIT ?", (session_id, runner_id, limit),
+            )]
+
+    def finish_recovery(self, request_id: str, session_id: str, *, status: str,
+                        code: str | None = None, result: Mapping[str, Any] | None = None,
+                        cleanup_verified: bool) -> None:
+        """Close prior execution without changing its frozen intent or admission session."""
+        if status not in TERMINAL_V2:
+            raise IntakeError("INVALID_TERMINAL_STATUS")
+        if type(cleanup_verified) is not bool:
+            raise IntakeError("INVALID_RECOVERY_PROOF")
+        with self._transaction() as c:
+            live = self._live_session(c, session_id)
+            row = c.execute(
+                "SELECT r.*,old.ended_at AS prior_ended,old.runner_id AS prior_runner "
+                "FROM v2_requests r JOIN v2_sessions old ON old.session_id=r.session_id "
+                "JOIN execution_lane lane ON lane.request_id=r.request_id "
+                "WHERE r.request_id=? AND lane.singleton=1 AND lane.protocol='v2'",
+                (request_id,),
+            ).fetchone()
+            if (row is None or row["status"] not in {"INTERRUPTED", "NEEDS_RECONCILIATION"}
+                    or row["session_id"] == session_id or row["prior_ended"] is None
+                    or row["runner_id"] != live["runner_id"]
+                    or row["prior_runner"] != live["runner_id"]):
+                raise IntakeError("RECOVERY_NOT_APPLICABLE")
+            if not cleanup_verified:
+                status, code = "NEEDS_RECONCILIATION", code or "CLEANUP_PROOF_REQUIRED"
+            self._event(c, request_id, "RECOVERY", {
+                "prior_session_id": row["session_id"], "session_id": session_id,
+                "prior_status": row["status"], "cleanup_verified": cleanup_verified,
+            })
+            c.execute("UPDATE v2_requests SET status=?,code=?,result_json=?,updated_at=? "
+                      "WHERE request_id=?", (status, code, _json(result) if result is not None else None,
+                                           _now(), request_id))
+            if cleanup_verified:
+                c.execute("DELETE FROM execution_lane WHERE protocol='v2' AND request_id=?",
+                          (request_id,))
+            self._event(c, request_id, status, {"code": code})
+
     @staticmethod
     def _live_session(c: sqlite3.Connection, session_id: str) -> sqlite3.Row:
         row = c.execute("SELECT * FROM v2_sessions WHERE session_id=? AND ended_at IS NULL",
@@ -196,10 +302,10 @@ class IntakeStore:
             if changed != 1:
                 raise IntakeError("MAILBOX_NOT_ENROLLED")
 
-    def observation_gap(self, binding_id: str) -> None:
+    def observation_gap(self, binding_id: str, *, session_id: str | None = None) -> None:
         with self._transaction() as c:
-            c.execute("UPDATE v2_mailboxes SET continuous=0,updated_at=? WHERE binding_id=?",
-                      (_now(), binding_id))
+            c.execute("UPDATE v2_mailboxes SET continuous=0,updated_at=? WHERE binding_id=? "
+                      "AND (? IS NULL OR session_id=?)", (_now(), binding_id, session_id, session_id))
 
     def record_diagnostic(self, binding_id: str, code: str, observed_sha256: str) -> None:
         with self._transaction() as c:
@@ -342,8 +448,10 @@ class IntakeStore:
                               (request["request_id"],)).fetchone()
             return int(queue[0]) if queue else None
 
-    def ack_proof_lost(self, candidate_id: str) -> None:
+    def ack_proof_lost(self, candidate_id: str, *, code: str = "ACK_PROOF_LOST") -> None:
         """Keep ambiguous acceptance visible while permitting a fresh, baselined slot."""
+        if code not in {"ACK_PROOF_LOST", "INTAKE_REVOKED"}:
+            raise ValueError("Invalid acknowledgement reconciliation code")
         with self._transaction() as c:
             row = c.execute("SELECT * FROM v2_candidates WHERE candidate_id=?", (candidate_id,)).fetchone()
             if row is None or row["state"] not in {"ACK_PENDING", "ACK_UNKNOWN"}:
@@ -351,10 +459,11 @@ class IntakeStore:
             c.execute("UPDATE v2_candidates SET state='ACK_UNKNOWN',updated_at=? WHERE candidate_id=?",
                       (_now(), candidate_id))
             c.execute("UPDATE v2_requests SET status='NEEDS_RECONCILIATION',"
-                      "code='ACK_PROOF_LOST',updated_at=? WHERE request_id=? AND status='ACK_PENDING'",
-                      (_now(), row["request_id"]))
-            c.execute("UPDATE v2_mailboxes SET continuous=0 WHERE binding_id=?", (row["binding_id"],))
-            self._event(c, row["request_id"], "ACK_PROOF_LOST")
+                      "code=?,updated_at=? WHERE request_id=? AND status='ACK_PENDING'",
+                      (code, _now(), row["request_id"]))
+            c.execute("UPDATE v2_mailboxes SET continuous=0 WHERE binding_id=? AND session_id=?",
+                      (row["binding_id"], row["session_id"]))
+            self._event(c, row["request_id"], code)
 
     def claim_control(self, request_id: str) -> bool:
         with self._transaction() as c:

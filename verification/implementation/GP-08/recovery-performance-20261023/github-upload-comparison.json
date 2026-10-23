@@ -1,0 +1,61 @@
+{
+  "scope": "Offline real-Git fake-API comparison; no credentials, provider calls or workload rerun.",
+  "baseline_commit": "df30db3",
+  "fixed_fake_api_delay_seconds": 0.03,
+  "local_bundle_files": 12,
+  "published_bundle_files_including_manifest": 13,
+  "baseline": {
+    "result": {
+      "elapsed_seconds": 0.9157,
+      "http_calls": 28,
+      "http_methods": {
+        "GET": 8,
+        "POST": 19,
+        "PATCH": 1
+      },
+      "blob_posts": 13,
+      "tree_posts": 5,
+      "maximum_concurrent_blob_posts": 1
+    },
+    "terminal_state": {
+      "elapsed_seconds": 0.4981,
+      "http_calls": 15,
+      "http_methods": {
+        "GET": 8,
+        "POST": 6,
+        "PATCH": 1
+      },
+      "blob_posts": 1,
+      "tree_posts": 4,
+      "maximum_concurrent_blob_posts": 1
+    }
+  },
+  "candidate": {
+    "result": {
+      "elapsed_seconds": 0.5947,
+      "http_calls": 24,
+      "http_methods": {
+        "GET": 8,
+        "POST": 15,
+        "PATCH": 1
+      },
+      "blob_posts": 13,
+      "tree_posts": 1,
+      "maximum_concurrent_blob_posts": 4
+    },
+    "terminal_state": {
+      "elapsed_seconds": 0.4023,
+      "http_calls": 12,
+      "http_methods": {
+        "GET": 8,
+        "POST": 3,
+        "PATCH": 1
+      },
+      "blob_posts": 1,
+      "tree_posts": 1,
+      "maximum_concurrent_blob_posts": 1
+    }
+  },
+  "candidate_source_sha256": "31a101e1c30e919b7dfade371dfacdd3a81bd58a64f68bdca7ab1ea78cc1e6ef",
+  "limitation": "Elapsed times include fake latency and local Git; they are not live GitHub measurements."
+}

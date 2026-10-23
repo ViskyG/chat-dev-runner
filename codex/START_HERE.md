@@ -1,7 +1,13 @@
 # Codex entry point
 
-Current frontier: **GP-07**, with actual GitHub/Linux and installed Docs v2
-integration evidenced. The 2026-10-16 owner request authorized the canary gate;
+Current frontier: **GP-08 Linux finite Compose preview and runtime audit**;
+read `checkpoints/GP-08.md` and `../docs/AUDIT_2026-10-22.md`. GP07's unrelated
+Windows/macOS/Java/release gates remain open; the current owner request approves
+independent Linux Compose work. The installed handoff frontier is also recorded
+in `checkpoints/handoff/H4.md`: installed dev7 uses the visible `handoffs/` inbox;
+connector-only delivery without a sender Drive version is verified.
+Actual GitHub/Linux and installed Docs v2 integration are evidenced.
+The 2026-10-16 owner request authorized the canary gate;
 it passed, and a separate registered Docs v2 channel is active for the existing
 test project. Read `checkpoints/GP-07.md`; preserve current bindings and newer
 intent. Read-only GP-00 matched commit `ac7d55d`

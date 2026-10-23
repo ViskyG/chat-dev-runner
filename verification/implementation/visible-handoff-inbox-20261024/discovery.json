@@ -1,0 +1,66 @@
+{
+  "catalog_document_id": "1HwYuhzukUqj2RK6q5sj2AlJU3a0FFKTYeehMXV69F_s",
+  "minimum_runner_version": "0.3.0.dev7",
+  "skill_branch": "fix/visible-handoff-inbox-20261024",
+  "relative_inbox": "handoffs",
+  "all_bindings_preserved": true,
+  "revision_guards": true,
+  "projects": [
+    {
+      "project": "projectworkspace",
+      "id": "1HA9r2luhA0bLammu70nUt4BrTCq9id2czp6ePMnuiUg",
+      "tab": "t.apt0ecuqvjme",
+      "metadata_readback": true,
+      "command_unchanged": true
+    },
+    {
+      "project": "cdr-calculator-2-smoke-20260928-1923",
+      "id": "1iWJ64CYjEcEP3ajP1p8SvHyjVeDB4OB6oyCxfjNdJf0",
+      "tab": "t.84ksu81dwiul",
+      "metadata_readback": true,
+      "command_unchanged": true
+    },
+    {
+      "project": "cdr-calculator-smoke-20260928-1759",
+      "id": "10bF9KPVAwziigDAz7jn8iCf8vjjScyKKfAuOkp1k-SQ",
+      "tab": "t.lu0zzhqy0dri",
+      "metadata_readback": true,
+      "command_unchanged": true
+    },
+    {
+      "project": "cdr-ep05-drive-20260928",
+      "id": "1jpL5oyW1QVbB5WQOcl-buUrA3TCqTpHs234GRKSSw_k",
+      "tab": "t.kjjda7gfomv",
+      "metadata_readback": true,
+      "command_unchanged": true
+    },
+    {
+      "project": "cdr-ep07-drive-20260928",
+      "id": "1WJvUzgfDyQmFcB1TSepv_nG_K5rDMnHjmofdjpckGQQ",
+      "tab": "t.6iss59uryggu",
+      "metadata_readback": true,
+      "command_unchanged": true
+    },
+    {
+      "project": "cdr-ep07-ui-20260928",
+      "id": "1KT832kE3fiQNRUAkzuuaFOAC6KSWZekHJiuM7Uqdp6I",
+      "tab": "t.o4i0n0aejvge",
+      "metadata_readback": true,
+      "command_unchanged": true
+    },
+    {
+      "project": "cdr-runner-test",
+      "id": "1MTxQ1mDLV6AiiH4p2eTQiDir_-v8_JmhFoNpmgX-3bw",
+      "metadata_readback": true,
+      "command_unchanged": true,
+      "flat_enrollment": true
+    },
+    {
+      "project": "cdr-scheduled-calc-20260929-1835",
+      "id": "1T5R4YBlJDMxsPIM7hfhptbBkxTBfOk5GrBDSIUzfyQQ",
+      "tab": "t.s4dxz58nc703",
+      "metadata_readback": true,
+      "command_unchanged": true
+    }
+  ]
+}

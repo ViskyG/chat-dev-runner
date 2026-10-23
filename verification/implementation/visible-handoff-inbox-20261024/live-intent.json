@@ -1,0 +1,28 @@
+{
+  "request_id": "eff64d64-c04f-4ec8-b016-406ee1d7ce6f",
+  "action": "DELIVER_HANDOFF",
+  "handoff": {
+    "protocol": "cdr-handoff/1",
+    "handoff_id": "afec443a-f767-4e0e-839c-ce2fe2cbd43a",
+    "project_id": "projectworkspace",
+    "target_id": "editor-handoff",
+    "purpose": "reference",
+    "title": "Verify visible project handoff inbox on Runner dev7",
+    "base_commit": null,
+    "entrypoint": {
+      "artifact_id": "verification",
+      "path": "handoff-check/START.md"
+    },
+    "artifacts": [
+      {
+        "artifact_id": "verification",
+        "drive_file_id": "1a3fMQJxYid6zDYpcjZFjSGhoAxdBHp5h",
+        "filename": "automatic-chat-handoff.zip",
+        "size_bytes": 451,
+        "sha256": "167ee5e69ef6edd0e8e051746f2298b8de0efce46712cbbee567b60b724a312b",
+        "media_type": "application/zip",
+        "unpack": "zip"
+      }
+    ]
+  }
+}

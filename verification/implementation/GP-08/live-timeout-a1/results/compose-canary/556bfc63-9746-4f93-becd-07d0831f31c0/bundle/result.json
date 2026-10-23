@@ -1,0 +1,112 @@
+{
+  "artifacts": [
+    {
+      "availability": "MISSING",
+      "bytes": 0,
+      "complete": false,
+      "format": "junit-xml",
+      "id": "junit",
+      "kind": "test_result",
+      "local_path": null,
+      "reason": "OUTPUT_MISSING_OR_UNSAFE",
+      "remote_path": null,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "LOCAL_ONLY",
+      "bytes": 36,
+      "complete": true,
+      "format": "json",
+      "id": "partial",
+      "kind": "report",
+      "local_path": "/tmp/cdr-compose-qualification-_vnwh50_/results/compose-canary/556bfc63-9746-4f93-becd-07d0831f31c0/originals/partial/partial.json",
+      "reason": "LOCAL_ONLY_POLICY",
+      "remote_path": null,
+      "sha256": "a3526ba0e2c686fc62d051135f911a3562e84b21092a74a0f2c3892c9a2edadd"
+    },
+    {
+      "availability": "MISSING",
+      "bytes": 0,
+      "complete": false,
+      "format": "json",
+      "id": "answer",
+      "kind": "report",
+      "local_path": null,
+      "reason": "OUTPUT_MISSING_OR_UNSAFE",
+      "remote_path": null,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "LOCAL_ONLY",
+      "bytes": 90,
+      "complete": true,
+      "format": "raw-bytes",
+      "id": "container-stdout",
+      "kind": "console",
+      "local_path": "/tmp/cdr-compose-qualification-_vnwh50_/results/compose-canary/556bfc63-9746-4f93-becd-07d0831f31c0/originals/container-stdout/container-stdout.bin",
+      "reason": "PUBLICATION_PENDING",
+      "remote_path": "artifacts/container-stdout/container-stdout.bin",
+      "sha256": "b3e6edb268ee5ff71a9118336f6be8fcaae8ea12d85b67dd00f8837ea8de66b6"
+    },
+    {
+      "availability": "LOCAL_ONLY",
+      "bytes": 323,
+      "complete": true,
+      "format": "raw-bytes",
+      "id": "container-stderr",
+      "kind": "console",
+      "local_path": "/tmp/cdr-compose-qualification-_vnwh50_/results/compose-canary/556bfc63-9746-4f93-becd-07d0831f31c0/originals/container-stderr/container-stderr.bin",
+      "reason": "PUBLICATION_PENDING",
+      "remote_path": "artifacts/container-stderr/container-stderr.bin",
+      "sha256": "43307832ed3791ff659dc0ac450bddd171f332197f7b05cc8b477294ba9cfedf"
+    }
+  ],
+  "delivery": {
+    "branch": "compose-qualification",
+    "local_bundle_path": "/tmp/cdr-compose-qualification-_vnwh50_/results/compose-canary/556bfc63-9746-4f93-becd-07d0831f31c0/bundle",
+    "reason": "PUBLICATION_PENDING",
+    "status": "LOCAL_ONLY"
+  },
+  "environment": {
+    "details_path": "environment.json",
+    "execution_arch": "amd64",
+    "execution_os": "linux",
+    "host_arch": "x86_64",
+    "host_os": "linux",
+    "mode": "container",
+    "profile_id": "compose-python",
+    "reproducibility": "unknown",
+    "runner_version": "0.3.0.dev4",
+    "tool_versions": {}
+  },
+  "evidence_level": "OBSERVED_RUN",
+  "execution": {
+    "cleanup": "UNCERTAIN",
+    "exit_code": null,
+    "outcome": "UNKNOWN",
+    "quality_gate": "INSUFFICIENT"
+  },
+  "operation_status": "COMPLETED",
+  "project_id": "compose-canary",
+  "protocol": "cdr-result/2",
+  "request_id": "556bfc63-9746-4f93-becd-07d0831f31c0",
+  "runner_id": "compose-canary",
+  "source": {
+    "branch": "compose-qualification",
+    "commit": "cbdb5c07b1dc75a0e1b9cb26d77db49cf4eb2130",
+    "dirty": false,
+    "kind": "local_workspace",
+    "overlay_sha256": null,
+    "workload_sha256": "318232e34c537e86aabe8427069cea9626f3064644d92fdcc09f479ab72846d8"
+  },
+  "warnings": [
+    "junit:REQUIRED_OUTPUT_MISSING",
+    "partial:FORMAT_NOT_REGISTERED",
+    "answer:OPTIONAL_OUTPUT_MISSING",
+    "REQUIRED_OUTPUT_MISSING",
+    "REQUIRED_OUTPUT_INVALID",
+    "TEST_REPORT_MISSING",
+    "INSUFFICIENT_EXECUTED_TESTS",
+    "CLEANUP_UNCERTAIN: artifacts may still change at origin"
+  ]
+}

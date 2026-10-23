@@ -1,0 +1,242 @@
+[
+  {
+    "created_at": "2026-10-22T21:18:33.111294+00:00",
+    "detail": {},
+    "event": "RESERVED",
+    "event_id": 207
+  },
+  {
+    "created_at": "2026-10-22T21:18:40.260540+00:00",
+    "detail": {},
+    "event": "QUEUED",
+    "event_id": 208
+  },
+  {
+    "created_at": "2026-10-22T21:18:40.279033+00:00",
+    "detail": {},
+    "event": "STARTING",
+    "event_id": 209
+  },
+  {
+    "created_at": "2026-10-22T21:18:41.402418+00:00",
+    "detail": {
+      "mode": "container",
+      "profile_revision": "1c90425ec84e416b265e1b37f8cc2f70e07d1a7f0b08a415778a89a8304d2c85",
+      "source_commit": "b4d074858716917272195337544ce08b915cea1c",
+      "source_manifest_sha256": "6740d62112df925697fbbe3c4017d8b730c1adfea01cc2a000ac7f834b125e62",
+      "task_digest": "c7cd176534f344d59f0358e5fa4fb9a1580028d6755c1007fb83ccda3ee2b427",
+      "workload_sha256": "ae192d104a185cc5056476db30b8888a9c1de3bbe46b2c8ff47d4e4a8a43042a"
+    },
+    "event": "RUNNING",
+    "event_id": 210
+  },
+  {
+    "created_at": "2026-10-22T21:18:41.534036+00:00",
+    "detail": {
+      "intent_sha256": "99d1e0a35899d7305d735634106f1014a191719985f83249cfdbc10286bc830c",
+      "run_id": "36c39afc-9e33-4556-ab13-6051ec068d43",
+      "volume_mb": 1024
+    },
+    "event": "COMPOSE_VOLUME_INTENDED",
+    "event_id": 211
+  },
+  {
+    "created_at": "2026-10-22T21:18:41.655280+00:00",
+    "detail": {
+      "config_sha256": "b9cebc7ba29090f90414e50cd958f31644de059f158687c5d94142a43d494062",
+      "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+      "image_ids": {
+        "ghcr.io/viskyg/analytics-control-center@sha256:2e3c72d7d4f8055be84264699a79a82e87b0933cbc9e6fbfa3021febefbc5b66": "sha256:2e3c72d7d4f8055be84264699a79a82e87b0933cbc9e6fbfa3021febefbc5b66",
+        "ghcr.io/viskyg/analytics-control-center@sha256:7d22e86236895bbf1eb499caa4491fa4af24796bce6dbfb7adf05cc9d6c791e1": "sha256:7d22e86236895bbf1eb499caa4491fa4af24796bce6dbfb7adf05cc9d6c791e1"
+      },
+      "nonce": "c8116310b4fd4ef5ad2542a389edb69c",
+      "profile_revision_sha256": "1c90425ec84e416b265e1b37f8cc2f70e07d1a7f0b08a415778a89a8304d2c85",
+      "project": "cdr-compose-36c39afc-9e33-4556-ab13-6051ec068d43",
+      "source_sha256": "ae192d104a185cc5056476db30b8888a9c1de3bbe46b2c8ff47d4e4a8a43042a",
+      "volume": "/var/lib/chat-dev-runner/volumes/36c39afc-9e33-4556-ab13-6051ec068d43"
+    },
+    "event": "COMPOSE_CREATE_INTENDED",
+    "event_id": 212
+  },
+  {
+    "created_at": "2026-10-22T21:18:42.039602+00:00",
+    "detail": {
+      "containers": {
+        "control-center": "7489bdfba0bccf275e5dc3556ea489d0e357bcb5a1ff18b44c3e9db9038926db",
+        "ui-contract": "104a44e4780c729f0b4799c57b13a1bb8071a5629bfa7f0114cdc3a08e71c11f"
+      },
+      "network": "2c4aa5a1a36786cc31a79c93c6558651f662d1ce722108427cb9da87e1393767"
+    },
+    "event": "COMPOSE_RESOURCES_CREATED",
+    "event_id": 213
+  },
+  {
+    "created_at": "2026-10-22T21:18:42.097406+00:00",
+    "detail": {
+      "phase": "readiness",
+      "services": [
+        "control-center"
+      ]
+    },
+    "event": "COMPOSE_PHASE_START_INTENDED",
+    "event_id": 214
+  },
+  {
+    "created_at": "2026-10-22T21:18:44.541048+00:00",
+    "detail": {
+      "exit_code": 0,
+      "outcome": "PASSED",
+      "phase": "readiness",
+      "services": [
+        "control-center"
+      ]
+    },
+    "event": "COMPOSE_PHASE_FINISHED",
+    "event_id": 215
+  },
+  {
+    "created_at": "2026-10-22T21:18:44.577163+00:00",
+    "detail": {
+      "phase": "test",
+      "services": [
+        "ui-contract"
+      ]
+    },
+    "event": "COMPOSE_PHASE_START_INTENDED",
+    "event_id": 216
+  },
+  {
+    "created_at": "2026-10-22T21:19:54.219211+00:00",
+    "detail": {},
+    "event": "INTERRUPTED",
+    "event_id": 217
+  },
+  {
+    "created_at": "2026-10-22T21:19:55.468865+00:00",
+    "detail": {
+      "directory": "recovery-0001",
+      "sha256": "bf0b2d3e3b9e816718a8dac66e3c4cc22baf1377a2802abf9e86975edb0e92fc"
+    },
+    "event": "COMPOSE_RECOVERY_EVIDENCE_SEALED",
+    "event_id": 219
+  },
+  {
+    "created_at": "2026-10-22T21:19:55.495119+00:00",
+    "detail": {
+      "containers": {
+        "control-center": "7489bdfba0bccf275e5dc3556ea489d0e357bcb5a1ff18b44c3e9db9038926db",
+        "ui-contract": "104a44e4780c729f0b4799c57b13a1bb8071a5629bfa7f0114cdc3a08e71c11f"
+      },
+      "network": "2c4aa5a1a36786cc31a79c93c6558651f662d1ce722108427cb9da87e1393767"
+    },
+    "event": "COMPOSE_RECOVERY_TEARDOWN_INTENDED",
+    "event_id": 220
+  },
+  {
+    "created_at": "2026-10-22T21:19:55.981407+00:00",
+    "detail": {
+      "containers": {
+        "control-center": "7489bdfba0bccf275e5dc3556ea489d0e357bcb5a1ff18b44c3e9db9038926db",
+        "ui-contract": "104a44e4780c729f0b4799c57b13a1bb8071a5629bfa7f0114cdc3a08e71c11f"
+      },
+      "network": "2c4aa5a1a36786cc31a79c93c6558651f662d1ce722108427cb9da87e1393767"
+    },
+    "event": "COMPOSE_RECOVERY_RESOURCES_REMOVED",
+    "event_id": 221
+  },
+  {
+    "created_at": "2026-10-22T21:19:56.092065+00:00",
+    "detail": {
+      "run_id": "36c39afc-9e33-4556-ab13-6051ec068d43"
+    },
+    "event": "COMPOSE_RECOVERY_VOLUME_RELEASED",
+    "event_id": 222
+  },
+  {
+    "created_at": "2026-10-22T21:19:56.255910+00:00",
+    "detail": {
+      "bundle_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43/bundle",
+      "bundle_sha256": "de0b59a8aa77b7623b2506c8f3c07ab80e07a80bdd7acf3849f91354a61cc07a"
+    },
+    "event": "RESULT_SEALED",
+    "event_id": 223
+  },
+  {
+    "created_at": "2026-10-22T21:19:57.238942+00:00",
+    "detail": {
+      "base_commit": "b4d074858716917272195337544ce08b915cea1c",
+      "bundle_sha256": "de0b59a8aa77b7623b2506c8f3c07ab80e07a80bdd7acf3849f91354a61cc07a",
+      "commit": "2ad9cb32999bc948f3f0b8b0caf0c353f9ee6564",
+      "commit_message": "Publish runner results: local-runner/36c39afc-9e33-4556-ab13-6051ec068d43\n\nBundle-SHA256: de0b59a8aa77b7623b2506c8f3c07ab80e07a80bdd7acf3849f91354a61cc07a\nPublication-Marker: af0bc92a64d645a4b8e88a498d67dfc4\n",
+      "commit_timestamp": 1792703996,
+      "marker": "af0bc92a64d645a4b8e88a498d67dfc4",
+      "request_id": "36c39afc-9e33-4556-ab13-6051ec068d43",
+      "result_path": ".runner/results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43",
+      "runner_id": "local-runner",
+      "tested_branch": "runner/analytics-cc-20261023",
+      "tree": "e2f2e30bee658ca96c8f3110f8b214d2a3215f41"
+    },
+    "event": "RESULT_PUBLISH_INTENT",
+    "event_id": 224
+  },
+  {
+    "created_at": "2026-10-22T21:20:05.080572+00:00",
+    "detail": {
+      "bundle_sha256": "de0b59a8aa77b7623b2506c8f3c07ab80e07a80bdd7acf3849f91354a61cc07a",
+      "code": "DELIVERED",
+      "commit": "2ad9cb32999bc948f3f0b8b0caf0c353f9ee6564",
+      "local_available": true,
+      "local_locator": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43/bundle",
+      "marker": "af0bc92a64d645a4b8e88a498d67dfc4",
+      "remote_head": "2ad9cb32999bc948f3f0b8b0caf0c353f9ee6564",
+      "status": "DELIVERED"
+    },
+    "event": "RESULT_DELIVERY",
+    "event_id": 225
+  },
+  {
+    "created_at": "2026-10-22T21:20:05.105222+00:00",
+    "detail": {
+      "cleanup_verified": true,
+      "prior_session_id": "7ac22ea5-97db-47b1-afcd-dfdfe69bde67",
+      "prior_status": "INTERRUPTED",
+      "session_id": "acd93596-46c1-47bf-a042-4d02901a30fe"
+    },
+    "event": "RECOVERY",
+    "event_id": 226
+  },
+  {
+    "created_at": "2026-10-22T21:20:05.105316+00:00",
+    "detail": {
+      "code": "COMPOSE_RECOVERED_AFTER_INTERRUPTION"
+    },
+    "event": "INTERRUPTED",
+    "event_id": 227
+  },
+  {
+    "created_at": "2026-10-22T21:20:07.111072+00:00",
+    "detail": {
+      "base_commit": "b87d5d14e2cc1bb829f5b2f9bb1b7a93c55c5320",
+      "branch": "main",
+      "commit": "be9bed968dde686af60da6313b7e1ee7bfa84f32",
+      "marker": "f0046a44823542d0b04a82b609047f91",
+      "path": ".runner/state/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43.json",
+      "payload_sha256": "54bd5596013fb96abe331618a54ac0181f46f799b6f58d208e3f2aa8be908804"
+    },
+    "event": "STATE_PUBLISH_INTENT",
+    "event_id": 228
+  },
+  {
+    "created_at": "2026-10-22T21:20:12.428292+00:00",
+    "detail": {
+      "branch": "main",
+      "code": "DELIVERED",
+      "commit": "be9bed968dde686af60da6313b7e1ee7bfa84f32",
+      "path": ".runner/state/local-runner/36c39afc-9e33-4556-ab13-6051ec068d43.json",
+      "payload_sha256": "54bd5596013fb96abe331618a54ac0181f46f799b6f58d208e3f2aa8be908804",
+      "status": "DELIVERED"
+    },
+    "event": "STATE_DELIVERY",
+    "event_id": 229
+  }
+]

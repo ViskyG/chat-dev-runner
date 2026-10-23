@@ -1,0 +1,33 @@
+{
+  "status": "CONNECTED_CHAT_VISIBLE_DELIVERY_VERIFIED",
+  "runner_version": "0.3.0.dev7",
+  "request_id": "eff64d64-c04f-4ec8-b016-406ee1d7ce6f",
+  "handoff_id": "afec443a-f767-4e0e-839c-ce2fe2cbd43a",
+  "local_and_cloud_receipts_match": true,
+  "original_and_extracted_inventory_verified": true,
+  "source_head_index_and_tracked_files_unchanged": true,
+  "prior_history_preserved": {
+    "v1_operations": 26,
+    "v2_requests": 16,
+    "identity_status_sha256": "1df52bbf6e5e9ebd45b8769d02f27ed61449e7a01d8d961fce4485dd4ad919ed"
+  },
+  "new_requests": 1,
+  "channel_count": 11,
+  "lane_rows": 0,
+  "reconciled_deliveries": [
+    {
+      "handoff_id": "e97e44df-5351-453b-8c4b-f73694fad1e2",
+      "relative_path": ".runner/handoffs/e97e44df-5351-453b-8c4b-f73694fad1e2",
+      "receipt_unchanged": true,
+      "full_inventory_verified": true,
+      "provider_io": false
+    },
+    {
+      "handoff_id": "afec443a-f767-4e0e-839c-ce2fe2cbd43a",
+      "relative_path": "handoffs/afec443a-f767-4e0e-839c-ce2fe2cbd43a",
+      "receipt_unchanged": true,
+      "full_inventory_verified": true,
+      "provider_io": false
+    }
+  ]
+}

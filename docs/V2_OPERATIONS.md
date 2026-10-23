@@ -1,10 +1,12 @@
 # Runner v2 operations — Linux preview / предварительные инструкции
 
-**Linux preview, installed package 0.3.0.dev3.** Handoff delivery passed one real
-ZIP+text transfer with a matching connected-chat terminal Docs receipt. Upload
-and guarded Docs authoring are verified; file version metadata was SDK-assisted
-because the connected metadata action omits it. Full automatic metadata
-authoring remains unqualified; see [H2](../codex/checkpoints/handoff/H2.md).
+**Linux preview, installed package 0.3.0.dev6.** The [runtime audit](AUDIT_2026-10-22.md)
+adds independent mailbox polling and the finite Compose backend. Handoff delivery
+passed a connector-only ZIP upload, guarded Docs DRAFT/READY and terminal readback
+with no sender `drive_version` or SDK metadata helper. Runner pins the API version
+before download and checks it afterward; see [H3](../codex/checkpoints/handoff/H3.md).
+The earlier assisted ZIP+text transfer remains historical evidence in
+[H2](../codex/checkpoints/handoff/H2.md).
 Earlier installed-wheel upgrade/rollback and existing v1 readback are recorded
 under `verification/implementation/GP-07/release`.
 Provider and target qualification remains specific to its evidence. On 2026-10-16,
@@ -96,11 +98,15 @@ values. Keep config, token files and rootless grants outside repositories.
   terminal results there using a revision guard; the existing command slot and
   its Runner-owned ACK receipt retain their normal roles. Do not enroll an
   unrelated existing tab or create these resources from an example implicitly.
-- Container support is only backend `rootless-docker`, enrolled profile
+- Single-container support uses backend `rootless-docker`, enrolled profile
   `python-quick`, and an existing approved `rootless_profile_dir` with matching
   `python-quick-grant.json`, profiles, pinned image and hard-quota helper.
   Its task must match the fixed one-step test argv/cwd/timeout and approved
   outputs; arbitrary container tasks and container SHELL are refused.
+- Finite Linux stacks use backend `rootless-compose` and a separate private
+  `compose_profile_dir` with hash-pinned profiles. The intended project must list
+  the profile in `container_profiles`. See [Compose tasks](COMPOSE_TASKS.md) for
+  supported input, readiness/migration/test ordering, output retention and cleanup.
 
 Native execution runs as the chosen ordinary user and can access that user's
 host files. A per-run copy and environment shaping provide repeatability, not a
@@ -128,6 +134,11 @@ use the normal service startup path for configured intake. The UI is not a
 required intermediary for remote submission.
 
 ## Project preparation
+
+For new registrations or a project missing from chat, follow
+[Project enrollment / Регистрация проекта](PROJECT_ENROLLMENT.md). It covers the
+requested runtime, mailbox and discovery bindings and their independent readback.
+Creating a repository or adding a local workspace is only part of a chat route.
 
 Use the [prepare skill](../skills/v2/prepare-runner-project-v2/SKILL.md) when
 preparation is requested. Preserve existing framework, CI, branch and dirty
@@ -193,6 +204,8 @@ For local source use `{"kind":"local_workspace","branch":"example-work",
 "workspace_id":"editor"}`. For the fixed container route select
 `mode: "container"`, `backend_id: "rootless-docker"`, `profile_id: "python-quick"`
 and the qualified guest `expected_os`; the budget must cover preparation+test.
+For an enrolled finite stack select `backend_id: "rootless-compose"` and its
+actual profile/task; the budget also covers readiness, migrations and cleanup.
 
 One execution lane is shared by live-accepted v2 FIFO work and retained v1
 execution. `CANCEL` and `STATUS` target an exact request and bypass execution
@@ -235,16 +248,17 @@ instructions or a source-selection grant.
    exact bytes and compute size/SHA-256. Upload ordinary Drive files into the
    allowed folder without converting them to Docs or changing sharing. Make a
    separate metadata read of each returned Drive ID to confirm parent, ordinary
-   MIME type, filename, size, version and non-trashed state. Native Docs and
+   MIME type, filename, size and non-trashed state. Native Docs and
    arbitrary download URLs are not handoff inputs. Freeze those observations
    in one manifest and do not modify the uploaded files after publication.
-   Confirm that the actual tool response includes Drive's numeric `version`;
-   some connectors omit it even when explicitly requested. Never assume `"1"`,
-   substitute a revision ID, or infer a version from upload success. If required
-   metadata is unavailable, block that leg or use an explicitly owner-authorized
-   real `files.get` metadata handoff for the exact file ID. Label the latter
-   **SDK_ASSISTED_METADATA** and retain its readback evidence; it does not prove
-   a fully automatic connected-chat route.
+   From **0.3.0.dev6**, artifact `drive_version` is optional; the runtime advertises
+   `handoff_optional_drive_version: true`. Include a genuinely observed version
+   as a strict sender pin, or omit the field when the connector drops it. Null,
+   a guessed `"1"` or a Docs revision is not an omitted version. Runner reads the
+   exact Drive file's numeric version before download and rejects any version
+   change afterward. All ID/parent/type/size/SHA-256, download and archive checks
+   remain mandatory. The submitted manifest and its digest are never rewritten
+   with the resolved version. Older installations still require the explicit pin.
 3. Validate `request.handoff` against the canonical
    [handoff-manifest.schema.json](../schemas/handoff-manifest.schema.json),
    then the complete mailbox against
@@ -281,7 +295,7 @@ actual size/SHA-256. It stages originals byte-for-byte and optional safe ZIP
 content, then publishes one new unique directory:
 
 ```text
-<registered workspace>/.runner/handoffs/<handoff_id>/
+<registered workspace>/handoffs/<handoff_id>/
   files/<artifact_id>/<filename>   # exact originals
   content/<artifact_id>/           # populated for requested ZIP expansion
   manifest.json
@@ -296,6 +310,13 @@ conflict. An uncertain local commit is reconciled from receipt/inventory before
 any further effect. Missing or changed delivered files are not permission to
 overwrite the destination. Cancel before local commit can stop delivery; a
 completed local commit is not reported as cancelled because feedback failed.
+
+From **0.3.0.dev7**, new deliveries use the visible `handoffs/` directory.
+Existing packages under `.runner/handoffs/` keep their original paths, receipts
+and generated prompts. Runner reconciles them without downloading again; an ID
+present in both inboxes is refused as a conflict. Do not move an old delivery
+manually: its receipt and published entrypoint refer to its original location.
+Both inboxes retain the same privacy, integrity and source-exclusion checks.
 
 The inbox is excluded from source/context capture, including dirty/untracked
 inclusion. Its creation can still be visible to Git as untracked content:

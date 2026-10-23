@@ -1,0 +1,22 @@
+{
+  "source_commit": "435aae0",
+  "junit": {
+    "tests": 1911,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "passed": 1910,
+  "seconds": 261.05,
+  "mypy": "129 source files; no issues",
+  "ruff": "PASS",
+  "supervisor": {
+    "hud_task": "48922070db53469797db6285d16175a1",
+    "reported_state": "cancelled",
+    "exit_code": -9,
+    "detail": "An adopted descendant failed",
+    "interpretation": "Supervisor aggregates descendant statuses. Pytest completed all cases and wrote full zero-failure JUnit; do not misreport this as a test assertion failure or repeat completed regression."
+  },
+  "junit_sha256": "e20a2736b495e83f3df3dd38ea1ed52b4dbd046cc479df3fee1d78c60fe1001a",
+  "type_only_delta": "freeze-type-only-delta.json"
+}

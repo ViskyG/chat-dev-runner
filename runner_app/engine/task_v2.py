@@ -13,7 +13,7 @@ import shutil
 import threading
 import time
 from collections.abc import Mapping
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -25,8 +25,9 @@ from runner_app.domain.commands import DomainError
 from runner_app.domain.contracts_v2 import validate_schema
 from runner_app.domain.project_v2 import parse_project
 from runner_app.engine.queue_v2 import TaskOutcome
+from runner_app.executors.compose_v2 import ComposeTaskBackend
 from runner_app.executors.native_v2 import execute_native, shell_argv
-from runner_app.executors.rootless_v2 import RootlessError, RootlessTaskBackend
+from runner_app.executors.rootless_v2 import RootlessError, RootlessTaskBackend, RootlessTaskResult
 from runner_app.executors.task_plan_v2 import ResolvedStep, TaskPlan, plan_task
 from runner_app.executors.tool_versions_v2 import observe_tool
 from runner_app.git.argv import GitError
@@ -132,7 +133,7 @@ def _reports(outputs: FrozenOutputs, declarations: list[dict[str, Any]]) -> dict
 class NativeTaskRunner:
     def __init__(self, store: IntakeStore, resolver: SourceResolver,
                  projects: Mapping[str, TaskProject], profiles: Mapping[str, NativeProfile], *,
-                 container_backends: Mapping[str, RootlessTaskBackend] | None = None) -> None:
+                 container_backends: Mapping[str, RootlessTaskBackend | ComposeTaskBackend] | None = None) -> None:
         self.store, self.resolver = store, resolver
         self.projects, self.profiles = dict(projects), dict(profiles)
         self.container_backends = dict(container_backends or {})
@@ -146,6 +147,9 @@ class NativeTaskRunner:
             "quality_gate": "INSUFFICIENT" if started else "NOT_APPLICABLE",
             "cleanup": "UNCERTAIN" if uncertain else "CONFIRMED",
         }
+        if result.get("recovery", {}).get("cleanup") == "CONFIRMED":
+            # Current cleanup proof is separate from the immutable sealing-time bundle.
+            execution = {**execution, "cleanup": "CONFIRMED"}
         return {"schema_version": 1, "runner_id": operation["runner_id"],
                 "project_id": operation["project_id"], "request_id": operation["request_id"],
                 "request_digest": operation["digest"], "action": operation["action"],
@@ -276,10 +280,20 @@ class NativeTaskRunner:
         task_digest = hashlib.sha256(json.dumps(task, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
         self.store.mark_running(request_id, {"source_commit": snapshot.source_commit,
                                             "workload_sha256": snapshot.workload_sha256,
+                                            "source_manifest_sha256": snapshot.manifest_sha256,
                                             "task_digest": task_digest, "mode": "container",
                                             "profile_revision": profile.revision_sha256})
         started = datetime.now(timezone.utc).isoformat()
         result = backend.run(snapshot, request_id=request_id, profile_id=profile_id, cancel=cancel)
+        return self._seal_container(operation, snapshot, backend, profile_id, task, task_digest,
+                                    started, host_os, result)
+
+    def _seal_container(self, operation: dict[str, Any], snapshot: SourceSnapshot,
+                        backend: RootlessTaskBackend | ComposeTaskBackend, profile_id: str,
+                        task: dict[str, Any], task_digest: str, started: str, host_os: str,
+                        result: RootlessTaskResult, *, recovering: bool = False) -> TaskOutcome:
+        project = self.projects[operation["project_id"]]
+        declarations = [dict(item) for item in task["outputs"]]
         output_descriptors = result.provenance.get("outputs", [])
         if not isinstance(output_descriptors, list):
             output_descriptors = []
@@ -300,13 +314,18 @@ class NativeTaskRunner:
                  "outcome": result.outcome, "exit_code": result.exit_code,
                  "cleanup_verified": result.cleanup_verified, "duration_seconds": result.duration_seconds}
         try:
-            return self._seal(operation, project, snapshot, snapshot.path, result.output_root, None,
+            sealed = self._seal(operation, project, snapshot, snapshot.path, result.output_root, None,
                               profile_id, None, task_digest, backend.timeout_seconds(profile_id), host_os,
                               started, [phase], declarations, roots, task["quality_gate"],
                               result.cleanup_verified, result.outcome, result.exit_code,
+                              operation_status=("INTERRUPTED" if recovering and result.outcome in {"UNKNOWN", "NOT_RUN"}
+                                                else None),
                               backend_details={"mode": "container", "execution_os": result.execution_os,
                                                "execution_arch": result.execution_arch,
-                                               "image": result.image, "rootless": dict(result.provenance)})
+                                               "image": result.image, "rootless": dict(result.provenance),
+                                               "error_code": result.error_code,
+                                               "capture_complete": result.capture_complete})
+            return replace(sealed, code=result.error_code) if result.error_code and not sealed.code else sealed
         except (OSError, ValueError, ResultError) as error:
             return TaskOutcome("FAILED", getattr(error, "code", "LOCAL_PERSISTENCE_FAILED"),
                                {"phase_evidence_path": str(result.output_root.parent)}, result.cleanup_verified)
@@ -454,7 +473,8 @@ class NativeTaskRunner:
               phase_results: list[dict[str, Any]], declarations: list[dict[str, Any]],
               roots: Mapping[str, Path], gate: Mapping[str, Any], cleanup: bool,
               outcome: str, exit_code: int | None, *,
-              backend_details: Mapping[str, Any] | None = None) -> TaskOutcome:
+              backend_details: Mapping[str, Any] | None = None,
+              operation_status: str | None = None) -> TaskOutcome:
         request_id, project_id = operation["request_id"], operation["project_id"]
         runner_id, request = operation["runner_id"], operation["payload"]["request"]
         # Collection remains useful after a project failure or timeout. If a
@@ -495,13 +515,14 @@ class NativeTaskRunner:
         _write_json(bundle / "environment.json", environment_details)
         shutil.copyfile(snapshot.manifest_path, bundle / "source.json")
         os.chmod(bundle / "source.json", 0o600)
+        terminal_status = operation_status or ("CANCELLED" if outcome == "CANCELLED" else "COMPLETED")
         manifest_value = {
             "protocol": "cdr-result/2", "evidence_level": "OBSERVED_RUN", "request_id": request_id,
             "runner_id": runner_id, "project_id": project_id,
             "source": {"kind": snapshot.kind, "branch": snapshot.branch, "commit": snapshot.source_commit,
                        "workload_sha256": snapshot.workload_sha256, "dirty": snapshot.dirty,
                        "overlay_sha256": snapshot.overlay_sha256},
-            "operation_status": "CANCELLED" if outcome == "CANCELLED" else "COMPLETED",
+            "operation_status": terminal_status,
             "execution": {"outcome": outcome if cleanup else "UNKNOWN", "exit_code": exit_code,
                           "quality_gate": quality.quality_gate,
                           "cleanup": "CONFIRMED" if cleanup else "UNCERTAIN"},
@@ -535,11 +556,11 @@ class NativeTaskRunner:
         publication = self._publish(operation, project, snapshot.branch, bundle, digest)
         state = {"manifest": manifest_value, "bundle_path": str(bundle), "bundle_sha256": digest,
                  "branch": snapshot.branch, "delivery": asdict(publication)}
-        status = "CANCELLED" if outcome == "CANCELLED" else "COMPLETED"
-        return TaskOutcome(status, "CLEANUP_UNCERTAIN" if not cleanup else None, state, cleanup)
+        return TaskOutcome(terminal_status, "CLEANUP_UNCERTAIN" if not cleanup else None, state, cleanup)
 
     def _publish(self, operation: dict[str, Any], project: TaskProject, branch: str,
-                 bundle: Path, digest: str, *, original_request_id: str | None = None) -> ResultPublication:
+                 bundle: Path, digest: str, *, original_request_id: str | None = None,
+                 reconcile_only: bool = False) -> ResultPublication:
         runner_id = operation["runner_id"]
         request_id = original_request_id or operation["request_id"]
         if project.transport is None:
@@ -549,6 +570,7 @@ class NativeTaskRunner:
             publication = publish_results(
                 project.repository, project.transport, tested_branch=branch, runner_id=runner_id,
                 request_id=request_id, result_dir=bundle, expected_bundle_sha256=digest,
+                reconcile_only=reconcile_only,
                 record_intent=lambda intent: self.store.record_event(
                     operation["request_id"], "RESULT_PUBLISH_INTENT", asdict(intent)),
             )

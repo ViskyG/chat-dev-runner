@@ -5,6 +5,7 @@ import copy
 import errno
 import hashlib
 import io
+import json
 import os
 import stat
 import struct
@@ -15,6 +16,7 @@ from typing import Any
 from uuid import uuid4
 
 import pytest
+from jsonschema import Draft202012Validator
 
 from runner_app.handoff import (
     HandoffError,
@@ -26,6 +28,7 @@ from runner_app.handoff import (
     reconcile,
 )
 from runner_app.handoff.contracts import canonical, digest
+from runner_app.resources import load_schema
 
 
 def zipped(entries: list[tuple[str | zipfile.ZipInfo, bytes]]) -> bytes:
@@ -121,6 +124,70 @@ def test_transfer_is_private_inert_and_reconciles_without_provider(sample: Any) 
     assert (provider.reads, provider.downloads) == before
 
 
+def test_runner_pins_api_version_without_mutating_manifest_or_replaying(sample: Any) -> None:
+    value, provider, binding = sample
+    value['artifacts'][0].pop('drive_version')
+    provider.override['version'] = '4294967297'
+    original = copy.deepcopy(value)
+    receipt = run(sample)
+    assert provider.reads == 2 and provider.downloads == 1
+    assert value == original
+    assert receipt['manifest_sha256'] == digest(original)
+    folder = binding.inbox / value['handoff_id']
+    assert json.loads((folder / 'manifest.json').read_bytes()) == original
+    before = provider.reads, provider.downloads
+    provider.raw = b'no longer available'
+    assert reconcile(value, binding) == receipt
+    assert run(sample) == receipt
+    assert (provider.reads, provider.downloads) == before
+
+
+@pytest.mark.parametrize('version', ['missing', '1', None, '', 'revision-id', 1, True])
+def test_optional_version_contract_matches_both_packaged_schemas(sample: Any, version: Any) -> None:
+    value = copy.deepcopy(sample[0])
+    if version == 'missing':
+        value['artifacts'][0].pop('drive_version')
+    else:
+        value['artifacts'][0]['drive_version'] = version
+    standalone = load_schema('handoff-manifest')
+    embedded = load_schema('v2-mailbox')['properties']['request']['properties']['handoff']
+    expected = version in ('missing', '1') and not isinstance(version, bool)
+    assert Draft202012Validator(standalone).is_valid(value) is expected
+    assert Draft202012Validator(embedded).is_valid(value) is expected
+    if expected:
+        assert parse(canonical(value)) == value
+    else:
+        with pytest.raises(HandoffError, match='INVALID_DRIVE_IDENTITY'):
+            parse(canonical(value))
+
+
+def test_explicit_sender_version_is_still_required_to_match_before_download(sample: Any) -> None:
+    sample[1].override['version'] = '2'
+    with pytest.raises(HandoffError, match='DRIVE_BINDING_MISMATCH'):
+        run(sample)
+    assert sample[1].downloads == 0
+
+
+@pytest.mark.parametrize('version', [None, '', 'revision-id', 1, True, '1' * 31])
+def test_omitted_sender_version_still_requires_valid_api_version(sample: Any, version: Any) -> None:
+    sample[0]['artifacts'][0].pop('drive_version')
+    sample[1].override['version'] = version
+    with pytest.raises(HandoffError, match='DRIVE_BINDING_MISMATCH'):
+        run(sample)
+    assert sample[1].downloads == 0
+    assert not list(sample[2].inbox.glob('.pending-*'))
+
+
+def test_omitted_sender_version_does_not_skip_content_hash_check(sample: Any) -> None:
+    value, provider, binding = sample
+    value['artifacts'][0].pop('drive_version')
+    value['artifacts'][0]['sha256'] = '0' * 64
+    with pytest.raises(HandoffError, match='CONTENT_MISMATCH'):
+        run(sample)
+    assert provider.downloads == 1
+    assert not (binding.inbox / value['handoff_id']).exists()
+
+
 def test_same_id_other_manifest_is_conflict(sample: Any) -> None:
     run(sample)
     sample[0]['title'] = 'A different instruction'
@@ -190,9 +257,13 @@ def test_existing_inventory_rejects_added_or_special_objects(sample: Any, extra:
         reconcile(sample[0], sample[2])
 
 
+@pytest.mark.parametrize('omit_version', [False, True])
 @pytest.mark.parametrize('after', [{'version': '2'}, {'parents': ['also-allowed']}])
 def test_download_rejects_version_or_even_allowed_parent_change(sample: Any,
-                                                               after: dict[str, Any]) -> None:
+                                                               after: dict[str, Any],
+                                                               omit_version: bool) -> None:
+    if omit_version:
+        sample[0]['artifacts'][0].pop('drive_version')
     sample[1].after = after
     with pytest.raises(HandoffError, match='DRIVE_BINDING_MISMATCH'):
         run(sample)
@@ -200,11 +271,15 @@ def test_download_rejects_version_or_even_allowed_parent_change(sample: Any,
     assert not list(sample[2].inbox.glob('.pending-*'))
 
 
+@pytest.mark.parametrize('omit_version', [False, True])
 @pytest.mark.parametrize('patch', [
     {'mimeType': 'application/vnd.google-apps.document'}, {'parents': ['foreign']},
     {'shortcutDetails': {}}, {'size': True}, {'capabilities': {'canDownload': False}},
 ])
-def test_metadata_refusal_has_no_download(sample: Any, patch: dict[str, Any]) -> None:
+def test_metadata_refusal_has_no_download(sample: Any, patch: dict[str, Any],
+                                        omit_version: bool) -> None:
+    if omit_version:
+        sample[0]['artifacts'][0].pop('drive_version')
     sample[1].override = patch
     with pytest.raises(HandoffError):
         run(sample)

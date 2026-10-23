@@ -1,0 +1,121 @@
+[
+  {
+    "created_at": "2026-10-22T19:37:01.202794+00:00",
+    "detail_json": "{\"session_id\":\"808d1122-9b55-43d7-b038-e2950f3b1ed6\"}",
+    "event": "SESSION_STARTED",
+    "event_id": 1,
+    "request_id": null
+  },
+  {
+    "created_at": "2026-10-22T19:37:01.283021+00:00",
+    "detail_json": "{}",
+    "event": "RESERVED",
+    "event_id": 2,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:01.300214+00:00",
+    "detail_json": "{}",
+    "event": "QUEUED",
+    "event_id": 3,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:01.333020+00:00",
+    "detail_json": "{}",
+    "event": "STARTING",
+    "event_id": 4,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:01.420965+00:00",
+    "detail_json": "{\"mode\":\"container\",\"profile_revision\":\"21baef99929a83d29cf29240f8a36a34efcb62c56ec4808d41d24e9fd5f32e26\",\"source_commit\":\"477d3f5f7f2c4da900418957599221bf8e3b6d25\",\"task_digest\":\"c237c70c877b49a03d9596533db04dae86ccf7231ebf27eec1769ce291187ad6\",\"workload_sha256\":\"a8f18e113636fcff4d4871efc687749627f59bc15d5cd1abebb51ada55acce3b\"}",
+    "event": "RUNNING",
+    "event_id": 5,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:01.513962+00:00",
+    "detail_json": "{\"run_id\":\"df97bf43-353f-4a02-88cb-9b72f43c6442\",\"volume_mb\":64}",
+    "event": "COMPOSE_VOLUME_INTENDED",
+    "event_id": 6,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:01.608890+00:00",
+    "detail_json": "{\"config_sha256\":\"ff7334c53e8c30a93d0842cd02eb303c617b49457461a1c6f114559e9f9d3c6c\",\"daemon_id\":\"7ccec57e-4bca-4a3c-910a-acc924d2180f\",\"image_ids\":{\"docker.io/library/python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\":\"sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111\"},\"nonce\":\"00aff3c6ca884a5fb3ee04c1ed9cb336\",\"profile_revision_sha256\":\"21baef99929a83d29cf29240f8a36a34efcb62c56ec4808d41d24e9fd5f32e26\",\"project\":\"cdr-compose-df97bf43-353f-4a02-88cb-9b72f43c6442\",\"source_sha256\":\"a8f18e113636fcff4d4871efc687749627f59bc15d5cd1abebb51ada55acce3b\",\"volume\":\"/var/lib/chat-dev-runner/volumes/df97bf43-353f-4a02-88cb-9b72f43c6442\"}",
+    "event": "COMPOSE_CREATE_INTENDED",
+    "event_id": 7,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:01.887573+00:00",
+    "detail_json": "{\"containers\":{\"api\":\"8ff31a27b98b8dbe5b3bbd8dbee6e356e070d34ff1a42ff379c18ccf5c31108c\",\"migrate\":\"d001d36b308d4ade2bafa2e3b14eba5cfe6f96110db2b07ee5e219e411114434\",\"test\":\"f9b5430304e1a9a0bf6d87af57539486ae91f69934d265a6489fb4bd34efaca2\"},\"network\":\"cac9b5d75e8dcc9b300f28131a6b3b3a38a7a7008e2dba1a923deaaf9798b4c3\"}",
+    "event": "COMPOSE_RESOURCES_CREATED",
+    "event_id": 8,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:01.917771+00:00",
+    "detail_json": "{\"phase\":\"readiness\",\"services\":[\"api\"]}",
+    "event": "COMPOSE_PHASE_START_INTENDED",
+    "event_id": 9,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:04.263863+00:00",
+    "detail_json": "{\"exit_code\":null,\"outcome\":\"NOT_RUN\",\"phase\":\"readiness\",\"services\":[\"api\"]}",
+    "event": "COMPOSE_PHASE_FINISHED",
+    "event_id": 10,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:06.580640+00:00",
+    "detail_json": "{\"sha256\":\"42f5d7439dcf14bd5e09fc99669bf17b8d3bdd5e9cd6dc9838fe452be0d79d29\"}",
+    "event": "COMPOSE_EVIDENCE_SEALED",
+    "event_id": 11,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:06.678479+00:00",
+    "detail_json": "{\"containers\":{\"api\":\"8ff31a27b98b8dbe5b3bbd8dbee6e356e070d34ff1a42ff379c18ccf5c31108c\",\"migrate\":\"d001d36b308d4ade2bafa2e3b14eba5cfe6f96110db2b07ee5e219e411114434\",\"test\":\"f9b5430304e1a9a0bf6d87af57539486ae91f69934d265a6489fb4bd34efaca2\"},\"network\":\"cac9b5d75e8dcc9b300f28131a6b3b3a38a7a7008e2dba1a923deaaf9798b4c3\",\"project\":\"cdr-compose-df97bf43-353f-4a02-88cb-9b72f43c6442\"}",
+    "event": "COMPOSE_TEARDOWN_INTENDED",
+    "event_id": 12,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:06.943648+00:00",
+    "detail_json": "{\"containers\":{\"api\":\"8ff31a27b98b8dbe5b3bbd8dbee6e356e070d34ff1a42ff379c18ccf5c31108c\",\"migrate\":\"d001d36b308d4ade2bafa2e3b14eba5cfe6f96110db2b07ee5e219e411114434\",\"test\":\"f9b5430304e1a9a0bf6d87af57539486ae91f69934d265a6489fb4bd34efaca2\"},\"network\":\"cac9b5d75e8dcc9b300f28131a6b3b3a38a7a7008e2dba1a923deaaf9798b4c3\"}",
+    "event": "COMPOSE_RESOURCES_REMOVED",
+    "event_id": 13,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:06.986168+00:00",
+    "detail_json": "{\"run_id\":\"df97bf43-353f-4a02-88cb-9b72f43c6442\"}",
+    "event": "COMPOSE_VOLUME_RELEASED",
+    "event_id": 14,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:07.057343+00:00",
+    "detail_json": "{\"bundle_path\":\"/tmp/cdr-compose-qualification-y84406pa/results/compose-canary/df97bf43-353f-4a02-88cb-9b72f43c6442/bundle\",\"bundle_sha256\":\"fc547a44e8c1f13954ca0282e928d8e478edacc117774b15c74a4ca73176a6eb\"}",
+    "event": "RESULT_SEALED",
+    "event_id": 15,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:07.074900+00:00",
+    "detail_json": "{\"bundle_sha256\":\"fc547a44e8c1f13954ca0282e928d8e478edacc117774b15c74a4ca73176a6eb\",\"code\":\"GITHUB_DELIVERY_NOT_CONFIGURED\",\"commit\":null,\"local_available\":true,\"local_locator\":\"/tmp/cdr-compose-qualification-y84406pa/results/compose-canary/df97bf43-353f-4a02-88cb-9b72f43c6442/bundle\",\"marker\":null,\"remote_head\":null,\"status\":\"LOCAL_ONLY\"}",
+    "event": "RESULT_DELIVERY",
+    "event_id": 16,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  },
+  {
+    "created_at": "2026-10-22T19:37:07.101885+00:00",
+    "detail_json": "{\"code\":\"COMPOSE_READINESS_FAILED\"}",
+    "event": "COMPLETED",
+    "event_id": 17,
+    "request_id": "df97bf43-353f-4a02-88cb-9b72f43c6442"
+  }
+]

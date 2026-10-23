@@ -1,0 +1,40 @@
+{
+  "action": "RUN_TASK",
+  "code": null,
+  "delivery": {
+    "bundle_sha256": "1701f457c794f1b0b3ae2e7f6387225cf62ad0505e16d43c5ad7b9fc18545221",
+    "code": "DELIVERED",
+    "commit": "b4d074858716917272195337544ce08b915cea1c",
+    "local_available": true,
+    "local_locator": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/6b254698-cdfd-4978-895c-0da4a7b39c56/bundle",
+    "marker": "bceb652c0f4b4e83bb6a1fe4bb1bf8c1",
+    "remote_head": "b4d074858716917272195337544ce08b915cea1c",
+    "status": "DELIVERED"
+  },
+  "execution": {
+    "cleanup": "CONFIRMED",
+    "exit_code": 0,
+    "outcome": "PASSED",
+    "quality_gate": "PASSED"
+  },
+  "project_id": "cdr-runner-test",
+  "request_digest": "b510c415925a22c9b1de3bf059f323eb73a1966bba1943ef43542418e47dcc61",
+  "request_id": "6b254698-cdfd-4978-895c-0da4a7b39c56",
+  "result": {
+    "branch": "runner/analytics-cc-20261023",
+    "bundle_path": "/home/visky/Work/GPTRunner/.runner-data/chat-dev-runner/projects-v2/cdr-runner-test/runner-results/local-runner/6b254698-cdfd-4978-895c-0da4a7b39c56/bundle",
+    "bundle_sha256": "1701f457c794f1b0b3ae2e7f6387225cf62ad0505e16d43c5ad7b9fc18545221"
+  },
+  "runner_id": "local-runner",
+  "schema_version": 1,
+  "source": {
+    "branch": "runner/analytics-cc-20261023",
+    "commit": "1b4396078906115c6715eb1f152ebef728e09d87",
+    "dirty": false,
+    "kind": "github_branch",
+    "overlay_sha256": null,
+    "workload_sha256": "ae192d104a185cc5056476db30b8888a9c1de3bbe46b2c8ff47d4e4a8a43042a"
+  },
+  "status": "COMPLETED",
+  "updated_at": "2026-10-22T21:16:53.894107+00:00"
+}

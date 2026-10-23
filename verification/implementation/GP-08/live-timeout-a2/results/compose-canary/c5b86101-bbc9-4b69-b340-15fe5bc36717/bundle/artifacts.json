@@ -1,0 +1,62 @@
+[
+  {
+    "availability": "MISSING",
+    "bytes": 0,
+    "complete": false,
+    "format": "junit-xml",
+    "id": "junit",
+    "kind": "test_result",
+    "local_path": null,
+    "reason": "OUTPUT_MISSING_OR_UNSAFE",
+    "remote_path": null,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "availability": "LOCAL_ONLY",
+    "bytes": 36,
+    "complete": true,
+    "format": "json",
+    "id": "partial",
+    "kind": "report",
+    "local_path": "/tmp/cdr-compose-qualification-d47kqcv6/results/compose-canary/c5b86101-bbc9-4b69-b340-15fe5bc36717/originals/partial/partial.json",
+    "reason": "LOCAL_ONLY_POLICY",
+    "remote_path": null,
+    "sha256": "a3526ba0e2c686fc62d051135f911a3562e84b21092a74a0f2c3892c9a2edadd"
+  },
+  {
+    "availability": "MISSING",
+    "bytes": 0,
+    "complete": false,
+    "format": "json",
+    "id": "answer",
+    "kind": "report",
+    "local_path": null,
+    "reason": "OUTPUT_MISSING_OR_UNSAFE",
+    "remote_path": null,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "availability": "LOCAL_ONLY",
+    "bytes": 90,
+    "complete": true,
+    "format": "raw-bytes",
+    "id": "container-stdout",
+    "kind": "console",
+    "local_path": "/tmp/cdr-compose-qualification-d47kqcv6/results/compose-canary/c5b86101-bbc9-4b69-b340-15fe5bc36717/originals/container-stdout/container-stdout.bin",
+    "reason": "PUBLICATION_PENDING",
+    "remote_path": "artifacts/container-stdout/container-stdout.bin",
+    "sha256": "b3e6edb268ee5ff71a9118336f6be8fcaae8ea12d85b67dd00f8837ea8de66b6"
+  },
+  {
+    "availability": "LOCAL_ONLY",
+    "bytes": 323,
+    "complete": true,
+    "format": "raw-bytes",
+    "id": "container-stderr",
+    "kind": "console",
+    "local_path": "/tmp/cdr-compose-qualification-d47kqcv6/results/compose-canary/c5b86101-bbc9-4b69-b340-15fe5bc36717/originals/container-stderr/container-stderr.bin",
+    "reason": "PUBLICATION_PENDING",
+    "remote_path": "artifacts/container-stderr/container-stderr.bin",
+    "sha256": "8f5cabf54da2040bbe9053c59e8a2ad608221675ce040fddd8235dfb82032b51"
+  }
+]

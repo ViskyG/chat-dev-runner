@@ -1,0 +1,6 @@
+{
+  "actual": "SOURCE_FILE_COUNT_LIMIT",
+  "credential_reads": 0,
+  "max_files": 3,
+  "scope": "local scratch model; six tracked files, one workload file and five controller-owned files"
+}

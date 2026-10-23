@@ -1,0 +1,8 @@
+{
+  "scope": "Existing isolated Compose fixture; no Docker calls",
+  "injected_boundary": "test really ran before lost start response",
+  "reported_outcome": "NOT_RUN",
+  "reported_test_started": false,
+  "produced_test_report": true,
+  "cleanup_verified": true
+}

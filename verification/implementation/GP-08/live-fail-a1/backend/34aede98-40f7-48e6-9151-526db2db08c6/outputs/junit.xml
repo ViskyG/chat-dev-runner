@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite tests="2" failures="1" errors="0" skipped="0"><testcase classname="compose.Integration" name="test_service_health_and_answer" /><testcase classname="compose.Integration" name="test_database_migration"><failure>Traceback (most recent call last):
+  File "/src/client.py", line 25, in test_database_migration
+    self.assertEqual(database.execute("SELECT answer FROM example").fetchone()[0],
+AssertionError: 42 != 99
+</failure></testcase></testsuite>

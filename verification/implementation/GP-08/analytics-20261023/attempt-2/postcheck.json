@@ -1,0 +1,50 @@
+{
+  "request_id": "d62882a6-ebe1-48e3-af09-b4d10c631f88",
+  "daemon_id": "7ccec57e-4bca-4a3c-910a-acc924d2180f",
+  "absent_container_ids": {
+    "control-center": "1deb48cd003429bf94fb1d2aa074df0425772dc96ff47c6f1d960c97c7180e21",
+    "ui-contract": "47b669d0a5a6a6b470ec2b2a06586ab20bc08324aff7cc55f2e5e1c4f1c93a39"
+  },
+  "absent_network_id": "4528d241e8b1659a5f2cc247f2b4e480a4169478457ebbdbfde74cf4d4d5eb86",
+  "no_project_labelled_resources": true,
+  "quota_mount_and_directory_absent": true,
+  "state": {
+    "armed": 1,
+    "lane_rows": 0,
+    "v1_operations": 26,
+    "v2_requests": 12,
+    "continuous_channels": 10
+  },
+  "log": {
+    "path": "ui-contract.log",
+    "limit_bytes": 4194304,
+    "observed_bytes": 9265,
+    "stored_bytes": 9265,
+    "truncated": false
+  },
+  "release_version": "0.8.1",
+  "image_ids": {
+    "ghcr.io/viskyg/analytics-control-center@sha256:2e3c72d7d4f8055be84264699a79a82e87b0933cbc9e6fbfa3021febefbc5b66": "sha256:2e3c72d7d4f8055be84264699a79a82e87b0933cbc9e6fbfa3021febefbc5b66",
+    "ghcr.io/viskyg/analytics-control-center@sha256:7d22e86236895bbf1eb499caa4491fa4af24796bce6dbfb7adf05cc9d6c791e1": "sha256:7d22e86236895bbf1eb499caa4491fa4af24796bce6dbfb7adf05cc9d6c791e1"
+  },
+  "timings_seconds": {
+    "submission_to_reserved": 5.042,
+    "ack_to_queue": 7.432,
+    "start_to_running": 1.091,
+    "browser_contract": 67.913,
+    "bundle_seal_to_delivery": 20.022,
+    "completion_to_remote_terminal": 10.053,
+    "submission_to_completed": 106.24,
+    "submission_to_remote_terminal": 116.293
+  },
+  "resources": {
+    "sampled_shared_quota_peak_bytes": 263028736,
+    "quota_bytes": 1073741824,
+    "ui_cgroup_memory_peak_bytes": 1383104512,
+    "ui_cgroup_pids_peak": 110,
+    "memory_events_unchanged": true,
+    "pids_events_unchanged": true
+  },
+  "warnings": [],
+  "source_and_github_bundle": "Independently read back by completed observer; see github-bundle-readback.json"
+}

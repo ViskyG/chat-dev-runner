@@ -1,0 +1,15 @@
+[
+  {
+    "argv": [
+      "python",
+      "/src/client.py",
+      "timeout"
+    ],
+    "cleanup_verified": true,
+    "duration_seconds": 8.026237849000609,
+    "exit_code": null,
+    "outcome": "TIMED_OUT",
+    "phase": "test",
+    "step": "compose-test"
+  }
+]

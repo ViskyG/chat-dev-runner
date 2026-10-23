@@ -1,0 +1,7 @@
+{
+  "scope": "scratch model of exact _wait control path, no Docker calls",
+  "requested_timeout_seconds": 1,
+  "clock_after_daemon_probe_seconds": 2.0,
+  "reported_outcome": "PASSED",
+  "reported_exit_code": 0
+}

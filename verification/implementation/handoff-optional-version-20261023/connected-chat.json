@@ -1,0 +1,115 @@
+{
+  "route": "CONNECTED_CHAT_ONLY",
+  "sender_sdk_metadata_used": false,
+  "drive_version_supplied": false,
+  "draft_revision": "AHj4eMSpiP9iMO0jTCHLVxQAALNzKhD7N4WEsbqe6FBTkpjX55fsO1jTjDCnG_FpDGfl8dkPXWGTVvAXxpV_BKB-z4Cy9pVhbQcxByFVMm0",
+  "ready_revision": "AHj4eMQEb_SgEJgRKpi9XK62MfVrrA3Bo_r7HM5aOZHLEsN5zrKHJVgad5IOzMw75it9ctWWCVxVyagLAg7NshOdiCNRpdiY1ScVKMglF8E",
+  "submitted_slot_token": "a16383de-a319-4959-afa4-7925cf150629",
+  "draft": {
+    "dispatch": "DRAFT",
+    "project_id": "projectworkspace",
+    "protocol": "cdr-mailbox/2",
+    "receipt": null,
+    "request": {
+      "request_id": "8529b18c-94ba-49bd-9a23-49424159290e",
+      "action": "DELIVER_HANDOFF",
+      "handoff": {
+        "protocol": "cdr-handoff/1",
+        "handoff_id": "3aae836b-d567-4281-ad45-8d1bb1d03e0b",
+        "project_id": "projectworkspace",
+        "target_id": "editor-handoff",
+        "purpose": "reference",
+        "title": "Automatic ChatGPT delivery without sender Drive version",
+        "base_commit": null,
+        "entrypoint": {
+          "artifact_id": "verification",
+          "path": "handoff-check/START.md"
+        },
+        "artifacts": [
+          {
+            "artifact_id": "verification",
+            "drive_file_id": "1a3fMQJxYid6zDYpcjZFjSGhoAxdBHp5h",
+            "filename": "automatic-chat-handoff.zip",
+            "size_bytes": 451,
+            "sha256": "167ee5e69ef6edd0e8e051746f2298b8de0efce46712cbbee567b60b724a312b",
+            "media_type": "application/zip",
+            "unpack": "zip"
+          }
+        ]
+      }
+    },
+    "runner_id": "local-runner",
+    "slot_token": "a16383de-a319-4959-afa4-7925cf150629"
+  },
+  "ack": {
+    "dispatch": "ACCEPTED",
+    "project_id": "projectworkspace",
+    "protocol": "cdr-mailbox/2",
+    "receipt": {
+      "accepted_slot_token": "a16383de-a319-4959-afa4-7925cf150629",
+      "code": null,
+      "payload_sha256": "0acc0a9d51ddb5396b39735b7fb90d83a3981e529503e694fe08c0e83a904cd7",
+      "queue_sequence": null,
+      "request_id": "8529b18c-94ba-49bd-9a23-49424159290e",
+      "status": "ACCEPTED"
+    },
+    "request": {
+      "action": "DELIVER_HANDOFF",
+      "handoff": {
+        "artifacts": [
+          {
+            "artifact_id": "verification",
+            "drive_file_id": "1a3fMQJxYid6zDYpcjZFjSGhoAxdBHp5h",
+            "filename": "automatic-chat-handoff.zip",
+            "media_type": "application/zip",
+            "sha256": "167ee5e69ef6edd0e8e051746f2298b8de0efce46712cbbee567b60b724a312b",
+            "size_bytes": 451,
+            "unpack": "zip"
+          }
+        ],
+        "base_commit": null,
+        "entrypoint": {
+          "artifact_id": "verification",
+          "path": "handoff-check/START.md"
+        },
+        "handoff_id": "3aae836b-d567-4281-ad45-8d1bb1d03e0b",
+        "project_id": "projectworkspace",
+        "protocol": "cdr-handoff/1",
+        "purpose": "reference",
+        "target_id": "editor-handoff",
+        "title": "Automatic ChatGPT delivery without sender Drive version"
+      },
+      "request_id": "8529b18c-94ba-49bd-9a23-49424159290e"
+    },
+    "runner_id": "local-runner",
+    "slot_token": "bef30f2a-3ea0-44a9-9cae-d79de728ec87"
+  },
+  "result": {
+    "action": "DELIVER_HANDOFF",
+    "code": null,
+    "codex_prompt": "В текущем проекте прочитай `.runner/handoffs/3aae836b-d567-4281-ad45-8d1bb1d03e0b/START_HERE.md`, затем указанную там точку входа. Сверь пакет с текущим кодом и выполни согласованную задачу. Не заменяй корневые инструкции и конфигурацию простым копированием архива.\n",
+    "handoff": {
+      "codex_entrypoint": ".runner/handoffs/3aae836b-d567-4281-ad45-8d1bb1d03e0b/START_HERE.md",
+      "delivery_receipt": ".runner/handoffs/3aae836b-d567-4281-ad45-8d1bb1d03e0b/delivery.json",
+      "files_count": 1,
+      "handoff_id": "3aae836b-d567-4281-ad45-8d1bb1d03e0b",
+      "inbox_visible_in_git": true,
+      "local_delivery_status": "DELIVERED",
+      "manifest_sha256": "9366a5b98e5f2c32aecac547649acad6b6935eafd531adaf94e8f721e87b4cad",
+      "project_id": "projectworkspace",
+      "safe_relative_handoff_path": ".runner/handoffs/3aae836b-d567-4281-ad45-8d1bb1d03e0b",
+      "target_id": "editor-handoff"
+    },
+    "operation_status": "COMPLETED",
+    "project_id": "projectworkspace",
+    "protocol": "cdr-handoff-state/1",
+    "request_digest": "0acc0a9d51ddb5396b39735b7fb90d83a3981e529503e694fe08c0e83a904cd7",
+    "request_id": "8529b18c-94ba-49bd-9a23-49424159290e",
+    "runner_id": "local-runner",
+    "schema_version": 1,
+    "status": "DELIVERED",
+    "updated_at": "2026-10-23T19:47:06.737607+00:00"
+  },
+  "enrollment_tab_unchanged": true,
+  "terminal_document_url": "https://docs.google.com/document/d/18T8ZU16K56Jq7vUrczBI2LY7bzPzg3hK8fsvRXX7qqU"
+}

@@ -173,3 +173,20 @@ def test_refresh_and_header_application_share_one_credential_lock() -> None:
 def test_google_builder_requires_credentials() -> None:
     with pytest.raises(ValueError, match="credentials are required"):
         transport_module.isolated_request_builder(None)
+
+
+def test_live_provider_factory_uses_one_isolated_builder_for_drive_and_docs(monkeypatch):
+    import runner_app.adapters.drive_check as check
+
+    calls = []
+    builder = object()
+    monkeypatch.setattr(transport_module, 'isolated_request_builder', lambda _: builder)
+
+    def build(api, version, **options):
+        calls.append((api, options))
+        return object()
+
+    monkeypatch.setattr(check, 'import_module', lambda _: SimpleNamespace(build=build))
+    check._build_provider(object())
+    assert [api for api, _ in calls] == ['drive', 'docs']
+    assert all(options['requestBuilder'] is builder for _, options in calls)
