@@ -1,11 +1,12 @@
 # Runner v2 operations — Linux preview / предварительные инструкции
 
-**Linux preview, installed package 0.3.0.dev4.** The [runtime audit](AUDIT_2026-10-22.md)
-adds independent mailbox polling and the finite Compose backend. Handoff delivery passed one real
-ZIP+text transfer with a matching connected-chat terminal Docs receipt. Upload
-and guarded Docs authoring are verified; file version metadata was SDK-assisted
-because the connected metadata action omits it. Full automatic metadata
-authoring remains unqualified; see [H2](../codex/checkpoints/handoff/H2.md).
+**Linux preview, installed package 0.3.0.dev6.** The [runtime audit](AUDIT_2026-10-22.md)
+adds independent mailbox polling and the finite Compose backend. Handoff delivery
+passed a connector-only ZIP upload, guarded Docs DRAFT/READY and terminal readback
+with no sender `drive_version` or SDK metadata helper. Runner pins the API version
+before download and checks it afterward; see [H3](../codex/checkpoints/handoff/H3.md).
+The earlier assisted ZIP+text transfer remains historical evidence in
+[H2](../codex/checkpoints/handoff/H2.md).
 Earlier installed-wheel upgrade/rollback and existing v1 readback are recorded
 under `verification/implementation/GP-07/release`.
 Provider and target qualification remains specific to its evidence. On 2026-10-16,

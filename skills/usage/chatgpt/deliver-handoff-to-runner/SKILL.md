@@ -3,9 +3,9 @@ name: deliver-handoff-to-runner
 description: "Deliver an owner-authorized design, roadmap, implementation or asset package from ordinary ChatGPT to an enrolled local project through Drive and a registered Runner Docs command; do not execute or apply it."
 metadata:
   version: "0.3.0-Linux-preview"
-  status: "optional-drive-version-source"
+  status: "installed-Linux-automatic-connected-chat-verified"
   optional_drive_version_minimum_runner: "0.3.0.dev6"
-  reviewed_runner_commit: "d1e930a5ebdf87f5ab64fb70914420b6d18db03b"
+  reviewed_runner_commit: "f60e26e16704ffe12b52cf331883edd9935da1ab"
 ---
 
 # Deliver a handoff to Runner
@@ -22,7 +22,9 @@ Runner 0.3.0.dev6 supports omitted artifact versions and advertises
 `handoff_optional_drive_version: true`. Older installations require an observed
 sender version. Qualification remains specific to the installed version and
 actual upload, guarded Docs authoring and terminal readback.
-See [H2](../../../../codex/checkpoints/handoff/H2.md),
+The installed Linux dev6 route passed a connector-only ZIP transfer without a
+sender version or SDK metadata helper. See [H3](../../../../codex/checkpoints/handoff/H3.md)
+for current evidence and [H2](../../../../codex/checkpoints/handoff/H2.md) for the older assisted route,
 [provenance](../../PROVENANCE.json) and [Russian](SKILL.ru.md).
 
 ## Resolve the installed contract and recipient
