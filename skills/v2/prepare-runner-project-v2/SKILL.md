@@ -2,7 +2,7 @@
 name: prepare-runner-project-v2
 description: Prepare this project's existing codebase for enrolled Runner v2 tasks, explicit native or fixed Python rootless profiles, recognized outputs and truthful target qualification.
 metadata:
-  version: "2.0.0-source-preview"
+  version: "2.0.1-source-preview"
   state: source-preview
 ---
 # Prepare an existing project for Runner v2 — source preview
@@ -12,6 +12,15 @@ AGENTS, manifests/tests/CI and the actual enrolled capabilities. Consult
 [V2 operations](../../../docs/V2_OPERATIONS.md), “Project preparation” and the
 owner configuration fields; [Russian text](SKILL.ru.md) is the companion.
 This source does not establish a live enrollment or install a global skill.
+
+On first project enrollment or adoption, inspect the existing
+`.project/passport.json` identity. If absent, follow the
+[shared project-passport skill](https://github.com/ViskyG/agent-skills/blob/main/skills/shared/project-passport/SKILL.md)
+within the authorized project scope; preserve the real Runner `project_id`
+under `bindings.runner` without renaming it. The passport supplies the human
+title, not Runner execution authority. Do not insert `name`, `title` or
+`display_name` into `cdr-runtime/2`: this runtime parser does not accept them.
+A pending passport does not block an otherwise approved finite test.
 
 Identify project/runner, branch or registered local workspace, language/package
 manager, exact tool paths, target OS/backend, real report format and required
