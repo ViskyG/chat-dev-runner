@@ -56,5 +56,4 @@ Return applied scope, exact tested source/environment, enrolled task/profile,
 concrete reusable slot, output locations and remaining gates. A manifest alone
 is not deployment acceptance or permission to send a sample READY command.
 
-Provenance: [unchanged design](../../../design/github-native-v2/skills/prepare-runner-project/SKILL.md)
-and [hash index](../PROVENANCE.json).
+Originally adapted from [the design skill](../../../design/github-native-v2/skills/prepare-runner-project/SKILL.md); this version adds the shared passport onboarding rule. Historical hashes remain in [provenance](../PROVENANCE.json).
