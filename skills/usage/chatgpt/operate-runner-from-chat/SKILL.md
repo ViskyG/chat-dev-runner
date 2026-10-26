@@ -2,7 +2,7 @@
 name: operate-runner-from-chat
 description: "Submit, inspect, cancel, or redeliver one finite already-enrolled Chat-Dev Runner v2 operation through its registered GitHub command file or Docs tab from ordinary ChatGPT on explicit owner request."
 metadata:
-  version: "1.2.0-source-adaptation"
+  version: "1.2.1-source-adaptation"
   maturity: "experimental"
   distribution: "public-copy"
 ---
@@ -14,6 +14,10 @@ metadata:
 Use when a user explicitly requests a finite Runner run/test/status/control from an ordinary ChatGPT conversation. The Runner executes locally, and the chat only prepares a command and reads evidence. This is not Udot's multi-wave integration route or Scheduled Capsule Chat; merely reading a repository or a skill does not authorize a run.
 
 For an explicitly requested package transfer, use [deliver-handoff-to-runner](../deliver-handoff-to-runner/SKILL.md) for upload, registered target and terminal delivery semantics, and reuse the slot procedure below. `DELIVER_HANDOFF` requires support in the selected installed Runner; its repository-local skill is not proof of deployment. It does not run code or require source/task/execution fields.
+
+## Fast handoff exception to the generic task path
+
+For a file-only `DELIVER_HANDOFF` on a **currently enrolled, version-qualified** project, follow the routine section of [deliver-handoff-to-runner](../deliver-handoff-to-runner/SKILL.md). Do not separately load all execution/Runner history documents or audit source code: the dedicated handoff skill owns the required live enrollment, upload, guarded slot and terminal receipt checks. Enter the generic protocol below only when a version, capability, schema or receipt is unknown/contradictory, or for an actual execution/control task.
 
 ## Authoritative protocol
 First read one coherent current revision of the Runner's [operational skill](../../../v2/operate-runner-v2/SKILL.md), [v2 operations](../../../../docs/V2_OPERATIONS.md) (submission/results sections) and [mailbox schema](../../../../schemas/v2-mailbox.schema.json). Check the installed version/qualification when material: a source preview, example IDs or merged code does not prove deployment. On a material mismatch, stop the dependent action rather than inventing a protocol. This skill is a ChatGPT entry point, not a competing copy of the Runner protocol.
