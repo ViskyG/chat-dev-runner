@@ -1,0 +1,26 @@
+{
+  "schema": "project-passport/1",
+  "id": "chat-dev-runner",
+  "name": "Chat-Dev Runner",
+  "summary": "Локальный сервис, через который чат передаёт конечные задачи разработки на собственный компьютер: Runner получает зарегистрированные исходники из GitHub или рабочей области, выполняет разрешённые команды и возвращает журналы, отчёты тестов и артефакты через GitHub или Google Docs.",
+  "kind": "infrastructure",
+  "workflow": {
+    "profile": "standard"
+  },
+  "references": {
+    "overview": "README.md",
+    "engineering": "AGENTS.md",
+    "architecture": "docs/ARCHITECTURE.md"
+  },
+  "repositories": [
+    {
+      "role": "primary",
+      "url": "https://github.com/ViskyG/chat-dev-runner"
+    }
+  ],
+  "tags": [
+    "runner",
+    "development",
+    "local"
+  ]
+}
