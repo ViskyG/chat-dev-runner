@@ -25,6 +25,17 @@ no clone or local binding. Do not silently substitute a managed copy for a
 requested folder. Reconcile existing resources by ID before creating missing
 ones; names alone are not proof.
 
+**One-time physical destination check for project file handoffs:** on the owner's
+machine, resolve `workspaces[workspace_id].path` and compare it to the actual
+project root the owner asked to maintain. For a Git checkout, confirm its real
+Git top level and intended repository/upstream; do not treat a directory name,
+`project_id`, generic `editor` workspace, or a Runner-managed checkout as proof.
+Preserve unrelated worktrees and edits. This identity check belongs to initial
+enrollment and later *binding changes*, not every routine file transfer. Keep
+private absolute paths in the local registration evidence, not the shared Drive
+catalog. A remote chat that sees only an enrollment ID must report physical
+placement as unverified until that local check has been established.
+
 ### 2. Verify GitHub and runtime identities
 
 When GitHub is requested, create or adopt the intended repository under the
@@ -81,7 +92,11 @@ When handoffs are requested, initialize the dedicated result tab empty or with
 For local handoffs, bind `project.handoff_targets[target_id]` to its registered `workspace_id`, exact
 `allowed_drive_parents` and paired `result_document_id`/`result_tab_id`. The local
 inbox is the visible `handoffs/` on Runner 0.3.0.dev7+; old receipts may still
-point to `.runner/handoffs/`. The chat does not choose a host path. For either
+point to `.runner/handoffs/`. This path is **relative to the enrolled
+`workspaces[workspace_id].path`**: for project-local handoffs that must be the
+verified owner-selected project root, not the Runner service or an unrelated
+managed workspace. The chat does not choose a host path or arbitrary subfolder;
+that would need a separately supported Runner operation. For either
 Docs route, add the project's `provider: drive` mailbox with exact command `document_id`/`tab_id`.
 Result Docs must be separate from every command Doc. Preserve all other targets,
 mailboxes, profile grants and limits; registration does not add execution rights.
@@ -105,7 +120,10 @@ only when the actual service/schema procedure requires it; config-only enrollmen
 does not change binaries/schema. Allow normal startup baselining, then read actual
 runtime status: requested project/workspace/target bindings match, intake is armed
 unless a real reconciliation gate blocks it, and each requested new channel has
-a healthy idle observation.
+a healthy idle observation. For a project-folder handoff, also verify the
+local configured workspace-to-project-root mapping, without submitting a
+sample transfer. Record the outcome for reuse by later transfers and distinguish
+`ENROLLED` from `PROJECT_ROOT_VERIFIED`.
 Compare prior channels to their baseline; preserve healthy channels and report
 pre-existing outages separately without expanding this task into their repair.
 Check no workload was submitted by registration. On failure, retain partial-state evidence and
@@ -180,6 +198,16 @@ dirty/untracked и правила включения. Для источника 
 копией. До создания недостающих ресурсов сверить существующие по ID; совпадения
 имени недостаточно.
 
+**Однократная проверка назначения для передачи файлов:** локально разрешить
+`workspaces[workspace_id].path` и сверить его с фактическим корнем проекта,
+который указал владелец. Для Git проверить реальный top-level и нужный
+репозиторий/upstream. Имя папки, `project_id`, типовой workspace `editor`
+или рабочая копия внутри Runner не доказывают совпадения. Сохранить чужие
+worktrees и незакоммиченные изменения. Проверять при регистрации и изменении
+привязки, а не во время каждой обычной передачи. Приватный абсолютный путь
+оставить в локальном свидетельстве регистрации, не публиковать в Drive.
+Если чат видит только ID, фактическое размещение остаётся непроверенным.
+
 ### 2. Проверить GitHub и runtime-привязки
 
 Если запрошен GitHub, создать или подключить нужный репозиторий с действующей
@@ -237,7 +265,11 @@ Runner либо проверенный явный доступ приложен�
 Для локальных handoff связать `project.handoff_targets[target_id]` с зарегистрированным `workspace_id`,
 точными `allowed_drive_parents` и парой `result_document_id`/`result_tab_id`.
 Локальный inbox с Runner 0.3.0.dev7 — видимый `handoffs/`; старые квитанции
-могут указывать на `.runner/handoffs/`. Чат не задаёт путь на машине. Для обоих
+могут указывать на `.runner/handoffs/`. Путь считается **относительно
+`workspaces[workspace_id].path`**: для проектной доставки он должен указывать
+на проверенный владельцем корень нужного проекта, а не каталог службы Runner.
+Чат не задаёт путь на машине или произвольную подпапку; для этого потребуется
+отдельная возможность самого Runner. Для обоих
 Docs-маршрутов добавить mailbox проекта с `provider: drive` и точными command `document_id`/`tab_id`.
 Result Doc должен отличаться от всех command Docs. Сохранить остальные targets,
 mailboxes, grants профилей и лимиты; регистрация не добавляет права исполнения.
@@ -260,7 +292,10 @@ reload-механизмом установленной службы; если е
 Дать завершиться штатному baseline при запуске, затем прочитать runtime status:
 запрошенные привязки project/workspace/target совпадают, приём armed, если нет
 настоящего reconciliation gate, каждый запрошенный новый канал даёт здоровое
-idle-наблюдение. Сравнить прежние каналы с исходным
+idle-наблюдение. Для проектной передачи также локально проверить соответствие
+workspace реальному каталогу проекта без пробного запуска и сохранить
+свидетельство для будущих отправок. Различать статусы `ENROLLED` и
+`PROJECT_ROOT_VERIFIED`. Сравнить прежние каналы с исходным
 состоянием, сохранить здоровые, отдельно сообщить о ранее существовавших сбоях,
 не расширяя задачу до их исправления. Проверить, что регистрация не отправляла задач. При
 ошибке сохранить сведения о частичном состоянии и выполнить подготовленный откат
